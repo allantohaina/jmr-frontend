@@ -40,17 +40,24 @@ export default function NosServicesPage() {
       <ol className="services-flow" aria-label="Etapes du service">
         {SERVICE_STEPS.map((step, index) => (
           <li className="services-flow__step" key={step.key}>
-            <p className="services-flow__label">{step.title}</p>
-            <div
-              className={`services-flow__media services-flow__media--${step.key}`}
-              role="img"
-              aria-label={step.alt}
-            />
-            {index < SERVICE_STEPS.length - 1 ? (
-              <span className="services-flow__arrow" aria-hidden="true">
-                ⇄
+            <p className="services-flow__label">
+              <span className="services-flow__index" aria-hidden="true">
+                {index + 1}.
               </span>
-            ) : null}
+              <span className="services-flow__title">{step.title}</span>
+            </p>
+            <div className="services-flow__media-wrap">
+              <div
+                className={`services-flow__media services-flow__media--${step.key}`}
+                role="img"
+                aria-label={step.alt}
+              />
+              {index < SERVICE_STEPS.length - 1 ? (
+                <span className="services-flow__arrow" aria-hidden="true">
+                  ⇄
+                </span>
+              ) : null}
+            </div>
           </li>
         ))}
       </ol>

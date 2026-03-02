@@ -25,14 +25,14 @@ const NAV_ITEMS: NavItem[] = [
     icon: "/navbar/navbar-project.svg",
   },
   {
-    href: "/mon-profil",
-    label: "Mon profil",
-    icon: "/navbar/navbar-profile.svg",
-  },
-  {
     href: "/nos-services",
     label: "Nos services",
     icon: "/navbar/navbar-services.svg",
+  },
+  {
+    href: "/mon-profil",
+    label: "Mon profil",
+    icon: "/navbar/navbar-profile.svg",
   },
   {
     href: "/a-propos",
@@ -130,16 +130,17 @@ export function Navbar() {
 
       const controlRect = control.getBoundingClientRect();
       const triggerRect = trigger.getBoundingClientRect();
-      const iconElement = trigger.querySelector(".site-nav__icon--language");
-      const iconHeight = iconElement instanceof HTMLElement ? iconElement.offsetHeight : 42;
+      const navElement = control.closest(".site-nav");
+      const navRect =
+        navElement instanceof HTMLElement ? navElement.getBoundingClientRect() : triggerRect;
       const menuWidth = menu.offsetWidth;
-      const viewportPadding = 12;
-      const desiredLeft = triggerRect.left + triggerRect.width / 2 - menuWidth / 2;
-      const maxLeft = Math.max(viewportPadding, window.innerWidth - viewportPadding - menuWidth);
-      const clampedLeft = Math.min(Math.max(desiredLeft, viewportPadding), maxLeft);
+      const viewportPadding = 16;
+      const pinnedLeft = window.innerWidth - viewportPadding - menuWidth;
+      const clampedLeft = Math.max(viewportPadding, pinnedLeft);
+      const desiredTop = navRect.bottom - controlRect.top + 12;
 
       menu.style.left = `${clampedLeft - controlRect.left}px`;
-      menu.style.top = `${iconHeight + 8}px`;
+      menu.style.top = `${desiredTop}px`;
     };
 
     const frameId = window.requestAnimationFrame(positionLanguageMenu);
