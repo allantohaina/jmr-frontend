@@ -1,166 +1,168 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 type NavItem = {
-  href: string;
+  route: string;
+  sectionId: string;
   label: string;
   icon: string;
-};
-
-type LanguageCode = "fr" | "en";
-
-type LanguageOption = {
-  value: LanguageCode;
-  label: string;
+  homeAnchor?: boolean;
+  adminOnly?: boolean;
 };
 
 const NAV_ITEMS: NavItem[] = [
   {
-    href: "/suivi-projet",
-    label: "Suivi de projet",
+    route: "/",
+    sectionId: "accueil",
+    label: "Accueil",
     icon: "/navbar/navbar-project.svg",
+    homeAnchor: true,
   },
   {
-    href: "/nos-services",
+    route: "/",
+    sectionId: "nos-services",
     label: "Nos services",
     icon: "/navbar/navbar-services.svg",
+    homeAnchor: true,
   },
   {
-    href: "/mon-profil",
-    label: "Mon profil",
-    icon: "/navbar/navbar-profile.svg",
-  },
-  {
-    href: "/a-propos",
+    route: "/",
+    sectionId: "a-propos",
     label: "A propos",
     icon: "/navbar/navbar-about.svg",
+    homeAnchor: true,
+  },
+  {
+    route: "/",
+    sectionId: "acces-client",
+    label: "Espace client",
+    icon: "/navbar/navbar-profile.svg",
+    homeAnchor: true,
+  },
+  {
+    route: "/admin",
+    sectionId: "admin",
+    label: "Admin",
+    icon: "/analytics_chart.svg",
+    adminOnly: true,
   },
 ];
 
-const LANGUAGE_OPTIONS: LanguageOption[] = [
-  { value: "fr", label: "Francais" },
-  { value: "en", label: "English" },
-];
+function getNavItemHref(pathname: string, item: NavItem) {
+  if (pathname === "/" && item.homeAnchor) {
+    return `/#${item.sectionId}`;
+  }
 
-export function Navbar() {
+  return item.route;
+}
+
+function getNavItemAriaCurrent(pathname: string, activeHomeSection: string, item: NavItem) {
+  if (pathname === "/" && item.homeAnchor) {
+    return activeHomeSection === item.sectionId ? "location" : undefined;
+  }
+
+  return pathname === item.route ? "page" : undefined;
+}
+
+export function Navbar({
+  isSignedIn = false,
+  userFirstName,
+  userRole,
+}: {
+  isSignedIn?: boolean;
+  userFirstName?: string;
+  userRole?: string;
+}) {
   const pathname = usePathname();
+  const [activeHomeSection, setActiveHomeSection] = useState("accueil");
   const [isBrandLogoError, setIsBrandLogoError] = useState(false);
-  const [language, setLanguage] = useState<LanguageCode>("fr");
-  const [isLanguageHydrated, setIsLanguageHydrated] = useState(false);
-  const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
-  const languageControlRef = useRef<HTMLDivElement>(null);
-  const languageTriggerRef = useRef<HTMLButtonElement>(null);
-  const languageMenuRef = useRef<HTMLUListElement>(null);
-
-  const selectedLanguage =
-    LANGUAGE_OPTIONS.find((option) => option.value === language) ?? LANGUAGE_OPTIONS[0];
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isAdmin = userRole === "admin";
+  const visibleNavItems = NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin);
 
   useEffect(() => {
-    const syncPreferredLanguage = () => {
-      const storedLanguage = window.localStorage.getItem("site-language");
-      const preferredLanguage: LanguageCode =
-        storedLanguage === "fr" || storedLanguage === "en"
-          ? storedLanguage
-          : window.navigator.language.toLowerCase().startsWith("en")
-            ? "en"
-            : "fr";
-
-      setLanguage((currentLanguage) =>
-        currentLanguage === preferredLanguage ? currentLanguage : preferredLanguage,
-      );
-      setIsLanguageHydrated(true);
-    };
-
-    const timerId = window.setTimeout(syncPreferredLanguage, 0);
-
-    return () => {
-      window.clearTimeout(timerId);
-    };
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.lang = language;
-
-    if (!isLanguageHydrated) {
+    if (!isMenuOpen) {
       return;
     }
 
-    window.localStorage.setItem("site-language", language);
-  }, [language, isLanguageHydrated]);
-
-  useEffect(() => {
-    const handleDocumentMouseDown = (event: MouseEvent) => {
-      if (!languageControlRef.current?.contains(event.target as Node)) {
-        setIsLanguageMenuOpen(false);
-      }
-    };
-
-    const handleDocumentKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setIsLanguageMenuOpen(false);
+        setIsMenuOpen(false);
       }
     };
 
-    document.addEventListener("mousedown", handleDocumentMouseDown);
-    document.addEventListener("keydown", handleDocumentKeyDown);
-
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("mousedown", handleDocumentMouseDown);
-      document.removeEventListener("keydown", handleDocumentKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [isMenuOpen]);
 
   useEffect(() => {
-    if (!isLanguageMenuOpen) {
+    document.body.classList.toggle("nav-menu-open", isMenuOpen);
+
+    return () => {
+      document.body.classList.remove("nav-menu-open");
+    };
+  }, [isMenuOpen]);
+
+  useEffect(() => {
+    if (pathname !== "/") {
       return;
     }
 
-    const positionLanguageMenu = () => {
-      const control = languageControlRef.current;
-      const trigger = languageTriggerRef.current;
-      const menu = languageMenuRef.current;
+    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-nav-section]"));
 
-      if (!control || !trigger || !menu) {
-        return;
-      }
+    if (sections.length === 0) {
+      return;
+    }
 
-      const controlRect = control.getBoundingClientRect();
-      const triggerRect = trigger.getBoundingClientRect();
-      const navElement = control.closest(".site-nav");
-      const navRect =
-        navElement instanceof HTMLElement ? navElement.getBoundingClientRect() : triggerRect;
-      const menuWidth = menu.offsetWidth;
-      const viewportPadding = 16;
-      const pinnedLeft = window.innerWidth - viewportPadding - menuWidth;
-      const clampedLeft = Math.max(viewportPadding, pinnedLeft);
-      const desiredTop = navRect.bottom - controlRect.top + 12;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((left, right) => right.intersectionRatio - left.intersectionRatio);
 
-      menu.style.left = `${clampedLeft - controlRect.left}px`;
-      menu.style.top = `${desiredTop}px`;
-    };
+        if (visibleEntries.length === 0) {
+          return;
+        }
 
-    const frameId = window.requestAnimationFrame(positionLanguageMenu);
-    window.addEventListener("resize", positionLanguageMenu);
+        const currentSection = visibleEntries[0].target.getAttribute("data-nav-section");
+
+        if (currentSection) {
+          setActiveHomeSection(currentSection);
+        }
+      },
+      {
+        rootMargin: "-22% 0px -42% 0px",
+        threshold: [0.2, 0.45, 0.7],
+      },
+    );
+
+    sections.forEach((section) => observer.observe(section));
 
     return () => {
-      window.cancelAnimationFrame(frameId);
-      window.removeEventListener("resize", positionLanguageMenu);
+      observer.disconnect();
     };
-  }, [isLanguageMenuOpen, language]);
+  }, [pathname]);
 
   return (
     <nav className="site-nav" aria-label="Navigation principale">
-      <Link className="site-nav__brand" href="/" aria-label="Accueil JMR Textile">
+      <Link
+        className="site-nav__brand"
+        href="/#accueil"
+        aria-label="Accueil JMR Textile"
+        onClick={() => setIsMenuOpen(false)}
+      >
         {isBrandLogoError ? (
           <span className="site-nav__brand-fallback">JMR Textile</span>
         ) : (
           <Image
             className="site-nav__brand-logo"
-            src="/navbar/logo.svg?v=3"
+            src="/navbar/logo.svg"
             alt="JMR Textile"
             width={413}
             height={92}
@@ -171,15 +173,42 @@ export function Navbar() {
         )}
       </Link>
 
-      <ul className="site-nav__menu">
-        {NAV_ITEMS.map((item) => {
-          const isCurrent = pathname === item.href;
+      <button
+        className={`site-nav__menu-toggle${isMenuOpen ? " is-open" : ""}`}
+        type="button"
+        aria-expanded={isMenuOpen}
+        aria-controls="site-nav-menu"
+        onClick={() => setIsMenuOpen((open) => !open)}
+      >
+        <Image
+          className="site-nav__menu-toggle-icon"
+          src="/hamburger_menu.svg"
+          alt=""
+          aria-hidden="true"
+          width={22}
+          height={22}
+        />
+        <span className="site-nav__menu-toggle-label">{isMenuOpen ? "Fermer" : "Menu"}</span>
+      </button>
+
+      <ul className={`site-nav__menu${isMenuOpen ? " is-open" : ""}`} id="site-nav-menu">
+        {visibleNavItems.map((item) => {
+          const resolvedFirstName =
+            typeof userFirstName === "string" ? userFirstName.trim() : "";
+          const label =
+            item.route === "/mon-profil" && isSignedIn
+              ? resolvedFirstName || "Espace client"
+              : item.label;
+          const ariaCurrent = getNavItemAriaCurrent(pathname, activeHomeSection, item);
+          const isCurrent = ariaCurrent !== undefined;
 
           return (
-            <li className="site-nav__item" key={item.href}>
+            <li className="site-nav__item" key={item.sectionId}>
               <Link
                 className={`site-nav__link${isCurrent ? " is-current" : ""}`}
-                href={item.href}
+                href={getNavItemHref(pathname, item)}
+                aria-current={ariaCurrent}
+                onClick={() => setIsMenuOpen(false)}
               >
                 <Image
                   className="site-nav__icon"
@@ -189,7 +218,7 @@ export function Navbar() {
                   width={42}
                   height={42}
                 />
-                <span>{item.label}</span>
+                <span>{label}</span>
               </Link>
             </li>
           );
@@ -197,58 +226,18 @@ export function Navbar() {
 
         <li className="site-nav__item site-nav__item--language">
           <div
-            className={`site-nav__language-control${isLanguageMenuOpen ? " is-open" : ""}`}
-            ref={languageControlRef}
+            className="site-nav__language-trigger site-nav__language-trigger--static"
+            title="Version francaise disponible"
           >
-            <button
-              type="button"
-              className="site-nav__language-trigger"
-              aria-label="Choisir la langue"
-              aria-haspopup="menu"
-              aria-expanded={isLanguageMenuOpen}
-              ref={languageTriggerRef}
-              onClick={() => setIsLanguageMenuOpen((isOpen) => !isOpen)}
-            >
-              <Image
-                className="site-nav__icon site-nav__icon--language"
-                src="/navbar/navbar-language.svg"
-                alt=""
-                aria-hidden="true"
-                width={42}
-                height={42}
-              />
-              <span className="site-nav__language-name">{selectedLanguage.label}</span>
-            </button>
-
-            <ul
-              className="site-nav__language-menu"
-              role="menu"
-              aria-label="Liste des langues"
-              ref={languageMenuRef}
-            >
-              {LANGUAGE_OPTIONS.map((option) => {
-                const isCurrent = option.value === language;
-
-                return (
-                  <li className="site-nav__language-option" key={option.value} role="none">
-                    <button
-                      type="button"
-                      className={`site-nav__language-option-button${
-                        isCurrent ? " is-current" : ""
-                      }`}
-                      role="menuitemradio"
-                      aria-checked={isCurrent}
-                      onClick={() => {
-                        setLanguage(option.value);
-                        setIsLanguageMenuOpen(false);
-                      }}
-                    >
-                      {option.label}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+            <Image
+              className="site-nav__icon site-nav__icon--language"
+              src="/navbar/navbar-language.svg"
+              alt=""
+              aria-hidden="true"
+              width={42}
+              height={42}
+            />
+            <span className="site-nav__language-name">Francais</span>
           </div>
         </li>
       </ul>
