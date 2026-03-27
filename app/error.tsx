@@ -24,25 +24,17 @@ export default function Error({
       <div className="flex gap-4">
         <button
           onClick={() => reset()}
-          className="bg-[#172b44] text-white px-6 py-2 rounded-full font-medium"
+          className="bg-[#163526] text-white px-8 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg hover:bg-orange-500 transition-all"
         >
           Réessayer
         </button>
         <Link
           href="/"
-          className="bg-gray-200 text-[#172b44] px-6 py-2 rounded-full font-medium"
+          className="bg-white border border-[#163526]/10 text-[#163526] px-8 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-[#163526]/5 transition-all"
         >
           Retour à l&apos;accueil
         </Link>
       </div>
-      
-      {process.env.NODE_ENV === "development" && (
-        <div className="mt-12 p-4 bg-red-50 text-red-700 text-left rounded-lg overflow-auto max-w-2xl w-full">
-          <p className="font-mono text-sm font-bold mb-2">Debug Error Info (Dev Only):</p>
-          <pre className="text-xs whitespace-pre-wrap">{error.message}</pre>
-          <pre className="text-xs mt-2 text-gray-400">{error.stack}</pre>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { getCurrentUser, getIsSignedIn } from "./lib/auth";
+import { getCurrentUser, getIsSignedIn } from "./lib/auth-server";
 import { NotificationsSection } from "./components/notifications-section";
 import { AuthAccessSection } from "./components/auth-access-section";
 import { HeroSection } from "./components/stitch/hero-section";
@@ -7,14 +7,15 @@ import { AboutSection } from "./components/stitch/about-section";
 
 export default async function HomePage() {
   const [isSignedIn, user] = await Promise.all([getIsSignedIn(), getCurrentUser()]);
+  const isAdmin = user?.role === "admin";
 
   return (
     <>
-      <HeroSection />
+      <HeroSection isAdmin={isAdmin} />
 
-      <ServicesSection />
+      <ServicesSection isAdmin={isAdmin} />
 
-      <AboutSection />
+      <AboutSection isAdmin={isAdmin} />
 
       {/* Client Access Section */}
       <section className="px-6 md:px-12 py-20" data-nav-section="acces-client" id="acces-client">

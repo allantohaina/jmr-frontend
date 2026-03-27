@@ -1,75 +1,95 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { sendQuoteRequest } from "../actions/quotes";
 
-export function DemandeDevisSection() {
+function QuoteFormContent() {
+  const searchParams = useSearchParams();
+  const modifyCode = searchParams.get("modify");
+
   return (
-    <div className="quote-page">
-      <section className="quote-page__hero" aria-labelledby="demande-devis-title">
-        <div className="quote-page__hero-background" aria-hidden="true">
-          <Image
-            className="quote-page__hero-background-image"
-            src="/human_images/08_salle_machines_coudre.jpg"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-          />
-          <div className="quote-page__hero-overlay" />
-        </div>
-
-        <div className="quote-page__hero-inner">
-          <p className="quote-page__hero-kicker">Savoir-faire textile industriel</p>
-          <h1 className="quote-page__hero-title" id="demande-devis-title">
-            L&apos;excellence au coeur de chaque <span>fil.</span>
-          </h1>
-          <p className="quote-page__hero-description">
-            Expertise industrielle en patronage, coupe et confection textile de haute precision.
-          </p>
-
-          <div className="quote-page__hero-actions">
-            <Link className="quote-page__hero-action quote-page__hero-action--primary" href="/#nos-services">
-              Decouvrir nos services
-            </Link>
-            <a className="quote-page__hero-action quote-page__hero-action--secondary" href="#demande-devis-form">
-              Nous contacter
-            </a>
-          </div>
-        </div>
-      </section>
-
+    <div className="quote-page pt-32">
       <section className="quote-page__content" id="demande-devis-form" aria-labelledby="demande-devis-form-title">
         <header className="quote-page__section-header">
           <span className="quote-page__section-kicker">Demande de devis</span>
           <h2 className="quote-page__section-title" id="demande-devis-form-title">
-            Parlons de votre prochain projet textile
+            {modifyCode ? `Modification du devis ${modifyCode}` : "Parlons de votre prochain projet textile"}
           </h2>
           <p className="quote-page__section-lead">
-            Remplissez le formulaire pour nous faire part de votre projet. Nous revenons vers vous avec
-            une estimation claire et un suivi adapte a votre besoin.
+            {modifyCode 
+              ? "Précisez ici les modifications souhaitées. Cela générera une nouvelle demande basée sur votre devis existant."
+              : "Remplissez le formulaire pour nous faire part de votre projet. Nous revenons vers vous avec une estimation claire et un suivi adapte a votre besoin."}
           </p>
         </header>
 
         <div className="quote-page__panel-shell ui-panel-shell">
           <div className="quote-page__panel">
-            <div className="quote-page__intro access-page__card ui-soft-card">
-              <span className="access-page__card-eyebrow">Preparation rapide</span>
-              <h3>Ce qu&apos;il nous faut</h3>
-              <p>Quelques informations suffisent pour etablir un devis precis et vous repondre rapidement.</p>
+            <div className="quote-page__intro text-white rounded-[2.5rem] p-10 shadow-xl border border-[#ce812f]/20">
+              <span className="text-[#ce812f] text-[10px] font-bold uppercase tracking-[0.2em] mb-4 block">Preparation rapide</span>
+              <h3 className="font-headline text-3xl font-bold mb-6">Ce qu&apos;il nous faut</h3>
+              <p className="text-white/70 mb-8">Quelques informations suffisent pour etablir un devis precis et vous repondre rapidement.</p>
 
-              <ul className="quote-page__list">
-                <li>Type de produit, style et finitions souhaitees.</li>
-                <li>Quantites estimees, tailles et informations techniques utiles.</li>
-                <li>Delai souhaite, contraintes de production et niveau de finition attendu.</li>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start gap-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#ce812f] mt-2 flex-shrink-0"></span>
+                  <span className="text-sm">Type de produit, style et finitions souhaitees.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#ce812f] mt-2 flex-shrink-0"></span>
+                  <span className="text-sm">Quantites estimees, tailles et informations techniques utiles.</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#ce812f] mt-2 flex-shrink-0"></span>
+                  <span className="text-sm">Delai souhaite, contraintes de production et niveau de finition attendu.</span>
+                </li>
               </ul>
 
-              <p className="quote-page__note">
+              <div className="h-px bg-white/10 my-8"></div>
+
+              <p className="text-xs italic text-white/50">
                 Plus les informations sont precises, plus le devis sera fiable.
               </p>
             </div>
 
             <form className="quote-page__form ui-soft-card project-request-form" action={sendQuoteRequest}>
+              <input type="hidden" name="modify_code" value={modifyCode || ""} />
               <div className="project-request-form__grid">
+                <label className="project-request-form__field project-request-form__field--full">
+                  <span className="project-request-form__label">Type de produit (Catégorie)</span>
+                  <select
+                    name="category"
+                    className="project-request-form__input appearance-none"
+                    style={{ 
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 -960 960 960' width='24'%3E%3Cpath d='M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 1rem center',
+                      backgroundSize: '24px'
+                    }}
+                    required
+                  >
+                    <option value="">Sélectionnez une catégorie</option>
+                    <option value="pantalon">Pantalon</option>
+                    <option value="jupe">Jupe</option>
+                    <option value="shirt">T-shirt / Débardeur</option>
+                    <option value="polo">Polo</option>
+                    <option value="chemise">Chemise / Chemisier</option>
+                    <option value="veste">Veste / Blazer</option>
+                    <option value="manteau">Manteau / Parka</option>
+                    <option value="robe">Robe</option>
+                    <option value="sweat">Sweat-shirt / Hoodie</option>
+                    <option value="short">Short / Bermuda</option>
+                    <option value="pull">Pull / Cardigan</option>
+                    <option value="sous-vetement">Sous-vêtements / Lingerie</option>
+                    <option value="accessoire">Accessoires (Écharpes, Bonnets, etc.)</option>
+                    <option value="uniforme">Uniforme / Workwear</option>
+                    <option value="sport">Sportswear</option>
+                    <option value="enfant">Enfant / Bébé</option>
+                    <option value="autre">Autre projet sur-mesure</option>
+                  </select>
+                </label>
                 <label className="project-request-form__field">
                   <span className="project-request-form__label">Nom complet</span>
                   <input
@@ -181,6 +201,18 @@ export function DemandeDevisSection() {
                   />
                 </label>
                 <label className="project-request-form__field project-request-form__field--full">
+                  <span className="project-request-form__label">Documents techniques / Croquis</span>
+                  <div className="relative">
+                    <input
+                      name="technical_files"
+                      type="file"
+                      multiple
+                      className="project-request-form__input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-[#163526]/5 file:text-[#163526] hover:file:bg-[#163526]/10 cursor-pointer"
+                    />
+                    <p className="text-[10px] text-[#163526]/40 mt-2 uppercase tracking-widest">Formats acceptés : PDF, PNG, JPG (Max 10Mo)</p>
+                  </div>
+                </label>
+                <label className="project-request-form__field project-request-form__field--full">
                   <span className="project-request-form__label">Votre demande</span>
                   <textarea
                     name="message"
@@ -203,5 +235,13 @@ export function DemandeDevisSection() {
         </div>
       </section>
     </div>
+  );
+}
+
+export function DemandeDevisSection() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Chargement...</div>}>
+      <QuoteFormContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { authAPI } from "../../lib/api";
 
 type QuoteRecord = {
@@ -11,6 +12,11 @@ type QuoteRecord = {
   message?: string | null;
   status?: string | null;
   amount?: string | number | null;
+  deposit_amount?: string | number | null;
+  balance_amount?: string | number | null;
+  deposit_paid?: boolean;
+  balance_paid?: boolean;
+  files?: Array<{ name: string; url: string; type: string }>;
 };
 
 type Notice = {
@@ -194,6 +200,10 @@ export function EditDevisSection({ id }: { id: string }) {
   const [reloadIndex, setReloadIndex] = useState(0);
   const [formStatus, setFormStatus] = useState("");
   const [formAmount, setFormAmount] = useState("");
+  const [formDeposit, setFormDeposit] = useState("");
+  const [formBalance, setFormBalance] = useState("");
+  const [depositPaid, setDepositPaid] = useState(false);
+  const [balancePaid, setBalancePaid] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -204,6 +214,10 @@ export function EditDevisSection({ id }: { id: string }) {
     setQuote(null);
     setFormStatus("");
     setFormAmount("");
+    setFormDeposit("");
+    setFormBalance("");
+    setDepositPaid(false);
+    setBalancePaid(false);
 
     async function fetchQuote() {
       try {
@@ -217,6 +231,10 @@ export function EditDevisSection({ id }: { id: string }) {
         setQuote(nextQuote);
         setFormStatus(normalizeText(nextQuote.status));
         setFormAmount(normalizeText(nextQuote.amount));
+        setFormDeposit(normalizeText(nextQuote.deposit_amount));
+        setFormBalance(normalizeText(nextQuote.balance_amount));
+        setDepositPaid(!!nextQuote.deposit_paid);
+        setBalancePaid(!!nextQuote.balance_paid);
       } catch {
         if (!active) {
           return;
@@ -240,6 +258,8 @@ export function EditDevisSection({ id }: { id: string }) {
   async function updateQuote(formData: FormData) {
     const nextStatus = normalizeText(String(formData.get("status") ?? ""));
     const nextAmount = normalizeText(String(formData.get("amount") ?? ""));
+    const nextDeposit = normalizeText(String(formData.get("deposit_amount") ?? ""));
+    const nextBalance = normalizeText(String(formData.get("balance_amount") ?? ""));
 
     setIsSaving(true);
     setNotice(null);
@@ -248,6 +268,10 @@ export function EditDevisSection({ id }: { id: string }) {
       await authAPI.put(`/quotes/${id}`, {
         status: nextStatus,
         amount: nextAmount,
+        deposit_amount: nextDeposit,
+        balance_amount: nextBalance,
+        deposit_paid: depositPaid,
+        balance_paid: balancePaid,
       });
 
       setQuote((current) =>
@@ -256,19 +280,25 @@ export function EditDevisSection({ id }: { id: string }) {
               ...current,
               status: nextStatus,
               amount: nextAmount,
+              deposit_amount: nextDeposit,
+              balance_amount: nextBalance,
+              deposit_paid: depositPaid,
+              balance_paid: balancePaid,
             }
           : current,
       );
       setFormStatus(nextStatus);
       setFormAmount(nextAmount);
+      setFormDeposit(nextDeposit);
+      setFormBalance(nextBalance);
       setNotice({
         tone: "success",
-        message: "Le devis a ete mis a jour.",
+        message: "Le devis et les tranches de paiement ont été mis à jour.",
       });
     } catch {
       setNotice({
         tone: "danger",
-        message: "La mise a jour a echoue. Reessayez.",
+        message: "La mise à jour a échoué. Veuillez réessayer.",
       });
     } finally {
       setIsSaving(false);
@@ -290,12 +320,12 @@ export function EditDevisSection({ id }: { id: string }) {
       setFormStatus("sent");
       setNotice({
         tone: "success",
-        message: "Le devis a ete envoye.",
+        message: "Le devis a été envoyé au client.",
       });
     } catch {
       setNotice({
         tone: "danger",
-        message: "L'envoi a echoue. Reessayez.",
+        message: "L'envoi a échoué. Veuillez réessayer.",
       });
     } finally {
       setIsSaving(false);
@@ -313,177 +343,300 @@ export function EditDevisSection({ id }: { id: string }) {
   }
 
   if (isLoading) {
-    return <LoadingState />;
+    return (
+      <div className="px-6 md:px-12 py-10 animate-pulse">
+        <div className="h-8 w-64 bg-[#163526]/10 rounded mb-4"></div>
+        <div className="h-4 w-96 bg-[#163526]/5 rounded mb-12"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="h-64 bg-white rounded-[2rem] border border-[#163526]/5"></div>
+          <div className="h-64 bg-white rounded-[2rem] border border-[#163526]/5"></div>
+        </div>
+      </div>
+    );
   }
 
   if (loadError && !quote) {
-    return <ErrorState message={loadError} onRetry={() => setReloadIndex((count) => count + 1)} />;
+    return (
+      <div className="px-6 md:px-12 py-10 text-center">
+        <span className="material-symbols-outlined text-red-500 text-6xl mb-4">error</span>
+        <h2 className="font-headline text-2xl text-[#163526] mb-2">{loadError}</h2>
+        <button 
+          onClick={() => setReloadIndex(i => i + 1)}
+          className="mt-6 px-8 py-3 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl"
+        >
+          Réessayer
+        </button>
+      </div>
+    );
   }
 
-  if (!quote) {
-    return null;
-  }
+  if (!quote) return null;
 
   const statusLabel = formatStatusLabel(quote.status);
-  const statusTone = getStatusTone(quote.status);
   const statusOptions = buildStatusOptions(quote.status);
-  const quoteName = formatDisplayValue(quote.name, "Client sans nom");
-  const quoteEmail = formatDisplayValue(quote.email, "Email non renseigne");
-  const quotePhone = formatDisplayValue(quote.phone, "Telephone non renseigne");
-  const quoteMessage = formatDisplayValue(quote.message, "Aucun message fourni");
-  const quoteAmount = formatAmount(quote.amount);
   const initials = getInitials(quote.name || quote.id);
 
   return (
-    <section className="admin-edit-page section-padding" aria-labelledby="edit-devis-title">
-      <div className="container admin-edit-page__container">
-        <header className="admin-edit-page__header">
-          <span className="eyebrow">Espace admin</span>
-          <h1 className="section-title left" id="edit-devis-title">
-            Modifier le devis
-          </h1>
-          <p className="admin-edit-page__lead">
-            Consultez les infos du client, ajustez le statut et le montant, puis envoyez la version finale.
-          </p>
-        </header>
+    <div className="px-6 md:px-12 py-10 space-y-10 max-w-5xl">
+      {/* Breadcrumb / Back */}
+      <Link href="/jmr-atelier-management-v2/devis" className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#163526]/40 hover:text-orange-500 transition-colors group">
+        <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back</span>
+        Retour aux devis
+      </Link>
 
-        {notice ? (
-          <div
-            className={`admin-edit-page__notice admin-edit-page__notice--${notice.tone}`}
-            role={notice.tone === "danger" ? "alert" : "status"}
-            aria-live="polite"
-          >
-            {notice.message}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <div>
+          <h2 className="font-headline text-3xl text-[#163526]">Modifier le devis</h2>
+          <p className="text-[#1b1c19]/40 text-xs font-bold uppercase tracking-widest mt-1">Référence: #{quote.id}</p>
+        </div>
+        <div className="flex gap-4">
+          <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
+            quote.status === "accepted" ? "bg-green-100 text-green-700 border-green-200" :
+            quote.status === "rejected" ? "bg-red-100 text-red-700 border-red-200" :
+            "bg-orange-100 text-orange-700 border-orange-200"
+          }`}>
+            {statusLabel}
+          </span>
+        </div>
+      </div>
+
+      {notice && (
+        <div className={`p-4 rounded-xl border text-xs font-bold uppercase tracking-widest flex items-center gap-3 ${
+          notice.tone === "success" ? "bg-green-50 border-green-100 text-green-700" : "bg-red-50 border-red-100 text-red-700"
+        }`}>
+          <span className="material-symbols-outlined text-sm">{notice.tone === "success" ? "check_circle" : "error"}</span>
+          {notice.message}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Client Info Card */}
+        <div className="bg-white rounded-[2rem] p-8 border border-[#163526]/5 shadow-sm space-y-8">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-[#163526] rounded-2xl flex items-center justify-center text-white font-headline text-2xl">
+              {initials}
+            </div>
+            <div>
+              <h3 className="font-headline text-xl text-[#163526]">{quote.name || "Client sans nom"}</h3>
+              <p className="text-xs text-[#163526]/60">{quote.email || "Pas d'email"}</p>
+            </div>
           </div>
-        ) : null}
 
-        <div className="client-space-grid admin-edit-page__grid">
-          <article className="tracking-preview admin-edit-page__summary" aria-labelledby="quote-summary-title">
-            <div className="section-heading">
-              <span className="eyebrow">Fiche client</span>
-              <h3 id="quote-summary-title">{quoteName}</h3>
-              <p className="profile-summary">{quoteEmail}</p>
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-1">Téléphone</p>
+              <p className="text-sm font-bold text-[#163526]">{quote.phone || "-"}</p>
             </div>
-
-            <div className="profile-card__top">
-              <div className="profile-avatar" aria-hidden="true">
-                <span>{initials}</span>
-              </div>
-              <div>
-                <p className="admin-edit-page__reference">Devis #{quote.id}</p>
-                <p className="profile-summary">{quotePhone}</p>
-              </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-1">Montant Total</p>
+              <p className="text-sm font-bold text-[#163526]">{formatAmount(quote.amount)}</p>
             </div>
+          </div>
 
-            <ul className="profile-list">
-              <li>
-                <span>Reference</span>
-                <strong>#{quote.id}</strong>
-              </li>
-              <li>
-                <span>Telephone</span>
-                <strong>{quotePhone}</strong>
-              </li>
-              <li>
-                <span>Statut</span>
-                <strong>{statusLabel}</strong>
-              </li>
-              <li>
-                <span>Montant</span>
-                <strong>{quoteAmount}</strong>
-              </li>
-            </ul>
-
-            <div className="profile-badges">
-              <span className="profile-badge">#{quote.id}</span>
-              <span className={`profile-badge admin-edit-page__badge admin-edit-page__badge--${statusTone}`}>
-                {statusLabel}
-              </span>
-            </div>
-
-            <section className="admin-edit-page__message">
-              <span className="eyebrow">Message client</span>
-              <p>{quoteMessage}</p>
-            </section>
-          </article>
-
-          <form className="profile-card admin-edit-page__form" onSubmit={handleSubmit}>
-            <div className="profile-card__top">
-              <div className="profile-avatar" aria-hidden="true">
-                <span>DV</span>
+          <div className="pt-6 border-t border-[#163526]/5 space-y-4">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Suivi des Tranches</p>
+            <div className="grid grid-cols-1 gap-3">
+              <div className={`p-4 rounded-xl flex justify-between items-center ${quote.deposit_paid ? "bg-green-50 border border-green-100" : "bg-orange-50 border border-orange-100"}`}>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/60">Acompte (Avant livraison)</p>
+                  <p className="text-sm font-bold text-[#163526]">{formatAmount(quote.deposit_amount)}</p>
+                </div>
+                <span className={`material-symbols-outlined ${quote.deposit_paid ? "text-green-600" : "text-orange-400"}`}>
+                  {quote.deposit_paid ? "check_circle" : "pending"}
+                </span>
               </div>
-              <div>
-                <span className="eyebrow">Edition rapide</span>
-                <h3>Sauvegarder et envoyer</h3>
-                <p className="profile-summary">
-                  Modifiez le statut ou le montant, puis choisissez si le devis doit partir au client.
-                </p>
+              <div className={`p-4 rounded-xl flex justify-between items-center ${quote.balance_paid ? "bg-green-50 border border-green-100" : "bg-gray-50 border border-gray-100"}`}>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/60">Solde (Après livraison)</p>
+                  <p className="text-sm font-bold text-[#163526]">{formatAmount(quote.balance_amount)}</p>
+                </div>
+                <span className={`material-symbols-outlined ${quote.balance_paid ? "text-green-600" : "text-gray-300"}`}>
+                  {quote.balance_paid ? "check_circle" : "schedule"}
+                </span>
               </div>
             </div>
+          </div>
 
-            <div className="admin-edit-page__form-grid">
-              <label className="admin-edit-page__field">
-                <span className="admin-edit-page__label">Statut</span>
+          <div className="pt-6 border-t border-[#163526]/5 space-y-4">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Documents & Pièces jointes</p>
+            <div className="grid grid-cols-1 gap-2">
+              {quote.files && quote.files.length > 0 ? (
+                quote.files.map((file, idx) => (
+                  <a 
+                    key={idx} 
+                    href={file.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-3 bg-[#faf9f4] rounded-xl border border-[#163526]/5 hover:border-orange-500/30 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-orange-500">description</span>
+                      <span className="text-[11px] font-bold text-[#163526] truncate max-w-[150px]">{file.name}</span>
+                    </div>
+                    <span className="material-symbols-outlined text-[#163526]/20 group-hover:text-orange-500 transition-colors">download</span>
+                  </a>
+                ))
+              ) : (
+                <div className="p-4 bg-[#faf9f4] rounded-xl border border-dashed border-[#163526]/10 text-center">
+                  <p className="text-[10px] text-[#1b1c19]/40 font-bold uppercase tracking-widest">Aucun fichier joint</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-[#163526]/5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-3">Message du client</p>
+            <div className="bg-[#faf9f4] p-4 rounded-xl text-xs text-[#163526]/80 leading-relaxed italic">
+              "{quote.message || "Aucun message fourni"}"
+            </div>
+          </div>
+        </div>
+
+        {/* Action Form Card */}
+        <form onSubmit={handleSubmit} className="bg-white rounded-[2rem] p-8 border border-[#163526]/5 shadow-sm space-y-8">
+          <h3 className="font-headline text-xl text-[#163526]">Gestion & Mise à jour</h3>
+          
+          <div className="space-y-6">
+            {/* Notification / Alert Section */}
+            <div className="space-y-3 p-4 bg-orange-50 rounded-2xl border border-orange-100">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-orange-800 flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm">notifications_active</span>
+                Envoyer une notification au client
+              </p>
+              <select 
+                className="w-full bg-white border-none p-3 rounded-lg text-[11px] font-bold text-orange-900 outline-none"
+                onChange={(e) => {
+                  if (e.target.value) alert(`Notification "${e.target.value}" envoyée au client.`);
+                }}
+              >
+                <option value="">Sélectionner un type d'alerte...</option>
+                <option value="delay">Retard de production</option>
+                <option value="error">Erreur de conception / technique</option>
+                <option value="ready">Prêt pour livraison</option>
+                <option value="info">Besoin d'informations complémentaires</option>
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Statut du dossier</label>
                 <select
                   name="status"
-                  className="admin-edit-page__control admin-edit-page__control--select"
                   value={formStatus}
-                  onChange={(event) => setFormStatus(event.target.value)}
-                  required
+                  onChange={(e) => setFormStatus(e.target.value)}
+                  className="w-full bg-[#faf9f4] border-none p-4 rounded-xl text-xs font-bold text-[#163526] focus:ring-2 focus:ring-[#163526]/10 outline-none appearance-none cursor-pointer"
                   disabled={isSaving}
                 >
                   <option value="">Choisir un statut</option>
-                  {statusOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
+                  {statusOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
                 </select>
-              </label>
+              </div>
 
-              <label className="admin-edit-page__field">
-                <span className="admin-edit-page__label">Montant</span>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Montant Total (€)</label>
                 <input
                   name="amount"
                   type="number"
-                  min="0"
                   step="0.01"
-                  inputMode="decimal"
-                  placeholder="Ex: 1200"
-                  className="admin-edit-page__control"
                   value={formAmount}
-                  onChange={(event) => setFormAmount(event.target.value)}
+                  onChange={(e) => setFormAmount(e.target.value)}
+                  className="w-full bg-[#faf9f4] border-none p-4 rounded-xl text-xs font-bold text-[#163526] focus:ring-2 focus:ring-[#163526]/10 outline-none"
+                  placeholder="Ex: 1500.00"
                   disabled={isSaving}
                 />
-              </label>
+              </div>
             </div>
 
-            <div className="profile-badges admin-edit-page__state">
-              <span className={`profile-badge admin-edit-page__badge admin-edit-page__badge--${statusTone}`}>
-                Statut: {statusLabel}
-              </span>
-              <span className="profile-badge">{isSaving ? "En cours" : "Pret"}</span>
+            <div className="pt-4 border-t border-[#163526]/5 space-y-4">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Gestion des Tranches de Paiement</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3 p-4 bg-[#faf9f4] rounded-2xl">
+                  <label className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40">Acompte (€)</label>
+                  <input
+                    name="deposit_amount"
+                    type="number"
+                    step="0.01"
+                    value={formDeposit}
+                    onChange={(e) => setFormDeposit(e.target.value)}
+                    className="w-full bg-white border-none p-3 rounded-lg text-xs font-bold text-[#163526] outline-none"
+                    placeholder="Montant acompte"
+                    disabled={isSaving}
+                  />
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={depositPaid}
+                      onChange={(e) => setDepositPaid(e.target.checked)}
+                      className="w-4 h-4 rounded border-[#163526]/10 text-[#163526] focus:ring-0"
+                    />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/60 group-hover:text-[#163526] transition-colors">Payé (Acompte)</span>
+                  </label>
+                </div>
+
+                <div className="space-y-3 p-4 bg-[#faf9f4] rounded-2xl">
+                  <label className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40">Solde (€)</label>
+                  <input
+                    name="balance_amount"
+                    type="number"
+                    step="0.01"
+                    value={formBalance}
+                    onChange={(e) => setFormBalance(e.target.value)}
+                    className="w-full bg-white border-none p-3 rounded-lg text-xs font-bold text-[#163526] outline-none"
+                    placeholder="Montant solde"
+                    disabled={isSaving}
+                  />
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={balancePaid}
+                      onChange={(e) => setBalancePaid(e.target.checked)}
+                      className="w-4 h-4 rounded border-[#163526]/10 text-[#163526] focus:ring-0"
+                    />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/60 group-hover:text-[#163526] transition-colors">Payé (Solde)</span>
+                  </label>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <div className="admin-edit-page__actions">
-              <button className="btn btn-primary" type="submit" disabled={isSaving}>
-                {isSaving ? "Sauvegarde..." : "Mettre a jour"}
-              </button>
-
+          <div className="pt-6 flex flex-col gap-4">
+            {quote.status === "accepted" && quote.deposit_paid ? (
               <button
-                className="btn btn-secondary"
                 type="button"
-                onClick={sendQuote}
-                disabled={isSaving}
+                onClick={() => {
+                  alert("Lancement de la production ! Les opérateurs ont été notifiés.");
+                  setFormStatus("production");
+                }}
+                className="w-full py-4 bg-orange-500 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
               >
-                {isSaving ? "Envoi..." : "Envoyer"}
+                <span className="material-symbols-outlined text-sm">precision_manufacturing</span>
+                Lancer la Production
               </button>
-            </div>
-
-            <p className="admin-edit-page__note">Envoyer passe automatiquement le devis au statut envoye.</p>
-          </form>
-        </div>
+            ) : null}
+            
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="w-full py-4 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+            >
+              {isSaving ? "Sauvegarde en cours..." : "Enregistrer les modifications"}
+            </button>
+            
+            <button
+              type="button"
+              onClick={sendQuote}
+              disabled={isSaving || quote.status === "sent"}
+              className="w-full py-4 bg-white border border-[#163526]/10 text-[#163526] font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#163526]/5 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-sm text-orange-500">send</span>
+              {quote.status === "sent" ? "Déjà envoyé" : "Envoyer le devis au client"}
+            </button>
+          </div>
+        </form>
       </div>
-    </section>
+    </div>
   );
 }

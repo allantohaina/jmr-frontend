@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PROFILE_NOTIFICATIONS } from "./mon-profil-section";
+import { PROFILE_NOTIFICATIONS } from "../lib/constants";
 
 type NotificationsSectionProps = {
   user?: {

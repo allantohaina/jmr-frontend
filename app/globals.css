@@ -1974,6 +1974,7 @@ section[id], footer[id] { scroll-margin-top: 110px; }
 
 .quote-page__intro {
   align-content: start;
+  background-color: #163526 !important;
 }
 
 .quote-page__list {

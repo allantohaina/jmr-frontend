@@ -19,7 +19,9 @@ import { ScrollReveal } from "./components/scroll-reveal";
 import { Navbar } from "./components/navbar";
 import { Footer } from "./components/footer";
 import { SuccessToast } from "./components/success-toast";
-import { getCurrentUser, getIsSignedIn } from "./lib/auth";
+import { ToastProvider } from "@/app/components/toast-provider";
+import { VisitorTracker } from "./components/visitor-tracker";
+import { getCurrentUser, getIsSignedIn } from "./lib/auth-server";
 import { Suspense } from "react";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -69,22 +71,24 @@ export default async function RootLayout({
   return (
     <html lang="fr">
       <body className={`${ibmPlexSans.variable} ${sora.variable} ${inter.variable} ${playfairDisplay.variable} ${notoSerif.variable} ${manrope.variable}`}>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
-        <a className="skip-link" href="#main-content">
-          Aller au contenu
-        </a>
-        <header className="site-header">
-          <Navbar isSignedIn={isSignedIn} userFirstName={userFirstName} userRole={userRole} />
-        </header>
-        <main id="main-content" className="bg-background text-on-background antialiased selection:bg-orange-200 font-body">
-          {children}
-        </main>
-        <Suspense>
-          <SuccessToast />
-        </Suspense>
-        <ScrollReveal />
-        <Footer />
-
+        <ToastProvider>
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
+          <a className="skip-link" href="#main-content">
+            Aller au contenu
+          </a>
+          <header className="site-header">
+            <Navbar isSignedIn={isSignedIn} userFirstName={userFirstName} userRole={userRole} />
+          </header>
+          <main id="main-content" className="bg-background text-on-background antialiased selection:bg-orange-200 font-body">
+            {children}
+          </main>
+          <VisitorTracker />
+          <Suspense>
+            <SuccessToast />
+          </Suspense>
+          <ScrollReveal />
+          <Footer />
+        </ToastProvider>
       </body>
     </html>
   );

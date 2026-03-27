@@ -8,9 +8,8 @@ import {
   REFRESH_TOKEN_COOKIE_NAME,
   USER_COOKIE_NAME,
   getSafeRedirectPath,
-  getSessionToken,
-  getRefreshToken,
 } from "../lib/auth";
+import { getSessionToken, getRefreshToken } from "../lib/auth-server";
 import { authAPI } from "../lib/api";
 
 const AUTH_COOKIE_OPTIONS = {
@@ -79,12 +78,28 @@ export async function signIn(formData: FormData) {
     );
   } else {
     // Login flow
-    // For testing purposes, if no email/password provided, we might want to use default admin
-    // but let's be strict for now.
-    // Actually, let's use the default admin if no credentials provided for easy testing
-    const resolvedEmail = email || "admin@jmrtextile.com";
-    const resolvedPassword = password || "admin123";
-    await runAuthRequest(() => authAPI.login(resolvedEmail, resolvedPassword));
+    const resolvedEmail = email || "";
+    const resolvedPassword = password || "";
+
+    const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === 'true' || 
+                     (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_USE_MOCKS !== 'false');
+
+    // MOCK LOGIN FOR STATIC ACCOUNTS
+    if (useMocks && resolvedEmail === "client@test.com" && resolvedPassword === "test") {
+      const cookieStore = await cookies();
+      cookieStore.set(AUTH_COOKIE_NAME, "mock_token_client", AUTH_COOKIE_OPTIONS);
+      cookieStore.set(USER_COOKIE_NAME, JSON.stringify({ id: 101, first_name: "Client", last_name: "Lambda", email: "client@test.com", role: "user" }), AUTH_COOKIE_OPTIONS);
+    } else if (useMocks && resolvedEmail === "worker@test.com" && resolvedPassword === "test") {
+      const cookieStore = await cookies();
+      cookieStore.set(AUTH_COOKIE_NAME, "mock_token_worker", AUTH_COOKIE_OPTIONS);
+      cookieStore.set(USER_COOKIE_NAME, JSON.stringify({ id: 102, first_name: "Opérateur", last_name: "Atelier", email: "worker@test.com", role: "worker" }), AUTH_COOKIE_OPTIONS);
+    } else if (useMocks && resolvedEmail === "admin@test.com" && resolvedPassword === "test") {
+      const cookieStore = await cookies();
+      cookieStore.set(AUTH_COOKIE_NAME, "mock_token_admin", AUTH_COOKIE_OPTIONS);
+      cookieStore.set(USER_COOKIE_NAME, JSON.stringify({ id: 103, first_name: "Admin", last_name: "Atelier", email: "admin@test.com", role: "admin" }), AUTH_COOKIE_OPTIONS);
+    } else {
+      await runAuthRequest(() => authAPI.login(resolvedEmail, resolvedPassword));
+    }
   }
 
   if (nextPath) {

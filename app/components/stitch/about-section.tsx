@@ -1,9 +1,26 @@
-import Image from "next/image";
+"use client";
 
-export function AboutSection() {
+import Image from "next/image";
+import React from "react";
+import { EditableText } from "../editable-text";
+
+export function AboutSection({ isAdmin = false }: { isAdmin?: boolean }) {
+  const [content, setContent] = React.useState({
+    eyebrow: "À Propos de JMR Textile",
+    title: "Un Héritage de Précision Textile.",
+    p1: "JMR Textile est une entreprise textile basée à Madagascar. Nous travaillons avec une organisation locale et des partenaires techniques que nous coordonnons directement.",
+    p2: "Notre rôle est de faire avancer vos projets de manière structurée et transparente. Chaque projet est traité avec une attention particulière à l'origine des matières et à la conformité technique."
+  });
+
+  const handleSave = (key: keyof typeof content) => (newVal: string) => {
+    setContent(prev => ({ ...prev, [key]: newVal }));
+    console.log(`[CMS MOCK] Saving ${key}: ${newVal}`);
+  };
+
   return (
     <section className="py-32 max-w-[1440px] mx-auto px-6 md:px-12" data-nav-section="a-propos" id="a-propos">
       <div className="grid lg:grid-cols-2 gap-20 items-center">
+        {/* ... existing images/video ... */}
         <div className="relative group">
           <div className="absolute -top-10 -right-10 font-headline text-[12rem] text-surface-container-high select-none z-0 leading-none font-bold opacity-40 uppercase tracking-tighter">JMR</div>
           <div className="relative z-10 grid grid-cols-2 gap-6">
@@ -35,14 +52,34 @@ export function AboutSection() {
           </div>
         </div>
         <div>
-          <span className="font-body text-[11px] uppercase tracking-[0.3em] text-primary/40 mb-4 block font-bold">À Propos de JMR Textile</span>
-          <h2 className="font-headline text-5xl text-primary mb-8 leading-tight">Un Héritage de <br /><span className="italic text-orange-500 font-normal">Précision Textile.</span></h2>
-          <p className="font-body text-on-surface-variant text-lg leading-relaxed mb-6">
-            JMR Textile est une entreprise textile basée à Madagascar. Nous travaillons avec une organisation locale et des partenaires techniques que nous coordonnons directement.
-          </p>
-          <p className="font-body text-on-surface-variant text-lg leading-relaxed mb-10">
-            Notre rôle est de faire avancer vos projets de manière structurée et transparente. Chaque projet est traité avec une attention particulière à l&apos;origine des matières et à la conformité technique.
-          </p>
+          <EditableText 
+            isAdmin={isAdmin} 
+            content={content.eyebrow} 
+            onSave={handleSave("eyebrow")}
+            className="font-body text-[11px] uppercase tracking-[0.3em] text-primary/40 mb-4 block font-bold"
+          />
+          <h2 className="font-headline text-5xl text-primary mb-8 leading-tight">
+            <EditableText 
+              isAdmin={isAdmin} 
+              content={content.title} 
+              onSave={handleSave("title")}
+              tag="span"
+            />
+          </h2>
+          <EditableText 
+            isAdmin={isAdmin} 
+            content={content.p1} 
+            onSave={handleSave("p1")}
+            tag="p"
+            className="font-body text-on-surface-variant text-lg leading-relaxed mb-6"
+          />
+          <EditableText 
+            isAdmin={isAdmin} 
+            content={content.p2} 
+            onSave={handleSave("p2")}
+            tag="p"
+            className="font-body text-on-surface-variant text-lg leading-relaxed mb-10"
+          />
           <div className="flex items-center gap-8">
             <div className="group/stat">
               <p className="text-3xl font-headline text-primary group-hover/stat:text-orange-500 transition-colors">100%</p>

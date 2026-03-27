@@ -1,7 +1,22 @@
+"use client";
+
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { signOut } from "../actions/auth";
 import type { UserProfile } from "../lib/api";
+import {
+  type ProfileOrder,
+  type ProfileOrderStatus,
+  type ProfileNotification,
+  type ProfileNotificationTone,
+  type ProfileActivity,
+  type ProfileDocument,
+  PROFILE_NOTIFICATIONS,
+  PROFILE_ORDERS,
+  PROFILE_ACTIVITY,
+  PROFILE_DOCUMENTS,
+} from "../lib/constants";
 
 type ProfileCard = {
   title: string;
@@ -12,37 +27,7 @@ type ProfileMetric = {
   label: string;
   value: string;
   detail: string;
-};
-
-type ProfileOrderStatus = "devis" | "production" | "livraison";
-
-type ProfileOrder = {
-  code: string;
-  title: string;
-  status: ProfileOrderStatus;
-  summary: string;
-  nextStep: string;
-  amount: string;
-};
-
-type ProfileNotificationTone = "highlight" | "default";
-
-type ProfileNotification = {
-  title: string;
-  message: string;
-  date: string;
-  tone: ProfileNotificationTone;
-};
-
-type ProfileActivity = {
-  date: string;
-  label: string;
-  detail: string;
-};
-
-type ProfileDocument = {
-  title: string;
-  helper: string;
+  icon: string;
 };
 
 type MonProfilSectionProps = {
@@ -70,102 +55,112 @@ const PROFILE_METRICS: ProfileMetric[] = [
     label: "Commandes actives",
     value: "03",
     detail: "2 en production et 1 en validation finale.",
+    icon: "conveyor_belt",
   },
   {
     label: "Devis en attente",
     value: "01",
     detail: "Une demande de devis recue le 8 mars 2026.",
+    icon: "request_quote",
   },
   {
     label: "Notifications",
     value: "04",
     detail: "Nouveaux messages, documents et etapes valides.",
+    icon: "notifications_active",
   },
 ];
 
-const PROFILE_ORDERS: ProfileOrder[] = [
-  {
-    code: "CMD-104",
-    title: "Serie de polos coton",
-    status: "production",
-    summary: "Commande confirmee. Coupe terminee, assemblage lance.",
-    nextStep: "Verifier le point production du 12 mars 2026.",
-    amount: "3 480 EUR",
-  },
-  {
-    code: "DV-024",
-    title: "Demande de devis chemises",
-    status: "devis",
-    summary: "Le devis est disponible et attend votre validation.",
-    nextStep: "Ouvrir le devis et regler l'acompte.",
-    amount: "Acompte a confirmer",
-  },
-  {
-    code: "CMD-098",
-    title: "Capsule accessoires",
-    status: "livraison",
-    summary: "Le solde est valide. Preparation de la livraison en cours.",
-    nextStep: "Confirmer la reception des documents d'expedition.",
-    amount: "1 920 EUR",
-  },
-];
+function OrderDetailsModal({ order, onClose }: { order: ProfileOrder; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#163526]/40 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-white rounded-[2rem] w-full max-w-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+        <div className="p-8 md:p-12 space-y-8">
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="px-3 py-1 bg-[#163526]/5 text-[#163526] text-[10px] font-bold uppercase tracking-widest rounded-full border border-[#163526]/5 mb-3 inline-block">
+                Référence {order.code}
+              </span>
+              <h3 className="font-headline text-3xl text-[#163526]">{order.title}</h3>
+            </div>
+            <button onClick={onClose} className="p-2 hover:bg-[#163526]/5 rounded-full transition-colors">
+              <span className="material-symbols-outlined text-[#163526]">close</span>
+            </button>
+          </div>
 
-export const PROFILE_NOTIFICATIONS: ProfileNotification[] = [
-  {
-    title: "Votre devis est arrive",
-    message:
-      "La demande DV-024 a ete preparee et mise a disposition dans votre espace client.",
-    date: "8 mars 2026",
-    tone: "highlight",
-  },
-  {
-    title: "Mise a jour de production",
-    message: "La commande CMD-104 passe de la coupe a l'assemblage le 9 mars 2026.",
-    date: "9 mars 2026",
-    tone: "default",
-  },
-  {
-    title: "Document ajoute",
-    message: "Le bon de commande signe pour CMD-098 est maintenant telechargeable.",
-    date: "7 mars 2026",
-    tone: "default",
-  },
-];
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-2">Statut Actuel</p>
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${
+                    order.status === 'production' ? 'bg-orange-500 animate-pulse' : 
+                    order.status === 'attente_devis' ? 'bg-[#ce812f]/40' : 'bg-[#163526]'
+                  }`}></div>
+                  <span className="text-sm font-bold text-[#163526] uppercase tracking-widest">{getOrderStatusLabel(order.status)}</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-2">Résumé de la requête</p>
+                <p className="text-sm text-[#163526]/70 leading-relaxed italic">"{order.summary}"</p>
+              </div>
+            </div>
+            <div className="bg-[#faf9f4] p-6 rounded-2xl border border-[#163526]/5 space-y-4">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Prochaine Étape</p>
+              <p className="text-xs font-bold text-[#163526] leading-relaxed">{order.nextStep}</p>
+              <div className="pt-4 border-t border-[#163526]/10 flex justify-between items-end">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Montant Total</span>
+                <span className="text-xl font-headline font-bold text-[#163526]">{order.amount}</span>
+              </div>
+            </div>
+          </div>
 
-const PROFILE_ACTIVITY: ProfileActivity[] = [
-  {
-    date: "9 mars 2026",
-    label: "Assemblage demarre",
-    detail: "Ligne de production ouverte pour les polos CMD-104.",
-  },
-  {
-    date: "8 mars 2026",
-    label: "Devis emis",
-    detail: "Le devis DV-024 a ete transmis avec les quantites revisees.",
-  },
-  {
-    date: "6 mars 2026",
-    label: "Solde confirme",
-    detail: "Le paiement final de CMD-098 a ete enregistre.",
-  },
-];
+          <div className="pt-8 flex flex-col md:flex-row gap-4">
+            {order.status === 'devis' ? (
+              <button 
+                onClick={() => alert("Redirection vers le paiement de l'acompte (50%).")}
+                className="flex-1 py-4 bg-[#ce812f] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all"
+              >
+                Accepter & Payer l'Acompte
+              </button>
+            ) : order.status === 'attente_devis' ? (
+              <button className="flex-1 py-4 bg-[#163526]/10 text-[#163526]/40 text-[10px] font-bold uppercase tracking-widest rounded-xl cursor-not-allowed">
+                En attente du devis
+              </button>
+            ) : (
+              <button className="flex-1 py-4 bg-[#163526] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all">
+                Contacter l'Atelier
+              </button>
+            )}
+            {order.status !== 'attente_devis' && (
+              <Link 
+                href={`/mon-profil/devis/${order.code}`}
+                className="flex-1 py-4 bg-white border border-[#163526]/10 text-[#163526] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#163526]/5 transition-all text-center"
+              >
+                Voir le Devis PDF
+              </Link>
+            )}
+          </div>
 
-const PROFILE_DOCUMENTS: ProfileDocument[] = [
-  {
-    title: "Devis DV-024",
-    helper: "Disponible au format PDF pour validation.",
-  },
-  {
-    title: "Bon de commande CMD-098",
-    helper: "Document signe et archive dans votre espace.",
-  },
-  {
-    title: "Fiche technique polos",
-    helper: "Version approuvee pour la production en cours.",
-  },
-];
+          {order.status === 'devis' && (
+            <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl flex items-center gap-3">
+              <span className="material-symbols-outlined text-orange-500">info</span>
+              <p className="text-[10px] font-bold text-orange-800 uppercase tracking-widest">
+                Besoin d'une modification ? <Link href={`/demande-devis?modify=${order.code}`} className="underline hover:text-orange-900 transition-colors">Cliquez ici pour modifier</Link>
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function getOrderStatusLabel(status: ProfileOrderStatus) {
+  if (status === "attente_devis") {
+    return "Etude en cours";
+  }
+
   if (status === "devis") {
     return "Devis pret";
   }
@@ -178,153 +173,206 @@ function getOrderStatusLabel(status: ProfileOrderStatus) {
 }
 
 export function MonProfilSection({ variant = "preview", user }: MonProfilSectionProps) {
+  const [selectedOrder, setSelectedOrder] = useState<ProfileOrder | null>(null);
+
   if (variant === "dashboard") {
     return (
-      <section
-        className="profile-page profile-page--dashboard ui-section-shell"
-        aria-labelledby="profile-page-title"
-      >
-        <header className="profile-page__header ui-section-header">
-          <h1 className="ui-section-title" id="profile-page-title">
-            Mon profil
-          </h1>
-          <span className="profile-page__underline ui-section-underline" aria-hidden="true" />
-          
-          <div className="flex justify-between items-center mt-4">
-            <div>
-              <p className="text-xl font-medium">{user?.first_name} {user?.last_name}</p>
-              <p className="text-gray-500">{user?.email}</p>
-            </div>
-            <form action={signOut}>
-              <button type="submit" className="text-red-600 hover:underline">
-                Se déconnecter
-              </button>
-            </form>
-          </div>
-        </header>
-
-        <div className="profile-page__panel profile-page__panel--dashboard ui-panel-shell">
-          <div className="profile-page__hero">
-            <div className="profile-page__hero-icon" aria-hidden="true">
-              <Image src="/bulle_de_compte.svg" alt="" width={170} height={170} />
-            </div>
-
-            <div className="profile-page__hero-copy">
-              <p className="profile-page__hero-title">
-                Bienvenue, {user?.first_name} ! Retrouvez vos commandes, devis et alertes en un coup d&apos;oeil.
-              </p>
-            </div>
-          </div>
-
-          <div className="profile-page__dashboard-grid">
-            <div className="profile-page__metrics">
-              {PROFILE_METRICS.map((metric, idx) => (
-                <div className="profile-page__metric-card ui-soft-card" key={idx}>
-                  <span className="profile-page__metric-label">{metric.label}</span>
-                  <span className="profile-page__metric-value">{metric.value}</span>
-                  <p className="profile-page__metric-detail">{metric.detail}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="profile-page__main-content">
-              <div className="profile-page__orders ui-soft-card">
-                <div className="profile-page__card-header">
-                  <h2>Suivi des commandes</h2>
-                  <Link className="profile-page__all-link" href="/suivi-projet">
-                    Voir tout
-                  </Link>
-                </div>
-
-                <div className="profile-page__orders-list">
-                  {PROFILE_ORDERS.map((order) => (
-                    <div className="profile-page__order-item" key={order.code}>
-                      <div className="profile-page__order-head">
-                        <span className="profile-page__order-code">{order.code}</span>
-                        <span
-                          className={`profile-page__order-status profile-page__order-status--${order.status}`}
-                        >
-                          {getOrderStatusLabel(order.status)}
-                        </span>
-                      </div>
-                      <h3 className="profile-page__order-title">{order.title}</h3>
-                      <p className="profile-page__order-summary">{order.summary}</p>
-                      <div className="profile-page__order-next">
-                        <strong>Prochaine etape :</strong> {order.nextStep}
-                      </div>
-                      <div className="profile-page__order-footer">
-                        <span className="profile-page__order-amount">{order.amount}</span>
-                        <Link className="profile-page__order-link" href="/suivi-projet">
-                          Detail
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+      <section className="min-h-screen bg-[#faf9f4] pb-24">
+        {/* Clean, refined header */}
+        <div className="bg-white border-b border-[#163526]/5 py-12">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="text-center md:text-left">
+                <p className="text-[#ce812f] text-[10px] font-bold uppercase tracking-[0.3em] mb-2">Espace Personnel</p>
+                <h1 className="font-headline text-5xl text-[#163526] font-bold tracking-tight leading-none mb-3">Tableau de bord</h1>
+                <p className="text-[#163526]/50 text-sm font-medium">Bienvenue, <span className="text-[#163526] font-bold">{user?.first_name} {user?.last_name}</span></p>
               </div>
-
-              <div className="profile-page__notifications ui-soft-card">
-                <div className="profile-page__card-header">
-                  <h2>Alertes et messages</h2>
-                </div>
-                <div className="profile-page__notifications-list">
-                  {PROFILE_NOTIFICATIONS.map((notif, idx) => (
-                    <div
-                      className={`profile-page__notif-item profile-page__notif-item--${notif.tone}`}
-                      key={idx}
-                    >
-                      <div className="profile-page__notif-date">{notif.date}</div>
-                      <h3 className="profile-page__notif-title">{notif.title}</h3>
-                      <p className="profile-page__notif-message">{notif.message}</p>
-                    </div>
-                  ))}
-                </div>
+              <div className="bg-[#163526]/5 px-6 py-3 rounded-full border border-[#163526]/10">
+                <p className="text-[#163526] text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#ce812f]"></span>
+                  Statut : {user?.role === 'admin' ? 'Administrateur' : user?.role === 'worker' ? 'Artisan Atelier' : 'Client Privilégié'}
+                </p>
               </div>
             </div>
-
-            <aside className="profile-page__sidebar">
-              <div className="profile-page__activity ui-soft-card">
-                <div className="profile-page__card-header">
-                  <h2>Activite recente</h2>
-                </div>
-                <div className="profile-page__activity-list">
-                  {PROFILE_ACTIVITY.map((activity, idx) => (
-                    <div className="profile-page__activity-item" key={idx}>
-                      <div className="profile-page__activity-dot" aria-hidden="true" />
-                      <div className="profile-page__activity-content">
-                        <div className="profile-page__activity-date">{activity.date}</div>
-                        <div className="profile-page__activity-label">{activity.label}</div>
-                        <p className="profile-page__activity-detail">{activity.detail}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="profile-page__documents ui-soft-card">
-                <div className="profile-page__card-header">
-                  <h2>Mes documents</h2>
-                </div>
-                <div className="profile-page__documents-list">
-                  {PROFILE_DOCUMENTS.map((doc, idx) => (
-                    <div className="profile-page__document-item" key={idx}>
-                      <div className="profile-page__document-icon" aria-hidden="true">
-                        <Image src="/file.svg" alt="" width={24} height={24} />
-                      </div>
-                      <div className="profile-page__document-copy">
-                        <h3 className="profile-page__document-title">{doc.title}</h3>
-                        <p className="profile-page__document-helper">{doc.helper}</p>
-                      </div>
-                      <button className="profile-page__document-download" aria-label="Telecharger">
-                        <Image src="/fleche.svg" alt="" width={16} height={16} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </aside>
           </div>
         </div>
+
+        <div className="max-w-7xl mx-auto px-6 mt-12 space-y-12">
+          {/* Hero Card */}
+          <div className="relative bg-[#163526] rounded-[2.5rem] p-10 md:p-16 text-white overflow-hidden shadow-2xl">
+            <div className="relative z-10 max-w-2xl">
+              <h2 className="text-4xl md:text-5xl font-headline font-bold mb-6 leading-tight">
+                L'excellence textile, <br/>étape par étape.
+              </h2>
+              <p className="text-white/70 text-lg leading-relaxed mb-8 font-light">
+                Consultez vos devis, suivez la fabrication de vos pièces en temps réel et accédez à vos archives techniques. Votre vision prend vie ici.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link href="/suivi-projet" className="px-8 py-4 bg-[#ce812f] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#b87028] transition-all shadow-lg shadow-[#ce812f]/20">
+                  Suivre mes commandes
+                </Link>
+                <Link href="/demande-devis" className="px-8 py-4 bg-white/10 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white/20 transition-all border border-white/10">
+                  Nouveau Devis
+                </Link>
+                <button className="px-8 py-4 bg-white/10 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white/20 transition-all border border-white/10">
+                  Contacter un expert
+                </button>
+              </div>
+            </div>
+            {/* Elegant Background Logo */}
+            <div className="absolute right-[-10%] bottom-[-30%] opacity-[0.03] pointer-events-none select-none">
+              <Image src="/navbar/logo.svg" alt="" width={600} height={600} className="invert" />
+            </div>
+          </div>
+
+          {/* Metrics Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {PROFILE_METRICS.map((metric, idx) => (
+              <div className="bg-white p-8 rounded-[2rem] border border-[#163526]/5 shadow-sm hover:shadow-md transition-all group" key={idx}>
+                <div className="flex justify-between items-start mb-6">
+                  <div className="w-12 h-12 bg-[#163526]/5 rounded-2xl flex items-center justify-center text-[#163526] group-hover:bg-[#ce812f] group-hover:text-white transition-colors">
+                    <span className="material-symbols-outlined text-2xl">{metric.icon}</span>
+                  </div>
+                  <span className="text-4xl font-headline font-bold text-[#163526]">{metric.value}</span>
+                </div>
+                <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#163526] mb-2">{metric.label}</h3>
+                <p className="text-[#163526]/50 text-xs leading-relaxed">{metric.detail}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Main Dashboard Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            {/* Left & Center: Orders & Notifications */}
+            <div className="lg:col-span-2 space-y-10">
+              {/* Orders Section */}
+              <div className="bg-white rounded-[2.5rem] border border-[#163526]/5 shadow-sm overflow-hidden">
+                <div className="px-10 py-8 border-b border-[#163526]/5 flex justify-between items-center">
+                  <h2 className="font-headline text-2xl text-[#163526] font-bold">Commandes récentes</h2>
+                  <Link href="/suivi-projet" className="text-[10px] font-bold uppercase tracking-widest text-[#ce812f] hover:underline">
+                    Voir tout le catalogue
+                  </Link>
+                </div>
+                <div className="divide-y divide-[#163526]/5">
+                  {PROFILE_ORDERS.map((order) => (
+                    <div 
+                      key={order.code}
+                      onClick={() => setSelectedOrder(order)}
+                      className="group p-10 hover:bg-[#faf9f4] transition-all cursor-pointer flex flex-col md:flex-row justify-between gap-8"
+                    >
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-4">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#ce812f] bg-[#ce812f]/10 px-3 py-1 rounded-full">
+                            {order.code}
+                          </span>
+                          <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${
+                            order.status === 'production' ? 'bg-[#163526] text-white' : 'bg-[#163526]/5 text-[#163526]'
+                          }`}>
+                            {getOrderStatusLabel(order.status)}
+                          </span>
+                        </div>
+                        <h3 className="text-xl font-bold text-[#163526] group-hover:text-[#ce812f] transition-colors">{order.title}</h3>
+                        <p className="text-sm text-[#163526]/60 leading-relaxed max-w-md">{order.summary}</p>
+                      </div>
+                      <div className="flex flex-col justify-between items-end gap-6 text-right">
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/30">Prochaine étape</p>
+                          <p className="text-sm font-bold text-[#163526]">{order.nextStep}</p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="text-2xl font-headline font-bold text-[#163526]">{order.amount}</span>
+                          <div className="w-10 h-10 bg-[#163526]/5 rounded-full flex items-center justify-center text-[#163526] group-hover:bg-[#163526] group-hover:text-white transition-all">
+                            <span className="material-symbols-outlined text-xl">arrow_forward</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notifications Section */}
+              <div className="bg-white rounded-[2.5rem] border border-[#163526]/5 shadow-sm overflow-hidden">
+                <div className="px-10 py-8 border-b border-[#163526]/5">
+                  <h2 className="font-headline text-2xl text-[#163526] font-bold">Dernières alertes</h2>
+                </div>
+                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {PROFILE_NOTIFICATIONS.map((notif, idx) => (
+                    <div 
+                      key={idx}
+                      className={`p-8 rounded-3xl border ${
+                        notif.tone === 'highlight' 
+                        ? 'bg-[#163526] text-white border-[#163526]' 
+                        : 'bg-[#faf9f4] text-[#163526] border-[#163526]/5'
+                      }`}
+                    >
+                      <div className="flex justify-between items-start mb-6">
+                        <span className={`text-[9px] font-bold uppercase tracking-[0.2em] ${notif.tone === 'highlight' ? 'text-white/40' : 'text-[#163526]/30'}`}>
+                          {notif.date}
+                        </span>
+                        <span className="material-symbols-outlined opacity-30 text-xl">
+                          {notif.tone === 'highlight' ? 'priority_high' : 'info'}
+                        </span>
+                      </div>
+                      <h3 className="font-bold mb-3 leading-tight">{notif.title}</h3>
+                      <p className={`text-xs leading-relaxed ${notif.tone === 'highlight' ? 'text-white/70' : 'text-[#163526]/60'}`}>
+                        {notif.message}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Activity & Documents */}
+            <div className="space-y-10">
+              {/* Activity Card */}
+              <div className="bg-white rounded-[2.5rem] border border-[#163526]/5 shadow-sm p-10">
+                <h2 className="font-headline text-2xl text-[#163526] font-bold mb-8">Activité</h2>
+                <div className="space-y-8 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-[#163526]/10">
+                  {PROFILE_ACTIVITY.map((activity, idx) => (
+                    <div className="relative pl-10" key={idx}>
+                      <div className="absolute left-0 top-1.5 w-[23px] h-[23px] bg-white border-2 border-[#163526] rounded-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-[#ce812f] rounded-full"></div>
+                      </div>
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/30 mb-1">{activity.date}</p>
+                      <h4 className="text-sm font-bold text-[#163526] mb-1">{activity.label}</h4>
+                      <p className="text-xs text-[#163526]/60 leading-relaxed">{activity.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Documents Card */}
+              <div className="bg-[#163526] rounded-[2.5rem] p-10 text-white shadow-xl">
+                <h2 className="font-headline text-2xl font-bold mb-8">Documents</h2>
+                <div className="space-y-4">
+                  {PROFILE_DOCUMENTS.map((doc, idx) => (
+                    <div key={idx} className="group p-5 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all flex items-center gap-4 cursor-pointer">
+                      <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-white">
+                        <span className="material-symbols-outlined text-2xl">description</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-bold truncate">{doc.title}</h4>
+                        <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Fichier stocké localement</p>
+                      </div>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center border border-white/20 group-hover:bg-white group-hover:text-[#163526] transition-all">
+                        <span className="material-symbols-outlined text-sm">download</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button className="w-full mt-8 py-4 bg-white/10 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl border border-white/10 hover:bg-white/20 transition-all">
+                  Accéder aux archives
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {selectedOrder && (
+          <OrderDetailsModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+        )}
       </section>
     );
   }

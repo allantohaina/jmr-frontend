@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { authAPI, type QuoteRecord } from "../../lib/api";
 
 export function DevisSection() {
@@ -16,47 +17,66 @@ export function DevisSection() {
   }, []);
 
   return (
-    <section className="access-page ui-section-shell" aria-labelledby="devis-title">
-      <header className="access-page__header ui-section-header">
-        <h1 className="ui-section-title" id="devis-title">
-          Demandes de devis
-        </h1>
-        <span className="access-page__underline ui-section-underline" aria-hidden="true" />
-      </header>
+    <div className="px-6 md:px-12 py-10 space-y-10">
+      <div className="flex justify-between items-end px-2">
+        <div>
+          <h2 className="font-headline text-3xl text-[#163526]">Demandes de Devis</h2>
+          <p className="text-[#1b1c19]/40 text-xs font-bold uppercase tracking-widest mt-1">Consultation et gestion des demandes clients</p>
+        </div>
+      </div>
 
-      <div className="access-page__panel ui-panel-shell">
-        <div className="access-page__card ui-soft-card">
-          <table className="w-full">
+      <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-[#163526]/5">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr>
-                <th className="p-2 text-left">Nom</th>
-                <th className="p-2 text-left">Email</th>
-                <th className="p-2 text-left">Telephone</th>
-                <th className="p-2 text-left">Message</th>
-                <th className="p-2 text-left">Statut</th>
-                <th className="p-2 text-left">Montant</th>
+              <tr className="bg-[#163526]/5 border-b border-[#163526]/5">
+                <th className="px-8 py-6 font-label font-bold text-[10px] uppercase tracking-[0.2em] text-[#1b1c19]/40">Client</th>
+                <th className="px-8 py-6 font-label font-bold text-[10px] uppercase tracking-[0.2em] text-[#1b1c19]/40">Contact</th>
+                <th className="px-8 py-6 font-label font-bold text-[10px] uppercase tracking-[0.2em] text-[#1b1c19]/40">Message</th>
+                <th className="px-8 py-6 font-label font-bold text-[10px] uppercase tracking-[0.2em] text-[#1b1c19]/40">Statut</th>
+                <th className="px-8 py-6 font-label font-bold text-[10px] uppercase tracking-[0.2em] text-[#1b1c19]/40 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {quotes.map((quote) => (
-                <tr key={quote.id}>
-                  <td className="p-2">{quote.name ?? "-"}</td>
-                  <td className="p-2">{quote.email ?? "-"}</td>
-                  <td className="p-2">{quote.phone ?? "-"}</td>
-                  <td className="p-2">{quote.message ?? "-"}</td>
-                  <td className="p-2">{quote.status ?? "-"}</td>
-                  <td className="p-2">{quote.amount ?? "-"}</td>
-                  <td className="p-2">
-                    <a className="text-blue-600 hover:underline" href={`/admin/devis/${quote.id}`}>
-                      Modifier
-                    </a>
+            <tbody className="divide-y divide-[#163526]/5">
+              {quotes.length > 0 ? (
+                quotes.map((quote) => (
+                  <tr key={quote.id} className="hover:bg-[#163526]/[0.02] transition-colors group">
+                    <td className="px-8 py-6">
+                      <p className="font-bold text-sm text-[#163526]">{quote.name ?? "-"}</p>
+                    </td>
+                    <td className="px-8 py-6">
+                      <p className="text-xs text-[#163526]">{quote.email ?? "-"}</p>
+                      <p className="text-[10px] text-[#1b1c19]/40">{quote.phone ?? "-"}</p>
+                    </td>
+                    <td className="px-8 py-6">
+                      <p className="text-xs text-[#163526]/60 line-clamp-1 max-w-xs">{quote.message ?? "-"}</p>
+                    </td>
+                    <td className="px-8 py-6">
+                      <span className="px-3 py-1 bg-[#163526]/10 text-[#163526] text-[9px] font-bold uppercase rounded-full tracking-widest border border-[#163526]/5">
+                        {quote.status ?? "Nouveau"}
+                      </span>
+                    </td>
+                    <td className="px-8 py-6 text-right">
+                      <Link 
+                        href={`/jmr-atelier-management-v2/devis/${quote.id}`}
+                        className="text-orange-500 hover:text-orange-600 font-bold text-[10px] uppercase tracking-widest"
+                      >
+                        Gérer
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="px-8 py-12 text-center">
+                    <p className="text-[#1b1c19]/40 italic text-sm font-body">Aucune demande de devis pour le moment.</p>
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

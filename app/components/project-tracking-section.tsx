@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { DepositPaymentSelector } from "./deposit-payment-selector";
-import { getIsSignedIn } from "../lib/auth";
+import { getIsSignedIn } from "../lib/auth-server";
 
 type StepStatus = "complete" | "active" | "pending";
 export type ProjectStepId = 1 | 2 | 3;
@@ -17,15 +17,15 @@ type ProjectStep = {
 const PROJECT_STEPS: ProjectStep[] = [
   {
     id: 1,
-    label: "Demander le devis.",
+    label: "Demande envoyée.",
   },
   {
     id: 2,
-    label: "Payer l'acompte & confirmer la commande.",
+    label: "Attente devis & Paiement acompte.",
   },
   {
     id: 3,
-    label: "Payer le reste & confirmer la livraison.",
+    label: "Paiement solde & Livraison.",
   },
 ];
 
@@ -430,21 +430,26 @@ export async function ProjectTrackingSection({
       </ol>
 
       {isPaymentStep ? (
-        <>
-          <div className="project-payment-page__intro" data-reveal style={{ transitionDelay: "90ms" }}>
-            <p className="project-payment-page__message">
-              Votre devis est pret.
-              <br />
-              Veuillez passer au paiement pour demarrer la production.
+        <div className="project-status-page__summary" data-reveal style={{ transitionDelay: "90ms" }}>
+          <p className="project-status-page__message">
+            Votre demande a été bien reçue.
+            <br />
+            L'administrateur prépare votre devis personnalisé.
+          </p>
+          <p className="project-status-page__eta">
+            Réponse estimée le <strong>{estimatedResponseDate}</strong>.
+          </p>
+          <div className="mt-8 p-6 bg-[#163526]/5 rounded-2xl border border-[#163526]/10 text-left max-w-2xl mx-auto">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-[#163526] mb-2">Prochaine étape :</h3>
+            <p className="text-xs text-[#163526]/70 leading-relaxed">
+              Dès que le devis sera prêt, vous recevrez une notification dans votre espace client. 
+              Vous pourrez alors le valider et régler l'acompte de 50% pour lancer la production.
             </p>
-
-            <button className="project-payment-page__pdf" type="button">
-              Devis commande en pdf
-            </button>
           </div>
-
-          <DepositPaymentSelector />
-        </>
+          <Link className="project-status-page__cta mt-8" href="/mon-profil">
+            Retour à mon profil
+          </Link>
+        </div>
       ) : (
         <div className="project-status-page__summary" data-reveal style={{ transitionDelay: "90ms" }}>
           <p className="project-status-page__message">

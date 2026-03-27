@@ -1,5 +1,9 @@
+"use client";
+
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type SocialItem = {
   key: string;
@@ -39,6 +43,12 @@ const LEGAL_LINKS = [
 ];
 
 export function Footer() {
+  const pathname = usePathname();
+
+  if (pathname?.startsWith("/jmr-atelier-management-v2")) {
+    return null;
+  }
+
   return (
     <footer className="w-full mt-20 bg-[#163526] text-[#faf9f4] overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-20">

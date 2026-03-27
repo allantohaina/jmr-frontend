@@ -1,6 +1,6 @@
 import { DevisSection } from "../../components/mon-profil/devis-section";
 import { authAPI, type QuoteRecord } from "../../lib/api";
-import { getCurrentUser } from "../../lib/auth";
+import { getCurrentUser } from "../../lib/auth-server";
 
 export default async function DevisPage() {
   const user = await getCurrentUser();
