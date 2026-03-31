@@ -1,4 +1,2 @@
-"use server";
-
-export * from './auth';
-export * from './quotes';
+export { signIn, signOut } from './auth';
+export { sendQuoteRequest } from './quotes';
