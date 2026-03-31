@@ -4,10 +4,9 @@ import { AuthAccessSection, MonProfilSection } from "@/app/components";
 import {
   AUTH_ERROR_COOKIE_NAME,
   getSafeRedirectPath,
-  getIsSignedIn,
-  getSessionToken,
   authAPI,
 } from "@/app/lib";
+import { getIsSignedIn, getSessionToken } from "@/app/lib/auth-server";
 
 export default async function MonProfilPage({
   searchParams,

@@ -8,10 +8,9 @@ import {
   REFRESH_TOKEN_COOKIE_NAME,
   USER_COOKIE_NAME,
   getSafeRedirectPath,
-  getSessionToken,
-  getRefreshToken,
   authAPI,
 } from "@/app/lib";
+import { getSessionToken, getRefreshToken } from "@/app/lib/auth-server";
 
 const AUTH_COOKIE_OPTIONS = {
   httpOnly: true,

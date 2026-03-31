@@ -1,4 +1,4 @@
-import { getCurrentUser, getIsSignedIn } from "./lib/auth-server";
+import { getCurrentUser, getIsSignedIn } from "@/app/lib/auth-server";
 import {
   NotificationsSection,
   AuthAccessSection,

@@ -4,7 +4,7 @@ import {
   ProjectTrackingSection,
   type ProjectStepSearchParam,
   type ProjectTrackingViewSearchParam,
-} from "@/app/components";
+} from "@/app/components/project-tracking-section";
 
 export default async function SuiviProjetPage({
   searchParams,

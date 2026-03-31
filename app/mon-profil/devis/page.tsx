@@ -1,5 +1,6 @@
 import { MonProfilComponents } from "@/app/components";
-import { authAPI, type QuoteRecord, getCurrentUser } from "@/app/lib";
+import { authAPI, type QuoteRecord } from "@/app/lib";
+import { getCurrentUser } from "@/app/lib/auth-server";
 
 export default async function DevisPage() {
   const user = await getCurrentUser();

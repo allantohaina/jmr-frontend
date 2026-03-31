@@ -1,5 +1,5 @@
 import React from "react";
-import { getCurrentUser } from "@/app/lib";
+import { getCurrentUser } from "@/app/lib/auth-server";
 import { redirect } from "next/navigation";
 import AtelierClient from "./AtelierClient";
 

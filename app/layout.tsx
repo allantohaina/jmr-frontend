@@ -23,7 +23,7 @@ import {
   ToastProvider,
   VisitorTracker,
 } from "@/app/components";
-import { getCurrentUser, getIsSignedIn } from "./lib/auth-server";
+import { getCurrentUser, getIsSignedIn } from "@/app/lib/auth-server";
 import { Suspense } from "react";
 
 const ibmPlexSans = IBM_Plex_Sans({

@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { getCurrentUser } from "@/app/lib";
+import { getCurrentUser } from "@/app/lib/auth-server";
 import { redirect } from "next/navigation";
 import { AdminHeaderAlerts } from "./AdminHeaderAlerts";
 
