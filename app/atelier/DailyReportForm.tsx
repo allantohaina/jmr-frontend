@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useToast } from "@/app/components/toast-provider";
+import { useToast } from "@/app/components";
 import { 
   FileText, 
   Send, 

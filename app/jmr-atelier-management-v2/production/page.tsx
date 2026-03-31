@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { authAPI } from "../../lib/api";
+import { authAPI } from "@/app/lib";
 
 export default function AdminProductionPage() {
   const [selectedStat, setSelectedStat] = React.useState<string | null>(null);

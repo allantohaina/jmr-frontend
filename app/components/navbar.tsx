@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { signOut } from "../actions/auth";
+import { signOut } from "@/app/actions";
 
 type NavItem = {
   route: string;

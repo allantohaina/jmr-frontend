@@ -1,5 +1,5 @@
-import { DevisSection } from "../../components/admin/devis-section";
+import { AdminComponents } from "@/app/components";
 
 export default function DevisPage() {
-  return <DevisSection />;
+  return <AdminComponents.DevisSection />;
 }

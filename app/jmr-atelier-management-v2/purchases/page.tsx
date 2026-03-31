@@ -11,7 +11,7 @@ import {
   Calendar,
   Filter
 } from "lucide-react";
-import { useToast } from "@/app/components/toast-provider";
+import { useToast } from "@/app/components";
 
 interface Purchase {
   id: string;

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { DepositPaymentSelector } from "./deposit-payment-selector";
-import { getIsSignedIn } from "../lib/auth-server";
+import { getIsSignedIn } from "@/app/lib";
 
 type StepStatus = "complete" | "active" | "pending";
 export type ProjectStepId = 1 | 2 | 3;

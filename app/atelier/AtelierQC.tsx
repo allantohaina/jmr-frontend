@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { CheckSquare, Square, ShieldCheck, Camera, Send, AlertCircle } from "lucide-react";
-import { useToast } from "@/app/components/toast-provider";
+import { useToast } from "@/app/components";
 
 interface QCStep {
   id: number;

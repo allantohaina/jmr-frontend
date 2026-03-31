@@ -1,16 +1,13 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { AuthAccessSection } from "../components/auth-access-section";
-import { MonProfilSection } from "../components/mon-profil-section";
+import { AuthAccessSection, MonProfilSection } from "@/app/components";
 import {
   AUTH_ERROR_COOKIE_NAME,
   getSafeRedirectPath,
-} from "../lib/auth";
-import {
   getIsSignedIn,
   getSessionToken,
-} from "../lib/auth-server";
-import { authAPI } from "../lib/api";
+  authAPI,
+} from "@/app/lib";
 
 export default async function MonProfilPage({
   searchParams,

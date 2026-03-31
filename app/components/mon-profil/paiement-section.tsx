@@ -1,6 +1,6 @@
 "use client";
 
-import { authAPI } from "../../lib/api";
+import { authAPI } from "@/app/lib";
 
 export function PaiementSection({ id }: { id: string }) {
   async function submitPayment(formData: FormData) {

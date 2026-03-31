@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { signOut } from "../actions/auth";
-import type { UserProfile } from "../lib/api";
+import { signOut } from "@/app/actions";
+import type { UserProfile } from "@/app/lib";
 import {
   type ProfileOrder,
   type ProfileOrderStatus,
@@ -16,7 +16,7 @@ import {
   PROFILE_ORDERS,
   PROFILE_ACTIVITY,
   PROFILE_DOCUMENTS,
-} from "../lib/constants";
+} from "@/app/lib";
 
 type ProfileCard = {
   title: string;

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { signIn } from "../actions/auth";
+import { signIn } from "@/app/actions";
 
 type AuthAccessSectionProps = {
   nextPath?: string;

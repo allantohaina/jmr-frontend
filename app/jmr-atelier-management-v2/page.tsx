@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { authAPI } from "../lib/api";
+import { authAPI } from "@/app/lib";
 import { 
   BarChart, 
   Bar, 

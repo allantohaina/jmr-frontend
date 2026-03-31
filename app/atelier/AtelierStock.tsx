@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Package, Search, Plus, Minus, AlertTriangle } from "lucide-react";
-import { useToast } from "@/app/components/toast-provider";
+import { useToast } from "@/app/components";
 
 interface StockItem {
   id: number;

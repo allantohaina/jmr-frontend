@@ -15,12 +15,14 @@ const manrope = Manrope({
   weight: ["200", "300", "400", "500", "600"],
 });
 import "./globals.css";
-import { ScrollReveal } from "./components/scroll-reveal";
-import { Navbar } from "./components/navbar";
-import { Footer } from "./components/footer";
-import { SuccessToast } from "./components/success-toast";
-import { ToastProvider } from "@/app/components/toast-provider";
-import { VisitorTracker } from "./components/visitor-tracker";
+import {
+  ScrollReveal,
+  Navbar,
+  Footer,
+  SuccessToast,
+  ToastProvider,
+  VisitorTracker,
+} from "@/app/components";
 import { getCurrentUser, getIsSignedIn } from "./lib/auth-server";
 import { Suspense } from "react";
 

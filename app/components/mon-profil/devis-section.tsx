@@ -1,6 +1,6 @@
 "use client";
 
-import { authAPI, type QuoteRecord } from "../../lib/api";
+import { authAPI, type QuoteRecord } from "@/app/lib";
 
 export function DevisSection({ quotes }: { quotes: QuoteRecord[] }) {
   async function acceptQuote(id: QuoteRecord["id"]) {

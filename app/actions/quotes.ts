@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { authAPI } from "../lib/api";
+import { authAPI } from "@/app/lib";
 
 export async function sendQuoteRequest(formData: FormData) {
   const name = formData.get("name") as string;

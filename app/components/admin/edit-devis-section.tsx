@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { authAPI } from "../../lib/api";
+import { authAPI } from "@/app/lib";
 
 type QuoteRecord = {
   id: string | number;

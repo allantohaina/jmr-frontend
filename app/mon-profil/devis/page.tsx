@@ -1,6 +1,5 @@
-import { DevisSection } from "../../components/mon-profil/devis-section";
-import { authAPI, type QuoteRecord } from "../../lib/api";
-import { getCurrentUser } from "../../lib/auth-server";
+import { MonProfilComponents } from "@/app/components";
+import { authAPI, type QuoteRecord, getCurrentUser } from "@/app/lib";
 
 export default async function DevisPage() {
   const user = await getCurrentUser();
@@ -11,5 +10,10 @@ export default async function DevisPage() {
     quotes = response.data;
   }
 
-  return <DevisSection quotes={quotes} />;
+  return (
+    <div className="container mx-auto py-10">
+      <h1 className="text-3xl font-bold mb-6">Mes devis</h1>
+      <MonProfilComponents.DevisSection quotes={quotes} />
+    </div>
+  );
 }

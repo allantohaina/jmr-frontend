@@ -1,9 +1,11 @@
 import { getCurrentUser, getIsSignedIn } from "./lib/auth-server";
-import { NotificationsSection } from "./components/notifications-section";
-import { AuthAccessSection } from "./components/auth-access-section";
-import { HeroSection } from "./components/stitch/hero-section";
-import { ServicesSection } from "./components/stitch/services-section";
-import { AboutSection } from "./components/stitch/about-section";
+import {
+  NotificationsSection,
+  AuthAccessSection,
+  HeroSection,
+  ServicesSection,
+  AboutSection,
+} from "@/app/components";
 
 export default async function HomePage() {
   const [isSignedIn, user] = await Promise.all([getIsSignedIn(), getCurrentUser()]);

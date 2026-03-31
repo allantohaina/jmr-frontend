@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import { useToast } from "@/app/components/toast-provider";
+import { useToast } from "@/app/components";
 import { 
   ClipboardCheck, 
   Calendar as CalendarIcon, 

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { sendQuoteRequest } from "../actions/quotes";
+import { sendQuoteRequest } from "@/app/actions";
 
 function QuoteFormContent() {
   const searchParams = useSearchParams();

@@ -7,7 +7,7 @@ import { DailyReportForm } from "./DailyReportForm";
 import { AtelierStock } from "./AtelierStock";
 import { AtelierTechnicalSheets } from "./AtelierTechnicalSheets";
 import { AtelierQC } from "./AtelierQC";
-import { useToast } from "@/app/components/toast-provider";
+import { useToast } from "@/app/components";
 import { 
   Factory, 
   Clock, 
