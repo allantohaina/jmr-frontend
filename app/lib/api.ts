@@ -62,110 +62,6 @@ export async function fetchWithAuth<T = unknown>(
   options: RequestInit = {},
   token?: string,
 ): Promise<ApiResponse<T>> {
-  // --- MOCK MODE ---
-  // On utilise le mode Mock si spécifié par variable d'environnement ou en développement par défaut
-  const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === 'true' || 
-                   (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_USE_MOCKS !== 'false'); 
-
-  if (useMocks) {
-    console.log(`[API MOCK] Intercepting ${options.method || 'GET'} ${endpoint}`);
-    
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // MOCK DATA STORAGE
-    const MOCK_QUOTES: QuoteRecord[] = [
-      { 
-        id: "DV-001", 
-        name: "Client Lambda", 
-        email: "client@test.com", 
-        status: "draft", 
-        message: "Besoin de 50 polos en coton bio.",
-        files: [{ name: "design.pdf", url: "#", type: "pdf" }]
-      },
-      { 
-        id: "DV-002", 
-        name: "Atelier Granville", 
-        email: "pro@test.com", 
-        status: "accepted", 
-        amount: 1500,
-        deposit_amount: 750,
-        deposit_paid: true,
-        message: "Commande de vestes hiver."
-      }
-    ];
-
-    const MOCK_ORDERS = [
-      { id: 1, client: "Maison Haussmann", date: "24 Mars 2024", status: "Production", motive: "Assemblage en cours (Veste Laine)" },
-      { id: 2, client: "Atelier Granville", date: "22 Mars 2024", status: "Retard", motive: "Rupture de stock tissu soie bleu marine", type: "error" },
-      { id: 3, client: "Studio Luxe", date: "20 Mars 2024", status: "En attente", motive: "Validation du prototype par le client", type: "warning" },
-    ];
-
-    const MOCK_PRODUCTION = [
-      { id: 1, name: "Ligne A - Polos", status: "en_cours", order: "#CMD-104", progress: 65, issues: [] },
-      { id: 2, name: "Ligne B - Chemises", status: "probleme", order: "#CMD-105", progress: 30, issues: ["Machine #4 en panne"] },
-    ];
-
-    if (endpoint === "/quotes") return { status: "success", data: MOCK_QUOTES as T };
-    if (endpoint.startsWith("/quotes/")) {
-      const id = endpoint.split("/").pop();
-      const quote = MOCK_QUOTES.find(q => q.id === id) || MOCK_QUOTES[0];
-      return { status: "success", data: quote as T };
-    }
-
-    if (endpoint === "/orders") return { status: "success", data: MOCK_ORDERS as T };
-    if (endpoint === "/production") return { status: "success", data: MOCK_PRODUCTION as T };
-
-    if (endpoint === "/visitors") {
-      const MOCK_VISITORS = [
-        { id: 1, pseudonym: "Curieux Styliste #452", status: "online", page: "/#accueil", duration: "2min" },
-        { id: 2, pseudonym: "Créatif Tailleur #12", status: "online", page: "/#nos-services", duration: "5min" },
-        { id: 3, pseudonym: "Rapide Explorateur #89", status: "offline", page: "/mentions-legales", duration: "10min" },
-      ];
-      return { status: "success", data: MOCK_VISITORS as T };
-    }
-
-    if (endpoint === "/security-logs") {
-      const MOCK_LOGS = [
-        { id: 1, type: "unauthorized_access", message: "Tentative d'accès direct à /admin par une IP inconnue", date: "26/03/2026 14:20" },
-        { id: 2, type: "unauthorized_access", message: "Tentative d'accès direct à /admin par worker@test.com", date: "26/03/2026 15:45" },
-      ];
-      return { status: "success", data: MOCK_LOGS as T };
-    }
-
-    if (endpoint.includes("/users/profile")) {
-      // Simulation des 3 types de comptes demandés
-      if (token === "mock_token_client") {
-        return { 
-          status: "success", 
-          data: { id: 101, first_name: "Client", last_name: "Lambda", email: "client@test.com", role: "user" } as T 
-        };
-      }
-      if (token === "mock_token_worker") {
-        return { 
-          status: "success", 
-          data: { id: 102, first_name: "Atelier", last_name: "Opérateur", email: "worker@test.com", role: "worker" } as T 
-        };
-      }
-      if (token === "mock_token_admin") {
-        return { 
-          status: "success", 
-          data: { id: 103, first_name: "Admin", last_name: "Atelier", email: "admin@test.com", role: "admin" } as T 
-        };
-      }
-      
-      const mockUser: UserProfile = {
-        id: 1,
-        first_name: "Admin",
-        last_name: "JMR",
-        email: "admin@jmr.com",
-        role: "admin"
-      };
-      return { status: "success", data: mockUser as T };
-    }
-  }
-  // --- END MOCK MODE ---
-
   const headers = new Headers(options.headers);
   const isFormDataRequest = options.body instanceof FormData;
 
@@ -186,30 +82,19 @@ export async function fetchWithAuth<T = unknown>(
     headers,
   });
 
-  let data: any;
+  let data: unknown;
   try {
     data = await response.json();
   } catch (e) {
-    console.error("Failed to parse API response as JSON:", {
-      url: `${API_URL}${endpoint}`,
-      status: response.status,
-      error: e
-    });
+    console.error("Failed to parse API response as JSON:", e);
     throw new Error(`Invalid JSON response from server (${response.status})`);
   }
-
-  console.log("API Response:", {
-    url: `${API_URL}${endpoint}`,
-    status: response.status,
-    data
-  });
 
   if (!response.ok) {
     throw new Error(readErrorMessage(data) || "An error occurred");
   }
 
-  // Si le backend ne renvoie pas le format { status, data }, on l'adapte
-  if (data && !data.status && !data.data) {
+  if (data && typeof data === "object" && !("status" in data) && !("data" in data)) {
     return {
       status: "success",
       data: data

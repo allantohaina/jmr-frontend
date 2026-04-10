@@ -73,18 +73,18 @@ const PROFILE_METRICS: ProfileMetric[] = [
 
 function OrderDetailsModal({ order, onClose }: { order: ProfileOrder; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#163526]/40 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white rounded-[2rem] w-full max-w-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#e5ad46]/40 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-[#25303a] rounded-[2rem] w-full max-w-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
         <div className="p-8 md:p-12 space-y-8">
           <div className="flex justify-between items-start">
             <div>
-              <span className="px-3 py-1 bg-[#163526]/5 text-[#163526] text-[10px] font-bold uppercase tracking-widest rounded-full border border-[#163526]/5 mb-3 inline-block">
+              <span className="px-3 py-1 bg-[#e5ad46]/5 text-[#e5ad46] text-[10px] font-bold uppercase tracking-widest rounded-full border border-[#e5ad46]/5 mb-3 inline-block">
                 Référence {order.code}
               </span>
-              <h3 className="font-headline text-3xl text-[#163526]">{order.title}</h3>
+              <h3 className="font-headline text-3xl text-[#e5ad46]">{order.title}</h3>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-[#163526]/5 rounded-full transition-colors">
-              <span className="material-symbols-outlined text-[#163526]">close</span>
+            <button onClick={onClose} className="p-2 hover:bg-[#e5ad46]/5 rounded-full transition-colors">
+              <span className="material-symbols-outlined text-[#e5ad46]">close</span>
             </button>
           </div>
 
@@ -95,22 +95,22 @@ function OrderDetailsModal({ order, onClose }: { order: ProfileOrder; onClose: (
                 <div className="flex items-center gap-3">
                   <div className={`w-3 h-3 rounded-full ${
                     order.status === 'production' ? 'bg-orange-500 animate-pulse' : 
-                    order.status === 'attente_devis' ? 'bg-[#ce812f]/40' : 'bg-[#163526]'
+                    order.status === 'attente_devis' ? 'bg-[#e5ad46]/40' : 'bg-[#e5ad46]'
                   }`}></div>
-                  <span className="text-sm font-bold text-[#163526] uppercase tracking-widest">{getOrderStatusLabel(order.status)}</span>
+                  <span className="text-sm font-bold text-[#e5ad46] uppercase tracking-widest">{getOrderStatusLabel(order.status)}</span>
                 </div>
               </div>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-2">Résumé de la requête</p>
-                <p className="text-sm text-[#163526]/70 leading-relaxed italic">"{order.summary}"</p>
+                <p className="text-sm text-[#e5ad46]/70 leading-relaxed italic">"{order.summary}"</p>
               </div>
             </div>
-            <div className="bg-[#faf9f4] p-6 rounded-2xl border border-[#163526]/5 space-y-4">
+            <div className="bg-[#25303a] p-6 rounded-2xl border border-[#e5ad46]/5 space-y-4">
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Prochaine Étape</p>
-              <p className="text-xs font-bold text-[#163526] leading-relaxed">{order.nextStep}</p>
-              <div className="pt-4 border-t border-[#163526]/10 flex justify-between items-end">
+              <p className="text-xs font-bold text-[#e5ad46] leading-relaxed">{order.nextStep}</p>
+              <div className="pt-4 border-t border-[#e5ad46]/10 flex justify-between items-end">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Montant Total</span>
-                <span className="text-xl font-headline font-bold text-[#163526]">{order.amount}</span>
+                <span className="text-xl font-headline font-bold text-[#e5ad46]">{order.amount}</span>
               </div>
             </div>
           </div>
@@ -119,23 +119,23 @@ function OrderDetailsModal({ order, onClose }: { order: ProfileOrder; onClose: (
             {order.status === 'devis' ? (
               <button 
                 onClick={() => alert("Redirection vers le paiement de l'acompte (50%).")}
-                className="flex-1 py-4 bg-[#ce812f] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all"
+                className="flex-1 py-4 bg-[#e5ad46] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all"
               >
                 Accepter & Payer l'Acompte
               </button>
             ) : order.status === 'attente_devis' ? (
-              <button className="flex-1 py-4 bg-[#163526]/10 text-[#163526]/40 text-[10px] font-bold uppercase tracking-widest rounded-xl cursor-not-allowed">
+              <button className="flex-1 py-4 bg-[#e5ad46]/10 text-[#e5ad46]/40 text-[10px] font-bold uppercase tracking-widest rounded-xl cursor-not-allowed">
                 En attente du devis
               </button>
             ) : (
-              <button className="flex-1 py-4 bg-[#163526] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all">
+              <button className="flex-1 py-4 bg-[#e5ad46] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all">
                 Contacter l'Atelier
               </button>
             )}
             {order.status !== 'attente_devis' && (
               <Link 
                 href={`/mon-profil/devis/${order.code}`}
-                className="flex-1 py-4 bg-white border border-[#163526]/10 text-[#163526] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#163526]/5 transition-all text-center"
+                className="flex-1 py-4 bg-[#25303a] border border-[#e5ad46]/10 text-[#e5ad46] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#e5ad46]/5 transition-all text-center"
               >
                 Voir le Devis PDF
               </Link>
@@ -177,19 +177,19 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
 
   if (variant === "dashboard") {
     return (
-      <section className="min-h-screen bg-[#faf9f4] pb-24">
+      <section className="min-h-screen bg-[#25303a] pb-24">
         {/* Clean, refined header */}
-        <div className="bg-white border-b border-[#163526]/5 py-12">
+        <div className="bg-[#25303a] border-b border-[#e5ad46]/5 py-12">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
               <div className="text-center md:text-left">
-                <p className="text-[#ce812f] text-[10px] font-bold uppercase tracking-[0.3em] mb-2">Espace Personnel</p>
-                <h1 className="font-headline text-5xl text-[#163526] font-bold tracking-tight leading-none mb-3">Tableau de bord</h1>
-                <p className="text-[#163526]/50 text-sm font-medium">Bienvenue, <span className="text-[#163526] font-bold">{user?.first_name} {user?.last_name}</span></p>
+                <p className="text-[#e5ad46] text-[10px] font-bold uppercase tracking-[0.3em] mb-2">Espace Personnel</p>
+                <h1 className="font-headline text-5xl text-[#e5ad46] font-bold tracking-tight leading-none mb-3">Tableau de bord</h1>
+                <p className="text-[#e5ad46]/50 text-sm font-medium">Bienvenue, <span className="text-[#e5ad46] font-bold">{user?.first_name} {user?.last_name}</span></p>
               </div>
-              <div className="bg-[#163526]/5 px-6 py-3 rounded-full border border-[#163526]/10">
-                <p className="text-[#163526] text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#ce812f]"></span>
+              <div className="bg-[#e5ad46]/5 px-6 py-3 rounded-full border border-[#e5ad46]/10">
+                <p className="text-[#e5ad46] text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#e5ad46]"></span>
                   Statut : {user?.role === 'admin' ? 'Administrateur' : user?.role === 'worker' ? 'Artisan Atelier' : 'Client Privilégié'}
                 </p>
               </div>
@@ -199,7 +199,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
 
         <div className="max-w-7xl mx-auto px-6 mt-12 space-y-12">
           {/* Hero Card */}
-          <div className="relative bg-[#163526] rounded-[2.5rem] p-10 md:p-16 text-white overflow-hidden shadow-2xl">
+          <div className="relative bg-[#1e2a38] rounded-[2.5rem] p-10 md:p-16 text-[#e5ad46] overflow-hidden shadow-2xl">
             <div className="relative z-10 max-w-2xl">
               <h2 className="text-4xl md:text-5xl font-headline font-bold mb-6 leading-tight">
                 L'excellence textile, <br/>étape par étape.
@@ -208,13 +208,13 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                 Consultez vos devis, suivez la fabrication de vos pièces en temps réel et accédez à vos archives techniques. Votre vision prend vie ici.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/suivi-projet" className="px-8 py-4 bg-[#ce812f] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#b87028] transition-all shadow-lg shadow-[#ce812f]/20">
+                <Link href="/suivi-projet" className="px-8 py-4 bg-[#e5ad46] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#b87028] transition-all shadow-lg shadow-[#e5ad46]/20">
                   Suivre mes commandes
                 </Link>
-                <Link href="/demande-devis" className="px-8 py-4 bg-white/10 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white/20 transition-all border border-white/10">
+                <Link href="/demande-devis" className="px-8 py-4 bg-[#25303a]/10 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#25303a]/20 transition-all border border-white/10">
                   Nouveau Devis
                 </Link>
-                <button className="px-8 py-4 bg-white/10 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white/20 transition-all border border-white/10">
+                <button className="px-8 py-4 bg-[#25303a]/10 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#25303a]/20 transition-all border border-white/10">
                   Contacter un expert
                 </button>
               </div>
@@ -228,15 +228,15 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
           {/* Metrics Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {PROFILE_METRICS.map((metric, idx) => (
-              <div className="bg-white p-8 rounded-[2rem] border border-[#163526]/5 shadow-sm hover:shadow-md transition-all group" key={idx}>
+              <div className="bg-[#25303a] p-8 rounded-[2rem] border border-[#e5ad46]/5 shadow-sm hover:shadow-md transition-all group" key={idx}>
                 <div className="flex justify-between items-start mb-6">
-                  <div className="w-12 h-12 bg-[#163526]/5 rounded-2xl flex items-center justify-center text-[#163526] group-hover:bg-[#ce812f] group-hover:text-white transition-colors">
+                  <div className="w-12 h-12 bg-[#e5ad46]/5 rounded-2xl flex items-center justify-center text-[#e5ad46] group-hover:bg-[#e5ad46] group-hover:text-white transition-colors">
                     <span className="material-symbols-outlined text-2xl">{metric.icon}</span>
                   </div>
-                  <span className="text-4xl font-headline font-bold text-[#163526]">{metric.value}</span>
+                  <span className="text-4xl font-headline font-bold text-[#e5ad46]">{metric.value}</span>
                 </div>
-                <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#163526] mb-2">{metric.label}</h3>
-                <p className="text-[#163526]/50 text-xs leading-relaxed">{metric.detail}</p>
+                <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#e5ad46] mb-2">{metric.label}</h3>
+                <p className="text-[#e5ad46]/50 text-xs leading-relaxed">{metric.detail}</p>
               </div>
             ))}
           </div>
@@ -246,42 +246,42 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
             {/* Left & Center: Orders & Notifications */}
             <div className="lg:col-span-2 space-y-10">
               {/* Orders Section */}
-              <div className="bg-white rounded-[2.5rem] border border-[#163526]/5 shadow-sm overflow-hidden">
-                <div className="px-10 py-8 border-b border-[#163526]/5 flex justify-between items-center">
-                  <h2 className="font-headline text-2xl text-[#163526] font-bold">Commandes récentes</h2>
-                  <Link href="/suivi-projet" className="text-[10px] font-bold uppercase tracking-widest text-[#ce812f] hover:underline">
+              <div className="bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 shadow-sm overflow-hidden">
+                <div className="px-10 py-8 border-b border-[#e5ad46]/5 flex justify-between items-center">
+                  <h2 className="font-headline text-2xl text-[#e5ad46] font-bold">Commandes récentes</h2>
+                  <Link href="/suivi-projet" className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] hover:underline">
                     Voir tout le catalogue
                   </Link>
                 </div>
-                <div className="divide-y divide-[#163526]/5">
+                <div className="divide-y divide-[#e5ad46]/5">
                   {PROFILE_ORDERS.map((order) => (
                     <div 
                       key={order.code}
                       onClick={() => setSelectedOrder(order)}
-                      className="group p-10 hover:bg-[#faf9f4] transition-all cursor-pointer flex flex-col md:flex-row justify-between gap-8"
+                      className="group p-10 hover:bg-[#25303a] transition-all cursor-pointer flex flex-col md:flex-row justify-between gap-8"
                     >
                       <div className="space-y-4">
                         <div className="flex items-center gap-4">
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#ce812f] bg-[#ce812f]/10 px-3 py-1 rounded-full">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] bg-[#e5ad46]/10 px-3 py-1 rounded-full">
                             {order.code}
                           </span>
                           <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${
-                            order.status === 'production' ? 'bg-[#163526] text-white' : 'bg-[#163526]/5 text-[#163526]'
+                            order.status === 'production' ? 'bg-[#e5ad46] text-white' : 'bg-[#e5ad46]/5 text-[#e5ad46]'
                           }`}>
                             {getOrderStatusLabel(order.status)}
                           </span>
                         </div>
-                        <h3 className="text-xl font-bold text-[#163526] group-hover:text-[#ce812f] transition-colors">{order.title}</h3>
-                        <p className="text-sm text-[#163526]/60 leading-relaxed max-w-md">{order.summary}</p>
+                        <h3 className="text-xl font-bold text-[#e5ad46] group-hover:text-[#e5ad46] transition-colors">{order.title}</h3>
+                        <p className="text-sm text-[#e5ad46]/60 leading-relaxed max-w-md">{order.summary}</p>
                       </div>
                       <div className="flex flex-col justify-between items-end gap-6 text-right">
                         <div className="space-y-1">
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/30">Prochaine étape</p>
-                          <p className="text-sm font-bold text-[#163526]">{order.nextStep}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46]/30">Prochaine étape</p>
+                          <p className="text-sm font-bold text-[#e5ad46]">{order.nextStep}</p>
                         </div>
                         <div className="flex items-center gap-4">
-                          <span className="text-2xl font-headline font-bold text-[#163526]">{order.amount}</span>
-                          <div className="w-10 h-10 bg-[#163526]/5 rounded-full flex items-center justify-center text-[#163526] group-hover:bg-[#163526] group-hover:text-white transition-all">
+                          <span className="text-2xl font-headline font-bold text-[#e5ad46]">{order.amount}</span>
+                          <div className="w-10 h-10 bg-[#e5ad46]/5 rounded-full flex items-center justify-center text-[#e5ad46] group-hover:bg-[#e5ad46] group-hover:text-white transition-all">
                             <span className="material-symbols-outlined text-xl">arrow_forward</span>
                           </div>
                         </div>
@@ -292,9 +292,9 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
               </div>
 
               {/* Notifications Section */}
-              <div className="bg-white rounded-[2.5rem] border border-[#163526]/5 shadow-sm overflow-hidden">
-                <div className="px-10 py-8 border-b border-[#163526]/5">
-                  <h2 className="font-headline text-2xl text-[#163526] font-bold">Dernières alertes</h2>
+              <div className="bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 shadow-sm overflow-hidden">
+                <div className="px-10 py-8 border-b border-[#e5ad46]/5">
+                  <h2 className="font-headline text-2xl text-[#e5ad46] font-bold">Dernières alertes</h2>
                 </div>
                 <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                   {PROFILE_NOTIFICATIONS.map((notif, idx) => (
@@ -302,12 +302,12 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                       key={idx}
                       className={`p-8 rounded-3xl border ${
                         notif.tone === 'highlight' 
-                        ? 'bg-[#163526] text-white border-[#163526]' 
-                        : 'bg-[#faf9f4] text-[#163526] border-[#163526]/5'
+                        ? 'bg-[#1e2a38] text-[#e5ad46] border-[#e5ad46]' 
+                        : 'bg-[#25303a] text-[#e5ad46] border-[#e5ad46]/5'
                       }`}
                     >
                       <div className="flex justify-between items-start mb-6">
-                        <span className={`text-[9px] font-bold uppercase tracking-[0.2em] ${notif.tone === 'highlight' ? 'text-white/40' : 'text-[#163526]/30'}`}>
+                        <span className={`text-[9px] font-bold uppercase tracking-[0.2em] ${notif.tone === 'highlight' ? 'text-white/40' : 'text-[#e5ad46]/30'}`}>
                           {notif.date}
                         </span>
                         <span className="material-symbols-outlined opacity-30 text-xl">
@@ -315,7 +315,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                         </span>
                       </div>
                       <h3 className="font-bold mb-3 leading-tight">{notif.title}</h3>
-                      <p className={`text-xs leading-relaxed ${notif.tone === 'highlight' ? 'text-white/70' : 'text-[#163526]/60'}`}>
+                      <p className={`text-xs leading-relaxed ${notif.tone === 'highlight' ? 'text-white/70' : 'text-[#e5ad46]/60'}`}>
                         {notif.message}
                       </p>
                     </div>
@@ -327,42 +327,42 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
             {/* Right: Activity & Documents */}
             <div className="space-y-10">
               {/* Activity Card */}
-              <div className="bg-white rounded-[2.5rem] border border-[#163526]/5 shadow-sm p-10">
-                <h2 className="font-headline text-2xl text-[#163526] font-bold mb-8">Activité</h2>
-                <div className="space-y-8 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-[#163526]/10">
+              <div className="bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 shadow-sm p-10">
+                <h2 className="font-headline text-2xl text-[#e5ad46] font-bold mb-8">Activité</h2>
+                <div className="space-y-8 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-[#e5ad46]/10">
                   {PROFILE_ACTIVITY.map((activity, idx) => (
                     <div className="relative pl-10" key={idx}>
-                      <div className="absolute left-0 top-1.5 w-[23px] h-[23px] bg-white border-2 border-[#163526] rounded-full flex items-center justify-center">
-                        <div className="w-2 h-2 bg-[#ce812f] rounded-full"></div>
+                      <div className="absolute left-0 top-1.5 w-[23px] h-[23px] bg-[#25303a] border-2 border-[#e5ad46] rounded-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-[#e5ad46] rounded-full"></div>
                       </div>
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/30 mb-1">{activity.date}</p>
-                      <h4 className="text-sm font-bold text-[#163526] mb-1">{activity.label}</h4>
-                      <p className="text-xs text-[#163526]/60 leading-relaxed">{activity.detail}</p>
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-[#e5ad46]/30 mb-1">{activity.date}</p>
+                      <h4 className="text-sm font-bold text-[#e5ad46] mb-1">{activity.label}</h4>
+                      <p className="text-xs text-[#e5ad46]/60 leading-relaxed">{activity.detail}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Documents Card */}
-              <div className="bg-[#163526] rounded-[2.5rem] p-10 text-white shadow-xl">
+              <div className="bg-[#1e2a38] rounded-[2.5rem] p-10 text-[#e5ad46] shadow-xl border border-[#e5ad46]/10">
                 <h2 className="font-headline text-2xl font-bold mb-8">Documents</h2>
                 <div className="space-y-4">
                   {PROFILE_DOCUMENTS.map((doc, idx) => (
-                    <div key={idx} className="group p-5 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all flex items-center gap-4 cursor-pointer">
-                      <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-white">
+                    <div key={idx} className="group p-5 bg-[#25303a]/5 rounded-2xl border border-white/5 hover:bg-[#25303a]/10 transition-all flex items-center gap-4 cursor-pointer">
+                      <div className="w-12 h-12 bg-[#25303a]/10 rounded-xl flex items-center justify-center text-white">
                         <span className="material-symbols-outlined text-2xl">description</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-bold truncate">{doc.title}</h4>
                         <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Fichier stocké localement</p>
                       </div>
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center border border-white/20 group-hover:bg-white group-hover:text-[#163526] transition-all">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center border border-white/20 group-hover:bg-[#25303a] group-hover:text-[#e5ad46] transition-all">
                         <span className="material-symbols-outlined text-sm">download</span>
                       </div>
                     </div>
                   ))}
                 </div>
-                <button className="w-full mt-8 py-4 bg-white/10 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl border border-white/10 hover:bg-white/20 transition-all">
+                <button className="w-full mt-8 py-4 bg-[#25303a]/10 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl border border-white/10 hover:bg-[#25303a]/20 transition-all">
                   Accéder aux archives
                 </button>
               </div>

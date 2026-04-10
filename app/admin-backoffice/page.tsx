@@ -159,7 +159,7 @@ export default function AdminDashboardPage() {
 
       {/* Financial Hero Section */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <Link href="/jmr-atelier-management-v2/devis" className="bg-white p-8 rounded-2xl relative overflow-hidden group border border-[#163526]/5 shadow-sm hover:shadow-md transition-all">
+        <Link href="/backoffice/devis" className="bg-white p-8 rounded-2xl relative overflow-hidden group border border-[#163526]/5 shadow-sm hover:shadow-md transition-all">
           <div className="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
             <span className="material-symbols-outlined text-[120px] text-[#163526]">request_quote</span>
           </div>
@@ -195,7 +195,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <Link href="/jmr-atelier-management-v2/production" className="bg-white p-8 rounded-2xl border border-[#163526]/5 shadow-sm hover:shadow-md transition-all group">
+        <Link href="/backoffice/production" className="bg-white p-8 rounded-2xl border border-[#163526]/5 shadow-sm hover:shadow-md transition-all group">
           <p className="font-label font-bold uppercase text-[10px] tracking-[0.2em] text-[#1b1c19]/40 mb-4">Marge estimée globale</p>
           <div className="flex items-baseline gap-2">
             <span className="font-headline text-4xl font-bold text-[#163526]">32.4</span>
@@ -224,7 +224,7 @@ export default function AdminDashboardPage() {
               <span className="material-symbols-outlined text-sm">{filterActive ? 'filter_alt_off' : 'filter_list'}</span>
               {filterActive ? 'Filtres actifs' : 'Filtrer'}
             </button>
-            <Link href="/jmr-atelier-management-v2/orders" className="px-6 py-3 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl flex items-center gap-2 shadow-lg hover:bg-[#163526]/90 transition-all">
+            <Link href="/backoffice/orders" className="px-6 py-3 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl flex items-center gap-2 shadow-lg hover:bg-[#163526]/90 transition-all">
               <span className="material-symbols-outlined text-sm text-orange-400">add_circle</span>
               Gérer les Commandes
             </Link>
@@ -321,7 +321,7 @@ export default function AdminDashboardPage() {
           <div className="relative z-10">
             <h3 className="font-headline text-3xl italic mb-4">Excellence Technique</h3>
             <p className="text-white/60 text-sm max-w-xs leading-relaxed">98.4% des commandes passent le contrôle qualité au premier essai ce mois-ci.</p>
-            <Link href="/admin/production" className="mt-8 text-[10px] font-bold uppercase tracking-[0.3em] text-orange-400 hover:text-white transition-all flex items-center gap-2">
+            <Link href="/backoffice/production" className="mt-8 text-[10px] font-bold uppercase tracking-[0.3em] text-orange-400 hover:text-white transition-all flex items-center gap-2">
               Suivi de Production <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </Link>
           </div>

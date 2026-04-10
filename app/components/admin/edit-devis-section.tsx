@@ -379,7 +379,7 @@ export function EditDevisSection({ id }: { id: string }) {
   return (
     <div className="px-6 md:px-12 py-10 space-y-10 max-w-5xl">
       {/* Breadcrumb / Back */}
-      <Link href="/jmr-atelier-management-v2/devis" className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#163526]/40 hover:text-orange-500 transition-colors group">
+      <Link href="/backoffice/devis" className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#163526]/40 hover:text-orange-500 transition-colors group">
         <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back</span>
         Retour aux devis
       </Link>

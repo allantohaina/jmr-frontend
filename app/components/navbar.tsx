@@ -46,7 +46,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: "/navbar/navbar-profile.svg",
   },
   {
-    route: "/jmr-atelier-management-v2",
+    route: "/backoffice",
     sectionId: "admin",
     label: "Admin",
     icon: "/analytics_chart.svg",
@@ -174,7 +174,7 @@ export function Navbar({
   }, [pathname]);
 
   // Hide Navbar in Admin section - Moved AFTER hooks
-  if (pathname?.startsWith("/jmr-atelier-management-v2")) {
+  if (pathname?.startsWith("/backoffice")) {
     return null;
   }
 
@@ -255,30 +255,30 @@ export function Navbar({
                 </button>
                 
                 {isProfileOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-[#c9cfd6] rounded-xl shadow-xl py-2 z-[110] animate-in fade-in zoom-in-95 duration-200">
-                    <Link 
-                      href="/mon-profil" 
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-[#f6f7fa] text-sm font-medium text-[#151a21] transition-colors"
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-[#25303a] border border-[#e5ad46]/20 rounded-xl shadow-xl py-2 z-[110] animate-in fade-in zoom-in-95 duration-200">
+                    <Link
+                      href="/mon-profil"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#e5ad46] transition-colors"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       <span className="material-symbols-outlined text-xl">person</span>
                       Tableau de bord
                     </Link>
                     {userRole === "admin" && (
-                      <Link 
-                        href="/jmr-atelier-management-v2" 
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#f6f7fa] text-sm font-medium text-[#151a21] transition-colors"
+                      <Link
+                        href="/backoffice"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#e5ad46] transition-colors"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         <span className="material-symbols-outlined text-xl">admin_panel_settings</span>
                         Administration
                       </Link>
                     )}
-                    <div className="h-px bg-[#c9cfd6] mx-2 my-1"></div>
+                    <div className="h-px bg-[#e5ad46]/20 mx-2 my-1"></div>
                     <form action={signOut}>
-                      <button 
-                        type="submit" 
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 text-sm font-medium text-red-600 transition-colors"
+                      <button
+                        type="submit"
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#2a1a1a] text-sm font-medium text-[#ff6b6b] transition-colors"
                       >
                         <span className="material-symbols-outlined text-xl">logout</span>
                         Se déconnecter

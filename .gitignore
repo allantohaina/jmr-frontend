@@ -33,8 +33,12 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
-# vercel
+# local/dev files
 .vercel
+.herald-error.log
+comptes_test.txt
+.htaccess
+
 
 # typescript
 *.tsbuildinfo

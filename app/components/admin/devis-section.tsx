@@ -58,7 +58,7 @@ export function DevisSection() {
                     </td>
                     <td className="px-8 py-6 text-right">
                       <Link 
-                        href={`/jmr-atelier-management-v2/devis/${quote.id}`}
+                        href={`/backoffice/devis/${quote.id}`}
                         className="text-orange-500 hover:text-orange-600 font-bold text-[10px] uppercase tracking-widest"
                       >
                         Gérer

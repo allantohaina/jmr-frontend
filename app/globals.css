@@ -11,13 +11,15 @@
 }
 
 :root {
-  --font-ibm-plex-sans: var(--font-manrope), "Aptos", "Segoe UI", "Helvetica Neue";
-  --font-sora: var(--font-noto-serif), "Trebuchet MS", "Segoe UI", "Arial";
-  --font-inter: var(--font-manrope), "Segoe UI", "Aptos", "Helvetica Neue";
-  --font-playfair: var(--font-noto-serif), "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Times New Roman";
-  --bg: #faf9f4;
-  --text-dark: #163526;
-  --text-muted: #424843;
+  --font-manrope: "Manrope", "Aptos", "Segoe UI", "Helvetica Neue", sans-serif;
+  --font-noto-serif: "Noto Serif", "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Times New Roman", serif;
+  --font-ibm-plex-sans: "IBM Plex Sans", var(--font-manrope);
+  --font-sora: "Sora", "Trebuchet MS", "Segoe UI", "Arial", sans-serif;
+  --font-inter: "Inter", var(--font-manrope);
+  --font-playfair: "Playfair Display", var(--font-noto-serif);
+  --bg: #1e2a38;
+  --text-dark: #e5ad46;
+  --text-muted: #eccc90;
   --lh-tight: 1.1;
   --lh-title: 1.2;
   --lh-body: 1.6;
@@ -37,11 +39,11 @@
   --t-base: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Theme inspired by the provided CSS reference */
-  --pri: #1e2a38;
-  --sec: #c5a059;
-  --txt: #2c3e50;
-  --mut: #7f8c8d;
-  --alt: #f8f9fa;
+  --pri: #e5ad46;
+  --sec: #eccc90;
+  --txt: #e5ad46;
+  --mut: #eccc90;
+  --alt: #25303a;
   --trans: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --pad: clamp(40px, 8vw, 100px) 0;
 
@@ -1974,7 +1976,7 @@ section[id], footer[id] { scroll-margin-top: 110px; }
 
 .quote-page__intro {
   align-content: start;
-  background-color: #163526 !important;
+  background-color: #1e2a38 !important;
 }
 
 .quote-page__list {

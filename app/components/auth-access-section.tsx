@@ -118,11 +118,11 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
-                      <label className="font-label text-[10px] uppercase tracking-[0.1em] text-outline/80 mb-1 block font-bold">Nom</label>
+                      <label className="font-label text-[10px] uppercase tracking-[0.1em] text-outline/80 mb-1 block font-bold">Prénom</label>
                       <input name="first_name" className="w-full bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-0 px-3 py-3 transition-colors outline-none font-body text-on-surface text-sm rounded" type="text"/>
                     </div>
                     <div className="relative">
-                      <label className="font-label text-[10px] uppercase tracking-[0.1em] text-outline/80 mb-1 block font-bold">Username</label>
+                      <label className="font-label text-[10px] uppercase tracking-[0.1em] text-outline/80 mb-1 block font-bold">Nom</label>
                       <input name="last_name" className="w-full bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-0 px-3 py-3 transition-colors outline-none font-body text-on-surface text-sm rounded" type="text"/>
                     </div>
                   </div>

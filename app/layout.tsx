@@ -1,19 +1,4 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display, Noto_Serif, Manrope } from "next/font/google";
-import { IBM_Plex_Sans, Sora } from "next/font/google";
-
-const notoSerif = Noto_Serif({
-  variable: "--font-noto-serif",
-  subsets: ["latin"],
-  weight: ["300", "400", "600"],
-  style: ["normal", "italic"],
-});
-
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-  weight: ["200", "300", "400", "500", "600"],
-});
 import "./globals.css";
 import {
   ScrollReveal,
@@ -25,29 +10,6 @@ import {
 } from "@/app/components";
 import { getCurrentUser, getIsSignedIn } from "@/app/lib/auth-server";
 import { Suspense } from "react";
-
-const ibmPlexSans = IBM_Plex_Sans({
-  variable: "--font-ibm-plex-sans",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
-
-const sora = Sora({
-  variable: "--font-sora",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-});
 
 export const metadata: Metadata = {
   title: "JMR Textile",
@@ -72,7 +34,15 @@ export default async function RootLayout({
 
   return (
     <html lang="fr">
-      <body className={`${ibmPlexSans.variable} ${sora.variable} ${inter.variable} ${playfairDisplay.variable} ${notoSerif.variable} ${manrope.variable}`}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Inter:wght@100..900&family=Manrope:wght@200;300;400;500;600&family=Noto+Serif:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Playfair+Display:wght@400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&display=swap"
+        />
+      </head>
+      <body>
         <ToastProvider>
           <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
           <a className="skip-link" href="#main-content">

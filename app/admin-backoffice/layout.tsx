@@ -37,35 +37,35 @@ export default async function AdminLayout({
         
         <nav className="flex-1 py-4 md:py-8 px-4 space-y-2 overflow-y-auto hidden md:block">
           <Link 
-            href="/jmr-atelier-management-v2" 
+            href="/backoffice" 
             className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
           >
             <span className="material-symbols-outlined text-orange-400 group-hover:scale-110 transition-transform">dashboard</span>
             <span className="text-xs font-bold uppercase tracking-widest">Tableau de bord</span>
           </Link>
           <Link 
-            href="/jmr-atelier-management-v2/orders" 
+            href="/backoffice/orders" 
             className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
           >
             <span className="material-symbols-outlined text-orange-400 group-hover:scale-110 transition-transform">inventory_2</span>
             <span className="text-xs font-bold uppercase tracking-widest">Commandes</span>
           </Link>
           <Link 
-            href="/jmr-atelier-management-v2/devis" 
+            href="/backoffice/devis" 
             className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
           >
             <span className="material-symbols-outlined text-orange-400 group-hover:scale-110 transition-transform">request_quote</span>
             <span className="text-xs font-bold uppercase tracking-widest">Devis</span>
           </Link>
           <Link 
-            href="/jmr-atelier-management-v2/production" 
+            href="/backoffice/production" 
             className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
           >
             <span className="material-symbols-outlined text-orange-400 group-hover:scale-110 transition-transform">precision_manufacturing</span>
             <span className="text-xs font-bold uppercase tracking-widest">Production</span>
           </Link>
           <Link 
-            href="/jmr-atelier-management-v2/purchases" 
+            href="/backoffice/purchases" 
             className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
           >
             <span className="material-symbols-outlined text-orange-400 group-hover:scale-110 transition-transform">shopping_cart</span>
@@ -73,7 +73,7 @@ export default async function AdminLayout({
           </Link>
           <div className="pt-8 mt-8 border-t border-white/5">
             <Link 
-              href="/jmr-atelier-management-v2/settings" 
+              href="/backoffice/settings" 
               className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
             >
               <span className="material-symbols-outlined text-orange-400 group-hover:scale-110 transition-transform">settings</span>
@@ -84,15 +84,15 @@ export default async function AdminLayout({
 
         {/* Mobile Nav - visible only on small screens */}
         <div className="md:hidden flex overflow-x-auto p-4 gap-4 border-b border-white/10 bg-[#163526]">
-          <Link href="/jmr-atelier-management-v2" className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10">
+          <Link href="/backoffice" className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10">
             <span className="material-symbols-outlined text-orange-400 text-sm">dashboard</span>
             <span className="text-[10px] font-bold uppercase tracking-widest">Dashboard</span>
           </Link>
-          <Link href="/jmr-atelier-management-v2/orders" className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5">
+          <Link href="/backoffice/orders" className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5">
             <span className="material-symbols-outlined text-orange-400 text-sm">inventory_2</span>
             <span className="text-[10px] font-bold uppercase tracking-widest">Orders</span>
           </Link>
-          <Link href="/jmr-atelier-management-v2/devis" className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5">
+          <Link href="/backoffice/devis" className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5">
             <span className="material-symbols-outlined text-orange-400 text-sm">request_quote</span>
             <span className="text-[10px] font-bold uppercase tracking-widest">Devis</span>
           </Link>
