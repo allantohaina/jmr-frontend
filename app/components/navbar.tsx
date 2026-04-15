@@ -22,7 +22,7 @@ const NAV_ITEMS: NavItem[] = [
     route: "/",
     sectionId: "accueil",
     label: "Accueil",
-    icon: "/navbar/navbar-project.svg",
+    icon: "/navbar/navbar-project.svg", // We should ideally use a generic icon or specific one if available
     homeAnchor: true,
   },
   {
@@ -191,7 +191,7 @@ export function Navbar({
         ) : (
           <Image
             className="site-nav__brand-logo"
-            src="/navbar/logo.svg"
+            src="/navbar/logo-dark.svg"
             alt="JMR Textile"
             width={413}
             height={92}

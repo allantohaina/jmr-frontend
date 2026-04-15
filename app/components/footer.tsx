@@ -57,13 +57,13 @@ export function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-5">
             <Link
-              className="inline-flex flex-col gap-4 p-8 bg-[#25303a] rounded-2xl shadow-2xl mb-8 group transition-transform hover:-translate-y-1 border border-[#e5ad46]/10"
+              className="inline-flex flex-col gap-4 p-8 bg-[#1e2a38] rounded-2xl shadow-2xl mb-8 group transition-transform hover:-translate-y-1 border border-[#e5ad46]/20"
               href="/#accueil"
               aria-label="Accueil JMR Textile"
             >
               <Image
-                className="w-full max-w-[320px] h-auto block brightness-0 invert"
-                src="/navbar/logo.svg"
+                className="w-full max-w-[320px] h-auto block"
+                src="/navbar/logo-dark.svg"
                 alt="JMR Textile"
                 width={413}
                 height={92}
@@ -127,7 +127,7 @@ export function Footer() {
                     alt={item.label}
                     width={22}
                     height={22}
-                    className="opacity-60 group-hover:opacity-100 transition-opacity"
+                    className="opacity-60 group-hover:opacity-100 transition-opacity brightness-0 invert-[0.8] sepia-[0.5] saturate-[5] hue-rotate-[10deg]"
                   />
                 </a>
               ))}
