@@ -37,7 +37,7 @@ const SERVICE_STEPS: ServiceStep[] = [
 
 export function NosServicesSection() {
   return (
-    <section className="services-page ui-section-shell" aria-labelledby="services-page-title">
+    <section className="services-page ui-section-shell" aria-labelledby="services-page-title" id="nos-services">
       <header className="services-page__header ui-section-header">
         <h1 className="ui-section-title" id="services-page-title">
           Ce que nous faisons ?

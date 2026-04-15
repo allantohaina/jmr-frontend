@@ -1,6 +1,6 @@
 export function AProposSection() {
   return (
-    <section className="about-page ui-section-shell" aria-labelledby="about-page-title">
+    <section className="about-page ui-section-shell" aria-labelledby="about-page-title" id="a-propos">
       <div className="about-page__visual about-page__visual--left" aria-hidden="true" />
       <div className="about-page__visual about-page__visual--right" aria-hidden="true" />
 

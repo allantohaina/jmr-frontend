@@ -148,17 +148,30 @@ body {
 .site-nav__link, .site-nav__language-trigger {
   display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; background: none; border: none;
 }
-.site-nav__icon, .site-nav__icon--language { 
+.site-nav__icon, .site-nav__icon--language, .social-icon-gold { 
   width: 42px; 
   height: 42px; 
   transition: transform var(--t-base);
   filter: brightness(0) saturate(100%) invert(77%) sepia(37%) saturate(686%) hue-rotate(355deg) brightness(97%) contrast(95%); /* Target #e5ad46 */
 }
+.social-icon-gold {
+  width: 40px;
+  height: 40px;
+}
 .site-nav__link span, .site-nav__language-name {
   font-size: var(--fs-nav); line-height: 1.18; text-transform: uppercase; white-space: nowrap; letter-spacing: 0.015em; color: var(--text-muted); font-weight: 500; transition: color var(--t-base);
 }
 .site-nav__link:hover .site-nav__icon, .site-nav__language-trigger:hover .site-nav__icon { transform: translateY(-2px); }
-.site-nav__link:hover span, .site-nav__link.is-current span, .site-nav__language-trigger:hover .site-nav__language-name { color: var(--text-dark); }
+.site-nav__link:hover span, .site-nav__language-trigger:hover .site-nav__language-name { color: var(--text-dark); }
+
+.site-nav__link.is-current .site-nav__icon {
+  animation: nav-icon-bounce 1s ease-in-out infinite alternate;
+}
+
+@keyframes nav-icon-bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-4px); }
+}
 
 .site-nav__language-control { position: relative; }
 .site-nav__language-menu {
@@ -2859,16 +2872,7 @@ body {
 }
 
 .site-nav__link.is-current {
-  background: linear-gradient(135deg, rgba(19, 35, 54, 0.98), rgba(39, 60, 86, 0.96));
-  box-shadow: 0 16px 34px rgba(11, 20, 33, 0.18);
-}
-
-.site-nav__link.is-current span {
-  color: rgba(247, 249, 252, 0.96);
-}
-
-.site-nav__link.is-current .site-nav__icon {
-  transform: translateY(-1px) scale(1.02);
+  /* No background or shift, just the animation handled above */
 }
 
 .ui-section-shell {
@@ -4159,15 +4163,14 @@ body {
 }
 
 .site-nav__link:hover,
-.site-nav__language-trigger--static:hover,
-.site-nav__link.is-current {
+.site-nav__language-trigger--static:hover {
   background: transparent;
   transform: none;
   box-shadow: none;
 }
 
 .site-nav__link.is-current span {
-  color: #1f2124;
+  /* color handled globally or kept as is */
 }
 
 .ui-section-shell {

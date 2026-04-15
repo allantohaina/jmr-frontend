@@ -44,6 +44,7 @@ const NAV_ITEMS: NavItem[] = [
     sectionId: "acces-client",
     label: "Espace client",
     icon: "/navbar/navbar-profile.svg",
+    homeAnchor: true,
   },
   {
     route: "/backoffice",
@@ -145,26 +146,38 @@ export function Navbar({
     }
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleEntries = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((left, right) => right.intersectionRatio - left.intersectionRatio);
+          (entries) => {
+            // We want to find the section that is most "prominent" in the viewport
+            // Usually the one that occupies the top-middle part of the screen
+            const visibleSections = entries
+              .filter((entry) => entry.isIntersecting)
+              .map((entry) => ({
+                id: entry.target.getAttribute("data-nav-section"),
+                rect: entry.target.getBoundingClientRect(),
+                intersectionRatio: entry.intersectionRatio,
+              }));
 
-        if (visibleEntries.length === 0) {
-          return;
-        }
+            if (visibleSections.length === 0) return;
 
-        const currentSection = visibleEntries[0].target.getAttribute("data-nav-section");
+            // Sort by which one is closest to the top of the viewport (but not too far above)
+            // or simply the one with the largest intersection ratio if they are small
+            // For large sections, we prefer the one whose top is closest to the top of the screen
+            visibleSections.sort((a, b) => {
+              const aTop = Math.abs(a.rect.top);
+              const bTop = Math.abs(b.rect.top);
+              return aTop - bTop;
+            });
 
-        if (currentSection) {
-          setActiveHomeSection(currentSection);
-        }
-      },
-      {
-        rootMargin: "-22% 0px -42% 0px",
-        threshold: [0.2, 0.45, 0.7],
-      },
-    );
+            const currentSection = visibleSections[0].id;
+            if (currentSection) {
+              setActiveHomeSection(currentSection);
+            }
+          },
+          {
+            threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+            rootMargin: "-20% 0px -20% 0px",
+          },
+        );
 
     sections.forEach((section) => observer.observe(section));
 

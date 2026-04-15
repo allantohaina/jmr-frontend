@@ -48,7 +48,7 @@ export function HomeHero() {
       };
 
   return (
-    <section className="home-page__hero" data-nav-section="accueil" id="accueil">
+    <section className="home-page__hero" id="accueil">
       <motion.div
         className="home-page__hero-background"
         aria-hidden="true"

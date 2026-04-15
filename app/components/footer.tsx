@@ -55,14 +55,14 @@ export function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
 
           {/* Brand Column */}
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-4">
             <Link
               className="inline-flex flex-col gap-4 p-8 bg-[#1e2a38] rounded-2xl shadow-2xl mb-8 group transition-transform hover:-translate-y-1 border border-[#e5ad46]/20"
               href="/#accueil"
               aria-label="Accueil JMR Textile"
             >
               <Image
-                className="w-full max-w-[320px] h-auto block"
+                className="w-full max-w-[280px] h-auto block"
                 src="/navbar/logo-dark.svg"
                 alt="JMR Textile"
                 width={413}
@@ -77,68 +77,61 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Links Column */}
-          <div className="lg:col-span-4 grid grid-cols-2 gap-8">
-            <div>
-              <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">Navigation</h3>
-              <ul className="space-y-4">
-                {FOOTER_LINKS.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="font-body text-xs uppercase tracking-widest text-[#eccc90]/70 hover:text-[#e5ad46] hover:translate-x-1 transition-all inline-block"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">Légal</h3>
-              <ul className="space-y-4">
-                {LEGAL_LINKS.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="font-body text-xs uppercase tracking-widest text-[#eccc90]/70 hover:text-[#e5ad46] hover:translate-x-1 transition-all inline-block"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          {/* Navigation Column */}
+          <div className="lg:col-span-2">
+            <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">Navigation</h3>
+            <ul className="space-y-4">
+              {FOOTER_LINKS.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="font-body text-xs uppercase tracking-widest text-[#eccc90]/70 hover:text-[#e5ad46] hover:translate-x-1 transition-all inline-block"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Social & Bug Column */}
-          <div className="lg:col-span-3">
+          {/* Legal Column */}
+          <div className="lg:col-span-2">
+            <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">Légal</h3>
+            <ul className="space-y-4">
+              {LEGAL_LINKS.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="font-body text-xs uppercase tracking-widest text-[#eccc90]/70 hover:text-[#e5ad46] hover:translate-x-1 transition-all inline-block"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Social Column */}
+          <div className="lg:col-span-4">
             <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">Réseaux Sociaux</h3>
             <div className="flex gap-4 mb-12">
               {SOCIAL_ITEMS.map((item) => (
                 <a
                   key={item.key}
                   href="#"
-                  className="w-12 h-12 rounded-full border border-[#e5ad46]/20 flex items-center justify-center hover:border-[#e5ad46] hover:text-[#e5ad46] transition-all group"
+                  className="w-14 h-14 rounded-2xl border border-[#e5ad46]/30 flex items-center justify-center hover:border-[#e5ad46] hover:bg-[#e5ad46]/10 transition-all group"
                   aria-label={item.label}
                 >
                   <Image
                     src={item.icon}
                     alt={item.label}
-                    width={22}
-                    height={22}
-                    className="opacity-60 group-hover:opacity-100 transition-opacity brightness-0 invert-[0.8] sepia-[0.5] saturate-[5] hue-rotate-[10deg]"
+                    width={28}
+                    height={28}
+                    className="social-icon-gold drop-shadow-[0_0_8px_rgba(229,173,70,0.3)]"
                   />
                 </a>
               ))}
             </div>
-            <Link
-              href="/backoffice"
-              className="flex items-center gap-4 p-4 rounded-xl border border-[#e5ad46]/10 bg-[#25303a] hover:bg-[#25303a]/80 transition-colors"
-            >
-              <span className="material-symbols-outlined text-[#e5ad46]">bug_report</span>
-              <span className="font-body text-[10px] uppercase tracking-[0.2em] text-[#eccc90] font-bold">Signaler un bug technique</span>
-            </Link>
           </div>
         </div>
 

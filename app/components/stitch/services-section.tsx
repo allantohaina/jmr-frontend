@@ -24,8 +24,8 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
   };
 
   return (
-    <section className="bg-surface-container-low py-32 rounded-[3rem]" data-nav-section="nos-services" id="nos-services">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12">
+    <section className="bg-surface-container-low py-32 rounded-[3rem] max-w-[1440px] mx-auto" data-nav-section="nos-services" id="nos-services">
+      <div className="px-6 md:px-12">
         <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
           <div className="max-w-2xl">
             <h2 className="font-headline text-4xl md:text-5xl text-primary mb-6">
