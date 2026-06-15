@@ -4,6 +4,23 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { authAPI, type QuoteRecord } from "@/app/lib";
 
+function formatQuoteStatusLabel(status?: string | null) {
+  switch (status) {
+    case "draft":
+      return "Brouillon";
+    case "sent":
+      return "Envoye";
+    case "accepted":
+      return "Accepte";
+    case "production":
+      return "Production";
+    case "rejected":
+      return "Refuse";
+    default:
+      return status ?? "Nouveau";
+  }
+}
+
 export function DevisSection() {
   const [quotes, setQuotes] = useState<QuoteRecord[]>([]);
 
@@ -53,7 +70,7 @@ export function DevisSection() {
                     </td>
                     <td className="px-8 py-6">
                       <span className="px-3 py-1 bg-[#163526]/10 text-[#163526] text-[9px] font-bold uppercase rounded-full tracking-widest border border-[#163526]/5">
-                        {quote.status ?? "Nouveau"}
+                        {formatQuoteStatusLabel(quote.status)}
                       </span>
                     </td>
                     <td className="px-8 py-6 text-right">

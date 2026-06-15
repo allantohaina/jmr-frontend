@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { PROFILE_NOTIFICATIONS } from "@/app/lib";
+import { ProblemHierarchyPanel } from "./problem-hierarchy-panel";
+import { TEXTILE_PROBLEM_THREADS } from "@/app/lib";
 
 type NotificationsSectionProps = {
   user?: {
@@ -19,8 +20,8 @@ export function NotificationsSection({ user }: NotificationsSectionProps) {
   const firstName = resolveFirstName(user);
   const title = firstName ? `Notifications de ${firstName}` : "Notifications client";
   const lead = firstName
-    ? `Bonjour ${firstName}, voici les dernieres mises a jour de votre espace.`
-    : "Voici les dernieres mises a jour de votre espace client.";
+    ? `Bonjour ${firstName}, voici les 4 problemes majeurs et les details utiles.`
+    : "Voici les 4 problemes majeurs de votre espace client.";
   const ctaLabel = firstName ? `Ouvrir l'espace de ${firstName}` : "Ouvrir mon espace";
 
   return (
@@ -34,20 +35,12 @@ export function NotificationsSection({ user }: NotificationsSectionProps) {
       </header>
 
       <div className="access-page__panel ui-panel-shell">
-        <div className="access-page__cards notifications-page__cards">
-          {PROFILE_NOTIFICATIONS.map((notif, index) => (
-            <article
-              className={`access-page__card ui-soft-card${notif.tone === "highlight" ? " access-page__card--primary" : ""}`}
-              key={`${notif.title}-${index}`}
-              data-reveal
-              style={{ transitionDelay: `${index * 90}ms` }}
-            >
-              <span className="access-page__card-eyebrow">{notif.date}</span>
-              <h2>{notif.title}</h2>
-              <p>{notif.message}</p>
-            </article>
-          ))}
-        </div>
+        <ProblemHierarchyPanel
+          className="space-y-4"
+          mode="client"
+          problems={TEXTILE_PROBLEM_THREADS}
+          theme="light"
+        />
 
         <div className="notifications-page__cta" data-reveal style={{ transitionDelay: "180ms" }}>
           <Link className="access-page__action access-page__action--primary" href="/mon-profil">

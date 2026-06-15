@@ -18,6 +18,7 @@ export async function sendQuoteRequest(formData: FormData) {
   const finitions = formData.get("finitions") as string;
   const delaiSouhaite = formData.get("delai_souhaite") as string;
   const modifyCode = formData.get("modify_code") as string;
+  const requestType = (formData.get("request_type") as string) || (modifyCode ? "edit" : "new");
   const category = formData.get("category") as string;
   const files = formData.getAll("technical_files") as File[];
 
@@ -36,6 +37,7 @@ export async function sendQuoteRequest(formData: FormData) {
   apiFormData.append("finitions", finitions);
   apiFormData.append("delai_souhaite", delaiSouhaite);
   apiFormData.append("modify_code", modifyCode);
+  apiFormData.append("request_type", requestType);
   apiFormData.append("category", category);
 
   files.forEach((file, index) => {

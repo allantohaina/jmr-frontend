@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
-import { getCurrentUser } from "@/app/lib/auth-server";
 import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/app/lib/auth-server";
 import { AdminHeaderAlerts } from "./AdminHeaderAlerts";
 
 export default async function AdminLayout({
@@ -9,130 +9,123 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser(true); // Sécurité renforcée pour l'admin
+  const user = await getCurrentUser(true);
 
-  // PRIVILEGE CHECK: Only admin can access this layout
   if (!user || user.role !== "admin") {
-    // If worker, redirect to atelier
     if (user?.role === "worker") {
       redirect("/atelier");
     }
-    // If client or not logged in, redirect to home/login
+
     redirect("/");
   }
 
   return (
-    <div className="bg-[#faf9f4] font-body text-[#1b1c19] min-h-screen flex flex-col md:flex-row overflow-hidden">
-      {/* Sidebar - Stitch Style */}
-      <aside className="w-full md:w-64 bg-[#163526] text-[#faf9f4] md:h-full z-50 transition-all duration-300 shadow-2xl flex flex-col md:fixed md:left-0 md:top-0">
-        <div className="p-6 md:p-8 border-b border-white/10 flex items-center justify-between md:block">
+    <div className="min-h-screen overflow-hidden bg-[#1e2a38] font-body text-[#eccc90] md:flex">
+      <aside className="z-50 flex w-full flex-col bg-[#25303a] text-[#eccc90] shadow-2xl transition-all duration-300 md:fixed md:left-0 md:top-0 md:h-full md:w-64 border-r border-[#e5ad46]/10">
+        <div className="flex items-center justify-between border-b border-[#e5ad46]/10 p-6 md:block md:p-8">
           <div>
-            <Link href="/" className="font-headline text-xl md:text-2xl text-white block mb-1">
+            <Link href="/" className="mb-1 block font-headline text-xl text-[#e5ad46] md:text-2xl">
               JMR Atelier
             </Link>
-            <span className="text-[8px] md:text-[10px] uppercase tracking-[0.3em] text-orange-400 font-bold">Admin Control</span>
+            <span className="text-[8px] font-bold uppercase tracking-[0.3em] text-[#eccc90]/60 md:text-[10px]">
+              Admin Control
+            </span>
           </div>
-          {/* Mobile Menu Button can go here if needed */}
         </div>
-        
-        <nav className="flex-1 py-4 md:py-8 px-4 space-y-2 overflow-y-auto hidden md:block">
-          <Link 
-            href="/backoffice" 
-            className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
-          >
-            <span className="material-symbols-outlined text-orange-400 group-hover:scale-110 transition-transform">dashboard</span>
-            <span className="text-xs font-bold uppercase tracking-widest">Tableau de bord</span>
+
+        <nav className="hidden flex-1 space-y-2 overflow-y-auto px-4 py-4 md:block md:py-8">
+          <Link href="/admin-backoffice" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
+            <span className="material-symbols-outlined text-[#e5ad46] transition-transform group-hover:scale-110">dashboard</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">Tableau de bord</span>
           </Link>
-          <Link 
-            href="/backoffice/orders" 
-            className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
-          >
-            <span className="material-symbols-outlined text-orange-400 group-hover:scale-110 transition-transform">inventory_2</span>
-            <span className="text-xs font-bold uppercase tracking-widest">Commandes</span>
+          <Link href="/admin-backoffice/orders" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
+            <span className="material-symbols-outlined text-[#e5ad46] transition-transform group-hover:scale-110">inventory_2</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">Commandes</span>
           </Link>
-          <Link 
-            href="/backoffice/devis" 
-            className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
-          >
-            <span className="material-symbols-outlined text-orange-400 group-hover:scale-110 transition-transform">request_quote</span>
-            <span className="text-xs font-bold uppercase tracking-widest">Devis</span>
+          <Link href="/admin-backoffice/employees/new" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
+            <span className="material-symbols-outlined text-[#e5ad46] transition-transform group-hover:scale-110">group_add</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">Dossiers RH</span>
           </Link>
-          <Link 
-            href="/backoffice/production" 
-            className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
-          >
-            <span className="material-symbols-outlined text-orange-400 group-hover:scale-110 transition-transform">precision_manufacturing</span>
-            <span className="text-xs font-bold uppercase tracking-widest">Production</span>
+          <Link href="/admin-backoffice/devis" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
+            <span className="material-symbols-outlined text-[#e5ad46] transition-transform group-hover:scale-110">request_quote</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">Devis</span>
           </Link>
-          <Link 
-            href="/backoffice/purchases" 
-            className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
-          >
-            <span className="material-symbols-outlined text-orange-400 group-hover:scale-110 transition-transform">shopping_cart</span>
-            <span className="text-xs font-bold uppercase tracking-widest">Achats</span>
+          <Link href="/admin-backoffice/production" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
+            <span className="material-symbols-outlined text-[#e5ad46] transition-transform group-hover:scale-110">precision_manufacturing</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">Production</span>
           </Link>
-          <div className="pt-8 mt-8 border-t border-white/5">
-            <Link 
-              href="/backoffice/settings" 
-              className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/10 transition-all group"
-            >
-              <span className="material-symbols-outlined text-orange-400 group-hover:scale-110 transition-transform">settings</span>
-              <span className="text-xs font-bold uppercase tracking-widest">Paramètres</span>
+          <Link href="/admin-backoffice/purchases" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
+            <span className="material-symbols-outlined text-[#e5ad46] transition-transform group-hover:scale-110">shopping_cart</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">Achats</span>
+          </Link>
+
+          <div className="mt-8 border-t border-[#e5ad46]/10 pt-8">
+            <Link href="/admin-backoffice/settings" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
+              <span className="material-symbols-outlined text-[#e5ad46] transition-transform group-hover:scale-110">settings</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest">Parametres</span>
             </Link>
           </div>
         </nav>
 
-        {/* Mobile Nav - visible only on small screens */}
-        <div className="md:hidden flex overflow-x-auto p-4 gap-4 border-b border-white/10 bg-[#163526]">
-          <Link href="/backoffice" className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10">
-            <span className="material-symbols-outlined text-orange-400 text-sm">dashboard</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Dashboard</span>
+        <div className="flex gap-4 overflow-x-auto border-b border-[#e5ad46]/10 bg-[#25303a] p-4 md:hidden">
+          <Link href="/admin-backoffice" className="flex-shrink-0 rounded-lg bg-[#e5ad46]/10 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm text-[#e5ad46]">dashboard</span>
+              <span className="text-[8px] font-bold uppercase tracking-widest">Dashboard</span>
+            </div>
           </Link>
-          <Link href="/backoffice/orders" className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5">
-            <span className="material-symbols-outlined text-orange-400 text-sm">inventory_2</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Orders</span>
-          </Link>
-          <Link href="/backoffice/devis" className="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/5">
-            <span className="material-symbols-outlined text-orange-400 text-sm">request_quote</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Devis</span>
+          <Link href="/admin-backoffice/orders" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm text-[#e5ad46]">inventory_2</span>
+              <span className="text-[8px] font-bold uppercase tracking-widest">Orders</span>
+            </div>
           </Link>
         </div>
 
-        <div className="p-6 bg-black/20 mt-auto hidden md:block">
+        <div className="mt-auto hidden bg-black/20 p-6 md:block">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold shadow-lg">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e5ad46] font-bold text-[#1e2a38] shadow-lg">
               AD
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-orange-400">Administrateur</span>
-              <span className="text-sm font-semibold text-white">Atelier JMR</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46]">Administrateur</span>
+              <span className="text-sm font-semibold text-[#eccc90]">Atelier JMR</span>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* Main Content Area - Correctly Offset by Sidebar width on Desktop */}
-      <div className="flex-1 flex flex-col md:ml-64 min-h-screen relative">
-        {/* Header - Stitch Style */}
-        <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-[#163526]/5 z-40 px-6 md:px-12 py-4 md:py-6 flex justify-between items-center">
+      <div className="relative flex min-h-screen flex-1 flex-col md:ml-64">
+        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[#e5ad46]/10 bg-[#1e2a38]/80 px-6 py-4 backdrop-blur-md md:px-12 md:py-6">
           <div>
-            <h1 className="font-headline text-xl md:text-2xl text-[#163526]">Espace de Gestion</h1>
-            <p className="text-[8px] md:text-[10px] uppercase tracking-widest text-[#1b1c19]/40 font-bold mt-1">Contrôle de production • Temps réel</p>
+            <h1 className="font-headline text-xl text-[#e5ad46] md:text-2xl">Espace de Gestion</h1>
+            <p className="mt-1 text-[8px] font-bold uppercase tracking-widest text-[#eccc90]/40 md:text-[10px]">
+              Controle de production • Temps reel
+            </p>
           </div>
+
           <div className="flex items-center gap-4 md:gap-6">
             <AdminHeaderAlerts />
-            <div className="hidden md:block h-8 w-[1px] bg-[#163526]/10"></div>
+            <div className="hidden h-8 w-[1px] bg-[#e5ad46]/10 md:block" />
             <div className="flex items-center gap-2 md:gap-4">
-              <span className="hidden md:inline-block text-[10px] font-bold uppercase tracking-widest text-orange-500 bg-orange-500/10 px-3 py-1.5 rounded-full">Système v2.4</span>
-              <Link href="/" className="material-symbols-outlined text-[#163526]/60 hover:text-orange-500 transition-colors">home</Link>
+              <Link
+                href="/admin-backoffice/employees/new"
+                className="hidden items-center gap-2 rounded-full bg-[#e5ad46] px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] shadow-sm transition hover:bg-[#eccc90] lg:inline-flex"
+              >
+                <span className="material-symbols-outlined text-sm text-[#1e2a38]">person_add</span>
+                Nouveau dossier RH
+              </Link>
+              <span className="hidden rounded-full bg-[#e5ad46]/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] md:inline-block">
+                Systeme v2.4
+              </span>
+              <Link href="/" className="material-symbols-outlined text-[#eccc90]/60 transition-colors hover:text-[#e5ad46]">
+                home
+              </Link>
             </div>
           </div>
         </header>
-        
-        {/* Content with its own scrolling if needed */}
-        <main className="flex-1 relative overflow-y-auto">
-          {children}
-        </main>
+
+        <main className="relative flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
   );

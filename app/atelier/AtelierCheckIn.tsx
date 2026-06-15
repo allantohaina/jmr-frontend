@@ -39,15 +39,15 @@ export function AtelierCheckIn() {
   };
 
   return (
-    <div className="bg-white rounded-[2rem] shadow-xl border border-[#163526]/5 overflow-hidden">
-      <div className="p-8 bg-[#163526] text-white">
+    <div className="bg-[#25303a] rounded-[2rem] shadow-xl border border-[#e5ad46]/5 overflow-hidden">
+      <div className="p-8 bg-[#1e2a38] text-[#eccc90] border-b border-[#e5ad46]/10">
         <div className="flex items-center gap-4 mb-2">
-          <div className="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center">
-            <ClipboardCheck className="text-orange-400 w-6 h-6" />
+          <div className="w-12 h-12 rounded-2xl bg-[#e5ad46]/10 flex items-center justify-center">
+            <ClipboardCheck className="text-[#e5ad46] w-6 h-6" />
           </div>
           <div>
-            <h2 className="font-headline text-2xl">Check-in Quotidien</h2>
-            <p className="text-[10px] uppercase tracking-widest text-orange-400 font-bold">Rapport d'activité & Présence</p>
+            <h2 className="font-headline text-2xl text-[#e5ad46]">Check-in Quotidien</h2>
+            <p className="text-[10px] uppercase tracking-widest text-[#eccc90]/40 font-bold">Rapport d'activité & Présence</p>
           </div>
         </div>
       </div>
@@ -57,21 +57,21 @@ export function AtelierCheckIn() {
           {/* Date & Time Section */}
           <div className="space-y-6">
             <div className="relative">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/40 mb-2 block">Date de l'activité</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2 block">Date de l'activité</label>
               <button
                 type="button"
                 onClick={() => setShowCalendar(!showCalendar)}
-                className="w-full flex items-center justify-between p-4 bg-[#faf9f4] border border-[#163526]/5 rounded-2xl hover:bg-[#faf9f4]/80 transition-colors"
+                className="w-full flex items-center justify-between p-4 bg-[#1e2a38] border border-[#e5ad46]/10 rounded-2xl hover:bg-[#1e2a38]/80 transition-colors text-[#eccc90]"
               >
                 <div className="flex items-center gap-3">
-                  <CalendarIcon className="w-4 h-4 text-orange-500" />
+                  <CalendarIcon className="w-4 h-4 text-[#e5ad46]" />
                   <span className="text-sm font-semibold">{format(selectedDate, "PPP", { locale: fr })}</span>
                 </div>
                 <span className="material-symbols-outlined text-sm">expand_more</span>
               </button>
               
               {showCalendar && (
-                <div className="absolute top-full left-0 mt-2 z-50 bg-white shadow-2xl rounded-2xl border border-[#163526]/5 p-4 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute top-full left-0 mt-2 z-50 bg-[#25303a] shadow-2xl rounded-2xl border border-[#e5ad46]/10 p-4 animate-in fade-in slide-in-from-top-2">
                   <DayPicker
                     mode="single"
                     selected={selectedDate}
@@ -82,10 +82,10 @@ export function AtelierCheckIn() {
                     locale={fr}
                     className="border-0"
                     styles={{
-                      caption: { color: "#163526" },
-                      head_cell: { color: "#163526", fontSize: "0.75rem" },
-                      day_selected: { backgroundColor: "#163526", color: "white" },
-                      day_today: { color: "#f97316", fontWeight: "bold" }
+                      caption: { color: "#e5ad46" },
+                      head_cell: { color: "#eccc90", fontSize: "0.75rem" },
+                      day_selected: { backgroundColor: "#e5ad46", color: "#1e2a38" },
+                      day_today: { color: "#eccc90", fontWeight: "bold", border: "1px solid #e5ad46" }
                     }}
                   />
                 </div>
@@ -93,20 +93,20 @@ export function AtelierCheckIn() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/40 mb-2 block">Heure d'arrivée</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2 block">Heure d'arrivée</label>
               <div className="relative">
-                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#163526]/40" />
+                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#eccc90]/40" />
                 <input
                   type="time"
                   value={checkInData.time}
                   onChange={(e) => setCheckInData({ ...checkInData, time: e.target.value })}
-                  className="w-full p-4 pl-12 bg-[#faf9f4] border border-[#163526]/5 rounded-2xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                  className="w-full p-4 pl-12 bg-[#1e2a38] border border-[#e5ad46]/10 rounded-2xl text-sm font-semibold text-[#eccc90] focus:outline-none focus:ring-2 focus:ring-[#e5ad46]/20 appearance-none"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/40 mb-2 block">Statut de Disponibilité</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2 block">Statut de Disponibilité</label>
               <div className="grid grid-cols-2 gap-3">
                 {["disponible", "occupe"].map((status) => (
                   <button
@@ -115,17 +115,17 @@ export function AtelierCheckIn() {
                     onClick={() => setCheckInData({ ...checkInData, status })}
                     className={`p-3 rounded-xl border text-[10px] font-bold uppercase tracking-widest transition-all ${
                       checkInData.status === status
-                        ? "bg-[#163526] text-white border-[#163526]"
-                        : "bg-white text-[#163526]/40 border-[#163526]/10 hover:bg-[#163526]/5"
+                        ? "bg-[#e5ad46] text-[#1e2a38] border-[#e5ad46]"
+                        : "bg-[#1e2a38] text-[#eccc90]/40 border-[#e5ad46]/10 hover:bg-white/5"
                     }`}
                   >
                     {status === "disponible" ? (
                       <span className="flex items-center justify-center gap-2">
-                        <CheckCircle2 className="w-3 h-3 text-green-400" /> Disponible
+                        <CheckCircle2 className={`w-3 h-3 ${checkInData.status === status ? "text-[#1e2a38]" : "text-green-400"}`} /> Disponible
                       </span>
                     ) : (
                       <span className="flex items-center justify-center gap-2">
-                        <AlertCircle className="w-3 h-3 text-orange-400" /> Occupé
+                        <AlertCircle className={`w-3 h-3 ${checkInData.status === status ? "text-[#1e2a38]" : "text-orange-400"}`} /> Occupé
                       </span>
                     )}
                   </button>
@@ -137,38 +137,38 @@ export function AtelierCheckIn() {
           {/* Tasks Section */}
           <div className="space-y-6">
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/40 mb-2 block">Tâches Accomplies (Hier)</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2 block">Tâches Accomplies (Hier)</label>
               <textarea
                 value={checkInData.completedTasks}
                 onChange={(e) => setCheckInData({ ...checkInData, completedTasks: e.target.value })}
                 placeholder="Ex: Finition des 50 polos #CMD-104..."
-                className="w-full p-4 bg-[#faf9f4] border border-[#163526]/5 rounded-2xl text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-orange-500/20 resize-none"
+                className="w-full p-4 bg-[#1e2a38] border border-[#e5ad46]/10 rounded-2xl text-sm text-[#eccc90] min-h-[100px] focus:outline-none focus:ring-2 focus:ring-[#e5ad46]/20 resize-none placeholder:text-[#eccc90]/20"
               />
             </div>
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/40 mb-2 block">Tâches Prévues (Aujourd'hui)</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2 block">Tâches Prévues (Aujourd'hui)</label>
               <textarea
                 value={checkInData.plannedTasks}
                 onChange={(e) => setCheckInData({ ...checkInData, plannedTasks: e.target.value })}
                 placeholder="Ex: Début de la coupe des chemises #CMD-105..."
-                className="w-full p-4 bg-[#faf9f4] border border-[#163526]/5 rounded-2xl text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-orange-500/20 resize-none"
+                className="w-full p-4 bg-[#1e2a38] border border-[#e5ad46]/10 rounded-2xl text-sm text-[#eccc90] min-h-[100px] focus:outline-none focus:ring-2 focus:ring-[#e5ad46]/20 resize-none placeholder:text-[#eccc90]/20"
               />
             </div>
           </div>
         </div>
 
-        <div className="pt-4 border-t border-[#163526]/5 flex justify-between items-center">
-          <div className="flex items-center gap-2 text-[#163526]/40">
+        <div className="pt-4 border-t border-[#e5ad46]/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2 text-[#eccc90]/40">
             <MessageSquare className="w-4 h-4" />
             <span className="text-[10px] font-bold uppercase tracking-widest">Une notification sera envoyée à l'admin</span>
           </div>
           <button
             type="submit"
             disabled={isSubmitted}
-            className={`px-10 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg ${
+            className={`w-full md:w-auto px-10 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg ${
               isSubmitted 
-                ? "bg-green-500 text-white cursor-not-allowed" 
-                : "bg-orange-500 text-white hover:bg-orange-600 active:scale-95"
+                ? "bg-green-500 text-[#1e2a38] cursor-not-allowed" 
+                : "bg-[#e5ad46] text-[#1e2a38] hover:bg-[#eccc90] active:scale-95"
             }`}
           >
             {isSubmitted ? (

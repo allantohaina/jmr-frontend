@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import AtelierClient from "./AtelierClient";
 
 export default async function AtelierPage() {
-  const user = await getCurrentUser();
+  const user = await getCurrentUser(true);
   
   // PRIVILEGE CHECK: Only worker or admin can access
   if (!user || (user.role !== "worker" && user.role !== "admin")) {

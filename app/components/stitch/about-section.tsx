@@ -3,14 +3,25 @@
 import Image from "next/image";
 import React from "react";
 import { EditableText } from "../editable-text";
+import { useLocale } from "@/app/components/locale-provider";
 
 export function AboutSection({ isAdmin = false }: { isAdmin?: boolean }) {
+  const { messages } = useLocale();
   const [content, setContent] = React.useState({
-    eyebrow: "À Propos de JMR Textile",
-    title: "Un Héritage de Précision Textile.",
-    p1: "JMR Textile est une entreprise textile basée à Madagascar. Nous travaillons avec une organisation locale et des partenaires techniques que nous coordonnons directement.",
-    p2: "Notre rôle est de faire avancer vos projets de manière structurée et transparente. Chaque projet est traité avec une attention particulière à l'origine des matières et à la conformité technique."
+    eyebrow: messages.about.eyebrow,
+    title: messages.about.title,
+    p1: messages.about.p1,
+    p2: messages.about.p2,
   });
+
+  React.useEffect(() => {
+    setContent({
+      eyebrow: messages.about.eyebrow,
+      title: messages.about.title,
+      p1: messages.about.p1,
+      p2: messages.about.p2,
+    });
+  }, [messages.about]);
 
   const handleSave = (key: keyof typeof content) => (newVal: string) => {
     setContent(prev => ({ ...prev, [key]: newVal }));
@@ -22,7 +33,6 @@ export function AboutSection({ isAdmin = false }: { isAdmin?: boolean }) {
       <div className="grid lg:grid-cols-2 gap-20 items-center">
         {/* ... existing images/video ... */}
         <div className="relative group">
-          <div className="absolute -top-10 -right-10 font-headline text-[12rem] text-surface-container-high select-none z-0 leading-none font-bold opacity-40 uppercase tracking-tighter">JMR</div>
           <div className="relative z-10 grid grid-cols-2 gap-6">
             <div className="relative w-full aspect-[3/4] mt-12 shadow-xl overflow-hidden rounded-3xl bg-surface-container-high">
               {/* Vidéo intégrée ici */}
@@ -45,10 +55,6 @@ export function AboutSection({ isAdmin = false }: { isAdmin?: boolean }) {
                 fill
               />
             </div>
-          </div>
-          {/* Badge flottant sur la vidéo */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-white/10 backdrop-blur-md border border-white/20 px-6 py-3 rounded-full hidden group-hover:block transition-all">
-             <p className="font-body text-[10px] uppercase tracking-[0.3em] text-white font-bold">Atelier en action</p>
           </div>
         </div>
         <div>
@@ -82,18 +88,18 @@ export function AboutSection({ isAdmin = false }: { isAdmin?: boolean }) {
           />
           <div className="flex items-center gap-8">
             <div className="group/stat">
-              <p className="text-3xl font-headline text-primary group-hover/stat:text-orange-500 transition-colors">100%</p>
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Malagasy</p>
+              <p className="text-3xl font-headline text-primary group-hover/stat:text-orange-500 transition-colors">{messages.about.stat1}</p>
+              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">{messages.about.stat1Label}</p>
             </div>
             <div className="w-[1px] h-12 bg-outline-variant/30"></div>
             <div className="group/stat">
-              <p className="text-3xl font-headline text-primary group-hover/stat:text-orange-500 transition-colors">Direct</p>
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Sans Intermédiaire</p>
+              <p className="text-3xl font-headline text-primary group-hover/stat:text-orange-500 transition-colors">{messages.about.stat2}</p>
+              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">{messages.about.stat2Label}</p>
             </div>
             <div className="w-[1px] h-12 bg-outline-variant/30"></div>
             <div className="group/stat">
-              <p className="text-3xl font-headline text-primary group-hover/stat:text-orange-500 transition-colors">Honnête</p>
-              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Prix Justes</p>
+              <p className="text-3xl font-headline text-primary group-hover/stat:text-orange-500 transition-colors">{messages.about.stat3}</p>
+              <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">{messages.about.stat3Label}</p>
             </div>
           </div>
         </div>

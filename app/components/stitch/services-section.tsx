@@ -4,19 +4,35 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { EditableText } from "../editable-text";
+import { useLocale } from "@/app/components/locale-provider";
 
 export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
+  const { messages } = useLocale();
   const [content, setContent] = React.useState({
-    title: "Un Travail de Qualité",
-    description: "Nous privilégions le bon geste et la solidité. Ici, on ne cherche pas la perfection marketing, mais la justesse technique et la durabilité du vêtement.",
-    service1_eyebrow: "Savoir-faire Technique",
-    service1_title: "Conception & Production",
-    service1_desc: "De la mise au point du patron à la couture finale, nous assurons une fabrication fiable et honnête.",
-    service2_title: "Ingénierie Textile",
-    service2_desc: "Nous optimisons vos modèles pour une production efficace sans sacrifier la qualité du montage.",
-    service4_title: "Un Atelier Ouvert, Orienté Solutions.",
-    service4_desc: "Nous travaillons main dans la main avec vous pour résoudre les défis techniques de vos créations."
+    title: messages.services.title,
+    description: messages.services.description,
+    service1_eyebrow: messages.services.service1Eyebrow,
+    service1_title: messages.services.service1Title,
+    service1_desc: messages.services.service1Desc,
+    service2_title: messages.services.service2Title,
+    service2_desc: messages.services.service2Desc,
+    service4_title: messages.services.service4Title,
+    service4_desc: messages.services.service4Desc,
   });
+
+  React.useEffect(() => {
+    setContent({
+      title: messages.services.title,
+      description: messages.services.description,
+      service1_eyebrow: messages.services.service1Eyebrow,
+      service1_title: messages.services.service1Title,
+      service1_desc: messages.services.service1Desc,
+      service2_title: messages.services.service2Title,
+      service2_desc: messages.services.service2Desc,
+      service4_title: messages.services.service4Title,
+      service4_desc: messages.services.service4Desc,
+    });
+  }, [messages.services]);
 
   const handleSave = (key: keyof typeof content) => (newVal: string) => {
     setContent(prev => ({ ...prev, [key]: newVal }));
@@ -45,7 +61,7 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
             />
           </div>
           <div className="font-body text-xs font-bold uppercase tracking-widest text-orange-500 flex items-center gap-2">
-            Expertise Textile <span className="material-symbols-outlined text-sm">settings_suggest</span>
+            {messages.services.expertise} <span className="material-symbols-outlined text-sm">settings_suggest</span>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -108,9 +124,9 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
             {/* ... stats list ... */}
             <div className="pt-10 border-t border-white/10 relative z-10">
               <ul className="space-y-4">
-                <li className="flex items-center gap-3 text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-orange-500"></span> Gradation Industrielle</li>
-                <li className="flex items-center gap-3 text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-orange-500"></span> Mise au point prototype</li>
-                <li className="flex items-center gap-3 text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-orange-500"></span> Petites & Moyennes Séries</li>
+                <li className="flex items-center gap-3 text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-orange-500"></span> {messages.services.bullet1}</li>
+                <li className="flex items-center gap-3 text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-orange-500"></span> {messages.services.bullet2}</li>
+                <li className="flex items-center gap-3 text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-orange-500"></span> {messages.services.bullet3}</li>
               </ul>
             </div>
           </div>
@@ -126,8 +142,8 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
             <div className="absolute inset-0 bg-white/40 group-hover:bg-white/10 transition-all duration-500"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center z-10">
               <div className="bg-white/90 backdrop-blur-md p-8 rounded-2xl border border-white shadow-xl group-hover:scale-105 transition-transform duration-500">
-                <h3 className="font-headline text-2xl text-primary mb-2">Matières Durables</h3>
-                <p className="font-body text-[10px] uppercase tracking-[0.2em] text-orange-600 font-bold">Approvisionnement Transparent</p>
+                <h3 className="font-headline text-2xl text-primary mb-2">{messages.services.service3Title}</h3>
+                <p className="font-body text-[10px] uppercase tracking-[0.2em] text-orange-600 font-bold">{messages.services.service3Eyebrow}</p>
               </div>
             </div>
           </div>
@@ -151,7 +167,7 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
                 className="font-body text-white/70 text-lg mb-10"
               />
               <Link href="#acces-client" className="inline-block bg-orange-500 text-white px-10 py-5 rounded-xl font-body text-xs uppercase tracking-[0.2em] font-bold hover:bg-orange-600 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-500/20">
-                Consulter nos services
+                {messages.services.service4Cta}
               </Link>
             </div>
             <div className="absolute right-0 top-0 bottom-0 w-1/2 overflow-hidden">

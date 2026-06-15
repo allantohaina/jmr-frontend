@@ -20,8 +20,10 @@ export default async function MonProfilPage({
   const cookieStore = await cookies();
   const authError = cookieStore.get(AUTH_ERROR_COOKIE_NAME)?.value ?? null;
 
-  const isSignedIn = await getIsSignedIn();
-  const token = await getSessionToken();
+  const [isSignedIn, token] = await Promise.all([
+    getIsSignedIn(),
+    getSessionToken(),
+  ]);
 
   if (!isSignedIn || !token) {
     return <AuthAccessSection nextPath={nextPath ?? "/mon-profil"} error={authError} />;
@@ -31,9 +33,10 @@ export default async function MonProfilPage({
     redirect(nextPath);
   }
 
+  const sessionToken = token as string;
   let user = null;
   try {
-    const response = await authAPI.getProfile(token);
+    const response = await authAPI.getProfile(sessionToken);
     user = response.data;
   } catch (error) {
     console.error("Failed to fetch profile:", error);

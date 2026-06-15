@@ -4,13 +4,23 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { EditableText } from "../editable-text";
+import { useLocale } from "@/app/components/locale-provider";
 
 export function HeroSection({ isAdmin = false }: { isAdmin?: boolean }) {
+  const { messages } = useLocale();
   const [content, setContent] = React.useState({
-    eyebrow: "Atelier Moderne pour Professionnels",
-    title: "Votre Partenaire de Confiance.",
-    description: "Nous accompagnons les marques et les créateurs avec une approche collaborative. Notre priorité : un travail bien fait et une transparence totale, du prototype à la petite série."
+    eyebrow: messages.hero.eyebrow,
+    title: messages.hero.title,
+    description: messages.hero.description,
   });
+
+  React.useEffect(() => {
+    setContent({
+      eyebrow: messages.hero.eyebrow,
+      title: messages.hero.title,
+      description: messages.hero.description,
+    });
+  }, [messages.hero.description, messages.hero.eyebrow, messages.hero.title]);
 
   const handleSave = (key: keyof typeof content) => (newVal: string) => {
     setContent(prev => ({ ...prev, [key]: newVal }));
@@ -52,10 +62,10 @@ export function HeroSection({ isAdmin = false }: { isAdmin?: boolean }) {
           />
           <div className="flex flex-col sm:flex-row gap-4">
             <Link href="#nos-services" className="bg-primary text-on-primary px-10 py-5 rounded-xl font-body font-bold uppercase tracking-widest text-xs hover:bg-orange-600 transition-colors shadow-xl shadow-primary/20 text-center">
-              Découvrir nos solutions
+              {messages.hero.primaryCta}
             </Link>
             <Link href="#acces-client" className="border border-outline-variant text-primary px-10 py-5 rounded-xl font-body font-bold uppercase tracking-widest text-xs hover:border-orange-500 hover:text-orange-500 transition-all text-center">
-              Demander un devis
+              {messages.hero.secondaryCta}
             </Link>
           </div>
         </div>

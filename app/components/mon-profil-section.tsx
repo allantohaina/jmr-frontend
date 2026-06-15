@@ -3,20 +3,16 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { signOut } from "@/app/actions";
 import type { UserProfile } from "@/app/lib";
 import {
   type ProfileOrder,
   type ProfileOrderStatus,
-  type ProfileNotification,
-  type ProfileNotificationTone,
-  type ProfileActivity,
-  type ProfileDocument,
-  PROFILE_NOTIFICATIONS,
+  TEXTILE_PROBLEM_THREADS,
   PROFILE_ORDERS,
   PROFILE_ACTIVITY,
   PROFILE_DOCUMENTS,
 } from "@/app/lib";
+import { ProblemHierarchyPanel } from "./problem-hierarchy-panel";
 
 type ProfileCard = {
   title: string;
@@ -66,7 +62,7 @@ const PROFILE_METRICS: ProfileMetric[] = [
   {
     label: "Notifications",
     value: "04",
-    detail: "Nouveaux messages, documents et etapes valides.",
+    detail: "4 problemes principaux, details et sous-problemes sur demande.",
     icon: "notifications_active",
   },
 ];
@@ -91,7 +87,7 @@ function OrderDetailsModal({ order, onClose }: { order: ProfileOrder; onClose: (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-2">Statut Actuel</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2">Statut Actuel</p>
                 <div className="flex items-center gap-3">
                   <div className={`w-3 h-3 rounded-full ${
                     order.status === 'production' ? 'bg-orange-500 animate-pulse' : 
@@ -101,15 +97,15 @@ function OrderDetailsModal({ order, onClose }: { order: ProfileOrder; onClose: (
                 </div>
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-2">Résumé de la requête</p>
-                <p className="text-sm text-[#e5ad46]/70 leading-relaxed italic">"{order.summary}"</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2">Résumé de la requête</p>
+                <p className="text-sm text-[#eccc90]/70 leading-relaxed italic">&quot;{order.summary}&quot;</p>
               </div>
             </div>
-            <div className="bg-[#25303a] p-6 rounded-2xl border border-[#e5ad46]/5 space-y-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Prochaine Étape</p>
-              <p className="text-xs font-bold text-[#e5ad46] leading-relaxed">{order.nextStep}</p>
+            <div className="bg-[#1e2a38] p-6 rounded-2xl border border-[#e5ad46]/10 space-y-4">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Prochaine Étape</p>
+              <p className="text-xs font-bold text-[#eccc90] leading-relaxed">{order.nextStep}</p>
               <div className="pt-4 border-t border-[#e5ad46]/10 flex justify-between items-end">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Montant Total</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Montant Total</span>
                 <span className="text-xl font-headline font-bold text-[#e5ad46]">{order.amount}</span>
               </div>
             </div>
@@ -117,25 +113,25 @@ function OrderDetailsModal({ order, onClose }: { order: ProfileOrder; onClose: (
 
           <div className="pt-8 flex flex-col md:flex-row gap-4">
             {order.status === 'devis' ? (
-              <button 
-                onClick={() => alert("Redirection vers le paiement de l'acompte (50%).")}
-                className="flex-1 py-4 bg-[#e5ad46] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all"
+                <button 
+                  onClick={() => alert("Redirection vers le paiement de l&apos;acompte (50%).")}
+                className="flex-1 py-4 bg-[#e5ad46] text-[#1e2a38] text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg hover:bg-[#eccc90] transition-all"
               >
-                Accepter & Payer l'Acompte
+                Accepter & Payer l&apos;Acompte
               </button>
             ) : order.status === 'attente_devis' ? (
               <button className="flex-1 py-4 bg-[#e5ad46]/10 text-[#e5ad46]/40 text-[10px] font-bold uppercase tracking-widest rounded-xl cursor-not-allowed">
                 En attente du devis
               </button>
             ) : (
-              <button className="flex-1 py-4 bg-[#e5ad46] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all">
-                Contacter l'Atelier
+              <button className="flex-1 py-4 bg-[#e5ad46] text-[#1e2a38] text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg hover:bg-[#eccc90] transition-all">
+                Contacter l&apos;Atelier
               </button>
             )}
             {order.status !== 'attente_devis' && (
               <Link 
                 href={`/mon-profil/devis/${order.code}`}
-                className="flex-1 py-4 bg-[#25303a] border border-[#e5ad46]/10 text-[#e5ad46] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#e5ad46]/5 transition-all text-center"
+                className="flex-1 py-4 bg-[#1e2a38] border border-[#e5ad46]/20 text-[#e5ad46] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#e5ad46]/10 transition-all text-center"
               >
                 Voir le Devis PDF
               </Link>
@@ -143,10 +139,10 @@ function OrderDetailsModal({ order, onClose }: { order: ProfileOrder; onClose: (
           </div>
 
           {order.status === 'devis' && (
-            <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl flex items-center gap-3">
-              <span className="material-symbols-outlined text-orange-500">info</span>
-              <p className="text-[10px] font-bold text-orange-800 uppercase tracking-widest">
-                Besoin d'une modification ? <Link href={`/demande-devis?modify=${order.code}`} className="underline hover:text-orange-900 transition-colors">Cliquez ici pour modifier</Link>
+            <div className="p-4 bg-[#e5ad46]/10 border border-[#e5ad46]/20 rounded-xl flex items-center gap-3">
+              <span className="material-symbols-outlined text-[#e5ad46]">info</span>
+              <p className="text-[10px] font-bold text-[#eccc90] uppercase tracking-widest">
+                Besoin d&apos;une modification ou d&apos;un ajout ? <Link href={`/demande-devis?modify=${order.code}`} className="underline hover:text-[#e5ad46] transition-colors">Cliquez ici pour modifier ou ajouter</Link>
               </p>
             </div>
           )}
@@ -202,19 +198,19 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
           <div className="relative bg-[#1e2a38] rounded-[2.5rem] p-10 md:p-16 text-[#e5ad46] overflow-hidden shadow-2xl">
             <div className="relative z-10 max-w-2xl">
               <h2 className="text-4xl md:text-5xl font-headline font-bold mb-6 leading-tight">
-                L'excellence textile, <br/>étape par étape.
+                L&apos;excellence textile, <br/>étape par étape.
               </h2>
-              <p className="text-white/70 text-lg leading-relaxed mb-8 font-light">
+              <p className="text-[#eccc90]/70 text-lg leading-relaxed mb-8 font-light">
                 Consultez vos devis, suivez la fabrication de vos pièces en temps réel et accédez à vos archives techniques. Votre vision prend vie ici.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/suivi-projet" className="px-8 py-4 bg-[#e5ad46] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#b87028] transition-all shadow-lg shadow-[#e5ad46]/20">
+                <Link href="/suivi-projet" className="px-8 py-4 bg-[#e5ad46] text-[#1e2a38] text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#eccc90] transition-all shadow-lg shadow-[#e5ad46]/20">
                   Suivre mes commandes
                 </Link>
-                <Link href="/demande-devis" className="px-8 py-4 bg-[#25303a]/10 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#25303a]/20 transition-all border border-white/10">
+                <Link href="/demande-devis" className="px-8 py-4 bg-[#25303a]/40 backdrop-blur-md text-[#e5ad46] text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#25303a]/60 transition-all border border-[#e5ad46]/20">
                   Nouveau Devis
                 </Link>
-                <button className="px-8 py-4 bg-[#25303a]/10 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#25303a]/20 transition-all border border-white/10">
+                <button className="px-8 py-4 bg-[#25303a]/40 backdrop-blur-md text-[#e5ad46] text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#25303a]/60 transition-all border border-[#e5ad46]/20">
                   Contacter un expert
                 </button>
               </div>
@@ -296,30 +292,13 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                 <div className="px-10 py-8 border-b border-[#e5ad46]/5">
                   <h2 className="font-headline text-2xl text-[#e5ad46] font-bold">Dernières alertes</h2>
                 </div>
-                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {PROFILE_NOTIFICATIONS.map((notif, idx) => (
-                    <div 
-                      key={idx}
-                      className={`p-8 rounded-3xl border ${
-                        notif.tone === 'highlight' 
-                        ? 'bg-[#1e2a38] text-[#e5ad46] border-[#e5ad46]' 
-                        : 'bg-[#25303a] text-[#e5ad46] border-[#e5ad46]/5'
-                      }`}
-                    >
-                      <div className="flex justify-between items-start mb-6">
-                        <span className={`text-[9px] font-bold uppercase tracking-[0.2em] ${notif.tone === 'highlight' ? 'text-white/40' : 'text-[#e5ad46]/30'}`}>
-                          {notif.date}
-                        </span>
-                        <span className="material-symbols-outlined opacity-30 text-xl">
-                          {notif.tone === 'highlight' ? 'priority_high' : 'info'}
-                        </span>
-                      </div>
-                      <h3 className="font-bold mb-3 leading-tight">{notif.title}</h3>
-                      <p className={`text-xs leading-relaxed ${notif.tone === 'highlight' ? 'text-white/70' : 'text-[#e5ad46]/60'}`}>
-                        {notif.message}
-                      </p>
-                    </div>
-                  ))}
+                <div className="p-4">
+                  <ProblemHierarchyPanel
+                    className="space-y-4"
+                    mode="client"
+                    problems={TEXTILE_PROBLEM_THREADS}
+                    theme="dark"
+                  />
                 </div>
               </div>
             </div>
@@ -348,21 +327,21 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                 <h2 className="font-headline text-2xl font-bold mb-8">Documents</h2>
                 <div className="space-y-4">
                   {PROFILE_DOCUMENTS.map((doc, idx) => (
-                    <div key={idx} className="group p-5 bg-[#25303a]/5 rounded-2xl border border-white/5 hover:bg-[#25303a]/10 transition-all flex items-center gap-4 cursor-pointer">
-                      <div className="w-12 h-12 bg-[#25303a]/10 rounded-xl flex items-center justify-center text-white">
+                    <div key={idx} className="group p-5 bg-[#25303a]/20 rounded-2xl border border-[#e5ad46]/10 hover:bg-[#25303a]/40 transition-all flex items-center gap-4 cursor-pointer">
+                      <div className="w-12 h-12 bg-[#e5ad46]/10 rounded-xl flex items-center justify-center text-[#e5ad46]">
                         <span className="material-symbols-outlined text-2xl">description</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-bold truncate">{doc.title}</h4>
-                        <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Fichier stocké localement</p>
+                        <p className="text-[10px] text-[#eccc90]/40 uppercase tracking-widest mt-1">Fichier stocké localement</p>
                       </div>
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center border border-white/20 group-hover:bg-[#25303a] group-hover:text-[#e5ad46] transition-all">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center border border-[#e5ad46]/20 group-hover:bg-[#e5ad46] group-hover:text-[#1e2a38] transition-all">
                         <span className="material-symbols-outlined text-sm">download</span>
                       </div>
                     </div>
                   ))}
                 </div>
-                <button className="w-full mt-8 py-4 bg-[#25303a]/10 text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl border border-white/10 hover:bg-[#25303a]/20 transition-all">
+                <button className="w-full mt-8 py-4 bg-[#25303a]/20 text-[#e5ad46] text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl border border-[#e5ad46]/10 hover:bg-[#25303a]/40 transition-all">
                   Accéder aux archives
                 </button>
               </div>

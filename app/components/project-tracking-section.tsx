@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { DepositPaymentSelector } from "./deposit-payment-selector";
 import { getIsSignedIn } from "@/app/lib/auth-server";
 
 type StepStatus = "complete" | "active" | "pending";
@@ -21,7 +20,7 @@ const PROJECT_STEPS: ProjectStep[] = [
   },
   {
     id: 2,
-    label: "Attente devis & Paiement acompte.",
+    label: "Attente devis, validation client & acompte.",
   },
   {
     id: 3,
@@ -434,7 +433,10 @@ export async function ProjectTrackingSection({
           <p className="project-status-page__message">
             Votre demande a été bien reçue.
             <br />
-            L'administrateur prépare votre devis personnalisé.
+            L&apos;administrateur prépare votre devis personnalisé.
+          </p>
+          <p className="project-status-page__message mt-3 text-sm text-[#163526]/65">
+            Certaines etapes demanderont votre validation avant que le dossier avance.
           </p>
           <p className="project-status-page__eta">
             Réponse estimée le <strong>{estimatedResponseDate}</strong>.
@@ -443,7 +445,7 @@ export async function ProjectTrackingSection({
             <h3 className="text-sm font-bold uppercase tracking-widest text-[#163526] mb-2">Prochaine étape :</h3>
             <p className="text-xs text-[#163526]/70 leading-relaxed">
               Dès que le devis sera prêt, vous recevrez une notification dans votre espace client. 
-              Vous pourrez alors le valider et régler l'acompte de 50% pour lancer la production.
+              Vous pourrez alors le valider et régler l&apos;acompte de 50% pour lancer la production.
             </p>
           </div>
           <Link className="project-status-page__cta mt-8" href="/mon-profil">

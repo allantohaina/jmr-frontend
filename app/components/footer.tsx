@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLocale } from "@/app/components/locale-provider";
 
 type SocialItem = {
   key: string;
@@ -29,28 +30,30 @@ const SOCIAL_ITEMS: SocialItem[] = [
   },
 ];
 
-const FOOTER_LINKS = [
-  { label: "Accueil", href: "/#accueil" },
-  { label: "Nos Services", href: "/#nos-services" },
-  { label: "À Propos", href: "/#a-propos" },
-  { label: "Espace Client", href: "/#acces-client" },
-];
-
-const LEGAL_LINKS = [
-  { label: "Mentions Légales", href: "/mentions-legales" },
-  { label: "Confidentialité", href: "/confidentialite" },
-  { label: "Contact Direct", href: "mailto:contact@jmrtextile.com" },
-];
-
 export function Footer() {
   const pathname = usePathname();
+  const { messages } = useLocale();
+
+  const footerLinks = [
+    { label: messages.footer.home, href: "/#accueil" },
+    { label: messages.footer.services, href: "/#nos-services" },
+    { label: messages.footer.about, href: "/#a-propos" },
+    { label: messages.footer.clientSpace, href: "/#acces-client" },
+  ];
+
+  const legalLinks = [
+    { label: messages.footer.legalNotice, href: "/mentions-legales" },
+    { label: messages.footer.terms, href: "/conditions-utilisation" },
+    { label: messages.footer.privacy, href: "/confidentialite" },
+    { label: messages.footer.directContact, href: "mailto:contact@jmrtextile.com" },
+  ];
 
   if (pathname?.startsWith("/backoffice")) {
     return null;
   }
 
   return (
-    <footer className="w-full mt-20 bg-[#1e2a38] text-[#e5ad46] overflow-hidden">
+    <footer className="site-footer-modern w-full mt-20 bg-[#1e2a38] text-[#e5ad46] overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
 
@@ -72,16 +75,15 @@ export function Footer() {
               />
             </Link>
             <p className="font-body text-sm text-[#eccc90]/70 leading-relaxed max-w-sm">
-              Atelier de confection textile haut de gamme à Madagascar.
-              Précision, fiabilité et transparence au service de vos collections.
+              {messages.footer.description}
             </p>
           </div>
 
           {/* Navigation Column */}
           <div className="lg:col-span-2">
-            <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">Navigation</h3>
+            <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">{messages.footer.navigation}</h3>
             <ul className="space-y-4">
-              {FOOTER_LINKS.map((link) => (
+              {footerLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
@@ -96,9 +98,9 @@ export function Footer() {
 
           {/* Legal Column */}
           <div className="lg:col-span-2">
-            <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">Légal</h3>
+            <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">{messages.footer.legal}</h3>
             <ul className="space-y-4">
-              {LEGAL_LINKS.map((link) => (
+              {legalLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
@@ -113,7 +115,7 @@ export function Footer() {
 
           {/* Social Column */}
           <div className="lg:col-span-4">
-            <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">Réseaux Sociaux</h3>
+            <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">{messages.footer.social}</h3>
             <div className="flex gap-4 mb-12">
               {SOCIAL_ITEMS.map((item) => (
                 <a
@@ -138,12 +140,12 @@ export function Footer() {
         {/* Bottom Line */}
         <div className="mt-20 pt-10 border-t border-[#e5ad46]/10 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="font-body text-[10px] text-[#eccc90]/40 uppercase tracking-[0.3em]">
-            © 2026 JMR Textile Atelier • Fabrication Madagascar
+            {messages.footer.copyright}
           </p>
           <div className="flex items-center gap-8">
             <span className="w-12 h-[1px] bg-[#e5ad46]/10"></span>
             <p className="font-body text-[10px] text-[#eccc90]/40 uppercase tracking-[0.3em]">
-              Fiabilité • Transparence • Qualité
+              {messages.footer.values}
             </p>
           </div>
         </div>

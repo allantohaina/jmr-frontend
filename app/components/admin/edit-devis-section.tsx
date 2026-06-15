@@ -2,7 +2,8 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { authAPI } from "@/app/lib";
+import { ProblemHierarchyPanel } from "../problem-hierarchy-panel";
+import { TEXTILE_PROBLEM_THREADS, authAPI } from "@/app/lib";
 
 type QuoteRecord = {
   id: string | number;
@@ -28,6 +29,7 @@ const STATUS_OPTIONS = [
   { value: "draft", label: "Brouillon" },
   { value: "sent", label: "Envoye" },
   { value: "accepted", label: "Accepte" },
+  { value: "production", label: "Production" },
   { value: "rejected", label: "Refuse" },
 ];
 
@@ -52,23 +54,12 @@ function formatStatusLabel(status?: string | null) {
       return "Envoye";
     case "accepted":
       return "Accepte";
+    case "production":
+      return "En production";
     case "rejected":
       return "Refuse";
     default:
       return formatDisplayValue(status, "Inconnu");
-  }
-}
-
-function getStatusTone(status?: string | null) {
-  switch (normalizeText(status)) {
-    case "accepted":
-      return "success";
-    case "rejected":
-      return "danger";
-    case "sent":
-      return "warning";
-    default:
-      return "neutral";
   }
 }
 
@@ -115,80 +106,6 @@ function getInitials(value?: string | number | null) {
 
   const compact = text.replace(/[^a-zA-Z0-9]+/g, "");
   return compact.slice(0, 2).toUpperCase() || "DV";
-}
-
-function LoadingState() {
-  return (
-    <section className="admin-edit-page section-padding" aria-busy="true" aria-label="Chargement du devis">
-      <div className="container admin-edit-page__container">
-        <header className="admin-edit-page__header">
-          <span className="eyebrow">Espace admin</span>
-          <div className="admin-edit-page__skeleton-line admin-edit-page__skeleton-line--title" />
-          <div className="admin-edit-page__skeleton-line admin-edit-page__skeleton-line--lead" />
-        </header>
-
-        <div className="client-space-grid">
-          <div className="tracking-preview admin-edit-page__loading-card">
-            <div className="admin-edit-page__skeleton-line admin-edit-page__skeleton-line--chip" />
-            <div className="admin-edit-page__skeleton-line admin-edit-page__skeleton-line--heading" />
-            <div className="admin-edit-page__skeleton-line admin-edit-page__skeleton-line--subline" />
-            <div className="admin-edit-page__skeleton-stack">
-              <div className="admin-edit-page__skeleton-row" />
-              <div className="admin-edit-page__skeleton-row" />
-              <div className="admin-edit-page__skeleton-row" />
-            </div>
-          </div>
-
-          <div className="profile-card admin-edit-page__loading-card">
-            <div className="profile-card__top">
-              <div className="profile-avatar" aria-hidden="true">
-                <span>...</span>
-              </div>
-              <div className="admin-edit-page__skeleton-copy">
-                <div className="admin-edit-page__skeleton-line admin-edit-page__skeleton-line--chip" />
-                <div className="admin-edit-page__skeleton-line admin-edit-page__skeleton-line--heading" />
-                <div className="admin-edit-page__skeleton-line admin-edit-page__skeleton-line--subline" />
-              </div>
-            </div>
-
-            <div className="admin-edit-page__skeleton-form">
-              <div className="admin-edit-page__skeleton-field" />
-              <div className="admin-edit-page__skeleton-field" />
-            </div>
-
-            <div className="admin-edit-page__actions">
-              <div className="admin-edit-page__skeleton-button" />
-              <div className="admin-edit-page__skeleton-button" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return (
-    <section className="admin-edit-page section-padding" aria-labelledby="edit-devis-title">
-      <div className="container admin-edit-page__container">
-        <header className="admin-edit-page__header">
-          <span className="eyebrow">Espace admin</span>
-          <h1 className="section-title left" id="edit-devis-title">
-            Modifier le devis
-          </h1>
-          <p className="admin-edit-page__lead">{message}</p>
-        </header>
-
-        <div className="tracking-preview admin-edit-page__notice-card" role="alert">
-          <span className="eyebrow">Erreur</span>
-          <p>Impossible de charger ce devis pour le moment.</p>
-          <button className="btn btn-primary admin-edit-page__retry" type="button" onClick={onRetry}>
-            Reessayer
-          </button>
-        </div>
-      </div>
-    </section>
-  );
 }
 
 export function EditDevisSection({ id }: { id: string }) {
@@ -306,7 +223,7 @@ export function EditDevisSection({ id }: { id: string }) {
   }
 
   async function sendQuote() {
-    if (!quote || isSaving) {
+    if (!quote || isSaving || quote.status === "production") {
       return;
     }
 
@@ -375,6 +292,7 @@ export function EditDevisSection({ id }: { id: string }) {
   const statusLabel = formatStatusLabel(quote.status);
   const statusOptions = buildStatusOptions(quote.status);
   const initials = getInitials(quote.name || quote.id);
+  const isClientValidated = quote.status === "accepted" || quote.status === "production";
 
   return (
     <div className="px-6 md:px-12 py-10 space-y-10 max-w-5xl">
@@ -408,6 +326,13 @@ export function EditDevisSection({ id }: { id: string }) {
           {notice.message}
         </div>
       )}
+
+      {isClientValidated ? (
+        <div className="p-4 rounded-xl border border-green-100 bg-green-50 text-xs font-bold uppercase tracking-widest text-green-700 flex items-center gap-3">
+          <span className="material-symbols-outlined text-sm">verified</span>
+          Le client a valide et signe cette version. Toute correction ou ajout passe par une nouvelle version signee.
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Client Info Card */}
@@ -487,7 +412,7 @@ export function EditDevisSection({ id }: { id: string }) {
           <div className="pt-6 border-t border-[#163526]/5">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-3">Message du client</p>
             <div className="bg-[#faf9f4] p-4 rounded-xl text-xs text-[#163526]/80 leading-relaxed italic">
-              "{quote.message || "Aucun message fourni"}"
+              &quot;{quote.message || "Aucun message fourni"}&quot;
             </div>
           </div>
         </div>
@@ -509,12 +434,29 @@ export function EditDevisSection({ id }: { id: string }) {
                   if (e.target.value) alert(`Notification "${e.target.value}" envoyée au client.`);
                 }}
               >
-                <option value="">Sélectionner un type d'alerte...</option>
+                <option value="">S&eacute;lectionner un type d&apos;alerte...</option>
                 <option value="delay">Retard de production</option>
                 <option value="error">Erreur de conception / technique</option>
                 <option value="ready">Prêt pour livraison</option>
-                <option value="info">Besoin d'informations complémentaires</option>
+                <option value="info">Besoin d&apos;informations compl&eacute;mentaires</option>
               </select>
+            </div>
+
+            <div className="space-y-3 rounded-2xl border border-orange-100 bg-orange-50 p-4">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-orange-800 flex items-center gap-2">
+                <span className="material-symbols-outlined text-sm">report</span>
+                Probleme / Sous-probleme
+              </p>
+              <p className="text-[11px] font-medium text-orange-900/70">
+                Seuls les 4 problemes majeurs restent visibles par defaut. Les sous-problemes se
+                deploient avec Voir plus.
+              </p>
+              <ProblemHierarchyPanel
+                className="space-y-4"
+                mode="admin"
+                problems={TEXTILE_PROBLEM_THREADS}
+                theme="light"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -628,11 +570,15 @@ export function EditDevisSection({ id }: { id: string }) {
             <button
               type="button"
               onClick={sendQuote}
-              disabled={isSaving || quote.status === "sent"}
+              disabled={isSaving || quote.status === "sent" || quote.status === "production"}
               className="w-full py-4 bg-white border border-[#163526]/10 text-[#163526] font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#163526]/5 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined text-sm text-orange-500">send</span>
-              {quote.status === "sent" ? "Déjà envoyé" : "Envoyer le devis au client"}
+              {quote.status === "production"
+                ? "Deja en production"
+                : quote.status === "sent"
+                  ? "Deja envoye"
+                  : "Envoyer le devis au client"}
             </button>
           </div>
         </form>

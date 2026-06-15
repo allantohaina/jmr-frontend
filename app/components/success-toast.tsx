@@ -42,21 +42,23 @@ export function SuccessToast() {
 
   return (
     <div className="fixed bottom-10 left-1/2 z-[9999] -translate-x-1/2 animate-toast-up">
-      <div className="flex items-center gap-2 rounded-full bg-green-600 px-6 py-3 font-medium text-white shadow-lg">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M20 6 9 17l-5-5" />
-        </svg>
-        {message}
+      <div className="flex items-center gap-4 rounded-full bg-[#e5ad46] px-8 py-4 font-bold text-[#1e2a38] shadow-2xl shadow-[#e5ad46]/20 border border-[#eccc90]/20 backdrop-blur-md">
+        <div className="w-6 h-6 rounded-full bg-[#1e2a38]/10 flex items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+        </div>
+        <span className="text-xs uppercase tracking-[0.1em]">{message}</span>
       </div>
     </div>
   );

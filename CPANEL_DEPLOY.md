@@ -2,6 +2,18 @@
 
 Ce projet doit etre deploye comme une application `Next.js` avec `Node.js`, pas comme un site statique exporte.
 
+## Statut par rapport a l'export statique
+
+Le contenu de ce fichier reste correct pour l'etat actuel du depot.
+
+Une migration vers `output: "export"` est en cours d'analyse, mais elle n'est pas encore terminee. A ce stade, le projet contient encore des flux qui demandent un runtime Next/Node:
+
+- des pages/layouts qui lisent la session cote serveur
+- des routes `app/api`
+- des espaces proteges (`mon-profil`, `atelier`, `backoffice`, `admin-backoffice`) qui ne sont pas encore entierement sortis du modele serveur
+
+Tant que ces points existent, le bon deploiement cPanel reste le mode `standalone` avec `app.js`.
+
 ## Pourquoi
 
 - Le projet utilise des `Server Actions`, `cookies()` et des `redirect()` serveur.

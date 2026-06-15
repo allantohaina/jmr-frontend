@@ -1,5 +1,8 @@
-import Image from "next/image";
-import { signIn } from "@/app/actions";
+"use client";
+
+import { useState } from "react";
+import { useLocale } from "@/app/components/locale-provider";
+import { authenticateWithForm } from "@/app/lib";
 
 type AuthAccessSectionProps = {
   nextPath?: string;
@@ -11,57 +14,90 @@ function resolveAuthErrorMessage(error?: string | null) {
     return "";
   }
 
-  return "Connexion impossible. Verifiez vos identifiants ou reessayez.";
+  if (error === "auth_failed") {
+    return "Connexion impossible. Verifiez vos identifiants ou reessayez.";
+  }
+
+  return error;
 }
 
 export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAccessSectionProps) {
-  const errorMessage = resolveAuthErrorMessage(error);
+  const { messages } = useLocale();
+  const [errorMessage, setErrorMessage] = useState(resolveAuthErrorMessage(error));
+  const [pendingIntent, setPendingIntent] = useState<"login" | "signup" | null>(null);
+
+  async function handleAuthSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const intent = formData.get("intent") === "signup" ? "signup" : "login";
+
+    setPendingIntent(intent);
+    setErrorMessage("");
+
+    try {
+      const { redirectTo } = await authenticateWithForm(formData);
+      window.location.assign(redirectTo);
+    } catch (submitError) {
+      const message =
+        submitError instanceof Error && submitError.message
+          ? submitError.message
+          : "Connexion impossible. Verifiez vos identifiants ou reessayez.";
+      setErrorMessage(resolveAuthErrorMessage(message));
+      setPendingIntent(null);
+    }
+  }
 
   return (
     <div className="bg-background text-on-surface font-body selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
-      <main className="min-h-screen pt-12 pb-20 px-4 md:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Hero Header */}
+      <main className="min-h-screen px-4 pb-20 pt-12 md:px-8">
+        <div className="mx-auto max-w-7xl">
           <div className="mb-16 text-center">
-            <h1 className="font-headline text-5xl md:text-6xl text-primary font-bold tracking-tight mb-4">L&apos;Atelier Numérique</h1>
-            <p className="font-body text-secondary max-w-xl mx-auto text-lg uppercase tracking-[0.1em] text-sm">Accédez à votre espace sur-mesure ou rejoignez notre héritage de précision textile.</p>
+            <h1 className="mb-4 font-headline text-5xl font-bold tracking-tight text-primary md:text-6xl">
+              {messages.auth.title}
+            </h1>
+            <p className="mx-auto max-w-xl text-sm font-body text-lg uppercase tracking-[0.1em] text-secondary">
+              {messages.auth.subtitle}
+            </p>
             {errorMessage ? (
-              <div className="mt-8 p-4 bg-error-container text-on-error-container rounded-xl inline-block" role="alert">
+              <div className="mt-8 inline-block rounded-xl bg-error-container p-4 text-on-error-container" role="alert">
                 {errorMessage}
               </div>
             ) : null}
           </div>
 
-          {/* Auth Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-outline-variant/20 rounded-xl overflow-hidden shadow-[0_48px_64px_rgba(27,28,25,0.06)]">
-            {/* Left: Se connecter */}
-            <section className="bg-surface p-8 md:p-12 lg:p-16 flex flex-col justify-center">
-              <div className="max-w-md mx-auto w-full">
+          <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl bg-outline-variant/20 shadow-[0_48px_64px_rgba(27,28,25,0.06)] lg:grid-cols-2">
+            <section className="flex flex-col justify-center bg-surface p-8 md:p-12 lg:p-16">
+              <div className="mx-auto w-full max-w-md">
                 <div className="mb-10">
-                  <h2 className="font-headline text-4xl text-primary font-bold mb-2">Se connecter</h2>
-                  <p className="text-secondary text-xs tracking-[0.2em] uppercase font-bold">Bon retour parmi nous</p>
+                  <h2 className="mb-2 font-headline text-4xl font-bold text-primary">{messages.auth.loginTitle}</h2>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">{messages.auth.loginSubtitle}</p>
                 </div>
-                <form className="space-y-6" action={signIn}>
+                <form className="space-y-6" onSubmit={handleAuthSubmit}>
                   <input name="next" type="hidden" value={nextPath} />
                   <input name="intent" type="hidden" value="login" />
-                  
+
                   <div className="space-y-6">
                     <div className="relative">
-                      <label className="font-label text-[10px] uppercase tracking-[0.2em] text-outline/80 mb-2 block font-bold">Username ou e-mail</label>
-                      <input 
+                      <label className="mb-2 block font-label text-[10px] font-bold uppercase tracking-[0.2em] text-outline/80">
+                        {messages.auth.usernameOrEmail}
+                      </label>
+                      <input
                         name="email"
-                        className="w-full bg-white border border-outline-variant/50 focus:border-primary focus:ring-0 px-4 py-4 transition-colors outline-none font-body text-on-surface text-sm" 
-                        placeholder="votre@email.com" 
+                        className="w-full border border-outline-variant/50 bg-white px-4 py-4 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
+                        placeholder="votre@email.com"
                         type="email"
                         required
                       />
                     </div>
                     <div className="relative">
-                      <label className="font-label text-[10px] uppercase tracking-[0.2em] text-outline/80 mb-2 block font-bold">Mot de passe</label>
-                      <input 
+                      <label className="mb-2 block font-label text-[10px] font-bold uppercase tracking-[0.2em] text-outline/80">
+                        {messages.auth.password}
+                      </label>
+                      <input
                         name="password"
-                        className="w-full bg-white border border-outline-variant/50 focus:border-primary focus:ring-0 px-4 py-4 transition-colors outline-none font-body text-on-surface text-sm" 
-                        placeholder="••••••••" 
+                        className="w-full border border-outline-variant/50 bg-white px-4 py-4 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
+                        placeholder="********"
                         type="password"
                         required
                       />
@@ -69,103 +105,179 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                   </div>
 
                   <div className="flex items-center justify-between py-2">
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <div className="relative w-5 h-5 border border-outline-variant/50 rounded-sm group-hover:border-primary transition-colors flex items-center justify-center bg-white">
-                        <input className="absolute opacity-0 w-full h-full cursor-pointer peer" type="checkbox"/>
-                        <span className="material-symbols-outlined text-primary text-sm opacity-0 peer-checked:opacity-100 transition-opacity">check</span>
+                    <label className="group flex cursor-pointer items-center gap-3">
+                      <div className="relative flex h-5 w-5 items-center justify-center rounded-sm border border-outline-variant/50 bg-white transition-colors group-hover:border-primary">
+                        <input className="peer absolute h-full w-full cursor-pointer opacity-0" type="checkbox" />
+                        <span className="material-symbols-outlined text-sm text-primary opacity-0 transition-opacity peer-checked:opacity-100">
+                          check
+                        </span>
                       </div>
-                      <span className="text-[11px] font-label text-secondary tracking-wide uppercase">Mémoriser mon mot de passe</span>
+                      <span className="font-label text-[11px] uppercase tracking-wide text-secondary">
+                        {messages.auth.rememberMe}
+                      </span>
                     </label>
-                    <button type="button" className="text-[11px] font-label uppercase tracking-widest text-primary hover:opacity-70 transition-opacity font-bold">Oublié?</button>
+                    <button
+                      type="button"
+                      className="font-label text-[11px] font-bold uppercase tracking-widest text-primary transition-opacity hover:opacity-70"
+                    >
+                      {messages.auth.forgotPassword}
+                    </button>
                   </div>
-                  
-                  {/* Security Verification Box */}
-                  <div className="bg-surface-container-low p-5 rounded-xl flex items-center justify-between border border-outline-variant/20">
+
+                  <div className="flex items-center justify-between rounded-xl border border-outline-variant/20 bg-surface-container-low p-5">
                     <div className="flex items-center gap-4">
-                      <div className="w-5 h-5 border-2 border-outline-variant/30 rounded-full"></div>
-                      <span className="text-[11px] text-secondary font-label uppercase tracking-widest">Vérification de sécurité</span>
+                      <div className="h-5 w-5 rounded-full border-2 border-outline-variant/30" />
+                      <span className="font-label text-[11px] uppercase tracking-widest text-secondary">
+                        {messages.auth.securityCheck}
+                      </span>
                     </div>
-                    <span className="material-symbols-outlined text-outline/60 text-xl">shield</span>
+                    <span className="material-symbols-outlined text-xl text-outline/60">shield</span>
                   </div>
-                  
-                  <button className="w-full bg-primary text-on-primary py-5 rounded-lg font-label text-xs uppercase tracking-[0.3em] font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 active:scale-[0.98] transition-all duration-200" type="submit">
-                    Se connecter
+
+                  <button
+                    className="w-full rounded-lg bg-primary py-5 font-label text-xs font-bold uppercase tracking-[0.3em] text-on-primary shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                    type="submit"
+                    disabled={pendingIntent !== null}
+                  >
+                    {pendingIntent === "login" ? messages.auth.loginLoading : messages.auth.loginButton}
                   </button>
                 </form>
-                
-                <div className="mt-12 relative">
+
+                <div className="relative mt-12">
                   <div aria-hidden="true" className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-outline-variant/20"></div>
+                    <div className="w-full border-t border-outline-variant/20" />
                   </div>
-                  <div className="relative flex justify-center text-[10px] uppercase tracking-[0.3em] font-bold">
-                    <span className="bg-surface px-6 text-outline/40">Expérience exclusive</span>
+                  <div className="relative flex justify-center text-[10px] font-bold uppercase tracking-[0.3em]">
+                    <span className="bg-surface px-6 text-outline/40">{messages.auth.exclusiveExperience}</span>
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* Right: S'inscrire */}
-            <section className="bg-surface-container-low p-8 md:p-12 lg:p-16 relative overflow-hidden">
-              <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-primary-fixed-dim/10 rounded-full blur-3xl"></div>
-              <div className="max-w-md mx-auto w-full relative z-10">
+            <section className="relative overflow-hidden bg-surface-container-low p-8 md:p-12 lg:p-16">
+              <div className="absolute right-0 top-0 -mr-20 -mt-20 h-64 w-64 rounded-full bg-primary-fixed-dim/10 blur-3xl" />
+              <div className="relative z-10 mx-auto w-full max-w-md">
                 <div className="mb-10 text-center">
-                  <p className="text-secondary text-[10px] tracking-[0.2em] uppercase font-bold mb-2">Créer un nouveau profil d&apos;artisanat</p>
-                  <div className="w-12 h-[1px] bg-outline-variant/30 mx-auto"></div>
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-secondary">
+                    {messages.auth.signupEyebrow}
+                  </p>
+                  <div className="mx-auto h-[1px] w-12 bg-outline-variant/30" />
                 </div>
-                <form className="space-y-5" action={signIn}>
+                <form className="space-y-5" onSubmit={handleAuthSubmit}>
                   <input name="next" type="hidden" value={nextPath} />
                   <input name="intent" type="hidden" value="signup" />
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
-                      <label className="font-label text-[10px] uppercase tracking-[0.1em] text-outline/80 mb-1 block font-bold">Prénom</label>
-                      <input name="first_name" className="w-full bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-0 px-3 py-3 transition-colors outline-none font-body text-on-surface text-sm rounded" type="text"/>
+                      <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
+                        {messages.auth.firstName}
+                      </label>
+                      <input
+                        name="first_name"
+                        className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
+                        type="text"
+                      />
                     </div>
                     <div className="relative">
-                      <label className="font-label text-[10px] uppercase tracking-[0.1em] text-outline/80 mb-1 block font-bold">Nom</label>
-                      <input name="last_name" className="w-full bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-0 px-3 py-3 transition-colors outline-none font-body text-on-surface text-sm rounded" type="text"/>
+                      <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
+                        {messages.auth.lastName}
+                      </label>
+                      <input
+                        name="last_name"
+                        className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
+                        type="text"
+                      />
                     </div>
                   </div>
                   <div className="relative">
-                    <label className="font-label text-[10px] uppercase tracking-[0.1em] text-outline/80 mb-1 block font-bold">E-mail</label>
-                    <input name="email" className="w-full bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-0 px-3 py-3 transition-colors outline-none font-body text-on-surface text-sm rounded" type="email" required/>
+                    <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
+                      {messages.auth.email}
+                    </label>
+                    <input
+                      name="email"
+                      className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
+                      type="email"
+                      required
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
-                      <label className="font-label text-[10px] uppercase tracking-[0.1em] text-outline/80 mb-1 block font-bold">Date de naissance</label>
-                      <input name="birth_date" className="w-full bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-0 px-3 py-3 transition-colors outline-none font-body text-on-surface text-sm rounded" type="text" placeholder="mm/dd/yyyy"/>
+                      <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
+                        {messages.auth.birthDate}
+                      </label>
+                      <input
+                        name="birth_date"
+                        className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
+                        type="text"
+                        placeholder="mm/dd/yyyy"
+                      />
                     </div>
                     <div className="relative">
-                      <label className="font-label text-[10px] uppercase tracking-[0.1em] text-outline/80 mb-1 block font-bold">Numéro de téléphone</label>
-                      <input name="phone" className="w-full bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-0 px-3 py-3 transition-colors outline-none font-body text-on-surface text-sm rounded" type="tel"/>
+                      <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
+                        {messages.auth.phone}
+                      </label>
+                      <input
+                        name="phone"
+                        className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
+                        type="tel"
+                      />
                     </div>
                   </div>
                   <div className="relative">
-                    <label className="font-label text-[10px] uppercase tracking-[0.1em] text-outline/80 mb-1 block font-bold">Adresse</label>
-                    <input name="address" className="w-full bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-0 px-3 py-3 transition-colors outline-none font-body text-on-surface text-sm rounded" type="text"/>
+                    <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
+                      {messages.auth.address}
+                    </label>
+                    <input
+                      name="address"
+                      className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
+                      type="text"
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
-                      <label className="font-label text-[10px] uppercase tracking-[0.1em] text-outline/80 mb-1 block font-bold">Mot de passe</label>
-                      <input name="password" className="w-full bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-0 px-3 py-3 transition-colors outline-none font-body text-on-surface text-sm rounded" type="password" required/>
+                      <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
+                        {messages.auth.password}
+                      </label>
+                      <input
+                        name="password"
+                        className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
+                        type="password"
+                        required
+                      />
                     </div>
                     <div className="relative">
-                      <label className="font-label text-[10px] uppercase tracking-[0.1em] text-outline/80 mb-1 block font-bold">Confirmer</label>
-                      <input name="confirm_password" className="w-full bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-0 px-3 py-3 transition-colors outline-none font-body text-on-surface text-sm rounded" type="password"/>
+                      <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
+                        {messages.auth.confirmPassword}
+                      </label>
+                      <input
+                        name="confirm_password"
+                        className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
+                        type="password"
+                      />
                     </div>
                   </div>
-                  
-                  {/* Human Verification Box */}
-                  <div className="bg-white/80 p-4 rounded-xl flex items-center justify-between border border-outline-variant/20 mt-4">
+
+                  <div className="mt-4 flex items-center justify-between rounded-xl border border-outline-variant/20 bg-white/80 p-4">
                     <div className="flex items-center gap-3">
-                      <span className="material-symbols-outlined text-primary/40 text-lg">verified_user</span>
-                      <span className="text-[10px] text-secondary font-label uppercase tracking-widest font-bold">Vérification humaine requise</span>
+                      <span className="material-symbols-outlined text-lg text-primary/40">verified_user</span>
+                      <span className="font-label text-[10px] font-bold uppercase tracking-widest text-secondary">
+                        {messages.auth.humanVerification}
+                      </span>
                     </div>
-                    <button className="text-[10px] font-bold text-primary uppercase tracking-widest bg-primary/5 px-4 py-2 rounded-lg border border-primary/10 hover:bg-primary/10 transition-colors" type="button">Vérifier</button>
+                    <button
+                      className="rounded-lg border border-primary/10 bg-primary/5 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-primary transition-colors hover:bg-primary/10"
+                      type="button"
+                    >
+                      {messages.auth.verify}
+                    </button>
                   </div>
-                  
-                  <button className="w-full border-2 border-primary text-primary py-5 rounded-lg font-label text-xs uppercase tracking-[0.3em] font-bold hover:bg-primary hover:text-on-primary transition-all duration-300 mt-4" type="submit">
-                    Créer un compte
+
+                  <button
+                    className="mt-4 w-full rounded-lg border-2 border-primary py-5 font-label text-xs font-bold uppercase tracking-[0.3em] text-primary transition-all duration-300 hover:bg-primary hover:text-on-primary disabled:cursor-not-allowed disabled:opacity-60"
+                    type="submit"
+                    disabled={pendingIntent !== null}
+                  >
+                    {pendingIntent === "signup" ? messages.auth.signupLoading : messages.auth.signupButton}
                   </button>
                 </form>
               </div>
