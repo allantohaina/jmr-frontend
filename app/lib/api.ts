@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.jmrtextile.com/api";
 
 export type ApiResponse<T = unknown> = {
   status: "success" | "error";
@@ -11,7 +11,7 @@ export type UserProfile = {
   first_name?: string;
   last_name?: string;
   email?: string;
-  role?: "admin" | "user" | string;
+  role?: "admin" | "user" | "worker" | string;
 };
 
 export type QuoteRecord = {
@@ -37,21 +37,48 @@ export type RegisterPayload = {
   last_name: string;
 };
 
-type ApiErrorPayload = {
-  message?: string;
-};
+// Token management with localStorage
+export function getToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("jmr_token");
+}
+
+export function getRefreshToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("jmr_refresh_token");
+}
+
+export function getUser(): UserProfile | null {
+  if (typeof window === "undefined") return null;
+  const raw = localStorage.getItem("jmr_user");
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as UserProfile;
+  } catch {
+    return null;
+  }
+}
+
+export function setAuthData(token: string, refreshToken: string | undefined, user: UserProfile) {
+  localStorage.setItem("jmr_token", token);
+  if (refreshToken) {
+    localStorage.setItem("jmr_refresh_token", refreshToken);
+  }
+  localStorage.setItem("jmr_user", JSON.stringify(user));
+}
+
+export function clearAuthData() {
+  localStorage.removeItem("jmr_token");
+  localStorage.removeItem("jmr_refresh_token");
+  localStorage.removeItem("jmr_user");
+}
+
+export function isSignedIn(): boolean {
+  return !!getToken();
+}
 
 type ApiJsonBody = Record<string, unknown>;
 type ApiBody = ApiJsonBody | FormData;
-
-function readErrorMessage(payload: unknown) {
-  if (typeof payload !== "object" || payload === null || !("message" in payload)) {
-    return undefined;
-  }
-
-  const { message } = payload as ApiErrorPayload;
-  return typeof message === "string" ? message : undefined;
-}
 
 function toRequestBody(payload: ApiBody) {
   return payload instanceof FormData ? payload : JSON.stringify(payload);
@@ -73,8 +100,9 @@ export async function fetchWithAuth<T = unknown>(
     headers.set("Accept", "application/json");
   }
 
-  if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
+  const effectiveToken = token || getToken();
+  if (effectiveToken) {
+    headers.set("Authorization", `Bearer ${effectiveToken}`);
   }
 
   const response = await fetch(`${API_URL}${endpoint}`, {
@@ -85,19 +113,22 @@ export async function fetchWithAuth<T = unknown>(
   let data: unknown;
   try {
     data = await response.json();
-  } catch (e) {
-    console.error("Failed to parse API response as JSON:", e);
+  } catch {
     throw new Error(`Invalid JSON response from server (${response.status})`);
   }
 
   if (!response.ok) {
-    throw new Error(readErrorMessage(data) || "An error occurred");
+    const message =
+      data && typeof data === "object" && "message" in data
+        ? (data as { message: string }).message
+        : "An error occurred";
+    throw new Error(message);
   }
 
   if (data && typeof data === "object" && !("status" in data) && !("data" in data)) {
     return {
       status: "success",
-      data: data
+      data: data as T,
     } as ApiResponse<T>;
   }
 
@@ -126,7 +157,7 @@ export const authAPI = {
     }, token);
   },
 
-  getProfile: async (token: string) => {
+  getProfile: async (token?: string) => {
     return fetchWithAuth<UserProfile>("/users/profile", {
       method: "GET",
     }, token);
