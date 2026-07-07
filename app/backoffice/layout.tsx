@@ -1,24 +1,15 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/app/lib/auth-server";
+import { ClientAuthGate } from "@/app/components/client-auth-gate";
 import { AdminHeaderAlerts } from "./AdminHeaderAlerts";
 
-export default async function AdminLayout({
+function AdminShell({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser(true);
-
-  if (!user || user.role !== "admin") {
-    if (user?.role === "worker") {
-      redirect("/atelier");
-    }
-
-    redirect("/");
-  }
-
   return (
     <div className="min-h-screen overflow-hidden bg-[#1e2a38] font-body text-[#eccc90] md:flex">
       <aside className="z-50 flex w-full flex-col bg-[#25303a] text-[#eccc90] shadow-2xl transition-all duration-300 md:fixed md:left-0 md:top-0 md:h-full md:w-64 border-r border-[#e5ad46]/10">
@@ -128,5 +119,13 @@ export default async function AdminLayout({
         <main className="relative flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
+  );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <ClientAuthGate allowedRoles={["admin"]}>
+      <AdminShell>{children}</AdminShell>
+    </ClientAuthGate>
   );
 }

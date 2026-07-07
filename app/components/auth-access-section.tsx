@@ -1,8 +1,75 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocale } from "@/app/components/locale-provider";
 import { authenticateWithForm } from "@/app/lib";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { isValidPhoneNumber } from "libphonenumber-js";
+import { ApiValidationError } from "@/app/lib/api";
+
+// Liste des pays avec code ISO et indicatif téléphonique
+const countries = [
+  { code: "MG", name: "Madagascar", dialCode: "+261" },
+  { code: "FR", name: "France", dialCode: "+33" },
+  { code: "US", name: "États-Unis", dialCode: "+1" },
+  { code: "CA", name: "Canada", dialCode: "+1" },
+  { code: "GB", name: "Royaume-Uni", dialCode: "+44" },
+  { code: "DE", name: "Allemagne", dialCode: "+49" },
+  { code: "ES", name: "Espagne", dialCode: "+34" },
+  { code: "IT", name: "Italie", dialCode: "+39" },
+  { code: "BE", name: "Belgique", dialCode: "+32" },
+  { code: "CH", name: "Suisse", dialCode: "+41" },
+  { code: "LU", name: "Luxembourg", dialCode: "+352" },
+];
+
+// Schéma Zod de validation pour l'inscription
+const signupSchema = z.object({
+  first_name: z
+    .string()
+    .min(2, "Prénom trop court (minimum 2 caractères)")
+    .max(50, "Prénom trop long (maximum 50 caractères)"), // Le prénom le plus long enregistré est environ 50 caractères
+  last_name: z
+    .string()
+    .min(2, "Nom trop court (minimum 2 caractères)")
+    .max(100, "Nom trop long (maximum 100 caractères)"), // Le nom de famille peut être plus long
+  email: z.string().email("Adresse email invalide"),
+  birth_date: z.string().refine(
+    (dateStr) => {
+      const date = new Date(dateStr);
+      const today = new Date();
+      return date < today;
+    },
+    { message: "Date de naissance invalide (ne peut pas être dans le futur)" }
+  ),
+  phone: z.string(),
+  country: z.string().min(1, "Veuillez sélectionner un pays"),
+  address: z.string().min(5, "Adresse trop courte (minimum 5 caractères)").max(255, "Adresse trop longue"),
+  password: z
+    .string()
+    .min(8, "Mot de passe trop court (minimum 8 caractères)")
+    .max(128, "Mot de passe trop long"),
+  confirm_password: z.string(),
+})
+  .refine((data) => {
+    if (!data.country) return true;
+    try {
+      // Cast country to any to avoid TypeScript issues with libphonenumber-js types
+      return isValidPhoneNumber(data.phone, data.country as any);
+    } catch {
+      return false;
+    }
+  }, {
+    message: "Numéro de téléphone invalide pour ce pays",
+    path: ["phone"]
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Les mots de passe ne correspondent pas",
+    path: ["confirm_password"],
+  });
+
+type SignupFormData = z.infer<typeof signupSchema>;
 
 type AuthAccessSectionProps = {
   nextPath?: string;
@@ -25,12 +92,33 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
   const { messages } = useLocale();
   const [errorMessage, setErrorMessage] = useState(resolveAuthErrorMessage(error));
   const [pendingIntent, setPendingIntent] = useState<"login" | "signup" | null>(null);
+  // Hook Form pour l'inscription
+  const signupForm = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      birth_date: "",
+      phone: "",
+      country: "",
+      address: "",
+      password: "",
+      confirm_password: "",
+    },
+  });
+  const {
+    control: signupControl,
+    handleSubmit: handleSignupSubmit,
+    formState: { errors: signupErrors },
+    setError: setSignupError,
+  } = signupForm;
 
-  async function handleAuthSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleLoginSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const intent = formData.get("intent") === "signup" ? "signup" : "login";
+    const intent = "login" as const;
 
     setPendingIntent(intent);
     setErrorMessage("");
@@ -47,6 +135,51 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
       setPendingIntent(null);
     }
   }
+
+  async function onSignupSubmit(data: SignupFormData) {
+    console.log("[AuthAccessSection] onSignupSubmit, data received from form:", data);
+    setPendingIntent("signup");
+    setErrorMessage("");
+
+    const formData = new FormData();
+    formData.append("intent", "signup");
+    formData.append("next", nextPath);
+    Object.entries(data).forEach(([key, value]) => {
+      if (value) formData.append(key, value as string);
+    });
+    
+    console.log("[AuthAccessSection] Prepared formData:", Array.from(formData.entries()));
+
+    try {
+      const { redirectTo } = await authenticateWithForm(formData);
+      console.log("[AuthAccessSection] authenticateWithForm success! Redirect to:", redirectTo);
+      window.location.assign(redirectTo);
+    } catch (submitError) {
+      console.error("[AuthAccessSection] authenticateWithForm error:", submitError);
+      
+      if (submitError instanceof ApiValidationError) {
+        // Map backend errors to form fields
+        Object.entries(submitError.fieldErrors).forEach(([field, messages]) => {
+          const message = Array.isArray(messages) ? messages[0] : messages;
+          setSignupError(
+            field as keyof SignupFormData,
+            { message }
+          );
+        });
+        setErrorMessage(submitError.message || "Erreur de validation, vérifiez les champs ci-dessous.");
+      } else {
+        const message =
+          submitError instanceof Error && submitError.message
+            ? submitError.message
+            : "Inscription impossible. Veuillez réessayer.";
+        setErrorMessage(resolveAuthErrorMessage(message));
+      }
+      
+      setPendingIntent(null);
+    }
+  }
+
+
 
   return (
     <div className="bg-background text-on-surface font-body selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
@@ -73,7 +206,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                   <h2 className="mb-2 font-headline text-4xl font-bold text-primary">{messages.auth.loginTitle}</h2>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">{messages.auth.loginSubtitle}</p>
                 </div>
-                <form className="space-y-6" onSubmit={handleAuthSubmit}>
+                <form className="space-y-6" onSubmit={handleLoginSubmit}>
                   <input name="next" type="hidden" value={nextPath} />
                   <input name="intent" type="hidden" value="login" />
 
@@ -163,97 +296,238 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                   </p>
                   <div className="mx-auto h-[1px] w-12 bg-outline-variant/30" />
                 </div>
-                <form className="space-y-5" onSubmit={handleAuthSubmit}>
+                <form className="space-y-5" onSubmit={handleSignupSubmit(onSignupSubmit)}>
                   <input name="next" type="hidden" value={nextPath} />
-                  <input name="intent" type="hidden" value="signup" />
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
                       <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                         {messages.auth.firstName}
                       </label>
-                      <input
+                      <Controller
                         name="first_name"
-                        className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
-                        type="text"
+                        control={signupControl}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
+                              signupErrors.first_name
+                                ? "border-red-400/50 bg-red-50"
+                                : "border-outline-variant/40 bg-white/50"
+                            }`}
+                            type="text"
+                          />
+                        )}
                       />
+                      {signupErrors.first_name && (
+                        <p className="text-xs text-red-600 mt-1">{signupErrors.first_name.message}</p>
+                      )}
                     </div>
                     <div className="relative">
                       <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                         {messages.auth.lastName}
                       </label>
-                      <input
+                      <Controller
                         name="last_name"
-                        className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
-                        type="text"
+                        control={signupControl}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
+                              signupErrors.last_name
+                                ? "border-red-400/50 bg-red-50"
+                                : "border-outline-variant/40 bg-white/50"
+                            }`}
+                            type="text"
+                          />
+                        )}
                       />
+                      {signupErrors.last_name && (
+                        <p className="text-xs text-red-600 mt-1">{signupErrors.last_name.message}</p>
+                      )}
                     </div>
                   </div>
+
                   <div className="relative">
                     <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                       {messages.auth.email}
                     </label>
-                    <input
+                    <Controller
                       name="email"
-                      className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
-                      type="email"
-                      required
+                      control={signupControl}
+                      render={({ field }) => (
+                        <input
+                          {...field}
+                          className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
+                            signupErrors.email
+                              ? "border-red-400/50 bg-red-50"
+                              : "border-outline-variant/40 bg-white/50"
+                          }`}
+                          type="email"
+                        />
+                      )}
                     />
+                    {signupErrors.email && (
+                      <p className="text-xs text-red-600 mt-1">{signupErrors.email.message}</p>
+                    )}
                   </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
                       <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                         {messages.auth.birthDate}
                       </label>
-                      <input
+                      <Controller
                         name="birth_date"
-                        className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
-                        type="text"
-                        placeholder="mm/dd/yyyy"
+                        control={signupControl}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
+                              signupErrors.birth_date
+                                ? "border-red-400/50 bg-red-50"
+                                : "border-outline-variant/40 bg-white/50"
+                            }`}
+                            type="date"
+                          />
+                        )}
                       />
+                      {signupErrors.birth_date && (
+                        <p className="text-xs text-red-600 mt-1">{signupErrors.birth_date.message}</p>
+                      )}
                     </div>
                     <div className="relative">
                       <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
-                        {messages.auth.phone}
+                        Pays
                       </label>
-                      <input
-                        name="phone"
-                        className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
-                        type="tel"
+                      <Controller
+                        name="country"
+                        control={signupControl}
+                        render={({ field }) => (
+                          <select
+                            {...field}
+                            className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
+                              signupErrors.country
+                                ? "border-red-400/50 bg-red-50"
+                                : "border-outline-variant/40 bg-white/50"
+                            }`}
+                          >
+                            <option value="">Sélectionner un pays</option>
+                            {countries.map((country) => (
+                              <option key={country.code} value={country.code}>
+                                {country.name} ({country.dialCode})
+                              </option>
+                            ))}
+                          </select>
+                        )}
                       />
+                      {signupErrors.country && (
+                        <p className="text-xs text-red-600 mt-1">{signupErrors.country.message}</p>
+                      )}
                     </div>
                   </div>
+
                   <div className="relative">
+                    <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
+                      {messages.auth.phone}
+                    </label>
+                    <div className="flex">
+                      <div className="flex items-center px-3 py-3 bg-gray-100 border border-r-0 border-outline-variant/40 rounded-l text-sm text-outline/70">
+                        +...
+                      </div>
+                      <Controller
+                        name="phone"
+                        control={signupControl}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            className={`flex-1 rounded-r border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
+                              signupErrors.phone
+                                ? "border-red-400/50 bg-red-50"
+                                : "border-outline-variant/40 bg-white/50"
+                            }`}
+                            type="tel"
+                            placeholder="Numéro de téléphone"
+                          />
+                        )}
+                      />
+                    </div>
+                    {signupErrors.phone && (
+                      <p className="text-xs text-red-600 mt-1">{signupErrors.phone.message}</p>
+                    )}
+                  </div>
+
+                  <div className="relative mt-4">
                     <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                       {messages.auth.address}
                     </label>
-                    <input
+                    <Controller
                       name="address"
-                      className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
-                      type="text"
+                      control={signupControl}
+                      render={({ field }) => (
+                        <input
+                          {...field}
+                          className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
+                            signupErrors.address
+                              ? "border-red-400/50 bg-red-50"
+                              : "border-outline-variant/40 bg-white/50"
+                          }`}
+                          type="text"
+                          placeholder="Adresse complète"
+                        />
+                      )}
                     />
+                    {signupErrors.address && (
+                      <p className="text-xs text-red-600 mt-1">{signupErrors.address.message}</p>
+                    )}
                   </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
                       <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                         {messages.auth.password}
                       </label>
-                      <input
+                      <Controller
                         name="password"
-                        className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
-                        type="password"
-                        required
+                        control={signupControl}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
+                              signupErrors.password
+                                ? "border-red-400/50 bg-red-50"
+                                : "border-outline-variant/40 bg-white/50"
+                            }`}
+                            type="password"
+                          />
+                        )}
                       />
+                      {signupErrors.password && (
+                        <p className="text-xs text-red-600 mt-1">{signupErrors.password.message}</p>
+                      )}
                     </div>
                     <div className="relative">
                       <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                         {messages.auth.confirmPassword}
                       </label>
-                      <input
+                      <Controller
                         name="confirm_password"
-                        className="w-full rounded border border-outline-variant/40 bg-white/50 px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
-                        type="password"
+                        control={signupControl}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
+                              signupErrors.confirm_password
+                                ? "border-red-400/50 bg-red-50"
+                                : "border-outline-variant/40 bg-white/50"
+                            }`}
+                            type="password"
+                          />
+                        )}
                       />
+                      {signupErrors.confirm_password && (
+                        <p className="text-xs text-red-600 mt-1">{signupErrors.confirm_password.message}</p>
+                      )}
                     </div>
                   </div>
 

@@ -1,0 +1,19 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Serve the static Next export generated in /out while keeping the
+    # cPanel document root on /public_html/frontend.
+    RewriteCond %{REQUEST_URI} !^/out/
+    RewriteCond %{DOCUMENT_ROOT}/out%{REQUEST_URI} -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/out%{REQUEST_URI} -d
+    RewriteRule ^(.*)$ out/$1 [L]
+
+    RewriteCond %{REQUEST_URI} !^/out/
+    RewriteCond %{DOCUMENT_ROOT}/out%{REQUEST_URI}/index.html -f
+    RewriteRule ^(.*?)/?$ out/$1/index.html [L]
+
+    RewriteCond %{REQUEST_URI} !^/out/
+    RewriteRule ^(.*)$ out/index.html [L]
+</IfModule>

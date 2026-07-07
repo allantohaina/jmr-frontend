@@ -2,9 +2,40 @@
 
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { authAPI, validateEmail, validateName, ValidationError } from "@/app/lib";
+import { authAPI } from "@/app/lib";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
-function buildQuoteRequestPayload(formData: FormData) {
+// 1. DEFINIR LE SCHEMA DE VALIDATION ZOD
+const quoteRequestSchema = z.object({
+  category: z.string().min(1, "Veuillez sélectionner une catégorie"),
+  name: z
+    .string()
+    .min(2, "Le nom doit comporter au moins 2 caractères")
+    .max(100, "Le nom ne peut pas dépasser 100 caractères"),
+  email: z.string().email("Veuillez entrer une adresse email valide"),
+  phone: z.string().optional(),
+  tissu: z.string().optional(),
+  coupe: z.string().optional(),
+  gabarit: z.string().optional(),
+  style: z.string().optional(),
+  grammage: z.string().optional(),
+  tailles: z.string().optional(),
+  quantite: z.string().optional(),
+  finitions: z.string().optional(),
+  delai_souhaite: z.string().optional(),
+  request_type: z.enum(["new", "edit", "add"]),
+  message: z
+    .string()
+    .min(20, "Veuillez fournir plus de détails (au moins 20 caractères)"),
+  technical_files: z.any().optional(),
+  modify_code: z.string().optional(),
+});
+
+type QuoteRequestFormData = z.infer<typeof quoteRequestSchema>;
+
+function buildQuoteRequestPayload(data: QuoteRequestFormData, files: File[]) {
   const apiFormData = new FormData();
   const textFields = [
     "name",
@@ -26,14 +57,12 @@ function buildQuoteRequestPayload(formData: FormData) {
   ] as const;
 
   for (const key of textFields) {
-    const value = formData.get(key);
-    apiFormData.append(key, typeof value === "string" ? value : "");
+    const value = data[key as keyof QuoteRequestFormData];
+    apiFormData.append(key, value ? String(value) : "");
   }
 
-  const files = formData.getAll("technical_files");
-
   files.forEach((file, index) => {
-    if (file instanceof File && file.size > 0) {
+    if (file.size > 0) {
       apiFormData.append(`technical_files[${index}]`, file);
     }
   });
@@ -47,42 +76,40 @@ function QuoteFormContent() {
   const requestTypeDefault = modifyCode ? "edit" : "new";
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
-  async function handleQuoteSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<QuoteRequestFormData>({
+    resolver: zodResolver(quoteRequestSchema),
+    defaultValues: {
+      category: "",
+      name: "",
+      email: "",
+      phone: "",
+      tissu: "",
+      coupe: "",
+      gabarit: "",
+      style: "",
+      grammage: "",
+      tailles: "",
+      quantite: "",
+      finitions: "",
+      delai_souhaite: "",
+      request_type: requestTypeDefault,
+      message: "",
+      modify_code: modifyCode || "",
+    },
+  });
 
+  async function onSubmit(data: QuoteRequestFormData) {
     setIsSubmitting(true);
     setSubmitError("");
-    setValidationErrors([]);
-
-    const formData = new FormData(event.currentTarget);
-
-    // CLIENT-SIDE VALIDATION - Always validate user input first!
-    const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-    const message = formData.get('message') as string;
-    
-    const errors: ValidationError[] = [
-      ...validateName(name),
-      ...validateEmail(email)
-    ];
-
-    if (!message || message.trim().length < 20) {
-      errors.push({ 
-        field: 'message', 
-        message: 'Please provide more details (at least 20 characters)' 
-      });
-    }
-
-    if (errors.length > 0) {
-      setValidationErrors(errors);
-      setIsSubmitting(false);
-      return;
-    }
 
     try {
-      const payload = buildQuoteRequestPayload(formData);
+      const payload = buildQuoteRequestPayload(data, selectedFiles);
       await authAPI.post("/quotes", payload);
       window.location.assign("/suivi-projet?view=tracking&step=2");
     } catch (error) {
@@ -91,6 +118,7 @@ function QuoteFormContent() {
           ? error.message
           : "Impossible d'envoyer votre demande pour le moment.",
       );
+    } finally {
       setIsSubmitting(false);
     }
   }
@@ -161,193 +189,274 @@ function QuoteFormContent() {
             </div>
           </div>
 
-          <form className="lg:col-span-2 bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 p-8 md:p-12 shadow-2xl" onSubmit={handleQuoteSubmit}>
-            <input type="hidden" name="modify_code" value={modifyCode || ""} />
+          <form className="lg:col-span-2 bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 p-8 md:p-12 shadow-2xl" onSubmit={handleSubmit(onSubmit)}>
             {submitError ? (
               <div className="rounded-2xl border border-red-400/20 bg-red-400/10 px-5 py-4 text-sm text-red-100 mb-8" role="alert">
                 {submitError}
               </div>
             ) : null}
-            {validationErrors.length > 0 ? (
-              <div className="rounded-2xl border border-orange-400/20 bg-orange-400/10 px-5 py-4 mb-8" role="alert">
-                <p className="text-orange-200 font-bold mb-3">Please fix the following errors:</p>
-                <ul className="space-y-2">
-                  {validationErrors.map((err, i) => (
-                    <li key={i} className="text-orange-100 text-sm flex items-center gap-2">
-                      <span className="material-symbols-outlined text-orange-300 text-sm">warning</span>
-                      <strong>{err.field}:</strong> {err.message}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <label className="md:col-span-2">
+              <div className="md:col-span-2">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Type de produit (Categorie)</span>
                 <div className="relative">
-                  <select
+                  <Controller
                     name="category"
-                    className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all appearance-none cursor-pointer"
-                    required
-                  >
-                    <option value="">Selectionnez une categorie</option>
-                    <option value="pantalon">Pantalon</option>
-                    <option value="jupe">Jupe</option>
-                    <option value="shirt">T-shirt / Debardeur</option>
-                    <option value="polo">Polo</option>
-                    <option value="chemise">Chemise / Chemisier</option>
-                    <option value="veste">Veste / Blazer</option>
-                    <option value="manteau">Manteau / Parka</option>
-                    <option value="robe">Robe</option>
-                    <option value="sweat">Sweat-shirt / Hoodie</option>
-                    <option value="short">Short / Bermuda</option>
-                    <option value="pull">Pull / Cardigan</option>
-                    <option value="sous-vetement">Sous-vetements / Lingerie</option>
-                    <option value="accessoire">Accessoires (Echarpes, Bonnets, etc.)</option>
-                    <option value="uniforme">Uniforme / Workwear</option>
-                    <option value="sport">Sportswear</option>
-                    <option value="enfant">Enfant / Bebe</option>
-                    <option value="autre">Autre projet sur-mesure</option>
-                  </select>
+                    control={control}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        className={`w-full h-14 rounded-2xl border bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all appearance-none cursor-pointer ${
+                          errors.category ? "border-red-400/50" : "border-[#e5ad46]/10"
+                        }`}
+                      >
+                        <option value="">Selectionnez une categorie</option>
+                        <option value="pantalon">Pantalon</option>
+                        <option value="jupe">Jupe</option>
+                        <option value="shirt">T-shirt / Debardeur</option>
+                        <option value="polo">Polo</option>
+                        <option value="chemise">Chemise / Chemisier</option>
+                        <option value="veste">Veste / Blazer</option>
+                        <option value="manteau">Manteau / Parka</option>
+                        <option value="robe">Robe</option>
+                        <option value="sweat">Sweat-shirt / Hoodie</option>
+                        <option value="short">Short / Bermuda</option>
+                        <option value="pull">Pull / Cardigan</option>
+                        <option value="sous-vetement">Sous-vetements / Lingerie</option>
+                        <option value="accessoire">Accessoires (Echarpes, Bonnets, etc.)</option>
+                        <option value="uniforme">Uniforme / Workwear</option>
+                        <option value="sport">Sportswear</option>
+                        <option value="enfant">Enfant / Bebe</option>
+                        <option value="autre">Autre projet sur-mesure</option>
+                      </select>
+                    )}
+                  />
                   <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#e5ad46] pointer-events-none">expand_more</span>
                 </div>
-              </label>
+                {errors.category && (
+                  <p className="text-red-300 text-xs mt-2">{errors.category.message}</p>
+                )}
+              </div>
 
-              <label>
+              <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Nom complet</span>
-                <input
+                <Controller
                   name="name"
-                  type="text"
-                  placeholder="Votre nom et prenom"
-                  className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
-                  required
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      placeholder="Votre nom et prenom"
+                      className={`w-full h-14 rounded-2xl border bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20 ${
+                        errors.name ? "border-red-400/50" : "border-[#e5ad46]/10"
+                      }`}
+                    />
+                  )}
                 />
-              </label>
+                {errors.name && (
+                  <p className="text-red-300 text-xs mt-2">{errors.name.message}</p>
+                )}
+              </div>
 
-              <label>
+              <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Email</span>
-                <input
+                <Controller
                   name="email"
-                  type="email"
-                  placeholder="contact@entreprise.com"
-                  className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
-                  required
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="email"
+                      placeholder="contact@entreprise.com"
+                      className={`w-full h-14 rounded-2xl border bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20 ${
+                        errors.email ? "border-red-400/50" : "border-[#e5ad46]/10"
+                      }`}
+                    />
+                  )}
                 />
-              </label>
+                {errors.email && (
+                  <p className="text-red-300 text-xs mt-2">{errors.email.message}</p>
+                )}
+              </div>
 
-              <label>
+              <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Telephone</span>
-                <input
+                <Controller
                   name="phone"
-                  type="tel"
-                  placeholder="+261 34 00 000 00"
-                  className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="tel"
+                      placeholder="+261 34 00 000 00"
+                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                    />
+                  )}
                 />
-              </label>
+              </div>
 
-              <label>
+              <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Tissu</span>
-                <input
+                <Controller
                   name="tissu"
-                  type="text"
-                  placeholder="Ex: coton, jersey, denim"
-                  className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      placeholder="Ex: coton, jersey, denim"
+                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                    />
+                  )}
                 />
-              </label>
+              </div>
 
-              <label>
+              <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Coupe</span>
-                <input
+                <Controller
                   name="coupe"
-                  type="text"
-                  placeholder="Ex: droite, ajuste, oversize"
-                  className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      placeholder="Ex: droite, ajuste, oversize"
+                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                    />
+                  )}
                 />
-              </label>
+              </div>
 
-              <label>
+              <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Gabarit</span>
-                <input
+                <Controller
                   name="gabarit"
-                  type="text"
-                  placeholder="Ex: standard, sur-mesure"
-                  className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      placeholder="Ex: standard, sur-mesure"
+                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                    />
+                  )}
                 />
-              </label>
+              </div>
 
-              <label>
+              <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Style</span>
-                <input
+                <Controller
                   name="style"
-                  type="text"
-                  placeholder="Ex: casual, workwear, premium"
-                  className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      placeholder="Ex: casual, workwear, premium"
+                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                    />
+                  )}
                 />
-              </label>
+              </div>
 
-              <label>
+              <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Grammage</span>
-                <input
+                <Controller
                   name="grammage"
-                  type="text"
-                  placeholder="Ex: 180 g/m2"
-                  className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      placeholder="Ex: 180 g/m2"
+                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                    />
+                  )}
                 />
-              </label>
+              </div>
 
-              <label>
+              <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Tailles</span>
-                <input
+                <Controller
                   name="tailles"
-                  type="text"
-                  placeholder="Ex: XS-XL, 36-44"
-                  className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      placeholder="Ex: XS-XL, 36-44"
+                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                    />
+                  )}
                 />
-              </label>
+              </div>
 
-              <label>
+              <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Quantité</span>
-                <input
+                <Controller
                   name="quantite"
-                  type="text"
-                  placeholder="Ex: 50 pièces"
-                  className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      placeholder="Ex: 50 pièces"
+                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                    />
+                  )}
                 />
-              </label>
+              </div>
 
-              <label>
+              <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Finitions</span>
-                <input
+                <Controller
                   name="finitions"
-                  type="text"
-                  placeholder="Ex: broderie, impression, etiquette"
-                  className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      placeholder="Ex: broderie, impression, etiquette"
+                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                    />
+                  )}
                 />
-              </label>
+              </div>
 
-              <label>
+              <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Delai souhaite</span>
-                <input
+                <Controller
                   name="delai_souhaite"
-                  type="text"
-                  placeholder="Ex: avant fin avril"
-                  className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      placeholder="Ex: avant fin avril"
+                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                    />
+                  )}
                 />
-              </label>
+              </div>
 
-              <label className="md:col-span-2">
+              <div className="md:col-span-2">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Genre de demande</span>
                 <div className="relative">
-                  <select
+                  <Controller
                     name="request_type"
-                    defaultValue={requestTypeDefault}
-                    className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="new">Nouveau projet</option>
-                    <option value="edit">Edit / modification</option>
-                    <option value="add">Ajout a un dossier</option>
-                  </select>
+                    control={control}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all appearance-none cursor-pointer"
+                      >
+                        <option value="new">Nouveau projet</option>
+                        <option value="edit">Edit / modification</option>
+                        <option value="add">Ajout a un dossier</option>
+                      </select>
+                    )}
+                  />
                   <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#e5ad46] pointer-events-none">expand_more</span>
                 </div>
                 {modifyCode ? (
@@ -355,32 +464,45 @@ function QuoteFormContent() {
                     Edit = ce qu&apos;il faut modifier. Add = ce qu&apos;il faut ajouter.
                   </p>
                 ) : null}
-              </label>
+              </div>
 
-              <label className="md:col-span-2">
+              <div className="md:col-span-2">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">
                   {modifyCode ? "Quoi modifier ou ajouter ?" : "Message / Détails du projet"}
                 </span>
-                <textarea
+                <Controller
                   name="message"
-                  placeholder={
-                    modifyCode
-                      ? "Decrivez precisement ce qu'il faut changer, ajouter ou reprendre."
-                      : "Décrivez votre projet en quelques lignes..."
-                  }
-                  className="w-full h-40 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] p-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20 resize-none"
-                  rows={7}
-                  required
+                  control={control}
+                  render={({ field }) => (
+                    <textarea
+                      {...field}
+                      placeholder={
+                        modifyCode
+                          ? "Decrivez precisement ce qu'il faut changer, ajouter ou reprendre."
+                          : "Décrivez votre projet en quelques lignes..."
+                      }
+                      className={`w-full h-40 rounded-2xl border bg-[#1e2a38] p-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20 resize-none ${
+                        errors.message ? "border-red-400/50" : "border-[#e5ad46]/10"
+                      }`}
+                      rows={7}
+                    />
+                  )}
                 />
-              </label>
+                {errors.message && (
+                  <p className="text-red-300 text-xs mt-2">{errors.message.message}</p>
+                )}
+              </div>
 
               <div className="md:col-span-2">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Fichiers techniques (Patrons, Fiches techniques, Photos)</span>
                 <div className="relative group">
                   <input
-                    name="technical_files"
                     type="file"
                     multiple
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      setSelectedFiles(files);
+                    }}
                     className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 py-3 text-[#eccc90] file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-[#e5ad46]/10 file:text-[#e5ad46] hover:file:bg-[#e5ad46]/20 cursor-pointer transition-all"
                   />
                   <p className="text-[10px] text-[#eccc90]/40 mt-2 uppercase tracking-widest">Formats acceptes : PDF, PNG, JPG (Max 10Mo)</p>

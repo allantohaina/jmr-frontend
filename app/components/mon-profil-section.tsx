@@ -113,12 +113,12 @@ function OrderDetailsModal({ order, onClose }: { order: ProfileOrder; onClose: (
 
           <div className="pt-8 flex flex-col md:flex-row gap-4">
             {order.status === 'devis' ? (
-                <button 
-                  onClick={() => alert("Redirection vers le paiement de l&apos;acompte (50%).")}
+                <Link
+                  href={`/mon-profil/devis/paiement?id=${order.code}`}
                 className="flex-1 py-4 bg-[#e5ad46] text-[#1e2a38] text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg hover:bg-[#eccc90] transition-all"
               >
                 Accepter & Payer l&apos;Acompte
-              </button>
+              </Link>
             ) : order.status === 'attente_devis' ? (
               <button className="flex-1 py-4 bg-[#e5ad46]/10 text-[#e5ad46]/40 text-[10px] font-bold uppercase tracking-widest rounded-xl cursor-not-allowed">
                 En attente du devis
@@ -130,7 +130,7 @@ function OrderDetailsModal({ order, onClose }: { order: ProfileOrder; onClose: (
             )}
             {order.status !== 'attente_devis' && (
               <Link 
-                href={`/mon-profil/devis/${order.code}`}
+                href={`/mon-profil/devis/paiement?id=${order.code}`}
                 className="flex-1 py-4 bg-[#1e2a38] border border-[#e5ad46]/20 text-[#e5ad46] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#e5ad46]/10 transition-all text-center"
               >
                 Voir le Devis PDF

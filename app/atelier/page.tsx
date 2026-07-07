@@ -1,15 +1,11 @@
 import React from "react";
-import { getCurrentUser } from "@/app/lib/auth-server";
-import { redirect } from "next/navigation";
+import { ClientAuthGate } from "@/app/components/client-auth-gate";
 import AtelierClient from "./AtelierClient";
 
-export default async function AtelierPage() {
-  const user = await getCurrentUser(true);
-  
-  // PRIVILEGE CHECK: Only worker or admin can access
-  if (!user || (user.role !== "worker" && user.role !== "admin")) {
-    redirect("/");
-  }
-
-  return <AtelierClient />;
+export default function AtelierPage() {
+  return (
+    <ClientAuthGate allowedRoles={["worker", "admin"]}>
+      <AtelierClient />
+    </ClientAuthGate>
+  );
 }

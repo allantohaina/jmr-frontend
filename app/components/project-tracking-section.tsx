@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { getIsSignedIn } from "@/app/lib/auth-server";
+import { useEffect, useState } from "react";
+import { AUTH_COOKIE_NAME, readBrowserCookie } from "@/app/lib/auth";
 
 type StepStatus = "complete" | "active" | "pending";
 export type ProjectStepId = 1 | 2 | 3;
@@ -120,13 +123,21 @@ function getStepStatus(stepId: ProjectStepId, currentStep: ProjectStepId): StepS
   return stepId <= 2 ? "complete" : "pending";
 }
 
-export async function ProjectTrackingSection({
+export function ProjectTrackingSection({
   view = "intro",
   currentStep = 1,
 }: {
   view?: ProjectTrackingView;
   currentStep?: ProjectStepId;
 }) {
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+
+  useEffect(() => {
+    setIsSignedIn(Boolean(readBrowserCookie(AUTH_COOKIE_NAME)));
+    setHasCheckedAuth(true);
+  }, []);
+
   if (view === "intro") {
     return (
       <section
@@ -268,10 +279,11 @@ export async function ProjectTrackingSection({
   }
 
   if (view === "request") {
-    const isSignedIn = await getIsSignedIn();
     const requestLead = isSignedIn
       ? "Dites-nous le produit souhaite, les quantites et les details utiles pour preparer votre devis."
-      : "Pour demander un devis, il faut d'abord vous connecter.";
+      : hasCheckedAuth
+        ? "Pour demander un devis, il faut d'abord vous connecter."
+        : "Verification de votre session.";
     const nextPath = "/demande-devis";
 
     return (
@@ -281,7 +293,11 @@ export async function ProjectTrackingSection({
       >
         <ProjectRequestHeader lead={requestLead} />
         <div className="project-request-page__panel" data-reveal>
-          {isSignedIn ? (
+          {!hasCheckedAuth ? (
+            <div className="project-request-form">
+              <p>Verification de votre session...</p>
+            </div>
+          ) : isSignedIn ? (
             <form action="/suivi-projet" className="project-request-form" method="get">
               <input name="view" type="hidden" value="tracking" />
               <input name="step" type="hidden" value="2" />

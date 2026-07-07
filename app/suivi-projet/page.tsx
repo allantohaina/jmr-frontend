@@ -1,22 +1,27 @@
+"use client";
+
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   parseCurrentProjectStep,
   parseProjectTrackingView,
   ProjectTrackingSection,
-  type ProjectStepSearchParam,
-  type ProjectTrackingViewSearchParam,
 } from "@/app/components/project-tracking-section";
 
-export default async function SuiviProjetPage({
-  searchParams,
-}: {
-  searchParams: Promise<{
-    step?: ProjectStepSearchParam;
-    view?: ProjectTrackingViewSearchParam;
-  }>;
-}) {
-  const { step, view } = await searchParams;
+function SuiviProjetPageContent() {
+  const searchParams = useSearchParams();
+  const step = searchParams.get("step") ?? undefined;
+  const view = searchParams.get("view") ?? undefined;
   const currentStep = parseCurrentProjectStep(step);
   const currentView = parseProjectTrackingView(view, step);
 
   return <ProjectTrackingSection currentStep={currentStep} view={currentView} />;
+}
+
+export default function SuiviProjetPage() {
+  return (
+    <Suspense>
+      <SuiviProjetPageContent />
+    </Suspense>
+  );
 }

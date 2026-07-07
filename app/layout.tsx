@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import "./globals.css";
 import {
   ScrollReveal,
@@ -10,9 +9,8 @@ import {
   ToastProvider,
   VisitorTracker,
 } from "@/app/components";
-import { getCurrentUser, getIsSignedIn } from "@/app/lib/auth-server";
-import { getMessages, LOCALE_COOKIE_NAME, parseLocaleValue } from "@/app/lib/locale";
-import { parseThemeValue, THEME_COOKIE_NAME } from "@/app/lib/theme";
+import { getMessages } from "@/app/lib/locale";
+import { THEME_COOKIE_NAME } from "@/app/lib/theme";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
@@ -31,15 +29,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const cookieTheme = parseThemeValue(cookieStore.get(THEME_COOKIE_NAME)?.value);
-  const initialLocale = parseLocaleValue(cookieStore.get(LOCALE_COOKIE_NAME)?.value) ?? "fr";
-  const initialTheme = cookieTheme ?? "dark";
+  const initialLocale = "fr";
+  const initialTheme = "dark";
   const messages = getMessages(initialLocale);
-  const user = await getCurrentUser();
-  const isSignedIn = !!user || (await getIsSignedIn());
-  const userFirstName = typeof user?.first_name === "string" ? user.first_name : undefined;
-  const userRole = typeof user?.role === "string" ? user.role : undefined;
 
   return (
     <html
@@ -54,13 +46,10 @@ export default async function RootLayout({
             __html: `
               (function() {
                 try {
-                  var cookieTheme = ${cookieTheme ? `'${cookieTheme}'` : "null"};
                   var storedTheme = localStorage.getItem('${THEME_COOKIE_NAME}');
-                  var theme = cookieTheme === 'light' || cookieTheme === 'dark'
-                    ? cookieTheme
-                    : (storedTheme === 'light' || storedTheme === 'dark'
+                  var theme = storedTheme === 'light' || storedTheme === 'dark'
                     ? storedTheme
-                    : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+                    : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
                   document.documentElement.dataset.theme = theme;
                   document.documentElement.style.colorScheme = theme;
                 } catch (error) {
@@ -87,9 +76,6 @@ export default async function RootLayout({
             </a>
             <header className="site-header">
               <Navbar
-                isSignedIn={isSignedIn}
-                userFirstName={userFirstName}
-                userRole={userRole}
                 initialTheme={initialTheme}
               />
             </header>

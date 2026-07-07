@@ -1,79 +1,44 @@
-# Deploiement cPanel + Git pour ce projet
+# Deploiement cPanel statique + Git pour ce projet
 
-Ce projet doit etre deploye comme une application `Next.js` avec `Node.js`, pas comme un site statique exporte.
+Ce projet est prepare pour un cPanel sans `Setup Node.js App`: le frontend Next.js est exporte en fichiers statiques dans `out/`, puis Apache le sert via `.htaccess`.
 
-## Statut par rapport a l'export statique
+## Domaines cPanel conseilles
 
-Le contenu de ce fichier reste correct pour l'etat actuel du depot.
+- `api.jmrtextile.com` -> `/public_html/backend/public`
+- `app.jmrtextile.com` -> `/public_html/frontend`
+- `jmrtextile.com` -> `/public_html/frontend`
+- `www.jmrtextile.com` -> `/public_html/frontend` ou redirection vers `https://jmrtextile.com/`
 
-Une migration vers `output: "export"` est en cours d'analyse, mais elle n'est pas encore terminee. A ce stade, le projet contient encore des flux qui demandent un runtime Next/Node:
+Important: ne pas configurer `jmrtextile.com` en redirection 301 vers `https://app.jmrtextile.com/`.
+Le domaine principal doit servir le meme dossier que le frontend pour eviter le 403 vu sur `app.jmrtextile.com`.
 
-- des pages/layouts qui lisent la session cote serveur
-- des routes `app/api`
-- des espaces proteges (`mon-profil`, `atelier`, `backoffice`, `admin-backoffice`) qui ne sont pas encore entierement sortis du modele serveur
+Le `.htaccess` de `/public_html/frontend` redirige les requetes Apache vers le dossier `out/`.
 
-Tant que ces points existent, le bon deploiement cPanel reste le mode `standalone` avec `app.js`.
-
-## Pourquoi
-
-- Le projet utilise des `Server Actions`, `cookies()` et des `redirect()` serveur.
-- Le build ne sort pas dans `public/`.
-- Le dossier `public/` sert uniquement aux assets statiques et sera servi par Next a des URLs comme `/navbar/logo.svg`.
-
-## Prerequis cPanel
-
-- Node.js `>= 20.9.0`
-- Une application Node.js active dans cPanel
-- Le depot clone dans un dossier hors `public_html`
-
-Exemple de chemin de depot:
+Si le backend limite les origines autorisees (CORS/Sanctum/etc.), ajouter au minimum:
 
 ```text
-/home/CPANEL_USER/repositories/jmr-textile-frontend
+https://jmrtextile.com
+https://www.jmrtextile.com
+https://app.jmrtextile.com
 ```
 
-## Reglages conseilles dans cPanel
+## Build local
 
-Dans `Setup Node.js App`:
-
-- Node.js version: `20` ou plus recent
-- Application mode: `Production`
-- Application root: le chemin du depot Git
-- Application URL: le domaine ou sous-domaine voulu
-- Application startup file: `app.js`
-
-Important:
-
-- Ne pas pointer le site vers `public/`
-- Ne pas deployer ce projet directement dans `public_html`
-- Ne pas utiliser le `.htaccess` pour bloquer le code source: le bon isolement se fait en mettant l'application hors `public_html`
-
-## Commandes apres chaque mise a jour Git
-
-Dans le terminal cPanel, depuis le dossier du depot:
+Depuis le dossier `frontend`:
 
 ```bash
 npm install
 npm run build
-mkdir -p tmp && touch tmp/restart.txt
 ```
 
-Selon l'hebergement, tu peux aussi redemarrer l'application depuis l'interface cPanel au lieu de `touch tmp/restart.txt`.
+Ensuite deploie le dossier `out/` dans `/public_html/frontend/out` avec le `.htaccess` a la racine de `/public_html/frontend`.
 
-## Variables d'environnement
+## API
 
-Configurer au minimum dans cPanel:
+Le frontend statique appelle directement le backend:
 
 ```text
-NODE_ENV=production
-NEXT_PUBLIC_API_URL=...
-NEXT_PUBLIC_USE_MOCKS=false
+NEXT_PUBLIC_API_URL=https://api.jmrtextile.com/api
 ```
 
-Ajoute egalement toute variable backend/securite necessaire au projet.
-
-## Notes projet
-
-- `next.config.ts` utilise maintenant `output: "standalone"` pour simplifier le runtime cPanel.
-- `app.js` demarre le serveur standalone genere par `next build`.
-- Les polices Google ne sont plus telechargees au moment du build, ce qui evite un echec de build sur certains hebergements.
+Sur cPanel sans Node, les routes `app/api` Next et les cookies serveur ne sont pas disponibles. Les protections importantes doivent donc rester verifiees dans le backend PHP.

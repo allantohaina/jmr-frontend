@@ -1,4 +1,6 @@
-import { getCurrentUser, getIsSignedIn } from "@/app/lib/auth-server";
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   NotificationsSection,
   AuthAccessSection,
@@ -6,9 +8,16 @@ import {
   ServicesSection,
   AboutSection,
 } from "@/app/components";
+import { getUser, type UserProfile } from "@/app/lib";
 
-export default async function HomePage() {
-  const [isSignedIn, user] = await Promise.all([getIsSignedIn(), getCurrentUser()]);
+export default function HomePage() {
+  const [user, setUser] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    setUser(getUser());
+  }, []);
+
+  const isSignedIn = !!user;
   const isAdmin = user?.role === "admin";
 
   return (

@@ -1,5 +1,11 @@
-import { redirect } from "next/navigation";
+"use client";
+
+import { useEffect } from "react";
 
 export default function TempAdminPage() {
-  redirect("/mon-profil");
+  useEffect(() => {
+    window.location.replace("/mon-profil");
+  }, []);
+
+  return null;
 }

@@ -1,4 +1,5 @@
 import { authAPI, type UserProfile } from "./api";
+import { clearAuthData, setAuthData } from "./api";
 import {
   AUTH_COOKIE_NAME,
   AUTH_ERROR_COOKIE_NAME,
@@ -57,10 +58,12 @@ function persistAuthSession(payload: AuthSuccessPayload) {
   }
 
   writeBrowserCookie(USER_COOKIE_NAME, JSON.stringify(payload.user), cookieOptions);
+  setAuthData(payload.token, payload.refresh_token, payload.user);
   deleteBrowserCookie(AUTH_ERROR_COOKIE_NAME);
 }
 
 export async function authenticateWithForm(formData: FormData) {
+  console.log("[auth-client] authenticateWithForm called, formData:", Array.from(formData.entries()));
   const intent = resolveAuthIntent(formData);
   const email = readTextField(formData, "email");
   const password = readTextField(formData, "password");
@@ -81,13 +84,25 @@ export async function authenticateWithForm(formData: FormData) {
 
     const firstName = readTextField(formData, "first_name") || "User";
     const lastName = readTextField(formData, "last_name") || "New";
-    const response = await authAPI.register({
+    const birthDate = readTextField(formData, "birth_date");
+    const phone = readTextField(formData, "phone");
+    const country = readTextField(formData, "country");
+    const address = readTextField(formData, "address");
+    
+    const registerData = {
       email,
       password,
       first_name: firstName,
       last_name: lastName,
-    });
+      birth_date: birthDate,
+      phone,
+      country,
+      address,
+    };
+    console.log("[auth-client] Calling authAPI.register with:", registerData);
+    const response = await authAPI.register(registerData);
 
+    console.log("[auth-client] authAPI.register response:", response);
     payload = response.data;
   } else {
     const response = await authAPI.login(email, password);
@@ -118,4 +133,5 @@ export async function signOutClient() {
   deleteBrowserCookie(REFRESH_TOKEN_COOKIE_NAME);
   deleteBrowserCookie(USER_COOKIE_NAME);
   deleteBrowserCookie(AUTH_ERROR_COOKIE_NAME);
+  clearAuthData();
 }

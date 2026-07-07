@@ -6,6 +6,13 @@ type HrApiResponse<T = unknown> = {
 
 type RequestBody = Record<string, unknown> | FormData;
 
+const DEFAULT_BACKEND_API_URL =
+  process.env.NODE_ENV === "production" ? "https://api.jmrtextile.com/api" : "http://localhost:8081/api";
+
+function getBackendApiUrl() {
+  return (process.env.NEXT_PUBLIC_API_URL || DEFAULT_BACKEND_API_URL).replace(/\/+$/, "");
+}
+
 function readMessage(payload: unknown) {
   if (typeof payload !== "object" || payload === null) {
     return undefined;
@@ -51,7 +58,9 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<HrApiRe
   const isFormData = init.body instanceof FormData;
   const runtime = getRuntimeLabel();
   const method = (init.method ?? "GET").toString().toUpperCase();
-  const targetPath = `/api/backoffice/hr${path}`;
+  const targetPath = `/hr${path}`;
+  const targetUrl = `${getBackendApiUrl()}${targetPath}`;
+  const token = typeof window === "undefined" ? null : localStorage.getItem("jmr_token");
 
   if (!isFormData && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
@@ -61,10 +70,14 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<HrApiRe
     headers.set("Accept", "application/json");
   }
 
-  logRequest(runtime, method, targetPath, 1, 1);
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  logRequest(runtime, method, targetUrl, 1, 1);
 
   try {
-    const response = await fetch(targetPath, {
+    const response = await fetch(targetUrl, {
       ...init,
       headers,
       cache: "no-store",

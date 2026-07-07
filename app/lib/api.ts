@@ -81,14 +81,71 @@ export type ApiResponse<T = unknown> = {
   status: "success" | "error";
   message?: string;
   data: T;
+  error?: string | Record<string, string[]>;
 };
+
+export class ApiValidationError extends Error {
+  constructor(
+    message: string,
+    public fieldErrors: Record<string, string[]>
+  ) {
+    super(message);
+    this.name = "ApiValidationError";
+  }
+}
 
 export type UserProfile = {
   id: number | string;
   first_name?: string;
   last_name?: string;
   email?: string;
+  phone?: string;
+  country?: string;
+  address?: string;
+  birth_date?: string;
   role?: "admin" | "worker" | "user" | string;
+};
+
+export type Notification = {
+  id: string;
+  user_id?: string | null;
+  quote_id?: number | null;
+  title: string;
+  message: string;
+  type: "info" | "success" | "warning" | "error";
+  read: boolean;
+  created_at: string;
+};
+
+export type QuoteStatus = "pending" | "in_review" | "quoted" | "rejected" | "completed";
+
+export type Quote = {
+  id: number;
+  user_id?: string | null;
+  name: string;
+  email: string;
+  phone?: string | null;
+  message?: string | null;
+  tissu?: string | null;
+  coupe?: string | null;
+  gabarit?: string | null;
+  style?: string | null;
+  grammage?: string | null;
+  tailles?: string | null;
+  quantite?: string | null;
+  finitions?: string | null;
+  delai_souhaite?: string | null;
+  modify_code?: string | null;
+  request_type?: "new" | "edit";
+  category?: string | null;
+  status: QuoteStatus;
+  amount?: number | null;
+  deposit_amount?: number | null;
+  balance_amount?: number | null;
+  deposit_paid: boolean;
+  balance_paid: boolean;
+  created_at: string;
+  updated_at: string;
 };
 
 export type QuoteRecord = {
@@ -114,6 +171,10 @@ export type RegisterPayload = {
   password: string;
   first_name: string;
   last_name: string;
+  birth_date?: string;
+  phone?: string;
+  country?: string;
+  address?: string;
 };
 
 type ApiErrorPayload = {
@@ -232,7 +293,22 @@ export async function fetchWithAuth<T = unknown>(
       }
 
       if (!response.ok) {
-        throw new Error(readErrorMessage(data) || "An error occurred");
+        const message = readErrorMessage(data) || "An error occurred";
+        
+        // Check if data contains field errors (like CodeIgniter's validation errors)
+        const payload = data as { error?: string | Record<string, string[]>; errors?: Record<string, string[]>; message?: string };
+        const fieldErrors = 
+          (typeof payload.error === "object" && payload.error !== null ? payload.error : {}) as Record<string, string[]>;
+        const additionalErrors = 
+          (typeof payload.errors === "object" && payload.errors !== null ? payload.errors : {}) as Record<string, string[]>;
+        
+        const mergedErrors = { ...fieldErrors, ...additionalErrors };
+        
+        if (Object.keys(mergedErrors).length > 0) {
+          throw new ApiValidationError(message, mergedErrors);
+        }
+        
+        throw new Error(message);
       }
 
       logApiSuccess(runtime, method, endpoint, apiUrl, response.status);
@@ -284,6 +360,35 @@ export const authAPI = {
   getProfile: async (token?: string) => {
     return fetchWithAuth<UserProfile>("/users/profile", {
       method: "GET",
+    }, token);
+  },
+
+  // Quotes
+  getQuotes: async (token?: string, status?: QuoteStatus) => {
+    let url = "/quotes";
+    if (status) url += `?status=${status}`;
+    return fetchWithAuth<{ data: Quote[]; total: number; limit: number; offset: number }>(url, {
+      method: "GET",
+    }, token);
+  },
+
+  updateQuoteStatus: async (quoteId: number, status: QuoteStatus, additionalData?: Record<string, unknown>, token?: string) => {
+    return fetchWithAuth<{ quote: Quote; message: string }>(`/quotes/${quoteId}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ status, ...additionalData }),
+    }, token);
+  },
+
+  // Notifications
+  getNotifications: async (token?: string) => {
+    return fetchWithAuth<{ data: Notification[] }>("/quotes/notifications", {
+      method: "GET",
+    }, token);
+  },
+
+  markNotificationRead: async (notificationId: string, token?: string) => {
+    return fetchWithAuth<{ message: string }>(`/quotes/notifications/${notificationId}/read`, {
+      method: "PUT",
     }, token);
   },
 

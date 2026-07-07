@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 import { useLocale } from "@/app/components/locale-provider";
 import { ThemeToggle } from "@/app/components/theme-toggle";
-import { signOutClient, writeBrowserCookie } from "@/app/lib";
+import { getUser, signOutClient, writeBrowserCookie, type UserProfile } from "@/app/lib";
 import { LOCALE_COOKIE_NAME, type Locale } from "@/app/lib/locale";
 import type { ThemeName } from "@/app/lib/theme";
 
@@ -56,7 +56,11 @@ export function Navbar({
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const isStaff = userRole === "admin" || userRole === "worker";
+  const [sessionUser, setSessionUser] = useState<UserProfile | null>(null);
+  const effectiveUserFirstName = sessionUser?.first_name ?? userFirstName;
+  const effectiveUserRole = sessionUser?.role ?? userRole;
+  const effectiveIsSignedIn = isSignedIn || !!sessionUser;
+  const isStaff = effectiveUserRole === "admin" || effectiveUserRole === "worker";
   const navItems: NavItem[] = [
     {
       route: "/",
@@ -103,10 +107,14 @@ export function Navbar({
   ];
   const visibleNavItems = navItems.filter((item) => {
     if (item.sectionId === "acces-client") return !isStaff;
-    if (item.sectionId === "worker") return userRole === "worker";
-    if (item.sectionId === "admin") return userRole === "admin";
+    if (item.sectionId === "worker") return effectiveUserRole === "worker";
+    if (item.sectionId === "admin") return effectiveUserRole === "admin";
     return !item.adminOnly || isStaff;
   });
+
+  useEffect(() => {
+    setSessionUser(getUser());
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -266,15 +274,15 @@ export function Navbar({
       <ul className={`site-nav__menu${isMenuOpen ? " is-open" : ""}`} id="site-nav-menu">
         {visibleNavItems.map((item) => {
           const resolvedFirstName =
-            typeof userFirstName === "string" ? userFirstName.trim() : "";
+            typeof effectiveUserFirstName === "string" ? effectiveUserFirstName.trim() : "";
           const label =
-            item.sectionId === "acces-client" && isSignedIn
+            item.sectionId === "acces-client" && effectiveIsSignedIn
               ? resolvedFirstName || messages.navbar.profile
               : item.label;
           const ariaCurrent = getNavItemAriaCurrent(pathname, activeHomeSection, item);
           const isCurrent = ariaCurrent !== undefined;
 
-          if (item.sectionId === "acces-client" && isSignedIn) {
+          if (item.sectionId === "acces-client" && effectiveIsSignedIn) {
             return (
               <li className="site-nav__item site-nav__item--profile relative group" key={item.sectionId}>
                 <button
@@ -307,7 +315,7 @@ export function Navbar({
                       <span className="material-symbols-outlined text-xl">person</span>
                         {messages.navbar.dashboard}
                     </Link>
-                    {userRole === "admin" && (
+                    {effectiveUserRole === "admin" && (
                       <Link
                         href="/backoffice"
                         className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#e5ad46] transition-colors"
