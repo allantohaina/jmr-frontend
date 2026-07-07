@@ -1,6 +1,7 @@
 import { AUTH_COOKIE_NAME, readBrowserCookie } from "./auth";
 
-const DEFAULT_API_URL = "http://localhost:8081/api";
+const DEFAULT_API_URL =
+  process.env.NODE_ENV === "production" ? "https://api.jmrtextile.com/api" : "http://localhost:8081/api";
 const FALLBACK_API_URL = "http://localhost:8080/api";
 
 function normalizeApiUrl(value: string) {
@@ -41,7 +42,7 @@ export function getBackendApiUrls() {
 
   if (fallbackUrl && fallbackUrl !== configuredUrl) {
     urls.push(fallbackUrl);
-  } else if (!process.env.NEXT_PUBLIC_API_URL && configuredUrl === DEFAULT_API_URL) {
+  } else if (!process.env.NEXT_PUBLIC_API_URL && configuredUrl === "http://localhost:8081/api") {
     urls.push(FALLBACK_API_URL);
   }
 
@@ -120,6 +121,45 @@ type ApiErrorPayload = {
   error?: string;
 };
 
+export function getToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("jmr_token");
+}
+
+export function getRefreshToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("jmr_refresh_token");
+}
+
+export function getUser(): UserProfile | null {
+  if (typeof window === "undefined") return null;
+  const raw = localStorage.getItem("jmr_user");
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as UserProfile;
+  } catch {
+    return null;
+  }
+}
+
+export function setAuthData(token: string, refreshToken: string | undefined, user: UserProfile) {
+  localStorage.setItem("jmr_token", token);
+  if (refreshToken) {
+    localStorage.setItem("jmr_refresh_token", refreshToken);
+  }
+  localStorage.setItem("jmr_user", JSON.stringify(user));
+}
+
+export function clearAuthData() {
+  localStorage.removeItem("jmr_token");
+  localStorage.removeItem("jmr_refresh_token");
+  localStorage.removeItem("jmr_user");
+}
+
+export function isSignedIn(): boolean {
+  return !!getToken();
+}
+
 type ApiJsonBody = Record<string, unknown>;
 type ApiBody = ApiJsonBody | FormData;
 
@@ -149,7 +189,7 @@ export async function fetchWithAuth<T = unknown>(
   const headers = new Headers(options.headers);
   const isFormDataRequest = options.body instanceof FormData;
   const resolvedToken =
-    typeof token === "string" && token.length > 0 ? token : readBrowserCookie(AUTH_COOKIE_NAME);
+    typeof token === "string" && token.length > 0 ? token : readBrowserCookie(AUTH_COOKIE_NAME) || getToken();
 
   if (!isFormDataRequest && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
@@ -241,7 +281,7 @@ export const authAPI = {
     }, token);
   },
 
-  getProfile: async (token: string) => {
+  getProfile: async (token?: string) => {
     return fetchWithAuth<UserProfile>("/users/profile", {
       method: "GET",
     }, token);
