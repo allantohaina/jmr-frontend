@@ -9,9 +9,10 @@ Dans cPanel, verifier les domaines:
 ```text
 jmrtextile.com        -> /public_html/frontend
 www.jmrtextile.com    -> /public_html/frontend ou redirection vers https://jmrtextile.com/
-app.jmrtextile.com    -> /public_html/frontend si le sous-domaine reste utilise
 api.jmrtextile.com    -> /public_html/backend/public
 ```
+
+`app.jmrtextile.com` n'est pas le site public. Ne pas l'utiliser comme destination client. Si le sous-domaine existe encore, il doit rester optionnel/test/admin.
 
 Action obligatoire:
 
@@ -56,8 +57,9 @@ Si le frontend charge mais que les appels API sont bloques, verifier les origine
 ```text
 https://jmrtextile.com
 https://www.jmrtextile.com
-https://app.jmrtextile.com
 ```
+
+Ajouter `https://app.jmrtextile.com` uniquement si ce sous-domaine est reellement utilise pour des tests ou un espace interne.
 
 Le frontend appelle:
 
@@ -106,4 +108,4 @@ Si le fichier n'existe pas, relancer `npm run build`.
 3. Lancer `npm install` puis `npm run build`.
 4. Verifier que `/public_html/frontend/out/index.html` existe.
 5. Verifier que `/public_html/frontend/.htaccess` existe.
-6. Ajouter `https://jmrtextile.com` dans les origines autorisees du backend si l'API bloque les requetes.
+6. Ajouter `https://jmrtextile.com` et `https://www.jmrtextile.com` dans les origines autorisees du backend si l'API bloque les requetes.

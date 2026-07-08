@@ -1,77 +1,144 @@
 "use client";
 
+import { FormEvent, useState } from "react";
+import { CheckCircle2, ChevronDown, Loader2, UploadCloud } from "lucide-react";
 import { authAPI } from "@/app/lib";
 
 export function PaiementSection({ id }: { id: string }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notice, setNotice] = useState<{ tone: "success" | "danger"; message: string } | null>(null);
+
   async function submitPayment(formData: FormData) {
-    const payment_type = formData.get("payment_type") as string;
-    const transaction_ref = formData.get("transaction_ref") as string;
-    const proof_of_payment = formData.get("proof_of_payment") as File;
+    const paymentType = String(formData.get("payment_type") ?? "");
+    const transactionRef = String(formData.get("transaction_ref") ?? "");
+    const proofOfPayment = formData.get("proof_of_payment");
 
     const data = new FormData();
-    data.append("payment_type", payment_type);
-    data.append("transaction_ref", transaction_ref);
-    if (proof_of_payment.size > 0) {
-      data.append("proof_of_payment", proof_of_payment);
+    data.append("payment_type", paymentType);
+    data.append("transaction_ref", transactionRef);
+
+    if (proofOfPayment instanceof File && proofOfPayment.size > 0) {
+      data.append("proof_of_payment", proofOfPayment);
     }
 
-    console.log("[STORAGE LOCAL] Enregistrement de la preuve de paiement localement.");
     await authAPI.post(`/quotes/${id}/payments`, data);
-    alert("Preuve de paiement envoyée avec succès ! (Simulation de stockage local)");
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setNotice(null);
+
+    try {
+      await submitPayment(new FormData(event.currentTarget));
+      setNotice({
+        tone: "success",
+        message: "Preuve de paiement envoyee avec succes.",
+      });
+      event.currentTarget.reset();
+    } catch (error) {
+      setNotice({
+        tone: "danger",
+        message:
+          error instanceof Error && error.message
+            ? error.message
+            : "Impossible d'envoyer la preuve de paiement pour le moment.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
-    <section className="bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 shadow-sm p-10 max-w-2xl mx-auto" aria-labelledby="paiement-title">
+    <section
+      aria-labelledby="paiement-title"
+      className="mx-auto max-w-2xl rounded-[2rem] border border-[#e5ad46]/5 bg-[#25303a] p-5 shadow-sm sm:p-8 md:rounded-[2.5rem] md:p-10"
+    >
       <header className="mb-8">
-        <h1 className="font-headline text-3xl text-[#e5ad46] font-bold" id="paiement-title">
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e5ad46]/10 text-[#e5ad46]">
+          <UploadCloud className="h-6 w-6" />
+        </div>
+        <h1 className="font-headline text-2xl font-bold text-[#e5ad46] sm:text-3xl" id="paiement-title">
           Confirmer le paiement
         </h1>
-        <p className="text-[#eccc90]/60 text-sm mt-2">Transmettez votre preuve de paiement pour valider votre commande.</p>
+        <p className="mt-2 text-sm text-[#eccc90]/60">
+          Transmettez votre preuve de paiement pour valider votre commande.
+        </p>
       </header>
 
-      <form action={submitPayment} className="space-y-6">
+      {notice ? (
+        <div
+          className={`mb-6 flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm ${
+            notice.tone === "success"
+              ? "border-green-400/20 bg-green-400/10 text-green-100"
+              : "border-red-400/20 bg-red-400/10 text-red-100"
+          }`}
+          role="alert"
+        >
+          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          {notice.message}
+        </div>
+      ) : null}
+
+      <form className="space-y-6" onSubmit={handleSubmit}>
         <div className="space-y-4">
           <label className="block">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2 block">Méthode de paiement</span>
-            <select 
-              className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-4 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all appearance-none" 
-              name="payment_type"
-            >
-              <option value="mvola">MVola</option>
-              <option value="orange_money">Orange Money</option>
-              <option value="virement">Virement bancaire</option>
-            </select>
+            <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">
+              Methode de paiement
+            </span>
+            <div className="relative">
+              <select
+                className="h-14 w-full appearance-none rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-4 pr-12 font-medium text-[#eccc90] outline-none transition-all focus:border-[#e5ad46]"
+                name="payment_type"
+                required
+              >
+                <option value="mvola">MVola</option>
+                <option value="orange_money">Orange Money</option>
+                <option value="virement">Virement bancaire</option>
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#e5ad46]" />
+            </div>
           </label>
 
           <label className="block">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2 block">Référence de la transaction</span>
+            <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">
+              Reference de la transaction
+            </span>
             <input
-              className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-4 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+              className="h-14 w-full rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-4 font-medium text-[#eccc90] outline-none transition-all placeholder:text-[#eccc90]/20 focus:border-[#e5ad46]"
               name="transaction_ref"
               placeholder="Ex: T240326.1234.C56789"
-              type="text"
               required
+              type="text"
             />
           </label>
 
           <label className="block">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2 block">Preuve de paiement (Capture d'écran / PDF)</span>
-            <div className="relative group">
-              <input 
-                className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-4 py-3 text-[#eccc90] file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-[#e5ad46]/10 file:text-[#e5ad46] hover:file:bg-[#e5ad46]/20 cursor-pointer transition-all" 
-                name="proof_of_payment" 
-                type="file" 
-                required
-              />
-            </div>
+            <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">
+              Preuve de paiement
+            </span>
+            <input
+              accept=".pdf,.png,.jpg,.jpeg,.webp"
+              className="h-14 w-full cursor-pointer rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-4 py-3 text-[#eccc90] transition-all file:mr-4 file:rounded-full file:border-0 file:bg-[#e5ad46]/10 file:px-4 file:py-1 file:text-[10px] file:font-bold file:uppercase file:text-[#e5ad46] hover:file:bg-[#e5ad46]/20"
+              name="proof_of_payment"
+              required
+              type="file"
+            />
           </label>
         </div>
 
-        <button 
-          className="w-full py-4 bg-[#e5ad46] text-[#1e2a38] text-[10px] font-bold uppercase tracking-[0.2em] rounded-full shadow-lg hover:bg-[#eccc90] transition-all mt-4" 
+        <button
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#e5ad46] py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#1e2a38] shadow-lg transition-all hover:bg-[#eccc90] disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={isSubmitting}
           type="submit"
         >
-          Envoyer la preuve
+          {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
+          {isSubmitting ? "Envoi en cours..." : "Envoyer la preuve"}
         </button>
       </form>
     </section>

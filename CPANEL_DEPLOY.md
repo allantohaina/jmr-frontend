@@ -5,12 +5,13 @@ Ce projet est prepare pour un cPanel sans `Setup Node.js App`: le frontend Next.
 ## Domaines cPanel conseilles
 
 - `api.jmrtextile.com` -> `/public_html/backend/public`
-- `app.jmrtextile.com` -> `/public_html/frontend`
 - `jmrtextile.com` -> `/public_html/frontend`
 - `www.jmrtextile.com` -> `/public_html/frontend` ou redirection vers `https://jmrtextile.com/`
 
 Important: ne pas configurer `jmrtextile.com` en redirection 301 vers `https://app.jmrtextile.com/`.
-Le domaine principal doit servir le meme dossier que le frontend pour eviter le 403 vu sur `app.jmrtextile.com`.
+Le domaine principal doit servir directement le frontend. Les clients doivent rester sur `https://jmrtextile.com`.
+
+`app.jmrtextile.com` n'est pas necessaire pour le parcours client. Si ce sous-domaine est conserve, il doit rester optionnel/test/admin et ne doit jamais recevoir une redirection depuis `jmrtextile.com`.
 
 Le `.htaccess` de `/public_html/frontend` redirige les requetes Apache vers le dossier `out/`.
 
@@ -19,8 +20,9 @@ Si le backend limite les origines autorisees (CORS/Sanctum/etc.), ajouter au min
 ```text
 https://jmrtextile.com
 https://www.jmrtextile.com
-https://app.jmrtextile.com
 ```
+
+Ajouter `https://app.jmrtextile.com` seulement si ce sous-domaine est volontairement utilise pour tester ou administrer.
 
 ## Build local
 

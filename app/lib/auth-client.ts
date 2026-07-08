@@ -63,7 +63,6 @@ function persistAuthSession(payload: AuthSuccessPayload) {
 }
 
 export async function authenticateWithForm(formData: FormData) {
-  console.log("[auth-client] authenticateWithForm called, formData:", Array.from(formData.entries()));
   const intent = resolveAuthIntent(formData);
   const email = readTextField(formData, "email");
   const password = readTextField(formData, "password");
@@ -99,10 +98,8 @@ export async function authenticateWithForm(formData: FormData) {
       country,
       address,
     };
-    console.log("[auth-client] Calling authAPI.register with:", registerData);
     const response = await authAPI.register(registerData);
 
-    console.log("[auth-client] authAPI.register response:", response);
     payload = response.data;
   } else {
     const response = await authAPI.login(email, password);

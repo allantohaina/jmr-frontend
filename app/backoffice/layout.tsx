@@ -4,6 +4,26 @@ import React from "react";
 import Link from "next/link";
 import { ClientAuthGate } from "@/app/components/client-auth-gate";
 import { AdminHeaderAlerts } from "./AdminHeaderAlerts";
+import {
+  Factory,
+  FileText,
+  Home,
+  LayoutDashboard,
+  Package,
+  Settings,
+  ShoppingCart,
+  UserPlus,
+  Users,
+} from "lucide-react";
+
+const navItems = [
+  { href: "/backoffice", label: "Tableau de bord", shortLabel: "Dashboard", icon: LayoutDashboard },
+  { href: "/backoffice/orders", label: "Commandes", shortLabel: "Orders", icon: Package },
+  { href: "/backoffice/employees/new", label: "Dossiers RH", shortLabel: "RH", icon: Users },
+  { href: "/backoffice/devis", label: "Devis", shortLabel: "Devis", icon: FileText },
+  { href: "/backoffice/production", label: "Production", shortLabel: "Prod.", icon: Factory },
+  { href: "/backoffice/purchases", label: "Achats", shortLabel: "Achats", icon: ShoppingCart },
+];
 
 function AdminShell({
   children,
@@ -25,52 +45,30 @@ function AdminShell({
         </div>
 
         <nav className="hidden flex-1 space-y-2 overflow-y-auto px-4 py-4 md:block md:py-8">
-          <Link href="/backoffice" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
-            <span className="material-symbols-outlined text-[#e5ad46] transition-transform group-hover:scale-110">dashboard</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Tableau de bord</span>
-          </Link>
-          <Link href="/backoffice/orders" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
-            <span className="material-symbols-outlined text-[#e5ad46] transition-transform group-hover:scale-110">inventory_2</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Commandes</span>
-          </Link>
-          <Link href="/backoffice/employees/new" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
-            <span className="material-symbols-outlined text-[#e5ad46] transition-transform group-hover:scale-110">group_add</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Dossiers RH</span>
-          </Link>
-          <Link href="/backoffice/devis" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
-            <span className="material-symbols-outlined text-[#e5ad46] transition-transform group-hover:scale-110">request_quote</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Devis</span>
-          </Link>
-          <Link href="/backoffice/production" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
-            <span className="material-symbols-outlined text-[#e5ad46] transition-transform group-hover:scale-110">precision_manufacturing</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Production</span>
-          </Link>
-          <Link href="/backoffice/purchases" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
-            <span className="material-symbols-outlined text-[#e5ad46] transition-transform group-hover:scale-110">shopping_cart</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Achats</span>
-          </Link>
+          {navItems.map(({ href, label, icon: Icon }) => (
+            <Link key={href} href={href} className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
+              <Icon className="h-5 w-5 text-[#e5ad46] transition-transform group-hover:scale-110" />
+              <span className="text-[10px] font-bold uppercase tracking-widest">{label}</span>
+            </Link>
+          ))}
 
           <div className="mt-8 border-t border-[#e5ad46]/10 pt-8">
             <Link href="/backoffice/settings" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
-              <span className="material-symbols-outlined text-[#e5ad46] transition-transform group-hover:scale-110">settings</span>
+              <Settings className="h-5 w-5 text-[#e5ad46] transition-transform group-hover:scale-110" />
               <span className="text-[10px] font-bold uppercase tracking-widest">Parametres</span>
             </Link>
           </div>
         </nav>
 
         <div className="flex gap-4 overflow-x-auto border-b border-[#e5ad46]/10 bg-[#25303a] p-4 md:hidden">
-          <Link href="/backoffice" className="flex-shrink-0 rounded-lg bg-[#e5ad46]/10 px-3 py-2">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm text-[#e5ad46]">dashboard</span>
-              <span className="text-[8px] font-bold uppercase tracking-widest">Dashboard</span>
-            </div>
-          </Link>
-          <Link href="/backoffice/orders" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm text-[#e5ad46]">inventory_2</span>
-              <span className="text-[8px] font-bold uppercase tracking-widest">Orders</span>
-            </div>
-          </Link>
+          {navItems.map(({ href, shortLabel, icon: Icon }) => (
+            <Link key={href} href={href} className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5 first:bg-[#e5ad46]/10">
+              <div className="flex items-center gap-2">
+                <Icon className="h-4 w-4 text-[#e5ad46]" />
+                <span className="text-[8px] font-bold uppercase tracking-widest">{shortLabel}</span>
+              </div>
+            </Link>
+          ))}
         </div>
 
         <div className="mt-auto hidden bg-black/20 p-6 md:block">
@@ -103,14 +101,14 @@ function AdminShell({
                 href="/backoffice/employees/new"
                 className="hidden items-center gap-2 rounded-full bg-[#e5ad46] px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] shadow-sm transition hover:bg-[#eccc90] lg:inline-flex"
               >
-                <span className="material-symbols-outlined text-sm text-[#1e2a38]">person_add</span>
+                <UserPlus className="h-4 w-4 text-[#1e2a38]" />
                 Nouveau dossier RH
               </Link>
               <span className="hidden rounded-full bg-[#e5ad46]/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] md:inline-block">
                 Systeme v2.4
               </span>
-              <Link href="/" className="material-symbols-outlined text-[#eccc90]/60 transition-colors hover:text-[#e5ad46]">
-                home
+              <Link href="/" className="text-[#eccc90]/60 transition-colors hover:text-[#e5ad46]" aria-label="Retour au site">
+                <Home className="h-5 w-5" />
               </Link>
             </div>
           </div>

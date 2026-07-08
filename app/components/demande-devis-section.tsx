@@ -6,6 +6,7 @@ import { authAPI } from "@/app/lib";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { ArrowRight, Check, ChevronDown, Loader2, ShieldCheck } from "lucide-react";
 
 // 1. DEFINIR LE SCHEMA DE VALIDATION ZOD
 const quoteRequestSchema = z.object({
@@ -124,23 +125,23 @@ function QuoteFormContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1e2a38] pt-32 pb-24">
-      <section className="max-w-7xl mx-auto px-6" id="demande-devis-form" aria-labelledby="demande-devis-form-title">
-        <header className="text-center mb-16">
+    <div className="min-h-screen bg-[#1e2a38] pb-16 pt-24 md:pb-24 md:pt-32">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6" id="demande-devis-form" aria-labelledby="demande-devis-form-title">
+        <header className="mb-10 text-center md:mb-16">
           <span className="text-[#e5ad46] text-[10px] font-bold uppercase tracking-[0.3em] mb-4 block">Demande de devis</span>
-          <h2 className="font-headline text-5xl md:text-6xl text-[#e5ad46] font-bold mb-6" id="demande-devis-form-title">
+          <h2 className="mb-6 font-headline text-4xl font-bold text-[#e5ad46] sm:text-5xl md:text-6xl" id="demande-devis-form-title">
             {modifyCode ? `Modification du devis ${modifyCode}` : "Parlons de votre prochain projet textile"}
           </h2>
-          <p className="text-[#eccc90]/60 text-lg max-w-3xl mx-auto leading-relaxed">
+          <p className="mx-auto max-w-3xl text-base leading-relaxed text-[#eccc90]/60 md:text-lg">
             {modifyCode
               ? "Precisez ici les modifications souhaitees. Choisissez edit pour une retouche ou add pour un ajout. La version precedente reste verrouillee et nous creerons une nouvelle demande signee."
               : "Remplissez le formulaire pour nous faire part de votre projet. Nous revenons vers vous avec une estimation claire et un suivi adapte a votre besoin."}
           </p>
         </header>
 
-        <div className="grid lg:grid-cols-3 gap-12 items-start">
+        <div className="grid items-start gap-8 lg:grid-cols-3 lg:gap-12">
           <div className="lg:col-span-1 space-y-8">
-            <div className="bg-[#25303a] text-[#eccc90] rounded-[2.5rem] p-10 shadow-xl border border-[#e5ad46]/10 relative overflow-hidden">
+            <div className="relative overflow-hidden rounded-[2rem] border border-[#e5ad46]/10 bg-[#25303a] p-6 text-[#eccc90] shadow-xl md:rounded-[2.5rem] md:p-10">
               {/* Decorative background logo */}
               <div className="absolute right-[-20%] bottom-[-20%] opacity-[0.03] pointer-events-none">
                 <img src="/navbar/logo.svg" alt="" className="w-64 h-64 invert" />
@@ -153,19 +154,19 @@ function QuoteFormContent() {
               <ul className="space-y-6 mb-8 relative z-10">
                 <li className="flex items-start gap-4">
                   <div className="w-6 h-6 rounded-full bg-[#e5ad46]/10 flex items-center justify-center mt-0.5">
-                    <span className="material-symbols-outlined text-xs text-[#e5ad46]">check</span>
+                    <Check className="h-3.5 w-3.5 text-[#e5ad46]" />
                   </div>
                   <span className="text-sm font-medium">Type de produit, style et finitions souhaitees.</span>
                 </li>
                 <li className="flex items-start gap-4">
                   <div className="w-6 h-6 rounded-full bg-[#e5ad46]/10 flex items-center justify-center mt-0.5">
-                    <span className="material-symbols-outlined text-xs text-[#e5ad46]">check</span>
+                    <Check className="h-3.5 w-3.5 text-[#e5ad46]" />
                   </div>
                   <span className="text-sm font-medium">Quantites estimees, tailles et informations techniques utiles.</span>
                 </li>
                 <li className="flex items-start gap-4">
                   <div className="w-6 h-6 rounded-full bg-[#e5ad46]/10 flex items-center justify-center mt-0.5">
-                    <span className="material-symbols-outlined text-xs text-[#e5ad46]">check</span>
+                    <Check className="h-3.5 w-3.5 text-[#e5ad46]" />
                   </div>
                   <span className="text-sm font-medium">Delai souhaite, contraintes de production et niveau de finition attendu.</span>
                 </li>
@@ -180,7 +181,7 @@ function QuoteFormContent() {
 
             <div className="bg-[#e5ad46]/5 border border-[#e5ad46]/10 rounded-[2rem] p-8">
               <div className="flex items-center gap-4 mb-4 text-[#e5ad46]">
-                <span className="material-symbols-outlined">shield</span>
+                <ShieldCheck className="h-5 w-5" />
                 <span className="text-[10px] font-bold uppercase tracking-widest">Confidentialité garantie</span>
               </div>
               <p className="text-[#eccc90]/50 text-xs leading-relaxed">
@@ -189,14 +190,14 @@ function QuoteFormContent() {
             </div>
           </div>
 
-          <form className="lg:col-span-2 bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 p-8 md:p-12 shadow-2xl" onSubmit={handleSubmit(onSubmit)}>
+          <form className="rounded-[2rem] border border-[#e5ad46]/5 bg-[#25303a] p-5 shadow-2xl sm:p-6 md:rounded-[2.5rem] md:p-12 lg:col-span-2" onSubmit={handleSubmit(onSubmit)}>
             {submitError ? (
               <div className="rounded-2xl border border-red-400/20 bg-red-400/10 px-5 py-4 text-sm text-red-100 mb-8" role="alert">
                 {submitError}
               </div>
             ) : null}
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
               <div className="md:col-span-2">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Type de produit (Categorie)</span>
                 <div className="relative">
@@ -231,7 +232,7 @@ function QuoteFormContent() {
                       </select>
                     )}
                   />
-                  <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#e5ad46] pointer-events-none">expand_more</span>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#e5ad46]" />
                 </div>
                 {errors.category && (
                   <p className="text-red-300 text-xs mt-2">{errors.category.message}</p>
@@ -457,7 +458,7 @@ function QuoteFormContent() {
                       </select>
                     )}
                   />
-                  <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#e5ad46] pointer-events-none">expand_more</span>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#e5ad46]" />
                 </div>
                 {modifyCode ? (
                   <p className="text-[10px] text-[#eccc90]/40 mt-2 uppercase tracking-widest">
@@ -517,13 +518,13 @@ function QuoteFormContent() {
             >
               {isSubmitting ? (
                 <>
-                  <span className="w-4 h-4 border-2 border-[#1e2a38]/30 border-t-[#1e2a38] rounded-full animate-spin"></span>
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Envoi en cours...
                 </>
               ) : (
                 <>
                   Envoyer ma demande
-                  <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                  <ArrowRight className="h-4 w-4" />
                 </>
               )}
             </button>

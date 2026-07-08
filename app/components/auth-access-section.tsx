@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import { ApiValidationError } from "@/app/lib/api";
+import { Check, ShieldCheck } from "lucide-react";
 
 // Liste des pays avec code ISO et indicatif téléphonique
 const countries = [
@@ -137,7 +138,6 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
   }
 
   async function onSignupSubmit(data: SignupFormData) {
-    console.log("[AuthAccessSection] onSignupSubmit, data received from form:", data);
     setPendingIntent("signup");
     setErrorMessage("");
 
@@ -148,15 +148,10 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
       if (value) formData.append(key, value as string);
     });
     
-    console.log("[AuthAccessSection] Prepared formData:", Array.from(formData.entries()));
-
     try {
       const { redirectTo } = await authenticateWithForm(formData);
-      console.log("[AuthAccessSection] authenticateWithForm success! Redirect to:", redirectTo);
       window.location.assign(redirectTo);
     } catch (submitError) {
-      console.error("[AuthAccessSection] authenticateWithForm error:", submitError);
-      
       if (submitError instanceof ApiValidationError) {
         // Map backend errors to form fields
         Object.entries(submitError.fieldErrors).forEach(([field, messages]) => {
@@ -183,13 +178,13 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
 
   return (
     <div className="bg-background text-on-surface font-body selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
-      <main className="min-h-screen px-4 pb-20 pt-12 md:px-8">
+      <main className="min-h-screen px-4 pb-16 pt-10 sm:px-5 md:px-8 md:pb-20 md:pt-12">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-16 text-center">
-            <h1 className="mb-4 font-headline text-5xl font-bold tracking-tight text-primary md:text-6xl">
+          <div className="mb-10 text-center md:mb-16">
+            <h1 className="mb-4 font-headline text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl">
               {messages.auth.title}
             </h1>
-            <p className="mx-auto max-w-xl text-sm font-body text-lg uppercase tracking-[0.1em] text-secondary">
+            <p className="mx-auto max-w-xl font-body text-sm uppercase tracking-[0.1em] text-secondary sm:text-base md:text-lg">
               {messages.auth.subtitle}
             </p>
             {errorMessage ? (
@@ -200,10 +195,10 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
           </div>
 
           <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl bg-outline-variant/20 shadow-[0_48px_64px_rgba(27,28,25,0.06)] lg:grid-cols-2">
-            <section className="flex flex-col justify-center bg-surface p-8 md:p-12 lg:p-16">
+            <section className="flex flex-col justify-center bg-surface p-5 sm:p-8 md:p-12 lg:p-16">
               <div className="mx-auto w-full max-w-md">
-                <div className="mb-10">
-                  <h2 className="mb-2 font-headline text-4xl font-bold text-primary">{messages.auth.loginTitle}</h2>
+                <div className="mb-8 md:mb-10">
+                  <h2 className="mb-2 font-headline text-3xl font-bold text-primary sm:text-4xl">{messages.auth.loginTitle}</h2>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">{messages.auth.loginSubtitle}</p>
                 </div>
                 <form className="space-y-6" onSubmit={handleLoginSubmit}>
@@ -241,9 +236,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                     <label className="group flex cursor-pointer items-center gap-3">
                       <div className="relative flex h-5 w-5 items-center justify-center rounded-sm border border-outline-variant/50 bg-white transition-colors group-hover:border-primary">
                         <input className="peer absolute h-full w-full cursor-pointer opacity-0" type="checkbox" />
-                        <span className="material-symbols-outlined text-sm text-primary opacity-0 transition-opacity peer-checked:opacity-100">
-                          check
-                        </span>
+                        <Check className="h-3.5 w-3.5 text-primary opacity-0 transition-opacity peer-checked:opacity-100" />
                       </div>
                       <span className="font-label text-[11px] uppercase tracking-wide text-secondary">
                         {messages.auth.rememberMe}
@@ -264,7 +257,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                         {messages.auth.securityCheck}
                       </span>
                     </div>
-                    <span className="material-symbols-outlined text-xl text-outline/60">shield</span>
+                    <ShieldCheck className="h-5 w-5 text-outline/60" />
                   </div>
 
                   <button
@@ -287,7 +280,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
               </div>
             </section>
 
-            <section className="relative overflow-hidden bg-surface-container-low p-8 md:p-12 lg:p-16">
+            <section className="relative overflow-hidden bg-surface-container-low p-5 sm:p-8 md:p-12 lg:p-16">
               <div className="absolute right-0 top-0 -mr-20 -mt-20 h-64 w-64 rounded-full bg-primary-fixed-dim/10 blur-3xl" />
               <div className="relative z-10 mx-auto w-full max-w-md">
                 <div className="mb-10 text-center">
@@ -299,7 +292,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                 <form className="space-y-5" onSubmit={handleSignupSubmit(onSignupSubmit)}>
                   <input name="next" type="hidden" value={nextPath} />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="relative">
                       <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                         {messages.auth.firstName}
@@ -372,7 +365,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="relative">
                       <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                         {messages.auth.birthDate}
@@ -431,8 +424,8 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                     <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                       {messages.auth.phone}
                     </label>
-                    <div className="flex">
-                      <div className="flex items-center px-3 py-3 bg-gray-100 border border-r-0 border-outline-variant/40 rounded-l text-sm text-outline/70">
+                    <div className="flex min-w-0">
+                      <div className="flex shrink-0 items-center rounded-l border border-r-0 border-outline-variant/40 bg-gray-100 px-3 py-3 text-sm text-outline/70">
                         +...
                       </div>
                       <Controller
@@ -441,7 +434,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                         render={({ field }) => (
                           <input
                             {...field}
-                            className={`flex-1 rounded-r border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
+                            className={`min-w-0 flex-1 rounded-r border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
                               signupErrors.phone
                                 ? "border-red-400/50 bg-red-50"
                                 : "border-outline-variant/40 bg-white/50"
@@ -482,7 +475,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="relative">
                       <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                         {messages.auth.password}
@@ -533,7 +526,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
 
                   <div className="mt-4 flex items-center justify-between rounded-xl border border-outline-variant/20 bg-white/80 p-4">
                     <div className="flex items-center gap-3">
-                      <span className="material-symbols-outlined text-lg text-primary/40">verified_user</span>
+                      <ShieldCheck className="h-5 w-5 text-primary/40" />
                       <span className="font-label text-[10px] font-bold uppercase tracking-widest text-secondary">
                         {messages.auth.humanVerification}
                       </span>
