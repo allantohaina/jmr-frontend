@@ -3,6 +3,28 @@ export const REFRESH_TOKEN_COOKIE_NAME = "jmr_refresh_token";
 export const USER_COOKIE_NAME = "jmr_user";
 export const AUTH_ERROR_COOKIE_NAME = "jmr_auth_error";
 
+export type SessionUser = {
+  id?: number | string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  role?: "admin" | "worker" | "user" | string;
+};
+
+export function getUser(): SessionUser | null {
+  const userCookie = readBrowserCookie(USER_COOKIE_NAME);
+  if (!userCookie) return null;
+  try {
+    return JSON.parse(userCookie) as SessionUser;
+  } catch {
+    return null;
+  }
+}
+
+export function getToken(): string | null {
+  return readBrowserCookie(AUTH_COOKIE_NAME) || null;
+}
+
 type BrowserCookieOptions = {
   maxAge?: number;
   path?: string;

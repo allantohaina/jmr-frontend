@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { authAPI } from "@/app/lib";
 
 export default function AdminOrdersPage() {
   const [showNewOrder, setShowNewOrder] = useState(false);
@@ -11,17 +10,8 @@ export default function AdminOrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchOrders() {
-      try {
-        const response = await authAPI.get<any[]>("/orders");
-        setOrders(response.data);
-      } catch (error) {
-        console.error("Failed to fetch orders:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchOrders();
+    setOrders([]);
+    setIsLoading(false);
   }, []);
 
   return (

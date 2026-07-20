@@ -3,12 +3,10 @@
 import { useState, useEffect } from "react";
 import { useLocale } from "@/app/components/locale-provider";
 import { authenticateWithForm } from "@/app/lib";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
-import { ApiValidationError } from "@/app/lib/api";
-import { Check, ShieldCheck } from "lucide-react";
 
 // Liste des pays avec code ISO et indicatif téléphonique
 const countries = [
@@ -77,6 +75,11 @@ type AuthAccessSectionProps = {
   error?: string | null;
 };
 
+type SignupFeedback = {
+  type: "error" | "info" | "success";
+  message: string;
+};
+
 function resolveAuthErrorMessage(error?: string | null) {
   if (!error) {
     return "";
@@ -92,7 +95,10 @@ function resolveAuthErrorMessage(error?: string | null) {
 export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAccessSectionProps) {
   const { messages } = useLocale();
   const [errorMessage, setErrorMessage] = useState(resolveAuthErrorMessage(error));
+  const [signupFeedback, setSignupFeedback] = useState<SignupFeedback | null>(null);
   const [pendingIntent, setPendingIntent] = useState<"login" | "signup" | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
   // Hook Form pour l'inscription
   const signupForm = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -112,8 +118,16 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
     control: signupControl,
     handleSubmit: handleSignupSubmit,
     formState: { errors: signupErrors },
-    setError: setSignupError,
   } = signupForm;
+
+  const selectedCountryCode = useWatch({
+    control: signupControl,
+    name: "country",
+  });
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   async function handleLoginSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -140,6 +154,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
   async function onSignupSubmit(data: SignupFormData) {
     setPendingIntent("signup");
     setErrorMessage("");
+    setSignupFeedback({ type: "info", message: "Inscription en cours…" });
 
     const formData = new FormData();
     formData.append("intent", "signup");
@@ -147,44 +162,46 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
     Object.entries(data).forEach(([key, value]) => {
       if (value) formData.append(key, value as string);
     });
-    
+
     try {
       const { redirectTo } = await authenticateWithForm(formData);
-      window.location.assign(redirectTo);
+      setSignupFeedback({ type: "success", message: "Inscription réussie. Redirection vers votre espace client…" });
+      window.setTimeout(() => window.location.assign(redirectTo), 700);
     } catch (submitError) {
-      if (submitError instanceof ApiValidationError) {
-        // Map backend errors to form fields
-        Object.entries(submitError.fieldErrors).forEach(([field, messages]) => {
-          const message = Array.isArray(messages) ? messages[0] : messages;
-          setSignupError(
-            field as keyof SignupFormData,
-            { message }
-          );
-        });
-        setErrorMessage(submitError.message || "Erreur de validation, vérifiez les champs ci-dessous.");
-      } else {
-        const message =
-          submitError instanceof Error && submitError.message
-            ? submitError.message
-            : "Inscription impossible. Veuillez réessayer.";
-        setErrorMessage(resolveAuthErrorMessage(message));
-      }
-      
+      const message =
+        submitError instanceof Error && submitError.message
+          ? submitError.message
+          : "Inscription impossible. Veuillez réessayer.";
+      setErrorMessage(resolveAuthErrorMessage(message));
+      setSignupFeedback({ type: "error", message: resolveAuthErrorMessage(message) });
       setPendingIntent(null);
     }
   }
 
+  function onSignupInvalid(errors: FieldErrors<SignupFormData>) {
+    const firstError = Object.values(errors).find((fieldError) => fieldError?.message);
+    const message = firstError?.message || "Veuillez vérifier les champs obligatoires du formulaire.";
 
+    setSignupFeedback({ type: "error", message: `Inscription non envoyée : ${message}` });
+    document.getElementById("signup-feedback")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  // Get selected country dial code for display
+  const getSelectedDialCode = () => {
+    if (!isMounted) return "+...";
+    const country = countries.find(c => c.code === selectedCountryCode);
+    return country?.dialCode || "+...";
+  };
 
   return (
     <div className="bg-background text-on-surface font-body selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
-      <main className="min-h-screen px-4 pb-16 pt-10 sm:px-5 md:px-8 md:pb-20 md:pt-12">
+      <main className="min-h-screen px-4 pb-20 pt-12 md:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-10 text-center md:mb-16">
-            <h1 className="mb-4 font-headline text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl">
+          <div className="mb-16 text-center">
+            <h1 className="mb-4 font-headline text-5xl font-bold tracking-tight text-primary md:text-6xl">
               {messages.auth.title}
             </h1>
-            <p className="mx-auto max-w-xl font-body text-sm uppercase tracking-[0.1em] text-secondary sm:text-base md:text-lg">
+            <p className="mx-auto max-w-xl text-sm font-body text-lg uppercase tracking-[0.1em] text-secondary">
               {messages.auth.subtitle}
             </p>
             {errorMessage ? (
@@ -195,10 +212,10 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
           </div>
 
           <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl bg-outline-variant/20 shadow-[0_48px_64px_rgba(27,28,25,0.06)] lg:grid-cols-2">
-            <section className="flex flex-col justify-center bg-surface p-5 sm:p-8 md:p-12 lg:p-16">
+            <section className="flex flex-col justify-center bg-surface p-8 md:p-12 lg:p-16">
               <div className="mx-auto w-full max-w-md">
-                <div className="mb-8 md:mb-10">
-                  <h2 className="mb-2 font-headline text-3xl font-bold text-primary sm:text-4xl">{messages.auth.loginTitle}</h2>
+                <div className="mb-10">
+                  <h2 className="mb-2 font-headline text-4xl font-bold text-primary">{messages.auth.loginTitle}</h2>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">{messages.auth.loginSubtitle}</p>
                 </div>
                 <form className="space-y-6" onSubmit={handleLoginSubmit}>
@@ -235,8 +252,10 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                   <div className="flex items-center justify-between py-2">
                     <label className="group flex cursor-pointer items-center gap-3">
                       <div className="relative flex h-5 w-5 items-center justify-center rounded-sm border border-outline-variant/50 bg-white transition-colors group-hover:border-primary">
-                        <input className="peer absolute h-full w-full cursor-pointer opacity-0" type="checkbox" />
-                        <Check className="h-3.5 w-3.5 text-primary opacity-0 transition-opacity peer-checked:opacity-100" />
+                        <input className="peer absolute h-full w-full cursor-pointer opacity-0" type="checkbox" name="remember" />
+                        <span className="material-symbols-outlined text-sm text-primary opacity-0 transition-opacity peer-checked:opacity-100">
+                          check
+                        </span>
                       </div>
                       <span className="font-label text-[11px] uppercase tracking-wide text-secondary">
                         {messages.auth.rememberMe}
@@ -257,7 +276,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                         {messages.auth.securityCheck}
                       </span>
                     </div>
-                    <ShieldCheck className="h-5 w-5 text-outline/60" />
+                    <span className="material-symbols-outlined text-xl text-outline/60">shield</span>
                   </div>
 
                   <button
@@ -280,7 +299,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
               </div>
             </section>
 
-            <section className="relative overflow-hidden bg-surface-container-low p-5 sm:p-8 md:p-12 lg:p-16">
+            <section className="relative overflow-hidden bg-surface-container-low p-8 md:p-12 lg:p-16">
               <div className="absolute right-0 top-0 -mr-20 -mt-20 h-64 w-64 rounded-full bg-primary-fixed-dim/10 blur-3xl" />
               <div className="relative z-10 mx-auto w-full max-w-md">
                 <div className="mb-10 text-center">
@@ -289,10 +308,27 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                   </p>
                   <div className="mx-auto h-[1px] w-12 bg-outline-variant/30" />
                 </div>
-                <form className="space-y-5" onSubmit={handleSignupSubmit(onSignupSubmit)}>
+                <form className="space-y-5" onSubmit={handleSignupSubmit(onSignupSubmit, onSignupInvalid)}>
                   <input name="next" type="hidden" value={nextPath} />
 
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {signupFeedback ? (
+                    <div
+                      id="signup-feedback"
+                      className={`rounded-xl border p-4 text-sm font-medium ${
+                        signupFeedback.type === "success"
+                          ? "border-green-300 bg-green-50 text-green-800"
+                          : signupFeedback.type === "error"
+                            ? "border-red-300 bg-red-50 text-red-800"
+                            : "border-blue-300 bg-blue-50 text-blue-800"
+                      }`}
+                      role={signupFeedback.type === "error" ? "alert" : "status"}
+                      aria-live="polite"
+                    >
+                      {signupFeedback.message}
+                    </div>
+                  ) : null}
+
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
                       <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                         {messages.auth.firstName}
@@ -365,7 +401,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
                       <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                         {messages.auth.birthDate}
@@ -424,9 +460,9 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                     <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                       {messages.auth.phone}
                     </label>
-                    <div className="flex min-w-0">
-                      <div className="flex shrink-0 items-center rounded-l border border-r-0 border-outline-variant/40 bg-gray-100 px-3 py-3 text-sm text-outline/70">
-                        +...
+                    <div className="flex">
+                      <div suppressHydrationWarning className="flex items-center px-3 py-3 bg-gray-100 border border-r-0 border-outline-variant/40 rounded-l text-sm text-outline/70">
+                        {getSelectedDialCode() || "+..."}
                       </div>
                       <Controller
                         name="phone"
@@ -434,7 +470,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                         render={({ field }) => (
                           <input
                             {...field}
-                            className={`min-w-0 flex-1 rounded-r border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
+                            className={`flex-1 rounded-r border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
                               signupErrors.phone
                                 ? "border-red-400/50 bg-red-50"
                                 : "border-outline-variant/40 bg-white/50"
@@ -475,7 +511,7 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
                       <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
                         {messages.auth.password}
@@ -522,21 +558,6 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                         <p className="text-xs text-red-600 mt-1">{signupErrors.confirm_password.message}</p>
                       )}
                     </div>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between rounded-xl border border-outline-variant/20 bg-white/80 p-4">
-                    <div className="flex items-center gap-3">
-                      <ShieldCheck className="h-5 w-5 text-primary/40" />
-                      <span className="font-label text-[10px] font-bold uppercase tracking-widest text-secondary">
-                        {messages.auth.humanVerification}
-                      </span>
-                    </div>
-                    <button
-                      className="rounded-lg border border-primary/10 bg-primary/5 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-primary transition-colors hover:bg-primary/10"
-                      type="button"
-                    >
-                      {messages.auth.verify}
-                    </button>
                   </div>
 
                   <button

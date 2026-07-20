@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { authAPI, getUser, type UserProfile } from "@/app/lib";
+import { authAPI, type UserProfile } from "@/app/lib/api";
+import { getToken, getUser } from "@/app/lib/auth";
 
 type ClientAuthGateProps = {
   allowedRoles?: string[];
@@ -22,14 +23,15 @@ export function ClientAuthGate({
 
     async function verifySession() {
       const storedUser = getUser();
+      const token = getToken();
 
-      if (!storedUser) {
+      if (!storedUser || !token) {
         window.location.replace(redirectTo);
         return;
       }
 
       try {
-        const response = await authAPI.getProfile();
+        const response = await authAPI.getProfile(token);
         const verifiedUser = response.data ?? storedUser;
 
         if (allowedRoles?.length && !allowedRoles.includes(String(verifiedUser.role))) {

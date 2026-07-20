@@ -1,5 +1,6 @@
+"use client";
+
 import { authAPI, type UserProfile } from "./api";
-import { clearAuthData, setAuthData } from "./api";
 import {
   AUTH_COOKIE_NAME,
   AUTH_ERROR_COOKIE_NAME,
@@ -7,9 +8,14 @@ import {
   USER_COOKIE_NAME,
   deleteBrowserCookie,
   getSafeRedirectPath,
+  getToken,
+  getUser,
   readBrowserCookie,
   writeBrowserCookie,
 } from "./auth";
+
+export { getToken, getUser };
+export type { SessionUser } from "./auth";
 
 const AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
@@ -40,13 +46,13 @@ function resolveAuthRedirect(intent: AuthIntent, nextPath: string) {
   return intent === "signup" ? "/?success=signup#acces-client" : "/?success=login#acces-client";
 }
 
-function persistAuthSession(payload: AuthSuccessPayload) {
+function persistAuthSession(payload: AuthSuccessPayload, rememberMe = false) {
   const secure = typeof window !== "undefined" && window.location.protocol === "https:";
   const cookieOptions = {
-    maxAge: AUTH_COOKIE_MAX_AGE,
     path: "/",
     sameSite: "Lax" as const,
     secure,
+    ...(rememberMe ? { maxAge: AUTH_COOKIE_MAX_AGE } : {}),
   };
 
   writeBrowserCookie(AUTH_COOKIE_NAME, payload.token, cookieOptions);
@@ -58,7 +64,6 @@ function persistAuthSession(payload: AuthSuccessPayload) {
   }
 
   writeBrowserCookie(USER_COOKIE_NAME, JSON.stringify(payload.user), cookieOptions);
-  setAuthData(payload.token, payload.refresh_token, payload.user);
   deleteBrowserCookie(AUTH_ERROR_COOKIE_NAME);
 }
 
@@ -88,17 +93,16 @@ export async function authenticateWithForm(formData: FormData) {
     const country = readTextField(formData, "country");
     const address = readTextField(formData, "address");
     
-    const registerData = {
+    const response = await authAPI.register({
       email,
       password,
       first_name: firstName,
       last_name: lastName,
-      birth_date: birthDate,
-      phone,
-      country,
-      address,
-    };
-    const response = await authAPI.register(registerData);
+      birth_date: birthDate || undefined,
+      phone: phone || undefined,
+      country: country || undefined,
+      address: address || undefined,
+    });
 
     payload = response.data;
   } else {
@@ -106,7 +110,8 @@ export async function authenticateWithForm(formData: FormData) {
     payload = response.data;
   }
 
-  persistAuthSession(payload);
+  const rememberMe = formData.get("remember") === "on";
+  persistAuthSession(payload, rememberMe);
 
   return {
     redirectTo: resolveAuthRedirect(intent, nextPath),
@@ -130,5 +135,4 @@ export async function signOutClient() {
   deleteBrowserCookie(REFRESH_TOKEN_COOKIE_NAME);
   deleteBrowserCookie(USER_COOKIE_NAME);
   deleteBrowserCookie(AUTH_ERROR_COOKIE_NAME);
-  clearAuthData();
 }

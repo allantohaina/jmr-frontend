@@ -1,8 +1,8 @@
 import { AUTH_COOKIE_NAME, readBrowserCookie } from "./auth";
 
-const DEFAULT_API_URL =
-  process.env.NODE_ENV === "production" ? "https://api.jmrtextile.com/api" : "http://localhost:8081/api";
+const DEFAULT_API_URL = "http://localhost:8081/api";
 const FALLBACK_API_URL = "http://localhost:8080/api";
+const API_REQUEST_TIMEOUT_MS = 15_000;
 
 function normalizeApiUrl(value: string) {
   return value.replace(/\/+$/, "");
@@ -42,7 +42,7 @@ export function getBackendApiUrls() {
 
   if (fallbackUrl && fallbackUrl !== configuredUrl) {
     urls.push(fallbackUrl);
-  } else if (!process.env.NEXT_PUBLIC_API_URL && configuredUrl === "http://localhost:8081/api") {
+  } else if (!process.env.NEXT_PUBLIC_API_URL && configuredUrl === DEFAULT_API_URL) {
     urls.push(FALLBACK_API_URL);
   }
 
@@ -81,71 +81,14 @@ export type ApiResponse<T = unknown> = {
   status: "success" | "error";
   message?: string;
   data: T;
-  error?: string | Record<string, string[]>;
 };
-
-export class ApiValidationError extends Error {
-  constructor(
-    message: string,
-    public fieldErrors: Record<string, string[]>
-  ) {
-    super(message);
-    this.name = "ApiValidationError";
-  }
-}
 
 export type UserProfile = {
   id: number | string;
   first_name?: string;
   last_name?: string;
   email?: string;
-  phone?: string;
-  country?: string;
-  address?: string;
-  birth_date?: string;
   role?: "admin" | "worker" | "user" | string;
-};
-
-export type Notification = {
-  id: string;
-  user_id?: string | null;
-  quote_id?: number | null;
-  title: string;
-  message: string;
-  type: "info" | "success" | "warning" | "error";
-  read: boolean;
-  created_at: string;
-};
-
-export type QuoteStatus = "pending" | "in_review" | "quoted" | "rejected" | "completed";
-
-export type Quote = {
-  id: number;
-  user_id?: string | null;
-  name: string;
-  email: string;
-  phone?: string | null;
-  message?: string | null;
-  tissu?: string | null;
-  coupe?: string | null;
-  gabarit?: string | null;
-  style?: string | null;
-  grammage?: string | null;
-  tailles?: string | null;
-  quantite?: string | null;
-  finitions?: string | null;
-  delai_souhaite?: string | null;
-  modify_code?: string | null;
-  request_type?: "new" | "edit";
-  category?: string | null;
-  status: QuoteStatus;
-  amount?: number | null;
-  deposit_amount?: number | null;
-  balance_amount?: number | null;
-  deposit_paid: boolean;
-  balance_paid: boolean;
-  created_at: string;
-  updated_at: string;
 };
 
 export type QuoteRecord = {
@@ -182,45 +125,6 @@ type ApiErrorPayload = {
   error?: string;
 };
 
-export function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("jmr_token");
-}
-
-export function getRefreshToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("jmr_refresh_token");
-}
-
-export function getUser(): UserProfile | null {
-  if (typeof window === "undefined") return null;
-  const raw = localStorage.getItem("jmr_user");
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as UserProfile;
-  } catch {
-    return null;
-  }
-}
-
-export function setAuthData(token: string, refreshToken: string | undefined, user: UserProfile) {
-  localStorage.setItem("jmr_token", token);
-  if (refreshToken) {
-    localStorage.setItem("jmr_refresh_token", refreshToken);
-  }
-  localStorage.setItem("jmr_user", JSON.stringify(user));
-}
-
-export function clearAuthData() {
-  localStorage.removeItem("jmr_token");
-  localStorage.removeItem("jmr_refresh_token");
-  localStorage.removeItem("jmr_user");
-}
-
-export function isSignedIn(): boolean {
-  return !!getToken();
-}
-
 type ApiJsonBody = Record<string, unknown>;
 type ApiBody = ApiJsonBody | FormData;
 
@@ -242,6 +146,18 @@ function toRequestBody(payload: ApiBody) {
   return payload instanceof FormData ? payload : JSON.stringify(payload);
 }
 
+function toFormData(values: Record<string, string | undefined>) {
+  const formData = new FormData();
+
+  Object.entries(values).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") {
+      formData.append(key, value);
+    }
+  });
+
+  return formData;
+}
+
 export async function fetchWithAuth<T = unknown>(
   endpoint: string,
   options: RequestInit = {},
@@ -250,7 +166,7 @@ export async function fetchWithAuth<T = unknown>(
   const headers = new Headers(options.headers);
   const isFormDataRequest = options.body instanceof FormData;
   const resolvedToken =
-    typeof token === "string" && token.length > 0 ? token : readBrowserCookie(AUTH_COOKIE_NAME) || getToken();
+    typeof token === "string" && token.length > 0 ? token : readBrowserCookie(AUTH_COOKIE_NAME);
 
   if (!isFormDataRequest && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
@@ -273,11 +189,22 @@ export async function fetchWithAuth<T = unknown>(
     logApiAttempt(runtime, method, endpoint, apiUrl, index + 1, apiUrls.length);
 
     try {
-      const response = await fetch(`${apiUrl}${endpoint}`, {
-        ...options,
-        headers,
-        credentials: options.credentials ?? "include",
-      });
+      const timeoutController = new AbortController();
+      const timeoutId = setTimeout(() => timeoutController.abort(), API_REQUEST_TIMEOUT_MS);
+      let response: Response;
+
+      try {
+        response = await fetch(`${apiUrl}${endpoint}`, {
+          ...options,
+          headers,
+          // Authentication is sent with the bearer token. Do not send browser
+          // cookies cross-origin: public auth requests then stay CORS-simple.
+          credentials: options.credentials ?? "omit",
+          signal: options.signal ?? timeoutController.signal,
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       if (!response.ok && isRetryableBackendStatus(response.status) && index < apiUrls.length - 1) {
         logApiRetry(runtime, method, endpoint, apiUrl, `status ${response.status}`);
@@ -293,22 +220,7 @@ export async function fetchWithAuth<T = unknown>(
       }
 
       if (!response.ok) {
-        const message = readErrorMessage(data) || "An error occurred";
-        
-        // Check if data contains field errors (like CodeIgniter's validation errors)
-        const payload = data as { error?: string | Record<string, string[]>; errors?: Record<string, string[]>; message?: string };
-        const fieldErrors = 
-          (typeof payload.error === "object" && payload.error !== null ? payload.error : {}) as Record<string, string[]>;
-        const additionalErrors = 
-          (typeof payload.errors === "object" && payload.errors !== null ? payload.errors : {}) as Record<string, string[]>;
-        
-        const mergedErrors = { ...fieldErrors, ...additionalErrors };
-        
-        if (Object.keys(mergedErrors).length > 0) {
-          throw new ApiValidationError(message, mergedErrors);
-        }
-        
-        throw new Error(message);
+        throw new Error(readErrorMessage(data) || "An error occurred");
       }
 
       logApiSuccess(runtime, method, endpoint, apiUrl, response.status);
@@ -322,6 +234,10 @@ export async function fetchWithAuth<T = unknown>(
 
       return data as ApiResponse<T>;
     } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        throw new Error("L’API ne répond pas après 15 secondes. Vérifiez la connexion entre le frontend et le backend, puis réessayez.");
+      }
+
       if (index < apiUrls.length - 1 && isRetryableBackendError(error)) {
         logApiRetry(runtime, method, endpoint, apiUrl, "network error");
         continue;
@@ -357,38 +273,9 @@ export const authAPI = {
     }, token);
   },
 
-  getProfile: async (token?: string) => {
+  getProfile: async (token: string) => {
     return fetchWithAuth<UserProfile>("/users/profile", {
       method: "GET",
-    }, token);
-  },
-
-  // Quotes
-  getQuotes: async (token?: string, status?: QuoteStatus) => {
-    let url = "/quotes";
-    if (status) url += `?status=${status}`;
-    return fetchWithAuth<{ data: Quote[]; total: number; limit: number; offset: number }>(url, {
-      method: "GET",
-    }, token);
-  },
-
-  updateQuoteStatus: async (quoteId: number, status: QuoteStatus, additionalData?: Record<string, unknown>, token?: string) => {
-    return fetchWithAuth<{ quote: Quote; message: string }>(`/quotes/${quoteId}/status`, {
-      method: "PUT",
-      body: JSON.stringify({ status, ...additionalData }),
-    }, token);
-  },
-
-  // Notifications
-  getNotifications: async (token?: string) => {
-    return fetchWithAuth<{ data: Notification[] }>("/quotes/notifications", {
-      method: "GET",
-    }, token);
-  },
-
-  markNotificationRead: async (notificationId: string, token?: string) => {
-    return fetchWithAuth<{ message: string }>(`/quotes/notifications/${notificationId}/read`, {
-      method: "PUT",
     }, token);
   },
 

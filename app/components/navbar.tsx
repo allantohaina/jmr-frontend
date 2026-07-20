@@ -4,11 +4,13 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import { useLocale } from "@/app/components/locale-provider";
 import { ThemeToggle } from "@/app/components/theme-toggle";
-import { getUser, signOutClient, writeBrowserCookie, type UserProfile } from "@/app/lib";
+import { getUser, writeBrowserCookie, getToken } from "@/app/lib/auth";
+import { signOutClient } from "@/app/lib/auth-client";
+import { authAPI, type UserProfile } from "@/app/lib/api";
 import { LOCALE_COOKIE_NAME, type Locale } from "@/app/lib/locale";
 import type { ThemeName } from "@/app/lib/theme";
 
@@ -57,6 +59,11 @@ export function Navbar({
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [sessionUser, setSessionUser] = useState<UserProfile | null>(null);
+  const [menuDrawerOffset, setMenuDrawerOffset] = useState(0);
+  const [isMenuDragging, setIsMenuDragging] = useState(false);
+  const menuTouchStartX = useRef<number | null>(null);
+  const menuTouchStartY = useRef<number | null>(null);
+  const menuTouchStartTime = useRef<number | null>(null);
   const effectiveUserFirstName = sessionUser?.first_name ?? userFirstName;
   const effectiveUserRole = sessionUser?.role ?? userRole;
   const effectiveIsSignedIn = isSignedIn || !!sessionUser;
@@ -113,7 +120,25 @@ export function Navbar({
   });
 
   useEffect(() => {
-    setSessionUser(getUser());
+    const token = getToken();
+    const user = getUser() as UserProfile | null;
+
+    if (!token) {
+      if (user) signOutClient();
+      setSessionUser(null);
+      return;
+    }
+
+    if (user) {
+      authAPI.getProfile(token).then((res) => {
+        setSessionUser(res.data);
+      }).catch(() => {
+        signOutClient();
+        setSessionUser(null);
+      });
+    } else {
+      setSessionUser(null);
+    }
   }, []);
 
   useEffect(() => {
@@ -131,12 +156,20 @@ export function Navbar({
 
   useEffect(() => {
     if (!isMenuOpen) {
+      setMenuDrawerOffset(0);
+      setIsMenuDragging(false);
+    }
+  }, [isMenuOpen]);
+
+  useEffect(() => {
+    if (!isMenuOpen && !isLanguageOpen) {
       return;
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setIsMenuOpen(false);
+        setIsLanguageOpen(false);
       }
     };
 
@@ -144,7 +177,7 @@ export function Navbar({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isMenuOpen]);
+  }, [isLanguageOpen, isMenuOpen]);
 
   useEffect(() => {
     document.body.classList.toggle("nav-menu-open", isMenuOpen);
@@ -153,6 +186,26 @@ export function Navbar({
       document.body.classList.remove("nav-menu-open");
     };
   }, [isMenuOpen]);
+
+  // Add global touch event listeners for swipe-to-open
+  useEffect(() => {
+    const handleGlobalTouchStart = (e: TouchEvent) => handleMenuTouchStart(e);
+    const handleGlobalTouchMove = (e: TouchEvent) => handleMenuTouchMove(e);
+    const handleGlobalTouchEnd = () => handleMenuTouchEnd();
+    const handleGlobalTouchCancel = () => handleMenuTouchEnd();
+
+    document.addEventListener("touchstart", handleGlobalTouchStart, { passive: true });
+    document.addEventListener("touchmove", handleGlobalTouchMove, { passive: true });
+    document.addEventListener("touchend", handleGlobalTouchEnd, { passive: true });
+    document.addEventListener("touchcancel", handleGlobalTouchCancel, { passive: true });
+
+    return () => {
+      document.removeEventListener("touchstart", handleGlobalTouchStart);
+      document.removeEventListener("touchmove", handleGlobalTouchMove);
+      document.removeEventListener("touchend", handleGlobalTouchEnd);
+      document.removeEventListener("touchcancel", handleGlobalTouchCancel);
+    };
+  }, [isMenuOpen, menuDrawerOffset]);
 
   useEffect(() => {
     if (pathname !== "/") {
@@ -223,6 +276,86 @@ export function Navbar({
     setIsLanguageOpen(false);
   }
 
+  function isMobileViewport() {
+    return typeof window !== "undefined" && window.matchMedia("(max-width: 900px)").matches;
+  }
+
+  function handleMenuTouchStart(event: React.TouchEvent | TouchEvent) {
+    if (!isMobileViewport()) {
+      return;
+    }
+
+    const touch = (event as any).touches?.[0] || (event as any).changedTouches?.[0];
+    if (!touch) return;
+
+    const clientX = touch.clientX;
+    const clientY = touch.clientY;
+
+    // Only handle swipes on the left edge when menu is closed, or anywhere on menu when open
+    if (!isMenuOpen && clientX > 30) {
+      return;
+    }
+
+    menuTouchStartX.current = clientX;
+    menuTouchStartY.current = clientY;
+    menuTouchStartTime.current = Date.now();
+    setIsMenuDragging(true);
+  }
+
+  function handleMenuTouchMove(event: React.TouchEvent | TouchEvent) {
+    if (!isMobileViewport() || menuTouchStartX.current === null || menuTouchStartY.current === null) {
+      return;
+    }
+
+    const touch = (event as any).touches?.[0] || (event as any).changedTouches?.[0];
+    if (!touch) return;
+
+    const currentX = touch.clientX;
+    const currentY = touch.clientY;
+    const deltaX = currentX - menuTouchStartX.current;
+    const deltaY = currentY - menuTouchStartY.current;
+
+    // Ignore if vertical swipe is more than horizontal
+    if (Math.abs(deltaY) > Math.abs(deltaX) * 0.5) {
+      return;
+    }
+
+    if (isMenuOpen) {
+      // Swiping to close
+      setMenuDrawerOffset(Math.min(Math.max(deltaX, 0), 320));
+    } else {
+      // Swiping to open
+      setMenuDrawerOffset(Math.min(Math.max(deltaX, 0), 320));
+    }
+  }
+
+  function handleMenuTouchEnd() {
+    if (!isMobileViewport() || menuTouchStartX.current === null || menuTouchStartTime.current === null) {
+      return;
+    }
+
+    const deltaTime = Date.now() - menuTouchStartTime.current;
+    const offset = menuDrawerOffset;
+
+    if (isMenuOpen) {
+      // Close if swiped far enough or fast enough
+      if (offset > 96 || (offset > 30 && deltaTime < 300)) {
+        setIsMenuOpen(false);
+      }
+    } else {
+      // Open if swiped far enough or fast enough
+      if (offset > 60 || (offset > 30 && deltaTime < 300)) {
+        setIsMenuOpen(true);
+      }
+    }
+
+    menuTouchStartX.current = null;
+    menuTouchStartTime.current = null;
+    menuTouchStartY.current = null;
+    setMenuDrawerOffset(0);
+    setIsMenuDragging(false);
+  }
+
   if (pathname?.startsWith("/backoffice") || pathname?.startsWith("/admin-backoffice")) {
     return null;
   }
@@ -271,7 +404,36 @@ export function Navbar({
         </span>
       </button>
 
-      <ul className={`site-nav__menu${isMenuOpen ? " is-open" : ""}`} id="site-nav-menu">
+      <button
+        type="button"
+        className={`site-nav__drawer-backdrop${isMenuOpen || isMenuDragging ? " is-open" : ""}${isMenuDragging ? " is-dragging" : ""}`}
+        aria-hidden={!isMenuOpen && !isMenuDragging}
+        tabIndex={isMenuOpen ? 0 : -1}
+        onClick={() => setIsMenuOpen(false)}
+        style={{
+          opacity: isMenuDragging
+            ? isMenuOpen
+              ? `calc(1 - ${Math.min(menuDrawerOffset, 320)} / 320)`
+              : `calc(${Math.min(menuDrawerOffset, 320)} / 320)`
+            : undefined,
+        }}
+      />
+
+      <ul
+        className={`site-nav__menu${isMenuOpen ? " is-open" : ""}${isMenuDragging ? " is-dragging" : ""}`}
+        id="site-nav-menu"
+        style={{
+          transform: isMenuDragging
+            ? isMenuOpen
+              ? `translate3d(${menuDrawerOffset}px, 0, 0)`
+              : `translate3d(calc(-100% + ${menuDrawerOffset}px), 0, 0)`
+            : undefined,
+        }}
+        onTouchStart={handleMenuTouchStart}
+        onTouchMove={handleMenuTouchMove}
+        onTouchEnd={handleMenuTouchEnd}
+        onTouchCancel={handleMenuTouchEnd}
+      >
         {visibleNavItems.map((item) => {
           const resolvedFirstName =
             typeof effectiveUserFirstName === "string" ? effectiveUserFirstName.trim() : "";

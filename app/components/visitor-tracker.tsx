@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const ADJECTIVES = ["Curieux", "Créatif", "Rapide", "Sérieux", "Joyeux", "Précis", "Élégant", "Moderne"];
 const NOUNS = ["Visiteur", "Explorateur", "Styliste", "Tailleur", "Designer", "Passionné", "Artisan", "Expert"];
@@ -13,7 +13,11 @@ function generatePseudonym() {
 }
 
 export function VisitorTracker() {
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
+    setIsMounted(true);
+    
     // Check if visitor already has a pseudonym
     let visitorId = localStorage.getItem("jmr_visitor_id");
     

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { MonProfilComponents } from "@/app/components";
-import { authAPI, getUser, type QuoteRecord } from "@/app/lib";
+import { getUser } from "@/app/lib/auth";
+import type { QuoteRecord } from "@/app/lib/api";
 
 export default function DevisPage() {
   const [quotes, setQuotes] = useState<QuoteRecord[]>([]);
@@ -11,29 +12,17 @@ export default function DevisPage() {
   useEffect(() => {
     let mounted = true;
 
-    async function loadQuotes() {
-      const user = getUser();
+    const user = getUser();
 
-      if (!user) {
-        window.location.replace("/mon-profil?next=/mon-profil/devis");
-        return;
-      }
-
-      try {
-        const response = await authAPI.get<QuoteRecord[]>(`/users/${user.id}/quotes`);
-        if (mounted) {
-          setQuotes(response.data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch quotes:", error);
-      } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
-      }
+    if (!user) {
+      window.location.replace("/mon-profil?next=/mon-profil/devis");
+      return;
     }
 
-    loadQuotes();
+    if (mounted) {
+      setQuotes([]);
+      setIsLoading(false);
+    }
 
     return () => {
       mounted = false;

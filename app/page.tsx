@@ -1,50 +1,5 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import {
-  NotificationsSection,
-  AuthAccessSection,
-  HeroSection,
-  ServicesSection,
-  AboutSection,
-} from "@/app/components";
-import { getUser, type UserProfile } from "@/app/lib";
+import { HomePageClient } from "@/app/components/home-page-client";
 
 export default function HomePage() {
-  const [user, setUser] = useState<UserProfile | null>(null);
-
-  useEffect(() => {
-    setUser(getUser());
-  }, []);
-
-  const isSignedIn = !!user;
-  const isAdmin = user?.role === "admin";
-
-  return (
-    <div className="home-page">
-      <HeroSection isAdmin={isAdmin} />
-
-      <div className="mt-2">
-        <ServicesSection isAdmin={isAdmin} />
-      </div>
-
-      <AboutSection isAdmin={isAdmin} />
-
-      {/* Client Access Section */}
-      <section className="px-6 md:px-12 py-20 max-w-[1440px] mx-auto" data-nav-section="acces-client" id="acces-client">
-        <div className="home-page__client-access bg-primary rounded-[3rem] overflow-hidden relative p-12 md:p-24 text-center shadow-2xl shadow-primary/40">
-          <div className="absolute inset-0 opacity-10 pointer-events-none">
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,_#e9c176,_transparent)]"></div>
-          </div>
-          <div className="relative z-10">
-            {isSignedIn ? (
-              <NotificationsSection user={user} />
-            ) : (
-              <AuthAccessSection />
-            )}
-          </div>
-        </div>
-      </section>
-    </div>
-  );
+  return <HomePageClient />;
 }

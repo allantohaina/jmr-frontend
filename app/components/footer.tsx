@@ -53,9 +53,9 @@ export function Footer() {
   }
 
   return (
-    <footer className="site-footer-modern w-full mt-20 bg-[#1e2a38] text-[#e5ad46] overflow-hidden">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+    <footer className="site-footer-modern w-full mt-12 md:mt-20 bg-[#1e2a38] text-[#e5ad46] overflow-hidden">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-12 md:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-16 items-start">
 
           {/* Brand Column */}
           <div className="lg:col-span-4">

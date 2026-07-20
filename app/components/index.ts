@@ -27,6 +27,8 @@ export * from './watercolor-video-mask';
 export * from './Skeleton';
 export * from './InfiniteScroll';
 
+export * from './mobile-sidebar';
+
 // Export from subdirectories
 export * from './stitch';
 export * as AdminComponents from './admin';

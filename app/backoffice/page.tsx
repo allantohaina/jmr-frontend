@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { authAPI } from "@/app/lib";
+
 import { 
   BarChart, 
   Bar, 
@@ -31,15 +31,7 @@ export default function AdminDashboardPage() {
   const [visitors, setVisitors] = useState<any[]>([]);
 
   useEffect(() => {
-    async function fetchVisitors() {
-      try {
-        const response = await authAPI.get<any[]>("/visitors");
-        setVisitors(response.data);
-      } catch (error) {
-        console.error("Failed to fetch visitors:", error);
-      }
-    }
-    fetchVisitors();
+    setVisitors([]);
   }, []);
 
   return (

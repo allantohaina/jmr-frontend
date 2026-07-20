@@ -5,72 +5,60 @@ import Image from "next/image";
 import Link from "next/link";
 import { EditableText } from "../editable-text";
 import { useLocale } from "@/app/components/locale-provider";
+import { useContent } from "@/app/lib/use-content";
 
 export function HeroSection({ isAdmin = false }: { isAdmin?: boolean }) {
   const { messages } = useLocale();
-  const [content, setContent] = React.useState({
-    eyebrow: messages.hero.eyebrow,
-    title: messages.hero.title,
-    description: messages.hero.description,
-  });
+  const { content, save, loaded } = useContent();
 
-  React.useEffect(() => {
-    setContent({
-      eyebrow: messages.hero.eyebrow,
-      title: messages.hero.title,
-      description: messages.hero.description,
-    });
-  }, [messages.hero.description, messages.hero.eyebrow, messages.hero.title]);
+  const eyebrow = loaded && content.hero_eyebrow ? content.hero_eyebrow : messages.hero.eyebrow;
+  const title = loaded && content.hero_title ? content.hero_title : messages.hero.title;
+  const description = loaded && content.hero_description ? content.hero_description : messages.hero.description;
 
-  const handleSave = (key: keyof typeof content) => (newVal: string) => {
-    setContent(prev => ({ ...prev, [key]: newVal }));
-    console.log(`[CMS MOCK] Saving ${key}: ${newVal}`);
-    // Ici on appellerait une API pour sauvegarder
-  };
+  const handleSave = (key: string) => (newVal: string) => save(key, newVal);
 
   return (
-    <section className="relative px-6 md:px-12 py-20 lg:py-32 max-w-[1440px] mx-auto overflow-hidden bg-surface-container-low rounded-b-[3rem] shadow-sm" data-nav-section="accueil" id="accueil">
-      {/* Decorative background elements */}
+    <section className="relative px-6 md:px-12 py-16 md:py-24 lg:py-32 max-w-[1440px] mx-auto overflow-hidden bg-surface-container-low rounded-b-[2rem] md:rounded-b-[3rem] shadow-sm" data-nav-section="accueil" id="accueil">
       <div className="absolute top-0 right-0 w-1/2 h-full bg-[radial-gradient(circle_at_100%_0%,_#e9c176_0%,_transparent_50%)] opacity-20 pointer-events-none"></div>
       <div className="absolute -bottom-20 -left-20 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
       
-      <div className="grid lg:grid-cols-12 gap-12 items-center relative z-10">
+      <div className="grid lg:grid-cols-12 gap-8 md:gap-12 items-center relative z-10">
         <div className="lg:col-span-7">
-          <div className="mb-6 flex items-center gap-3">
-            <span className="w-12 h-[1px] bg-orange-500"></span>
+          <div className="mb-4 md:mb-6 flex items-center gap-3">
+            <span className="w-10 md:w-12 h-[1px] bg-primary"></span>
             <EditableText 
               isAdmin={isAdmin} 
-              content={content.eyebrow} 
-              onSave={handleSave("eyebrow")}
-              className="font-label text-[11px] uppercase tracking-[0.2em] text-orange-500 font-bold"
+              content={eyebrow} 
+              onSave={handleSave("hero_eyebrow")}
+              className="font-label text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-primary font-bold"
             />
           </div>
-          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-light tracking-tight text-primary leading-[1.1] mb-8">
+          <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-light tracking-tight md:tracking-tight text-primary leading-[1.1] mb-6 md:mb-8">
             <EditableText 
               isAdmin={isAdmin} 
-              content={content.title} 
-              onSave={handleSave("title")}
+              content={title} 
+              onSave={handleSave("hero_title")}
               tag="span"
             />
           </h1>
           <EditableText 
             isAdmin={isAdmin} 
-            content={content.description} 
-            onSave={handleSave("description")}
+            content={description} 
+            onSave={handleSave("hero_description")}
             tag="p"
-            className="font-body text-lg text-on-surface-variant max-w-xl mb-10 leading-relaxed"
+            className="font-body text-base md:text-lg text-on-surface-variant max-w-xl mb-8 md:mb-10 leading-relaxed"
           />
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="#nos-services" className="bg-primary text-on-primary px-10 py-5 rounded-xl font-body font-bold uppercase tracking-widest text-xs hover:bg-orange-600 transition-colors shadow-xl shadow-primary/20 text-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <Link href="#nos-services" className="bg-primary text-on-primary px-8 md:px-10 py-4 md:py-5 min-h-[44px] rounded-xl font-body font-bold uppercase tracking-widest text-xs hover:bg-secondary transition-colors shadow-xl shadow-primary/20 text-center inline-flex items-center justify-center">
               {messages.hero.primaryCta}
             </Link>
-            <Link href="#acces-client" className="border border-outline-variant text-primary px-10 py-5 rounded-xl font-body font-bold uppercase tracking-widest text-xs hover:border-orange-500 hover:text-orange-500 transition-all text-center">
+            <Link href="#acces-client" className="border border-primary/30 text-primary px-8 md:px-10 py-4 md:py-5 min-h-[44px] rounded-xl font-body font-bold uppercase tracking-widest text-xs hover:border-primary hover:bg-primary/10 transition-all text-center inline-flex items-center justify-center">
               {messages.hero.secondaryCta}
             </Link>
           </div>
         </div>
         <div className="lg:col-span-5 relative">
-          <div className="aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl relative z-0 border-8 border-white">
+          <div className="aspect-[4/5] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-2xl relative z-0 border-2 md:border-4 border-primary/25">
             <Image
               className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
               src="/human_images/08_salle_machines_coudre.jpg"
@@ -79,7 +67,7 @@ export function HeroSection({ isAdmin = false }: { isAdmin?: boolean }) {
               priority
             />
           </div>
-          <div className="absolute -bottom-10 -left-10 w-64 aspect-square rounded-2xl overflow-hidden border-[12px] border-white shadow-2xl hidden md:block z-30">
+          <div className="absolute -bottom-10 -left-10 w-64 aspect-square rounded-2xl overflow-hidden border-4 border-primary/30 shadow-2xl hidden md:block z-30">
             <Image
               className="w-full h-full object-cover"
               src="/human_images/07_coupe_machine_denim.jpg"

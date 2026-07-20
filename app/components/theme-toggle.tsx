@@ -43,8 +43,10 @@ function persistTheme(theme: ThemeName) {
 export function ThemeToggle({ initialTheme }: { initialTheme: ThemeName }) {
   const { messages } = useLocale();
   const [theme, setTheme] = useState<ThemeName>(initialTheme);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const preferredTheme = getPreferredTheme();
     setTheme(preferredTheme);
     applyTheme(preferredTheme);
@@ -63,6 +65,22 @@ export function ThemeToggle({ initialTheme }: { initialTheme: ThemeName }) {
   }
 
   const isLight = theme === "light";
+
+  if (!mounted) {
+    return (
+      <button
+        type="button"
+        className="theme-toggle"
+        aria-label={messages.theme.switchToLight}
+        aria-pressed={false}
+        title={messages.theme.lightMode}
+        suppressHydrationWarning
+      >
+        <Sun className="theme-toggle__icon" aria-hidden="true" />
+        <span className="theme-toggle__label">{messages.theme.lightShort}</span>
+      </button>
+    );
+  }
 
   return (
     <button

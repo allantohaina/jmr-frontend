@@ -1,0 +1,32 @@
+COMPTES DE TEST - JMR TEXTILE
+---------------------------
+
+1. ADMINISTRATEUR
+   Email: admin@test.com
+   Mot de passe: test
+   Privilèges: 
+   - Accès total au tableau de bord financier.
+   - Édition complète des devis (montant, acomptes, solde).
+   - Validation des paiements.
+   - Lancement de la production.
+   - Édition en direct des textes du site (Live CMS).
+   - Gestion des paramètres système.
+
+2. OPÉRATEUR ATELIER (WORKER)
+   Email: worker@test.com
+   Mot de passe: test
+   Privilèges:
+   - Accès exclusif à l'espace /atelier.
+   - Suivi des lignes de production assignées.
+   - Signalement des problèmes (pannes, retards).
+   - Validation de fin de tâche (Marquer Finie).
+   - RESTRICTION: Pas d'accès au tableau de bord financier ni à l'édition des devis.
+
+3. CLIENT LAMBDA
+   Email: client@test.com
+   Mot de passe: test
+   Privilèges:
+   - Consultation de ses propres devis et commandes.
+   - Téléchargement des documents.
+   - Demande de modification (génère une nouvelle requête).
+   - RESTRICTION: Pas d'accès aux interfaces Admin ou Atelier.
