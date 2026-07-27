@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { 
   ShoppingCart, 
   Plus, 
@@ -11,6 +11,7 @@ import {
   Calendar,
   Filter
 } from "lucide-react";
+import { debounce } from "@/app/lib/utils";
 import { useToast } from "@/app/components";
 
 interface Purchase {
@@ -26,6 +27,8 @@ interface Purchase {
 export default function AdminPurchasesPage() {
   const { showToast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const handleSearchChange = useMemo(() => debounce((val: string) => setDebouncedSearch(val), 300), []);
   const [purchases, setPurchases] = useState<Purchase[]>([
     { id: "PUR-2024-001", supplier: "Tissus de Lyon", category: "Matière Première", amount: 4500.50, date: "2026-03-20", status: "Payé", description: "Rouleaux de coton bio bleu marine" },
     { id: "PUR-2024-002", supplier: "Boutons & Co", category: "Fournitures", amount: 320.00, date: "2026-03-22", status: "En attente", description: "1200 boutons nacre 12mm" },
@@ -34,8 +37,8 @@ export default function AdminPurchasesPage() {
   ]);
 
   const filteredPurchases = purchases.filter(p => 
-    p.supplier.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.description.toLowerCase().includes(searchTerm.toLowerCase())
+    p.supplier.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    p.description.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
   const totalSpent = purchases.reduce((acc, curr) => acc + curr.amount, 0);
@@ -55,7 +58,7 @@ export default function AdminPurchasesPage() {
               type="text"
               placeholder="Fournisseur, article..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => { setSearchTerm(e.target.value); handleSearchChange(e.target.value); }}
               className="w-full pl-12 pr-4 py-3 bg-white border border-[#163526]/10 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
             />
           </div>

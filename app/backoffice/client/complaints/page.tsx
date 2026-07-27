@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { authAPI, type UserProfile } from "@/app/lib/api";
 import { MessageSquare, Search, Loader } from "lucide-react";
+import { debounce } from "@/app/lib/utils";
 
 export default function ComplaintsPage() {
   const [clients, setClients] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const handleSearchChange = useMemo(() => debounce((val: string) => setDebouncedSearch(val), 300), []);
 
   useEffect(() => {
     authAPI.get<UserProfile[]>("/users").then((res) => {
@@ -16,7 +19,7 @@ export default function ComplaintsPage() {
   }, []);
 
   const filtered = clients.filter((c) => {
-    const q = search.toLowerCase();
+    const q = debouncedSearch.toLowerCase();
     return c.first_name?.toLowerCase().includes(q) || c.last_name?.toLowerCase().includes(q) || c.email?.toLowerCase().includes(q);
   });
 
@@ -29,7 +32,7 @@ export default function ComplaintsPage() {
 
       <div className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#eccc90]/30" />
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher par nom, email..." className="w-full rounded-xl bg-[#25303a] pl-11 pr-4 py-3 text-sm text-[#eccc90] placeholder:text-[#eccc90]/30 outline-none border border-[#e5ad46]/10 focus:border-[#e5ad46]/30" />
+        <input value={search} onChange={(e) => { setSearch(e.target.value); handleSearchChange(e.target.value); }} placeholder="Rechercher par nom, email..." className="w-full rounded-xl bg-[#25303a] pl-11 pr-4 py-3 text-sm text-[#eccc90] placeholder:text-[#eccc90]/30 outline-none border border-[#e5ad46]/10 focus:border-[#e5ad46]/30" />
       </div>
 
       {loading ? (
