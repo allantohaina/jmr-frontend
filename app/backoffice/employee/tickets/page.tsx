@@ -30,8 +30,10 @@ export default function TicketsPage() {
     setShowForm(false);
   };
 
-  const toggleStatus = (id: number) => {
-    setTickets(tickets.map((t) => t.id === id ? { ...t, status: t.status === "ouvert" ? "en cours" : t.status === "en cours" ? "résolu" : "ouvert" } : t));
+  const toggleStatus = (id: number, current: string) => {
+    const next = current === "ouvert" ? "en cours" : current === "en cours" ? "résolu" : "ouvert";
+    if (!confirm(`Passer ce ticket en statut "${next}" ?`)) return;
+    setTickets(tickets.map((t) => t.id === id ? { ...t, status: next } : t));
   };
 
   return (
@@ -68,7 +70,7 @@ export default function TicketsPage() {
       ) : (
         <div className="space-y-3">
           {filteredTickets.map((t) => (
-            <div key={t.id} className="rounded-xl bg-[#25303a] p-4 border border-[#e5ad46]/10 flex items-center justify-between cursor-pointer hover:bg-[#2a3642] transition-colors" onClick={() => toggleStatus(t.id)}>
+            <div key={t.id} className="rounded-xl bg-[#25303a] p-4 border border-[#e5ad46]/10 flex items-center justify-between cursor-pointer hover:bg-[#2a3642] transition-colors" onClick={() => toggleStatus(t.id, t.status)}>
               <div className="flex items-center gap-3">
                 <span className={`h-2.5 w-2.5 rounded-full ${t.status === "ouvert" ? "bg-red-400" : t.status === "en cours" ? "bg-yellow-400" : "bg-green-400"}`} />
                 <div>

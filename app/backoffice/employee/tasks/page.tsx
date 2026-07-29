@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { authAPI, type UserProfile } from "@/app/lib/api";
-import { ClipboardList, CheckCircle, XCircle, Loader } from "lucide-react";
+import { ClipboardList, CheckCircle, XCircle, Loader as LoaderIcon } from "lucide-react";
 
 export default function TasksPage() {
   const router = useRouter();
@@ -27,8 +27,17 @@ export default function TasksPage() {
     }).catch(() => setEmployees([])).finally(() => setLoading(false));
   }, []);
 
-  const togglePresent = (id: string | number | undefined) => {
-    setEmployees(employees.map((e) => e.id === id ? { ...e, present: !e.present } : e));
+  const [togglingId, setTogglingId] = useState<string | number | null>(null);
+
+  const togglePresent = (id: string | number | undefined, current: boolean) => {
+    if (!id) return;
+    const action = current ? "passer cet employé en Absent" : "passer cet employé en Présent";
+    if (!confirm(`Confirmer le changement de statut — ${action} ?`)) return;
+    setTogglingId(id);
+    setTimeout(() => {
+      setEmployees(employees.map((e) => e.id === id ? { ...e, present: !e.present } : e));
+      setTogglingId(null);
+    }, 200);
   };
 
   const presentCount = employees.filter((e) => e.present).length;
@@ -60,7 +69,7 @@ export default function TasksPage() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-8"><Loader className="h-5 w-5 animate-spin text-[#e5ad46]" /></div>
+        <div className="flex justify-center py-8"><LoaderIcon className="h-5 w-5 animate-spin text-[#e5ad46]" /></div>
       ) : employees.length === 0 ? (
         <p className="text-sm text-[#eccc90]/50">Aucun employé inscrit.</p>
       ) : filteredEmployees.length === 0 ? (
@@ -77,10 +86,11 @@ export default function TasksPage() {
                 </div>
               </div>
               <button
-                onClick={() => togglePresent(e.id)}
-                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-colors ${e.present ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" : "bg-green-500/20 text-green-400 hover:bg-green-500/30"}`}
+                onClick={() => togglePresent(e.id, e.present)}
+                disabled={togglingId === e.id}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50 ${e.present ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" : "bg-green-500/20 text-green-400 hover:bg-green-500/30"}`}
               >
-                {e.present ? <XCircle className="h-3 w-3" /> : <CheckCircle className="h-3 w-3" />}
+                {togglingId === e.id ? <LoaderIcon className="h-3 w-3 animate-spin" /> : e.present ? <XCircle className="h-3 w-3" /> : <CheckCircle className="h-3 w-3" />}
                 {e.present ? "Absent" : "Présent"}
               </button>
             </div>
