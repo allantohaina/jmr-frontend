@@ -79,7 +79,7 @@ function OrderDetailsModal({ order, onClose }: { order: ProfileOrder; onClose: (
               </span>
               <h3 className="font-headline text-3xl text-[#e5ad46]">{order.title}</h3>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-[#e5ad46]/5 rounded-full transition-colors">
+            <button onClick={onClose} aria-label="Fermer" className="p-2 hover:bg-[#e5ad46]/5 rounded-full transition-colors">
               <span className="material-symbols-outlined text-[#e5ad46]">close</span>
             </button>
           </div>

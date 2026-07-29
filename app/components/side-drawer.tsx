@@ -42,7 +42,7 @@ export function SideDrawer({
       }`}
       aria-hidden={!open}
     >
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClose?.(); } }} aria-label="Fermer" />
       <div
         ref={drawerRef}
         className={`relative w-4/5 max-w-sm h-full bg-surface-container-low shadow-2xl flex flex-col transition-transform duration-300 ${

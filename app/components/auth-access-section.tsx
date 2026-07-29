@@ -224,10 +224,11 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
 
                   <div className="space-y-6">
                     <div className="relative">
-                      <label className="mb-2 block font-label text-[10px] font-bold uppercase tracking-[0.2em] text-outline/80">
+                      <label htmlFor="login-email" className="mb-2 block font-label text-[10px] font-bold uppercase tracking-[0.2em] text-outline/80">
                         {messages.auth.usernameOrEmail}
                       </label>
                       <input
+                        id="login-email"
                         name="email"
                         className="w-full border border-outline-variant/50 bg-white px-4 py-4 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
                         placeholder="votre@email.com"
@@ -236,10 +237,11 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
                       />
                     </div>
                     <div className="relative">
-                      <label className="mb-2 block font-label text-[10px] font-bold uppercase tracking-[0.2em] text-outline/80">
+                      <label htmlFor="login-password" className="mb-2 block font-label text-[10px] font-bold uppercase tracking-[0.2em] text-outline/80">
                         {messages.auth.password}
                       </label>
                       <input
+                        id="login-password"
                         name="password"
                         className="w-full border border-outline-variant/50 bg-white px-4 py-4 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
                         placeholder="********"

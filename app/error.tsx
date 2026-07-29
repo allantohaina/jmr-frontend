@@ -17,7 +17,7 @@ export default function Error({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
-      <h2 className="text-3xl font-bold mb-4">Oups, quelque chose s&apos;est mal passé !</h2>
+      <h1 className="text-3xl font-bold mb-4">Oups, quelque chose s&apos;est mal passé !</h1>
       <p className="text-gray-600 mb-8 max-w-md">
         Une erreur est survenue lors de l&apos;accès à cette page. Nous nous excusons pour ce désagrément.
       </p>

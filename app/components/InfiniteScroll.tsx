@@ -70,7 +70,9 @@ export function InfiniteScroll<T>({
   
   return (
     <div className="w-full">
-      {items.map((item, index) => renderItem(item, index))}
+      {items.map((item, index) => (
+        <React.Fragment key={index}>{renderItem(item, index)}</React.Fragment>
+      ))}
       
       {isLoading && (
         <div className="space-y-2 mt-4">
