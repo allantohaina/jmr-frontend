@@ -41,6 +41,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <meta httpEquiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; frame-src 'none'; object-src 'none'; base-uri 'self'" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
