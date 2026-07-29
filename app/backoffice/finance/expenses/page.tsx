@@ -1,12 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { TrendingDown, Plus, X } from "lucide-react";
+import { useState, useMemo, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { TrendingDown, Plus, X, Search as SearchIcon } from "lucide-react";
+import { debounce } from "@/app/lib/utils";
 
 export default function ExpensesPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [expenses, setExpenses] = useState<{ label: string; amount: string; date: string }[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ label: "", amount: "" });
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get("search") || "");
+  const onSearchChange = useMemo(() => debounce((val: string) => {
+    setDebouncedSearch(val);
+    const params = new URLSearchParams(searchParams.toString());
+    if (val) params.set("search", val);
+    else params.delete("search");
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, 300), [router, searchParams]);
+  const filteredExpenses = expenses.filter((e) => !debouncedSearch || e.label.toLowerCase().includes(debouncedSearch.toLowerCase()));
 
   const addExpense = () => {
     if (!form.label || !form.amount) return;
@@ -45,10 +59,15 @@ export default function ExpensesPage() {
         </div>
       )}
 
-      {expenses.length === 0 ? (
-        <p className="text-sm text-[#eccc90]/50">Aucune dépense enregistrée.</p>
+      <div className="relative">
+        <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#eccc90]/30" />
+        <input value={search} onChange={(e) => { setSearch(e.target.value); onSearchChange(e.target.value); }} placeholder="Rechercher..." className="w-full rounded-xl bg-[#25303a] pl-11 pr-4 py-3 text-sm text-[#eccc90] placeholder:text-[#eccc90]/30 outline-none border border-[#e5ad46]/10 focus:border-[#e5ad46]/30" />
+      </div>
+
+      {filteredExpenses.length === 0 ? (
+        <p className="text-sm text-[#eccc90]/50">{search ? "Aucune dépense trouvée." : "Aucune dépense enregistrée."}</p>
       ) : (
-        <div className="space-y-3">{expenses.map((e, i) => (
+        <div className="space-y-3">{filteredExpenses.map((e, i) => (
           <div key={i} className="rounded-xl bg-[#25303a] p-4 border border-[#e5ad46]/10">
             <div className="flex justify-between">
               <div>

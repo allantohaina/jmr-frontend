@@ -1,12 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { DollarSign, Plus, X } from "lucide-react";
+import { useState, useMemo } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { DollarSign, Plus, X, Search as SearchIcon } from "lucide-react";
+import { debounce } from "@/app/lib/utils";
 
 export default function PayrollPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [payments, setPayments] = useState<{ employee: string; amount: string; date: string }[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ employee: "", amount: "" });
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get("search") || "");
+  const onSearchChange = useMemo(() => debounce((val: string) => {
+    setDebouncedSearch(val);
+    const params = new URLSearchParams(searchParams.toString());
+    if (val) params.set("search", val);
+    else params.delete("search");
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, 300), [router, searchParams]);
+  const filteredPayments = payments.filter((p) => !debouncedSearch || p.employee.toLowerCase().includes(debouncedSearch.toLowerCase()));
 
   const addPayment = () => {
     if (!form.employee || !form.amount) return;
@@ -45,10 +59,15 @@ export default function PayrollPage() {
         </div>
       )}
 
-      {payments.length === 0 ? (
-        <p className="text-sm text-[#eccc90]/50">Aucun paiement enregistré.</p>
+      <div className="relative">
+        <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#eccc90]/30" />
+        <input value={search} onChange={(e) => { setSearch(e.target.value); onSearchChange(e.target.value); }} placeholder="Rechercher un employé..." className="w-full rounded-xl bg-[#25303a] pl-11 pr-4 py-3 text-sm text-[#eccc90] placeholder:text-[#eccc90]/30 outline-none border border-[#e5ad46]/10 focus:border-[#e5ad46]/30" />
+      </div>
+
+      {filteredPayments.length === 0 ? (
+        <p className="text-sm text-[#eccc90]/50">{search ? "Aucun paiement trouvé." : "Aucun paiement enregistré."}</p>
       ) : (
-        <div className="space-y-3">{payments.map((p, i) => (
+        <div className="space-y-3">{filteredPayments.map((p, i) => (
           <div key={i} className="rounded-xl bg-[#25303a] p-4 border border-[#e5ad46]/10">
             <div className="flex items-center justify-between">
               <div>

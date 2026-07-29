@@ -1,12 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { authAPI, type UserProfile } from "@/app/lib/api";
 import { ClipboardList, CheckCircle, XCircle, Loader } from "lucide-react";
 
 export default function TasksPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const statusFilter = searchParams.get("status");
   const [employees, setEmployees] = useState<(UserProfile & { present: boolean })[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const filteredEmployees = statusFilter === "present" ? employees.filter((e) => e.present) : statusFilter === "absent" ? employees.filter((e) => !e.present) : employees;
+
+  const setFilter = useCallback((status: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (status) params.set("status", status);
+    else params.delete("status");
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
 
   useEffect(() => {
     authAPI.get<UserProfile[]>("/users").then((res) => {
@@ -38,13 +51,23 @@ export default function TasksPage() {
         </div>
       </div>
 
+      <div className="flex gap-2">
+        {[null, "present", "absent"].map((s) => (
+          <button key={s || "all"} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === s || (!statusFilter && !s) ? "bg-[#e5ad46] text-[#1e2a38]" : "bg-[#25303a] text-[#eccc90]/60 hover:bg-[#e5ad46]/10"}`}>
+            {s === "present" ? "Présents" : s === "absent" ? "Absents" : "Tous"}
+          </button>
+        ))}
+      </div>
+
       {loading ? (
         <div className="flex justify-center py-8"><Loader className="h-5 w-5 animate-spin text-[#e5ad46]" /></div>
       ) : employees.length === 0 ? (
         <p className="text-sm text-[#eccc90]/50">Aucun employé inscrit.</p>
+      ) : filteredEmployees.length === 0 ? (
+        <p className="text-sm text-[#eccc90]/50">Aucun employé avec ce statut.</p>
       ) : (
         <div className="space-y-3">
-          {employees.map((e) => (
+          {filteredEmployees.map((e) => (
             <div key={e.id} className="rounded-xl bg-[#25303a] p-4 border border-[#e5ad46]/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className={`h-3 w-3 rounded-full ${e.present ? "bg-green-400" : "bg-red-400"}`} />

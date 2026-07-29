@@ -1,13 +1,24 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function AdminOrdersPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [showNewOrder, setShowNewOrder] = useState(false);
-  const [selectedOrderDetails, setSelectedOrderDetails] = useState<number | null>(null);
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState<number | null>(searchParams.get("id") ? parseInt(searchParams.get("id")!) : null);
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const setSelectedOrder = useCallback((id: number | null) => {
+    setSelectedOrderDetails(id);
+    const params = new URLSearchParams(searchParams.toString());
+    if (id) params.set("id", id.toString());
+    else params.delete("id");
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
 
   useEffect(() => {
     setOrders([]);
@@ -105,7 +116,7 @@ export default function AdminOrdersPage() {
                   </td>
                   <td className="px-8 py-6 text-right">
                     <button 
-                      onClick={() => setSelectedOrderDetails(selectedOrderDetails === order.id ? null : order.id)}
+                      onClick={() => setSelectedOrder(selectedOrderDetails === order.id ? null : order.id)}
                       className="text-orange-500 hover:text-orange-600 font-bold text-[10px] uppercase tracking-widest transition-all"
                     >
                       {selectedOrderDetails === order.id ? 'Fermer' : 'Détails Motif'}

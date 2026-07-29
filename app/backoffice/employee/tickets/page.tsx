@@ -1,14 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Wrench, Plus, X } from "lucide-react";
 
 type Ticket = { id: number; machine: string; reportedBy: string; date: string; status: "ouvert" | "en cours" | "résolu" };
 
 export default function TicketsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const statusFilter = searchParams.get("status");
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ machine: "", reportedBy: "" });
+
+  const filteredTickets = statusFilter ? tickets.filter((t) => t.status === statusFilter) : tickets;
+
+  const setFilter = useCallback((status: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (status) params.set("status", status);
+    else params.delete("status");
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
 
   const addTicket = () => {
     if (!form.machine || !form.reportedBy) return;
@@ -42,11 +55,19 @@ export default function TicketsPage() {
         </div>
       )}
 
-      {tickets.length === 0 ? (
-        <p className="text-sm text-[#eccc90]/50">Aucun ticket de réparation.</p>
+      <div className="flex gap-2">
+        {[null, "ouvert", "en cours", "résolu"].map((s) => (
+          <button key={s || "all"} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === s || (!statusFilter && !s) ? "bg-[#e5ad46] text-[#1e2a38]" : "bg-[#25303a] text-[#eccc90]/60 hover:bg-[#e5ad46]/10"}`}>
+            {s || "Tous"}
+          </button>
+        ))}
+      </div>
+
+      {filteredTickets.length === 0 ? (
+        <p className="text-sm text-[#eccc90]/50">{statusFilter ? "Aucun ticket avec ce statut." : "Aucun ticket de réparation."}</p>
       ) : (
         <div className="space-y-3">
-          {tickets.map((t) => (
+          {filteredTickets.map((t) => (
             <div key={t.id} className="rounded-xl bg-[#25303a] p-4 border border-[#e5ad46]/10 flex items-center justify-between cursor-pointer hover:bg-[#2a3642] transition-colors" onClick={() => toggleStatus(t.id)}>
               <div className="flex items-center gap-3">
                 <span className={`h-2.5 w-2.5 rounded-full ${t.status === "ouvert" ? "bg-red-400" : t.status === "en cours" ? "bg-yellow-400" : "bg-green-400"}`} />
