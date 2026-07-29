@@ -7,7 +7,6 @@ import {
   HeroSection,
   ServicesSection,
   AboutSection,
-  MobileSidebar,
 } from "@/app/components";
 import { getUser, getToken } from "@/app/lib/auth";
 import { signOutClient } from "@/app/lib/auth-client";
@@ -65,7 +64,6 @@ export function HomePageClient() {
         </div>
       </section>
 
-      <MobileSidebar />
     </div>
   );
 }

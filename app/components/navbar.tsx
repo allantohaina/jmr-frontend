@@ -8,6 +8,7 @@ import { useEffect, useState, useRef } from "react";
 
 import { useLocale } from "@/app/components/locale-provider";
 import { ThemeToggle } from "@/app/components/theme-toggle";
+import { MobileSidebar } from "@/app/components/mobile-sidebar";
 import { getUser, writeBrowserCookie, getToken } from "@/app/lib/auth";
 import { signOutClient } from "@/app/lib/auth-client";
 import { authAPI, type UserProfile } from "@/app/lib/api";
@@ -384,25 +385,9 @@ export function Navbar({
         )}
       </Link>
 
-      <button
-        className={`site-nav__menu-toggle${isMenuOpen ? " is-open" : ""}`}
-        type="button"
-        aria-expanded={isMenuOpen}
-        aria-controls="site-nav-menu"
-        onClick={() => setIsMenuOpen((open) => !open)}
-      >
-        <Image
-          className="site-nav__menu-toggle-icon"
-          src="/hamburger_menu.svg"
-          alt=""
-          aria-hidden="true"
-          width={22}
-          height={22}
-        />
-        <span className="site-nav__menu-toggle-label">
-          {isMenuOpen ? messages.common.close : messages.common.menu}
-        </span>
-      </button>
+      <div className="flex items-center gap-2 md:hidden">
+        <MobileSidebar isStaff={isStaff} userFirstName={effectiveUserFirstName} />
+      </div>
 
       <button
         type="button"
