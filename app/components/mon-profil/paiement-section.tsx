@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { CheckCircle2, ChevronDown, Loader2, UploadCloud } from "lucide-react";
 import { authAPI } from "@/app/lib";
+import { getErrorMessage } from "@/app/lib/errors";
 
 export function PaiementSection({ id }: { id: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,13 +43,7 @@ export function PaiementSection({ id }: { id: string }) {
       });
       event.currentTarget.reset();
     } catch (error) {
-      setNotice({
-        tone: "danger",
-        message:
-          error instanceof Error && error.message
-            ? error.message
-            : "Impossible d'envoyer la preuve de paiement pour le moment.",
-      });
+      setNotice({ tone: "danger", message: getErrorMessage(error) });
     } finally {
       setIsSubmitting(false);
     }

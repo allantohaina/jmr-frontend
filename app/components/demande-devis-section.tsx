@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useCallback } from "react";
 import { authAPI } from "@/app/lib";
+import { getErrorMessage } from "@/app/lib/errors";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -123,11 +124,7 @@ function QuoteFormContent() {
       await authAPI.post("/quotes", payload);
       window.location.assign("/suivi-projet?view=tracking&step=2");
     } catch (error) {
-      setSubmitError(
-        error instanceof Error && error.message
-          ? error.message
-          : "Impossible d'envoyer votre demande pour le moment.",
-      );
+      setSubmitError(getErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }

@@ -220,7 +220,7 @@ export async function fetchWithAuth<T = unknown>(
       }
 
       if (!response.ok) {
-        throw new Error(readErrorMessage(data) || "An error occurred");
+        throw new Error(readErrorMessage(data) || "Une erreur est survenue.");
       }
 
       logApiSuccess(runtime, method, endpoint, apiUrl, response.status);

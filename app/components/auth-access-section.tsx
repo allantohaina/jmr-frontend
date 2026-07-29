@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useLocale } from "@/app/components/locale-provider";
 import { authenticateWithForm } from "@/app/lib";
 import { useForm, Controller, useWatch, type FieldErrors } from "react-hook-form";
+import { getErrorMessage } from "@/app/lib/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
@@ -81,15 +82,8 @@ type SignupFeedback = {
 };
 
 function resolveAuthErrorMessage(error?: string | null) {
-  if (!error) {
-    return "";
-  }
-
-  if (error === "auth_failed") {
-    return "Connexion impossible. Verifiez vos identifiants ou reessayez.";
-  }
-
-  return error;
+  if (!error) return "";
+  return getErrorMessage(error);
 }
 
 export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAccessSectionProps) {
@@ -204,11 +198,11 @@ export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAcces
             <p className="mx-auto max-w-xl text-sm font-body text-lg uppercase tracking-[0.1em] text-secondary">
               {messages.auth.subtitle}
             </p>
-            {errorMessage ? (
-              <div className="mt-8 inline-block rounded-xl bg-error-container p-4 text-on-error-container" role="alert">
+            {errorMessage && (
+              <div className="mt-8 inline-block rounded-xl bg-red-500/10 p-4 text-red-400 border border-red-500/20" role="alert">
                 {errorMessage}
               </div>
-            ) : null}
+            )}
           </div>
 
           <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl bg-outline-variant/20 shadow-[0_48px_64px_rgba(27,28,25,0.06)] lg:grid-cols-2">
