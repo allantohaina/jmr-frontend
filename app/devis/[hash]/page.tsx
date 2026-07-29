@@ -41,7 +41,7 @@ export default function SharedDevisPage() {
     </div>
   );
 
-  const statusIcon = quote.balance_paid ? CheckCircle : quote.deposit_paid ? Clock : Clock;
+  const StatusIcon = quote.balance_paid ? CheckCircle : quote.deposit_paid ? Clock : Clock;
   const statusColor = quote.balance_paid ? "text-green-400" : quote.deposit_paid ? "text-yellow-400" : "text-[#e5ad46]";
   const statusLabel = quote.balance_paid ? "Payé" : quote.deposit_paid ? "Acompte versé" : "En attente";
 
@@ -54,7 +54,7 @@ export default function SharedDevisPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <statusIcon className={`h-5 w-5 ${statusColor}`} />
+          <StatusIcon className={`h-5 w-5 ${statusColor}`} />
           <span className={`text-xs font-bold uppercase tracking-widest ${statusColor}`}>{statusLabel}</span>
         </div>
 

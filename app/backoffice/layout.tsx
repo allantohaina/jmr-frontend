@@ -20,6 +20,8 @@ import {
   Home,
   Package,
   ChevronDown,
+  Shield,
+  Ban,
 } from "lucide-react";
 
 const clientItems = [
@@ -32,6 +34,11 @@ const clientItems = [
 const employeeItems = [
   { href: "/backoffice/employee/tickets", label: "Tickets réparation", icon: Wrench },
   { href: "/backoffice/employee/tasks", label: "Suivi étapes", icon: ClipboardList },
+];
+
+const adminItems = [
+  { href: "/backoffice/admin/bans", label: "Bannissements", icon: Shield },
+  { href: "/backoffice/admin/blacklist", label: "Blacklist", icon: Ban },
 ];
 
 const financeItems = [
@@ -110,6 +117,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           <NavGroup title="Clients" items={clientItems} />
           <NavGroup title="Employés" items={employeeItems} />
           <NavGroup title="Finance" items={financeItems} />
+          <NavGroup title="Administration" items={adminItems} />
 
           <div className="mt-8 border-t border-[#e5ad46]/10 pt-8">
             <Link href="/backoffice/settings" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
