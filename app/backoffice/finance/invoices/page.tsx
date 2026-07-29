@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { authAPI } from "@/app/lib/api";
 import { Receipt, Loader } from "lucide-react";
 
 export default function InvoicesPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "paid" | "unpaid">("all");
+  const [filter, setFilter] = useState<"all" | "paid" | "unpaid">((searchParams.get("filter") as "all" | "paid" | "unpaid") || "all");
 
   useEffect(() => {
     authAPI.get<any[]>("/quotes").then((res) => {
@@ -19,6 +22,14 @@ export default function InvoicesPage() {
       })));
     }).catch(() => setInvoices([])).finally(() => setLoading(false));
   }, []);
+
+  const onFilterChange = useCallback((f: "all" | "paid" | "unpaid") => {
+    setFilter(f);
+    const params = new URLSearchParams(searchParams.toString());
+    if (f !== "all") params.set("filter", f);
+    else params.delete("filter");
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
 
   const filtered = invoices.filter((inv) => {
     if (filter === "paid") return inv.status === "paid";
@@ -49,7 +60,7 @@ export default function InvoicesPage() {
 
       <div className="flex gap-2">
         {(["all", "paid", "unpaid"] as const).map((f) => (
-          <button key={f} onClick={() => setFilter(f)} className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${filter === f ? "bg-[#e5ad46] text-[#1e2a38]" : "bg-[#25303a] text-[#eccc90]/60 hover:bg-[#e5ad46]/10"}`}>
+          <button key={f} onClick={() => onFilterChange(f)} className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${filter === f ? "bg-[#e5ad46] text-[#1e2a38]" : "bg-[#25303a] text-[#eccc90]/60 hover:bg-[#e5ad46]/10"}`}>
             {f === "all" ? "Toutes" : f === "paid" ? "Payées" : "Impayées"}
           </button>
         ))}

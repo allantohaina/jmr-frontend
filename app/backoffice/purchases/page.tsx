@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { 
   ShoppingCart, 
   Plus, 
@@ -25,10 +26,18 @@ interface Purchase {
 }
 
 export default function AdminPurchasesPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { showToast } = useToast();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const handleSearchChange = useMemo(() => debounce((val: string) => setDebouncedSearch(val), 300), []);
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get("search") || "");
+  const handleSearchChange = useMemo(() => debounce((val: string) => {
+    setDebouncedSearch(val);
+    const params = new URLSearchParams(searchParams.toString());
+    if (val) params.set("search", val);
+    else params.delete("search");
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, 300), [router, searchParams]);
   const [purchases, setPurchases] = useState<Purchase[]>([
     { id: "PUR-2024-001", supplier: "Tissus de Lyon", category: "Matière Première", amount: 4500.50, date: "2026-03-20", status: "Payé", description: "Rouleaux de coton bio bleu marine" },
     { id: "PUR-2024-002", supplier: "Boutons & Co", category: "Fournitures", amount: 320.00, date: "2026-03-22", status: "En attente", description: "1200 boutons nacre 12mm" },

@@ -1,16 +1,25 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { authAPI, type UserProfile } from "@/app/lib/api";
 import { MessageSquare, Search, Loader } from "lucide-react";
 import { debounce } from "@/app/lib/utils";
 
 export default function ComplaintsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [clients, setClients] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const handleSearchChange = useMemo(() => debounce((val: string) => setDebouncedSearch(val), 300), []);
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get("search") || "");
+  const handleSearchChange = useMemo(() => debounce((val: string) => {
+    setDebouncedSearch(val);
+    const params = new URLSearchParams(searchParams.toString());
+    if (val) params.set("search", val);
+    else params.delete("search");
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, 300), [router, searchParams]);
 
   useEffect(() => {
     authAPI.get<UserProfile[]>("/users").then((res) => {

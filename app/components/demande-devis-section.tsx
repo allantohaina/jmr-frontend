@@ -1,7 +1,7 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense, useState, useCallback } from "react";
 import { authAPI } from "@/app/lib";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -72,8 +72,10 @@ function buildQuoteRequestPayload(data: QuoteRequestFormData, files: File[]) {
 }
 
 function QuoteFormContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const modifyCode = searchParams.get("modify");
+  const categoryParam = searchParams.get("category");
   const requestTypeDefault = modifyCode ? "edit" : "new";
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -86,7 +88,7 @@ function QuoteFormContent() {
   } = useForm<QuoteRequestFormData>({
     resolver: zodResolver(quoteRequestSchema),
     defaultValues: {
-      category: "",
+      category: categoryParam || "",
       name: "",
       email: "",
       phone: "",
@@ -104,6 +106,13 @@ function QuoteFormContent() {
       modify_code: modifyCode || "",
     },
   });
+
+  const onCategoryChange = useCallback((value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) params.set("category", value);
+    else params.delete("category");
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
 
   async function onSubmit(data: QuoteRequestFormData) {
     setIsSubmitting(true);
@@ -207,6 +216,7 @@ function QuoteFormContent() {
                     render={({ field }) => (
                       <select
                         {...field}
+                        onChange={(e) => { field.onChange(e); onCategoryChange(e.target.value); }}
                         className={`w-full h-14 rounded-2xl border bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all appearance-none cursor-pointer ${
                           errors.category ? "border-red-400/50" : "border-[#e5ad46]/10"
                         }`}
