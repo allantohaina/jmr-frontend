@@ -4870,22 +4870,35 @@ html[data-theme="light"] .theme-toggle--compact .theme-toggle__icon {
 .mobile-menu__overlay { background: rgba(0, 0, 0, 0.6); }
 .mobile-menu__header {
   border-bottom: 1px solid rgba(229, 173, 70, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* tout à droite : on garde que le bouton close */
+  padding: 14px 16px 14px 0 !important;
 }
-.mobile-menu__brand {
-  color: #e5ad46;
-}
+.mobile-menu__brand { display: none !important; } /* SUPPRIME : pas de brand */
 .mobile-menu__closebtn {
   color: #e5ad46;
-  background: transparent;
-  border: 1px solid rgba(229, 173, 70, 0.25);
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
 }
-.mobile-menu__closebtn:hover { background: rgba(229, 173, 70, 0.1); }
+.mobile-menu__closebtn:hover { background: rgba(229, 173, 70, 0.1) !important; }
 .mobile-menu__nav { min-width: 220px; }
 .mobile-menu__link {
   color: #e5ad46;
+  background: transparent !important;   /* PAS de fond cartes */
+  box-shadow: none !important;
+  border: 0 !important;
+  padding: 14px 16px !important;
+  margin: 0 !important;
+  border-radius: 14px !important;
 }
-.mobile-menu__link:hover { background: rgba(229, 173, 70, 0.1); }
-.mobile-menu__link:active { background: rgba(229, 173, 70, 0.2); }
+.mobile-menu__link:hover { background: rgba(229, 173, 70, 0.1) !important; }
+.mobile-menu__link:active { background: rgba(229, 173, 70, 0.2) !important; }
 .mobile-menu__footer {
   min-width: 220px;
   border-top-color: rgba(229, 173, 70, 0.2) !important;
@@ -4914,12 +4927,16 @@ html[data-theme="light"] .theme-toggle--compact .theme-toggle__icon {
   color: #ff6b6b !important;
 }
 
-/* theme-toggle wrapper : resize pour 52x52 + neutralise styles internes */
+/* theme-toggle wrapper : resize pour 52x52 + neutralise styles internes + alignement MOON */
 .theme-toggle-mobile-wrapper {
   width: 52px;
   height: 52px;
   border-radius: 12px;
   transition: background 200ms ease;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
 }
 .theme-toggle-mobile-wrapper .theme-toggle--compact {
   width: 100% !important;
@@ -4929,11 +4946,19 @@ html[data-theme="light"] .theme-toggle--compact .theme-toggle__icon {
   border: 0 !important;
   background: transparent !important;
   border-radius: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 .theme-toggle-mobile-wrapper .theme-toggle--compact .theme-toggle__icon {
   width: 32px !important;
   height: 32px !important;
   font-size: 32px !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  transform: translate(0,0) scale(1) !important;
 }
 
 /* ---------- LIGHT MODE ---------- */
@@ -4946,20 +4971,20 @@ html[data-theme="light"] .mobile-menu__overlay { background: rgba(23, 48, 77, 0.
 html[data-theme="light"] .mobile-menu__header {
   border-bottom: 1px solid rgba(23, 48, 77, 0.1);
 }
-html[data-theme="light"] .mobile-menu__brand {
-  color: #17304d;
-}
 html[data-theme="light"] .mobile-menu__closebtn {
   color: #17304d;
-  background: rgba(23, 48, 77, 0.04);
-  border: 1px solid rgba(23, 48, 77, 0.12);
+  background: transparent !important;
+  border: 0 !important;
 }
-html[data-theme="light"] .mobile-menu__closebtn:hover { background: rgba(23, 48, 77, 0.08); }
+html[data-theme="light"] .mobile-menu__closebtn:hover { background: rgba(23, 48, 77, 0.08) !important; }
 html[data-theme="light"] .mobile-menu__link {
   color: #17304d;
+  background: transparent !important;   /* PAS de fond cartes */
+  box-shadow: none !important;
+  border: 0 !important;
 }
-html[data-theme="light"] .mobile-menu__link:hover { background: rgba(229, 173, 70, 0.12); }
-html[data-theme="light"] .mobile-menu__link:active { background: rgba(229, 173, 70, 0.22); }
+html[data-theme="light"] .mobile-menu__link:hover { background: rgba(229, 173, 70, 0.12) !important; }
+html[data-theme="light"] .mobile-menu__link:active { background: rgba(229, 173, 70, 0.22) !important; }
 html[data-theme="light"] .mobile-menu__footer {
   border-top-color: rgba(23, 48, 77, 0.1) !important;
 }
