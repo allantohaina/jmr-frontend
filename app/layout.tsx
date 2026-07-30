@@ -16,6 +16,14 @@ import { Suspense } from "react";
 export const metadata: Metadata = {
   title: "JMR Textile",
   description: "Suivi de projet, services et accompagnement textile.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    shortcut: ["/favicon.ico"],
+    apple: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+  },
 };
 
 export const viewport = {
