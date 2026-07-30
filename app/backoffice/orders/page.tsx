@@ -2,157 +2,189 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import { authAPI, CommandeRecord, STATUTS_PRODUCTION } from "@/app/lib/api";
 
-export default function AdminOrdersPage() {
+export default function AdminCommandesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [showNewOrder, setShowNewOrder] = useState(false);
-  const [selectedOrderDetails, setSelectedOrderDetails] = useState<number | null>(searchParams.get("id") ? parseInt(searchParams.get("id")!) : null);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [commandes, setCommandes] = useState<CommandeRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(searchParams.get("id"));
 
-  const setSelectedOrder = useCallback((id: number | null) => {
-    setSelectedOrderDetails(id);
+  const fetchCommandes = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await authAPI.get<{ data: CommandeRecord[] }>("/commandes");
+      setCommandes(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur");
+      setCommandes([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchCommandes(); }, [fetchCommandes]);
+
+  const updateStatut = async (id: string, statut: string) => {
+    try {
+      await authAPI.put(`/commandes/${id}`, { statut_production: statut });
+      fetchCommandes();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur");
+    }
+  };
+
+  const selectCommande = (id: string | null) => {
+    setSelectedId(id);
     const params = new URLSearchParams(searchParams.toString());
-    if (id) params.set("id", id.toString());
+    if (id) params.set("id", id);
     else params.delete("id");
     router.replace(`?${params.toString()}`, { scroll: false });
-  }, [router, searchParams]);
+  };
 
-  useEffect(() => {
-    setOrders([]);
-    setIsLoading(false);
-  }, []);
+  const enRetard = (c: CommandeRecord) =>
+    c.statut_production !== "Livrée" &&
+    c.date_livraison_prevue &&
+    c.date_livraison_prevue < new Date().toISOString().slice(0, 10);
+
+  const commandesEnCours = commandes.filter((c) => c.statut_production !== "Livrée");
 
   return (
     <div className="px-6 md:px-12 py-10 space-y-10">
-      {/* ... existing header ... */}
       <div className="flex justify-between items-end px-2">
         <div>
           <h2 className="font-headline text-3xl text-[#163526]">Gestion des Commandes</h2>
-          <p className="text-[#1b1c19]/40 text-xs font-bold uppercase tracking-widest mt-1">Historique et suivi des commandes clients</p>
+          <p className="text-[#1b1c19]/40 text-xs font-bold uppercase tracking-widest mt-1">Suivi production · Atelier JMR</p>
         </div>
-        <button 
-          onClick={() => setShowNewOrder(true)}
-          className="px-6 py-3 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl flex items-center gap-2 shadow-lg hover:bg-[#163526]/90 transition-all active:scale-95"
-        >
-          <span className="material-symbols-outlined text-sm text-orange-400">add_circle</span>
-          Nouvelle Commande
-        </button>
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/40">
+            {commandesEnCours.length} en cours
+          </span>
+        </div>
       </div>
 
-      {showNewOrder && (
-        <div className="bg-orange-50 border border-orange-200 p-6 rounded-2xl flex justify-between items-center animate-in fade-in slide-in-from-top-4">
-          <div className="flex items-center gap-4">
-            <span className="material-symbols-outlined text-orange-500">info</span>
-            <p className="text-xs font-bold text-orange-800 uppercase tracking-widest">Le module de création de commande est en cours de déploiement.</p>
-          </div>
-          <button onClick={() => setShowNewOrder(false)} className="text-orange-800 hover:rotate-90 transition-transform">
-            <span className="material-symbols-outlined">close</span>
-          </button>
+      {error && (
+        <div className="bg-red-50 border border-red-200 p-4 rounded-2xl text-xs text-red-700 font-medium">
+          {error}
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { label: "En attente", count: orders.filter(o => o.status === 'En attente').length, color: "bg-orange-500" },
-          { label: "En production", count: orders.filter(o => o.status === 'Production').length, color: "bg-[#163526]" },
-          { label: "Terminées", count: orders.filter(o => o.status === 'Terminée').length, color: "bg-green-600" },
-        ].map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-2xl border border-[#163526]/5 shadow-sm flex justify-between items-center">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-1">{stat.label}</p>
-              <p className="text-3xl font-headline font-bold text-[#163526]">{isLoading ? "..." : stat.count}</p>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {STATUTS_PRODUCTION.map((s) => {
+          const count = commandes.filter((c) => c.statut_production === s).length;
+          return (
+            <div key={s} className="bg-white rounded-2xl border border-[#163526]/5 p-4 shadow-sm">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40 mb-1">{s}</p>
+              <p className="text-2xl font-headline font-bold text-[#163526]">{count}</p>
             </div>
-            <div className={`w-12 h-12 ${stat.color} rounded-xl flex items-center justify-center text-white`}>
-              <span className="material-symbols-outlined">
-                {stat.label === "En attente" ? "pending_actions" : stat.label === "En production" ? "precision_manufacturing" : "check_circle"}
-              </span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-[#163526]/5">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-[#163526]/5 border-b border-[#163526]/5">
-              <th className="px-8 py-6 font-label font-bold text-[10px] uppercase tracking-[0.2em] text-[#1b1c19]/40">Commande ID</th>
-              <th className="px-8 py-6 font-label font-bold text-[10px] uppercase tracking-[0.2em] text-[#1b1c19]/40">Client</th>
-              <th className="px-8 py-6 font-label font-bold text-[10px] uppercase tracking-[0.2em] text-[#1b1c19]/40">Statut & Motif</th>
-              <th className="px-8 py-6 font-label font-bold text-[10px] uppercase tracking-[0.2em] text-[#1b1c19]/40 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#163526]/5 text-sm text-[#163526]">
-            {isLoading ? (
-              <tr>
-                <td colSpan={4} className="px-8 py-12 text-center text-[#1b1c19]/40 italic">Chargement des commandes...</td>
-              </tr>
-            ) : orders.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="px-8 py-12 text-center text-[#1b1c19]/40 italic">Aucune commande enregistrée.</td>
-              </tr>
-            ) : (
-              orders.map((order) => (
-                <React.Fragment key={order.id}>
-                <tr className={`hover:bg-[#163526]/[0.02] transition-colors group ${selectedOrderDetails === order.id ? 'bg-[#163526]/[0.03]' : ''}`}>
-                  <td className="px-8 py-6 font-bold">#CMD-2024-00{order.id}</td>
-                  <td className="px-8 py-6">
-                    <p className="font-bold">{order.client}</p>
-                    <p className="text-[10px] opacity-40 uppercase font-bold tracking-widest">{order.date}</p>
-                  </td>
-                  <td className="px-8 py-6">
-                    <div className="flex flex-col gap-1">
-                      <span className={`w-fit px-3 py-1 text-[9px] font-bold uppercase rounded-full tracking-widest border ${
-                        order.status === 'Retard' ? 'bg-red-50 text-red-600 border-red-100' :
-                        order.status === 'En attente' ? 'bg-orange-50 text-orange-600 border-orange-100' :
-                        'bg-[#163526]/10 text-[#163526] border-[#163526]/5'
-                      }`}>
-                        {order.status}
-                      </span>
-                      <p className="text-[11px] font-medium opacity-60 italic">{order.motive}</p>
+        <div className="p-6 border-b border-[#163526]/5">
+          <h3 className="font-headline text-lg text-[#163526]">Toutes les commandes</h3>
+        </div>
+
+        {isLoading ? (
+          <div className="p-12 text-center text-sm text-[#1b1c19]/40">Chargement...</div>
+        ) : commandes.length === 0 ? (
+          <div className="p-12 text-center text-sm text-[#1b1c19]/40 italic">Aucune commande pour le moment.</div>
+        ) : (
+          <div className="divide-y divide-[#163526]/5">
+            {commandes.map((c) => (
+              <div key={c.id} className={`transition-colors ${selectedId === c.id ? 'bg-[#faf9f4]' : 'hover:bg-[#faf9f4]/50'}`}>
+                <div className="px-6 py-5 flex items-center justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-1">
+                      <span className="font-mono text-xs text-[#163526]/40">{c.numero}</span>
+                      <span className={`px-2 py-0.5 text-[9px] font-bold uppercase rounded-full border ${
+                        c.statut_production === "Livrée" ? "bg-green-50 text-green-700 border-green-100" :
+                        c.statut_production === "Prête" ? "bg-blue-50 text-blue-700 border-blue-100" :
+                        enRetard(c) ? "bg-red-50 text-red-600 border-red-100" :
+                        "bg-orange-50 text-orange-600 border-orange-100"
+                      }`}>{c.statut_production}</span>
+                      {enRetard(c) && <span className="text-[9px] text-red-500 font-bold">EN RETARD</span>}
                     </div>
-                  </td>
-                  <td className="px-8 py-6 text-right">
-                    <button 
-                      onClick={() => setSelectedOrder(selectedOrderDetails === order.id ? null : order.id)}
-                      className="text-orange-500 hover:text-orange-600 font-bold text-[10px] uppercase tracking-widest transition-all"
-                    >
-                      {selectedOrderDetails === order.id ? 'Fermer' : 'Détails Motif'}
-                    </button>
-                  </td>
-                </tr>
-                {selectedOrderDetails === order.id && (
-                  <tr>
-                    <td colSpan={4} className="px-12 py-8 bg-[#faf9f4]/50 border-y border-[#163526]/5">
-                      <div className="flex gap-12 animate-in fade-in slide-in-from-left-4 duration-300">
-                        <div className="flex-1 space-y-4">
-                          <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-500">Historique des causes</h4>
-                          <div className="space-y-3">
-                            <div className="flex gap-4 items-start">
-                              <div className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-1"></div>
-                              <div>
-                                <p className="text-xs font-bold text-[#163526]">{order.motive}</p>
-                                <p className="text-[9px] text-[#1b1c19]/40 uppercase font-bold mt-1">Mis à jour le {order.date} par Admin</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="w-64 space-y-4">
-                          <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#163526]/40">Action requise</h4>
-                          <button className="w-full py-3 bg-[#163526] text-white text-[9px] font-bold uppercase tracking-widest rounded-lg shadow-md">
-                            Résoudre l'incident
-                          </button>
+                    <p className="text-sm font-bold text-[#163526] truncate">
+                      {c.client_first_name || c.client_email || "Client"} — {c.designation || "Sans désignation"}
+                    </p>
+                    <div className="flex items-center gap-4 mt-1 text-[10px] text-[#163526]/40 font-medium">
+                      <span>Qté: {c.quantite}</span>
+                      <span>Produites: {c.pieces_produites}</span>
+                      {c.date_livraison_prevue && <span>Livr. prévue: {c.date_livraison_prevue}</span>}
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-bold text-[#163526]">{c.total.toLocaleString()} Ar</p>
+                    <div className="flex gap-1 mt-2">
+                      {STATUTS_PRODUCTION.map((s) => {
+                        const actif = s === c.statut_production;
+                        const idxActuel = STATUTS_PRODUCTION.indexOf(c.statut_production);
+                        const idxCible = STATUTS_PRODUCTION.indexOf(s);
+                        const bloque = idxCible > idxActuel + 1;
+                        return (
+                          <button
+                            key={s}
+                            disabled={actif || bloque}
+                            onClick={() => updateStatut(c.id, s)}
+                            title={`Passer à "${s}"`}
+                            className={`w-2 h-2 rounded-full transition-all ${
+                              actif ? "bg-[#e5ad46] scale-125" :
+                              bloque ? "bg-[#163526]/10 cursor-not-allowed" :
+                              "bg-[#163526]/20 hover:bg-[#e5ad46]/60 hover:scale-110"
+                            }`}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => selectCommande(selectedId === c.id ? null : c.id)}
+                    className="text-[9px] font-bold uppercase tracking-widest text-[#e5ad46] hover:underline shrink-0"
+                  >
+                    {selectedId === c.id ? "Fermer" : "Détails"}
+                  </button>
+                </div>
+
+                {selectedId === c.id && (
+                  <div className="px-6 pb-5 pt-0 border-t border-[#163526]/5 bg-[#faf9f4]/50">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 text-sm">
+                      <div>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40 mb-1">Client</p>
+                        <p className="font-medium text-[#163526]">{c.client_first_name || c.client_email || "—"}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40 mb-1">Désignation</p>
+                        <p className="text-[#163526]">{c.designation || "—"}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40 mb-1">Pièces produites</p>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-[#163526]">{c.pieces_produites}</span>
+                          <span className="text-[#163526]/40">/ {c.quantite}</span>
                         </div>
                       </div>
-                    </td>
-                  </tr>
+                      <div>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40 mb-1">Date livraison prévue</p>
+                        <p className="text-[#163526]">{c.date_livraison_prevue || "—"}</p>
+                      </div>
+                      {c.notes && (
+                        <div className="col-span-full">
+                          <p className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40 mb-1">Notes</p>
+                          <p className="text-[#163526]/70 text-xs italic">{c.notes}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 )}
-              </React.Fragment>
-            ))
-            )}</tbody>
-        </table>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

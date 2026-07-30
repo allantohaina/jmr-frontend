@@ -107,7 +107,85 @@ export type QuoteRecord = {
   balance_paid?: boolean;
   files?: Array<{ name: string; url: string; type: string }>;
   notifications?: Array<{ id: string; type: "delay" | "error" | "info"; message: string; date: string }>;
+  created_at?: string;
+  updated_at?: string;
 };
+
+export type CommandeRecord = {
+  id: string;
+  cotation_id?: string | null;
+  client_id: string;
+  numero: string;
+  designation?: string | null;
+  quantite: number;
+  prix_unitaire: number;
+  total: number;
+  statut_production: string;
+  pieces_produites: number;
+  date_commande: string;
+  date_livraison_prevue?: string | null;
+  date_livraison_reelle?: string | null;
+  notes?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  client_email?: string;
+  client_first_name?: string;
+  client_last_name?: string;
+};
+
+export type AchatRecord = {
+  id: string;
+  fournisseur: string;
+  categorie: string;
+  montant: number;
+  date_achat: string;
+  statut: string;
+  description?: string | null;
+  created_at?: string;
+};
+
+export type BonLivraisonRecord = {
+  id: string;
+  commande_id: string;
+  numero: string;
+  date_livraison: string;
+  destinataire: string;
+  articles?: Array<{ designation: string; quantite: number; unite: string }> | null;
+  statut: string;
+  notes?: string | null;
+  created_at?: string;
+  commande_numero?: string;
+  commande_designation?: string;
+};
+
+export const STATUTS_PRODUCTION = [
+  "En attente matière",
+  "Coupe",
+  "Couture",
+  "Finition",
+  "Prête",
+  "Livrée",
+] as const;
+
+export const STATUTS_BON_LIVRAISON = [
+  "Préparé",
+  "Expédié",
+  "Livré",
+  "Annulé",
+] as const;
+
+export const STATUTS_ACHAT = [
+  "Payé",
+  "En attente",
+  "Annulé",
+] as const;
+
+export const CATEGORIES_ACHAT = [
+  "Matière Première",
+  "Fournitures",
+  "Maintenance",
+  "Services",
+] as const;
 
 export type RegisterPayload = {
   email: string;
@@ -122,7 +200,8 @@ export type RegisterPayload = {
 
 type ApiErrorPayload = {
   message?: string;
-  error?: string;
+  error?: string | number;
+  messages?: Record<string, string>;
 };
 
 type ApiJsonBody = Record<string, unknown>;
@@ -133,10 +212,15 @@ function readErrorMessage(payload: unknown) {
     return undefined;
   }
 
-  const { error, message } = payload as ApiErrorPayload;
+  const { error, message, messages } = payload as ApiErrorPayload;
 
   if (typeof message === "string") {
     return message;
+  }
+
+  if (typeof messages === "object" && messages !== null) {
+    const firstMsg = Object.values(messages).find((m) => typeof m === "string");
+    if (firstMsg) return firstMsg;
   }
 
   return typeof error === "string" ? error : undefined;

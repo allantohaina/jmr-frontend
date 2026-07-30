@@ -1,29 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { UserProfile } from "@/app/lib";
-import {
-  type ProfileOrder,
-  type ProfileOrderStatus,
-  TEXTILE_PROBLEM_THREADS,
-  PROFILE_ORDERS,
-  PROFILE_ACTIVITY,
-  PROFILE_DOCUMENTS,
-} from "@/app/lib";
-import { ProblemHierarchyPanel } from "./problem-hierarchy-panel";
+import { authAPI, type QuoteRecord, type CommandeRecord } from "@/app/lib";
+import { getErrorMessage } from "@/app/lib/errors";
 
 type ProfileCard = {
   title: string;
   description: string;
-};
-
-type ProfileMetric = {
-  label: string;
-  value: string;
-  detail: string;
-  icon: string;
 };
 
 type MonProfilSectionProps = {
@@ -46,135 +32,92 @@ const PROFILE_ITEMS: ProfileCard[] = [
   },
 ];
 
-const PROFILE_METRICS: ProfileMetric[] = [
-  {
-    label: "Commandes actives",
-    value: "03",
-    detail: "2 en production et 1 en validation finale.",
-    icon: "conveyor_belt",
-  },
-  {
-    label: "Devis en attente",
-    value: "01",
-    detail: "Une demande de devis recue le 8 mars 2026.",
-    icon: "request_quote",
-  },
-  {
-    label: "Notifications",
-    value: "04",
-    detail: "4 problemes principaux, details et sous-problemes sur demande.",
-    icon: "notifications_active",
-  },
-];
 
-function OrderDetailsModal({ order, onClose }: { order: ProfileOrder; onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#e5ad46]/40 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-[#25303a] rounded-[2rem] w-full max-w-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
-        <div className="p-8 md:p-12 space-y-8">
-          <div className="flex justify-between items-start">
-            <div>
-              <span className="px-3 py-1 bg-[#e5ad46]/5 text-[#e5ad46] text-[10px] font-bold uppercase tracking-widest rounded-full border border-[#e5ad46]/5 mb-3 inline-block">
-                Référence {order.code}
-              </span>
-              <h3 className="font-headline text-3xl text-[#e5ad46]">{order.title}</h3>
-            </div>
-            <button onClick={onClose} aria-label="Fermer" className="p-2 hover:bg-[#e5ad46]/5 rounded-full transition-colors">
-              <span className="material-symbols-outlined text-[#e5ad46]">close</span>
-            </button>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-6">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2">Statut Actuel</p>
-                <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${
-                    order.status === 'production' ? 'bg-orange-500 animate-pulse' : 
-                    order.status === 'attente_devis' ? 'bg-[#e5ad46]/40' : 'bg-[#e5ad46]'
-                  }`}></div>
-                  <span className="text-sm font-bold text-[#e5ad46] uppercase tracking-widest">{getOrderStatusLabel(order.status)}</span>
-                </div>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2">Résumé de la requête</p>
-                <p className="text-sm text-[#eccc90]/70 leading-relaxed italic">&quot;{order.summary}&quot;</p>
-              </div>
-            </div>
-            <div className="bg-[#1e2a38] p-6 rounded-2xl border border-[#e5ad46]/10 space-y-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Prochaine Étape</p>
-              <p className="text-xs font-bold text-[#eccc90] leading-relaxed">{order.nextStep}</p>
-              <div className="pt-4 border-t border-[#e5ad46]/10 flex justify-between items-end">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Montant Total</span>
-                <span className="text-xl font-headline font-bold text-[#e5ad46]">{order.amount}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-8 flex flex-col md:flex-row gap-4">
-            {order.status === 'devis' ? (
-                <Link
-                  href={`/mon-profil/devis/paiement?id=${order.code}`}
-                className="flex-1 py-4 bg-[#e5ad46] text-[#1e2a38] text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg hover:bg-[#eccc90] transition-all"
-              >
-                Accepter & Payer l&apos;Acompte
-              </Link>
-            ) : order.status === 'attente_devis' ? (
-              <button className="flex-1 py-4 bg-[#e5ad46]/10 text-[#e5ad46]/40 text-[10px] font-bold uppercase tracking-widest rounded-xl cursor-not-allowed">
-                En attente du devis
-              </button>
-            ) : (
-              <button className="flex-1 py-4 bg-[#e5ad46] text-[#1e2a38] text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg hover:bg-[#eccc90] transition-all">
-                Contacter l&apos;Atelier
-              </button>
-            )}
-            {order.status !== 'attente_devis' && (
-              <Link 
-                href={`/mon-profil/devis/paiement?id=${order.code}`}
-                className="flex-1 py-4 bg-[#1e2a38] border border-[#e5ad46]/20 text-[#e5ad46] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#e5ad46]/10 transition-all text-center"
-              >
-                Voir le Devis PDF
-              </Link>
-            )}
-          </div>
-
-          {order.status === 'devis' && (
-            <div className="p-4 bg-[#e5ad46]/10 border border-[#e5ad46]/20 rounded-xl flex items-center gap-3">
-              <span className="material-symbols-outlined text-[#e5ad46]">info</span>
-              <p className="text-[10px] font-bold text-[#eccc90] uppercase tracking-widest">
-                Besoin d&apos;une modification ou d&apos;un ajout ? <Link href={`/demande-devis?modify=${order.code}`} className="underline hover:text-[#e5ad46] transition-colors">Cliquez ici pour modifier ou ajouter</Link>
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+function formatDate(d: string) {
+  try { return new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }); }
+  catch { return d; }
 }
 
-function getOrderStatusLabel(status: ProfileOrderStatus) {
-  if (status === "attente_devis") {
-    return "Etude en cours";
+function quoteStatusLabel(s?: string | null) {
+  switch (s) {
+    case "pending": return "En attente";
+    case "draft": return "Brouillon";
+    case "sent": return "Devis envoyé";
+    case "accepted": return "Accepté";
+    case "production": return "En production";
+    case "rejected": return "Refusé";
+    default: return s ?? "Nouveau";
   }
-
-  if (status === "devis") {
-    return "Devis pret";
-  }
-
-  if (status === "production") {
-    return "En production";
-  }
-
-  return "Livraison";
 }
 
 export function MonProfilSection({ variant = "preview", user }: MonProfilSectionProps) {
-  const [selectedOrder, setSelectedOrder] = useState<ProfileOrder | null>(null);
+  const [quotes, setQuotes] = useState<QuoteRecord[]>([]);
+  const [commandes, setCommandes] = useState<CommandeRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [selectedQuote, setSelectedQuote] = useState<QuoteRecord | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      try {
+        const [qRes, cRes] = await Promise.all([
+          authAPI.get<{ data: QuoteRecord[]; total: number }>("/quotes").catch(() => null),
+          authAPI.get<{ data: CommandeRecord[] }>("/commandes").catch(() => null),
+        ]);
+        if (!active) return;
+        if (qRes) setQuotes(qRes.data.data ?? []);
+        if (cRes) setCommandes(cRes.data.data ?? []);
+      } catch (e) {
+        if (active) setError(getErrorMessage(e));
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    }
+    load();
+    return () => { active = false; };
+  }, []);
+
+  const activeCommandes = commandes.filter((c) => c.statut_production !== "Livré");
+  const pendingQuotes = quotes.filter((q) => q.status === "pending" || q.status === "draft");
+  const alertCount = quotes.filter((q) => q.status === "sent" || q.status === "production").length;
+
+  const stats = [
+    {
+      label: "Commandes en cours",
+      value: String(activeCommandes.length).padStart(2, "0"),
+      detail: activeCommandes.length > 0
+        ? `${activeCommandes[0].numero} - ${activeCommandes[0].statut_production}`
+        : "Aucune commande active",
+      icon: "conveyor_belt",
+    },
+    {
+      label: "Devis en attente",
+      value: String(pendingQuotes.length).padStart(2, "0"),
+      detail: pendingQuotes.length > 0
+        ? `Dernier le ${formatDate(pendingQuotes[0].created_at ?? "")}`
+        : "Aucun devis en attente",
+      icon: "request_quote",
+    },
+    {
+      label: "Notifications",
+      value: String(alertCount).padStart(2, "0"),
+      detail: alertCount > 0
+        ? `${alertCount} devis nécessitant votre attention`
+        : "Aucune notification",
+      icon: "notifications_active",
+    },
+  ];
+
+  const recentItems = [
+    ...quotes.map((q) => ({ type: "quote" as const, date: q.created_at ?? "", label: "Nouveau devis", detail: `${q.name} - ${q.message?.slice(0, 80)}` })),
+    ...commandes.map((c) => ({ type: "commande" as const, date: c.date_commande ?? "", label: "Commande passée", detail: `${c.numero} - ${c.designation ?? ""}` })),
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10);
 
   if (variant === "dashboard") {
     return (
       <section className="min-h-screen bg-[#25303a] pb-24">
-        {/* Clean, refined header */}
         <div className="bg-[#25303a] border-b border-[#e5ad46]/5 py-12">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
@@ -194,42 +137,23 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
         </div>
 
         <div className="max-w-7xl mx-auto px-6 mt-12 space-y-12">
-          {/* Hero Card */}
-          <div className="relative bg-[#1e2a38] rounded-[2.5rem] p-10 md:p-16 text-[#e5ad46] overflow-hidden shadow-2xl">
-            <div className="relative z-10 max-w-2xl">
-              <h2 className="text-4xl md:text-5xl font-headline font-bold mb-6 leading-tight">
-                L&apos;excellence textile, <br/>étape par étape.
-              </h2>
-              <p className="text-[#eccc90]/70 text-lg leading-relaxed mb-8 font-light">
-                Consultez vos devis, suivez la fabrication de vos pièces en temps réel et accédez à vos archives techniques. Votre vision prend vie ici.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link href="/suivi-projet" className="px-8 py-4 bg-[#e5ad46] text-[#1e2a38] text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#eccc90] transition-all shadow-lg shadow-[#e5ad46]/20">
-                  Suivre mes commandes
-                </Link>
-                <Link href="/demande-devis" className="px-8 py-4 bg-[#25303a]/40 backdrop-blur-md text-[#e5ad46] text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#25303a]/60 transition-all border border-[#e5ad46]/20">
-                  Nouveau Devis
-                </Link>
-                <button className="px-8 py-4 bg-[#25303a]/40 backdrop-blur-md text-[#e5ad46] text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#25303a]/60 transition-all border border-[#e5ad46]/20">
-                  Contacter un expert
-                </button>
-              </div>
+          {error && (
+            <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 text-red-400 text-sm" role="alert">
+              {error}
             </div>
-            {/* Elegant Background Logo */}
-            <div className="absolute right-[-10%] bottom-[-30%] opacity-[0.03] pointer-events-none select-none">
-              <Image src="/navbar/logo.svg" alt="" width={600} height={600} className="invert" />
-            </div>
-          </div>
+          )}
 
-          {/* Metrics Grid */}
+          {/* Metrics Grid — always visible, even when loading */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {PROFILE_METRICS.map((metric, idx) => (
+            {stats.map((metric, idx) => (
               <div className="bg-[#25303a] p-8 rounded-[2rem] border border-[#e5ad46]/5 shadow-sm hover:shadow-md transition-all group" key={idx}>
                 <div className="flex justify-between items-start mb-6">
                   <div className="w-12 h-12 bg-[#e5ad46]/5 rounded-2xl flex items-center justify-center text-[#e5ad46] group-hover:bg-[#e5ad46] group-hover:text-white transition-colors">
                     <span className="material-symbols-outlined text-2xl">{metric.icon}</span>
                   </div>
-                  <span className="text-4xl font-headline font-bold text-[#e5ad46]">{metric.value}</span>
+                  <span className="text-4xl font-headline font-bold text-[#e5ad46]">
+                    {isLoading ? ".." : metric.value}
+                  </span>
                 </div>
                 <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#e5ad46] mb-2">{metric.label}</h3>
                 <p className="text-[#e5ad46]/50 text-xs leading-relaxed">{metric.detail}</p>
@@ -239,119 +163,128 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
 
           {/* Main Dashboard Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* Left & Center: Orders & Notifications */}
+            {/* Left & Center: Quotes & Alerts */}
             <div className="lg:col-span-2 space-y-10">
-              {/* Orders Section */}
+              {/* Devis Section */}
               <div className="bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 shadow-sm overflow-hidden">
                 <div className="px-10 py-8 border-b border-[#e5ad46]/5 flex justify-between items-center">
-                  <h2 className="font-headline text-2xl text-[#e5ad46] font-bold">Commandes récentes</h2>
-                  <Link href="/suivi-projet" className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] hover:underline">
-                    Voir tout le catalogue
+                  <h2 className="font-headline text-2xl text-[#e5ad46] font-bold">Mes devis</h2>
+                  <Link href="/demande-devis" className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] hover:underline">
+                    Nouveau devis
                   </Link>
                 </div>
                 <div className="divide-y divide-[#e5ad46]/5">
-                  {PROFILE_ORDERS.map((order) => (
-                    <div 
-                      key={order.code}
-                      onClick={() => setSelectedOrder(order)}
-                      className="group p-10 hover:bg-[#25303a] transition-all cursor-pointer flex flex-col md:flex-row justify-between gap-8"
-                    >
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-4">
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] bg-[#e5ad46]/10 px-3 py-1 rounded-full">
-                            {order.code}
-                          </span>
-                          <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${
-                            order.status === 'production' ? 'bg-[#e5ad46] text-white' : 'bg-[#e5ad46]/5 text-[#e5ad46]'
-                          }`}>
-                            {getOrderStatusLabel(order.status)}
-                          </span>
+                  {isLoading ? (
+                    <div className="p-10 text-center text-[#e5ad46]/40 text-sm">Chargement...</div>
+                  ) : quotes.length === 0 ? (
+                    <div className="p-10 text-center">
+                      <p className="text-[#e5ad46]/40 text-sm mb-4">Aucun devis pour le moment</p>
+                      <Link href="/demande-devis" className="inline-block px-6 py-3 bg-[#e5ad46] text-[#1e2a38] text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#eccc90] transition-all">
+                        Faire une demande
+                      </Link>
+                    </div>
+                  ) : (
+                    quotes.slice(0, 5).map((q) => (
+                      <div
+                        key={q.id}
+                        onClick={() => setSelectedQuote(q)}
+                        className="group p-6 md:p-8 hover:bg-[#25303a] transition-all cursor-pointer flex flex-col md:flex-row justify-between gap-4"
+                      >
+                        <div className="space-y-2 min-w-0">
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] bg-[#e5ad46]/10 px-3 py-1 rounded-full">
+                              {q.name ?? "Client"}
+                            </span>
+                            <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${
+                              q.status === "production" || q.status === "accepted"
+                                ? "bg-[#e5ad46] text-white" : "bg-[#e5ad46]/5 text-[#e5ad46]"
+                            }`}>
+                              {quoteStatusLabel(q.status)}
+                            </span>
+                          </div>
+                          <p className="text-sm text-[#e5ad46]/60 leading-relaxed line-clamp-2">{q.message}</p>
                         </div>
-                        <h3 className="text-xl font-bold text-[#e5ad46] group-hover:text-[#e5ad46] transition-colors">{order.title}</h3>
-                        <p className="text-sm text-[#e5ad46]/60 leading-relaxed max-w-md">{order.summary}</p>
-                      </div>
-                      <div className="flex flex-col justify-between items-end gap-6 text-right">
-                        <div className="space-y-1">
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46]/30">Prochaine étape</p>
-                          <p className="text-sm font-bold text-[#e5ad46]">{order.nextStep}</p>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <span className="text-2xl font-headline font-bold text-[#e5ad46]">{order.amount}</span>
-                          <div className="w-10 h-10 bg-[#e5ad46]/5 rounded-full flex items-center justify-center text-[#e5ad46] group-hover:bg-[#e5ad46] group-hover:text-white transition-all">
-                            <span className="material-symbols-outlined text-xl">arrow_forward</span>
+                        <div className="flex items-center gap-4 shrink-0">
+                          <span className="text-lg font-headline font-bold text-[#e5ad46]">{q.amount ? `${Number(q.amount).toLocaleString("fr-FR")} Ar` : "-"}</span>
+                          <div className="w-8 h-8 bg-[#e5ad46]/5 rounded-full flex items-center justify-center text-[#e5ad46] group-hover:bg-[#e5ad46] group-hover:text-white transition-all">
+                            <span className="material-symbols-outlined text-lg">arrow_forward</span>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
 
-              {/* Notifications Section */}
+              {/* Alerts Section */}
               <div className="bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 shadow-sm overflow-hidden">
                 <div className="px-10 py-8 border-b border-[#e5ad46]/5">
                   <h2 className="font-headline text-2xl text-[#e5ad46] font-bold">Dernières alertes</h2>
                 </div>
-                <div className="p-4">
-                  <ProblemHierarchyPanel
-                    className="space-y-4"
-                    mode="client"
-                    problems={TEXTILE_PROBLEM_THREADS}
-                    theme="dark"
-                  />
-                </div>
+                {isLoading ? (
+                  <div className="p-10 text-center text-[#e5ad46]/40 text-sm">Chargement...</div>
+                ) : alertCount === 0 ? (
+                  <div className="p-10 text-center">
+                    <p className="text-[#e5ad46]/40 text-sm">Aucune alerte pour le moment</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-[#e5ad46]/5">
+                    {quotes.filter((q) => q.status === "sent" || q.status === "production").slice(0, 10).map((q) => (
+                      <div key={q.id} className="p-6 md:p-8 flex items-start gap-4">
+                        <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${
+                          q.status === "production" ? "bg-orange-500 animate-pulse" : "bg-[#e5ad46]"
+                        }`} />
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-[#e5ad46]">
+                            {q.status === "production" ? "En production" : "Devis envoyé"}
+                          </p>
+                          <p className="text-xs text-[#e5ad46]/50 mt-1">
+                            {q.name} — {q.message?.slice(0, 100)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Right: Activity & Documents */}
             <div className="space-y-10">
-              {/* Activity Card */}
+              {/* Activité */}
               <div className="bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 shadow-sm p-10">
                 <h2 className="font-headline text-2xl text-[#e5ad46] font-bold mb-8">Activité</h2>
-                <div className="space-y-8 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-[#e5ad46]/10">
-                  {PROFILE_ACTIVITY.map((activity, idx) => (
-                    <div className="relative pl-10" key={idx}>
-                      <div className="absolute left-0 top-1.5 w-[23px] h-[23px] bg-[#25303a] border-2 border-[#e5ad46] rounded-full flex items-center justify-center">
-                        <div className="w-2 h-2 bg-[#e5ad46] rounded-full"></div>
+                {isLoading ? (
+                  <p className="text-[#e5ad46]/40 text-sm">Chargement...</p>
+                ) : recentItems.length === 0 ? (
+                  <p className="text-[#e5ad46]/40 text-sm">Aucune activité récente</p>
+                ) : (
+                  <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-[#e5ad46]/10">
+                    {recentItems.slice(0, 8).map((item, idx) => (
+                      <div className="relative pl-10" key={idx}>
+                        <div className="absolute left-0 top-1.5 w-[23px] h-[23px] bg-[#25303a] border-2 border-[#e5ad46] rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-[#e5ad46] rounded-full"></div>
+                        </div>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-[#e5ad46]/30 mb-1">{formatDate(item.date)}</p>
+                        <h4 className="text-sm font-bold text-[#e5ad46] mb-1">{item.label}</h4>
+                        <p className="text-xs text-[#e5ad46]/60 leading-relaxed line-clamp-2">{item.detail}</p>
                       </div>
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-[#e5ad46]/30 mb-1">{activity.date}</p>
-                      <h4 className="text-sm font-bold text-[#e5ad46] mb-1">{activity.label}</h4>
-                      <p className="text-xs text-[#e5ad46]/60 leading-relaxed">{activity.detail}</p>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Documents Card */}
+              {/* Documents */}
               <div className="bg-[#1e2a38] rounded-[2.5rem] p-10 text-[#e5ad46] shadow-xl border border-[#e5ad46]/10">
                 <h2 className="font-headline text-2xl font-bold mb-8">Documents</h2>
-                <div className="space-y-4">
-                  {PROFILE_DOCUMENTS.map((doc, idx) => (
-                    <div key={idx} className="group p-5 bg-[#25303a]/20 rounded-2xl border border-[#e5ad46]/10 hover:bg-[#25303a]/40 transition-all flex items-center gap-4 cursor-pointer">
-                      <div className="w-12 h-12 bg-[#e5ad46]/10 rounded-xl flex items-center justify-center text-[#e5ad46]">
-                        <span className="material-symbols-outlined text-2xl">description</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-bold truncate">{doc.title}</h4>
-                        <p className="text-[10px] text-[#eccc90]/40 uppercase tracking-widest mt-1">Fichier stocké localement</p>
-                      </div>
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center border border-[#e5ad46]/20 group-hover:bg-[#e5ad46] group-hover:text-[#1e2a38] transition-all">
-                        <span className="material-symbols-outlined text-sm">download</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <button className="w-full mt-8 py-4 bg-[#25303a]/20 text-[#e5ad46] text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl border border-[#e5ad46]/10 hover:bg-[#25303a]/40 transition-all">
+                <p className="text-[#e5ad46]/40 text-sm">Aucun document pour le moment</p>
+                <button className="w-full mt-8 py-4 bg-[#25303a]/20 text-[#e5ad46] text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl border border-[#e5ad46]/10 hover:bg-[#25303a]/40 transition-all opacity-50 cursor-not-allowed">
                   Accéder aux archives
                 </button>
               </div>
             </div>
           </div>
         </div>
-
-        {selectedOrder && (
-          <OrderDetailsModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
-        )}
       </section>
     );
   }

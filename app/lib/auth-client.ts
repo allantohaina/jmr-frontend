@@ -93,18 +93,23 @@ export async function authenticateWithForm(formData: FormData) {
     const country = readTextField(formData, "country");
     const address = readTextField(formData, "address");
     
-    const response = await authAPI.register({
-      email,
-      password,
-      first_name: firstName,
-      last_name: lastName,
-      birth_date: birthDate || undefined,
-      phone: phone || undefined,
-      country: country || undefined,
-      address: address || undefined,
-    });
+    try {
+      const response = await authAPI.register({
+        email,
+        password,
+        first_name: firstName,
+        last_name: lastName,
+        birth_date: birthDate || undefined,
+        phone: phone || undefined,
+        country: country || undefined,
+        address: address || undefined,
+      });
 
-    payload = response.data;
+      payload = response.data;
+    } catch (error) {
+      console.error("Registration failed:", error);
+      throw error;
+    }
   } else {
     const response = await authAPI.login(email, password);
     payload = response.data;

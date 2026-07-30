@@ -4,11 +4,11 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 import { useLocale } from "@/app/components/locale-provider";
 import { ThemeToggle } from "@/app/components/theme-toggle";
-import { MobileSidebar } from "@/app/components/mobile-sidebar";
+import MobileMenu from "@/app/components/MobileMenu";
 import { getUser, writeBrowserCookie, getToken } from "@/app/lib/auth";
 import { signOutClient } from "@/app/lib/auth-client";
 import { authAPI, type UserProfile } from "@/app/lib/api";
@@ -57,14 +57,9 @@ export function Navbar({
   const [isBrandLogoError, setIsBrandLogoError] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [sessionUser, setSessionUser] = useState<UserProfile | null>(null);
-  const [menuDrawerOffset, setMenuDrawerOffset] = useState(0);
-  const [isMenuDragging, setIsMenuDragging] = useState(false);
-  const menuTouchStartX = useRef<number | null>(null);
-  const menuTouchStartY = useRef<number | null>(null);
-  const menuTouchStartTime = useRef<number | null>(null);
+  const [currentTheme, setCurrentTheme] = useState<ThemeName>(initialTheme);
   const effectiveUserFirstName = sessionUser?.first_name ?? userFirstName;
   const effectiveUserRole = sessionUser?.role ?? userRole;
   const effectiveIsSignedIn = isSignedIn || !!sessionUser;
@@ -74,7 +69,7 @@ export function Navbar({
       route: "/",
       sectionId: "accueil",
       label: messages.navbar.home,
-      icon: "/navbar/navbar-project.svg",
+      icon: "/navbar/navbar-home.svg",
       homeAnchor: true,
     },
     {
@@ -142,35 +137,62 @@ export function Navbar({
     }
   }, []);
 
+  function isMobileViewport(): boolean {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width: 900px)").matches;
+  }
+
+  function handleToggleBurger() {
+    if (!isMobileViewport()) {
+      setIsMenuOpen(false);
+      return;
+    }
+    setIsMenuOpen((open) => !open);
+  }
+
+  // Ferme le menu si la fenêtre passe en desktop (>900px)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(min-width: 901px)");
+    const handler = (e: MediaQueryListEvent | MediaQueryList) => {
+      if (e.matches) setIsMenuOpen(false);
+    };
+    mq.addEventListener("change", handler);
+    handler(mq);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  // Ferme le menu mobile avec la touche Escape
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!isMenuOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isMenuOpen]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isProfileOpen && !(event.target as Element).closest(".site-nav__item--profile")) {
         setIsProfileOpen(false);
       }
-      if (isLanguageOpen && !(event.target as Element).closest(".site-nav__item--language")) {
-        setIsLanguageOpen(false);
-      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isLanguageOpen, isProfileOpen]);
+  }, [isProfileOpen]);
 
   useEffect(() => {
     if (!isMenuOpen) {
-      setMenuDrawerOffset(0);
-      setIsMenuDragging(false);
-    }
-  }, [isMenuOpen]);
-
-  useEffect(() => {
-    if (!isMenuOpen && !isLanguageOpen) {
       return;
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setIsMenuOpen(false);
-        setIsLanguageOpen(false);
       }
     };
 
@@ -178,7 +200,7 @@ export function Navbar({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isLanguageOpen, isMenuOpen]);
+  }, [isMenuOpen]);
 
   useEffect(() => {
     document.body.classList.toggle("nav-menu-open", isMenuOpen);
@@ -188,25 +210,16 @@ export function Navbar({
     };
   }, [isMenuOpen]);
 
-  // Add global touch event listeners for swipe-to-open
   useEffect(() => {
-    const handleGlobalTouchStart = (e: TouchEvent) => handleMenuTouchStart(e);
-    const handleGlobalTouchMove = (e: TouchEvent) => handleMenuTouchMove(e);
-    const handleGlobalTouchEnd = () => handleMenuTouchEnd();
-    const handleGlobalTouchCancel = () => handleMenuTouchEnd();
-
-    document.addEventListener("touchstart", handleGlobalTouchStart, { passive: true });
-    document.addEventListener("touchmove", handleGlobalTouchMove, { passive: true });
-    document.addEventListener("touchend", handleGlobalTouchEnd, { passive: true });
-    document.addEventListener("touchcancel", handleGlobalTouchCancel, { passive: true });
-
-    return () => {
-      document.removeEventListener("touchstart", handleGlobalTouchStart);
-      document.removeEventListener("touchmove", handleGlobalTouchMove);
-      document.removeEventListener("touchend", handleGlobalTouchEnd);
-      document.removeEventListener("touchcancel", handleGlobalTouchCancel);
-    };
-  }, [isMenuOpen, menuDrawerOffset]);
+    if (typeof window === "undefined") return;
+    function handleSwipeOpen() {
+      if (isMobileViewport()) {
+        setIsMenuOpen(true);
+      }
+    }
+    window.addEventListener("mobile-menu-swipe-open", handleSwipeOpen);
+    return () => window.removeEventListener("mobile-menu-swipe-open", handleSwipeOpen);
+  }, []);
 
   useEffect(() => {
     if (pathname !== "/") {
@@ -274,87 +287,26 @@ export function Navbar({
       path: "/",
       sameSite: "Lax",
     });
-    setIsLanguageOpen(false);
   }
 
-  function isMobileViewport() {
-    return typeof window !== "undefined" && window.matchMedia("(max-width: 900px)").matches;
+  function handleToggleLocale() {
+    const next: Locale = locale === "fr" ? "en" : "fr";
+    handleLocaleChange(next);
   }
 
-  function handleMenuTouchStart(event: React.TouchEvent | TouchEvent) {
-    if (!isMobileViewport()) {
-      return;
+  function handleToggleTheme() {
+    const next: ThemeName = currentTheme === "dark" ? "light" : "dark";
+    setCurrentTheme(next);
+    document.documentElement.dataset.theme = next;
+    document.documentElement.style.colorScheme = next;
+    writeBrowserCookie("theme", next, {
+      maxAge: 60 * 60 * 24 * 365,
+      path: "/",
+      sameSite: "Lax",
+    });
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("theme", next);
     }
-
-    const touch = (event as any).touches?.[0] || (event as any).changedTouches?.[0];
-    if (!touch) return;
-
-    const clientX = touch.clientX;
-    const clientY = touch.clientY;
-
-    // Only handle swipes on the left edge when menu is closed, or anywhere on menu when open
-    if (!isMenuOpen && clientX > 30) {
-      return;
-    }
-
-    menuTouchStartX.current = clientX;
-    menuTouchStartY.current = clientY;
-    menuTouchStartTime.current = Date.now();
-    setIsMenuDragging(true);
-  }
-
-  function handleMenuTouchMove(event: React.TouchEvent | TouchEvent) {
-    if (!isMobileViewport() || menuTouchStartX.current === null || menuTouchStartY.current === null) {
-      return;
-    }
-
-    const touch = (event as any).touches?.[0] || (event as any).changedTouches?.[0];
-    if (!touch) return;
-
-    const currentX = touch.clientX;
-    const currentY = touch.clientY;
-    const deltaX = currentX - menuTouchStartX.current;
-    const deltaY = currentY - menuTouchStartY.current;
-
-    // Ignore if vertical swipe is more than horizontal
-    if (Math.abs(deltaY) > Math.abs(deltaX) * 0.5) {
-      return;
-    }
-
-    if (isMenuOpen) {
-      // Swiping to close
-      setMenuDrawerOffset(Math.min(Math.max(deltaX, 0), 320));
-    } else {
-      // Swiping to open
-      setMenuDrawerOffset(Math.min(Math.max(deltaX, 0), 320));
-    }
-  }
-
-  function handleMenuTouchEnd() {
-    if (!isMobileViewport() || menuTouchStartX.current === null || menuTouchStartTime.current === null) {
-      return;
-    }
-
-    const deltaTime = Date.now() - menuTouchStartTime.current;
-    const offset = menuDrawerOffset;
-
-    if (isMenuOpen) {
-      // Close if swiped far enough or fast enough
-      if (offset > 96 || (offset > 30 && deltaTime < 300)) {
-        setIsMenuOpen(false);
-      }
-    } else {
-      // Open if swiped far enough or fast enough
-      if (offset > 60 || (offset > 30 && deltaTime < 300)) {
-        setIsMenuOpen(true);
-      }
-    }
-
-    menuTouchStartX.current = null;
-    menuTouchStartTime.current = null;
-    menuTouchStartY.current = null;
-    setMenuDrawerOffset(0);
-    setIsMenuDragging(false);
   }
 
   if (pathname?.startsWith("/backoffice") || pathname?.startsWith("/admin-backoffice")) {
@@ -362,81 +314,108 @@ export function Navbar({
   }
 
   return (
-    <nav className="site-nav" aria-label={messages.navbar.ariaLabel}>
-      <Link
-        className="site-nav__brand"
-        href="/#accueil"
-        aria-label={messages.navbar.home + " JMR Textile"}
-        onClick={() => setIsMenuOpen(false)}
-      >
-        {isBrandLogoError ? (
-          <span className="site-nav__brand-fallback">JMR Textile</span>
-        ) : (
-          <Image
-            className="site-nav__brand-logo"
-            src="/navbar/logo-dark.svg"
-            alt="JMR Textile"
-            width={413}
-            height={92}
-            priority
-            unoptimized
-            onError={() => setIsBrandLogoError(true)}
-          />
-        )}
-      </Link>
+    <>
+      <nav className="site-nav" aria-label={messages.navbar.ariaLabel}>
+        <Link
+          className="site-nav__brand"
+          href="/#accueil"
+          aria-label={messages.navbar.home + " JMR Textile"}
+          onClick={() => setIsMenuOpen(false)}
+        >
+          {isBrandLogoError ? (
+            <span className="site-nav__brand-fallback">JMR Textile</span>
+          ) : (
+            <Image
+              className="site-nav__brand-logo"
+              src="/navbar/logo-dark.svg"
+              alt="JMR Textile"
+              width={413}
+              height={92}
+              priority
+              unoptimized
+              onError={() => setIsBrandLogoError(true)}
+            />
+          )}
+        </Link>
 
-      <div className="flex items-center gap-2 md:hidden">
-        <MobileSidebar isStaff={isStaff} userFirstName={effectiveUserFirstName} />
-      </div>
+        <ul className="site-nav__menu" id="site-nav-menu">
+          {visibleNavItems.map((item) => {
+            const resolvedFirstName =
+              typeof effectiveUserFirstName === "string" ? effectiveUserFirstName.trim() : "";
+            const label =
+              item.sectionId === "acces-client" && effectiveIsSignedIn
+                ? resolvedFirstName || messages.navbar.profile
+                : item.label;
+            const ariaCurrent = getNavItemAriaCurrent(pathname, activeHomeSection, item);
+            const isCurrent = ariaCurrent !== undefined;
 
-      <button
-        type="button"
-        className={`site-nav__drawer-backdrop${isMenuOpen || isMenuDragging ? " is-open" : ""}${isMenuDragging ? " is-dragging" : ""}`}
-        aria-hidden={!isMenuOpen && !isMenuDragging}
-        tabIndex={isMenuOpen ? 0 : -1}
-        onClick={() => setIsMenuOpen(false)}
-        style={{
-          opacity: isMenuDragging
-            ? isMenuOpen
-              ? `calc(1 - ${Math.min(menuDrawerOffset, 320)} / 320)`
-              : `calc(${Math.min(menuDrawerOffset, 320)} / 320)`
-            : undefined,
-        }}
-      />
+            if (item.sectionId === "acces-client" && effectiveIsSignedIn) {
+              return (
+                <li className="site-nav__item site-nav__item--profile relative group" key={item.sectionId}>
+                  <button
+                    className={`site-nav__link${isCurrent ? " is-current" : ""} ${isProfileOpen ? "opacity-100" : "opacity-80"} hover:opacity-100 transition-opacity`}
+                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                    aria-expanded={isProfileOpen}
+                    aria-haspopup="true"
+                  >
+                    <Image
+                      className="site-nav__icon"
+                      src={item.icon}
+                      alt=""
+                      aria-hidden="true"
+                      width={42}
+                      height={42}
+                    />
+                    <div className="flex items-center gap-1">
+                      <span>{label}</span>
+                      <span className={`material-symbols-outlined text-[14px] transition-transform duration-200 ${isProfileOpen ? "rotate-180" : ""}`}>expand_more</span>
+                    </div>
+                  </button>
 
-      <ul
-        className={`site-nav__menu${isMenuOpen ? " is-open" : ""}${isMenuDragging ? " is-dragging" : ""}`}
-        id="site-nav-menu"
-        style={{
-          transform: isMenuDragging
-            ? isMenuOpen
-              ? `translate3d(${menuDrawerOffset}px, 0, 0)`
-              : `translate3d(calc(-100% + ${menuDrawerOffset}px), 0, 0)`
-            : undefined,
-        }}
-        onTouchStart={handleMenuTouchStart}
-        onTouchMove={handleMenuTouchMove}
-        onTouchEnd={handleMenuTouchEnd}
-        onTouchCancel={handleMenuTouchEnd}
-      >
-        {visibleNavItems.map((item) => {
-          const resolvedFirstName =
-            typeof effectiveUserFirstName === "string" ? effectiveUserFirstName.trim() : "";
-          const label =
-            item.sectionId === "acces-client" && effectiveIsSignedIn
-              ? resolvedFirstName || messages.navbar.profile
-              : item.label;
-          const ariaCurrent = getNavItemAriaCurrent(pathname, activeHomeSection, item);
-          const isCurrent = ariaCurrent !== undefined;
+                  {isProfileOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-[#25303a] border border-[#e5ad46]/20 rounded-xl shadow-xl py-2 z-[110] animate-in fade-in zoom-in-95 duration-200">
+                      <Link
+                        href="/mon-profil"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#e5ad46] transition-colors"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        <span className="material-symbols-outlined text-xl">person</span>
+                          {messages.navbar.dashboard}
+                      </Link>
+                      {effectiveUserRole === "admin" && (
+                        <Link
+                          href="/backoffice"
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#e5ad46] transition-colors"
+                          onClick={() => setIsProfileOpen(false)}
+                        >
+                          <span className="material-symbols-outlined text-xl">admin_panel_settings</span>
+                          {messages.navbar.administration}
+                        </Link>
+                      )}
+                      <div className="h-px bg-[#e5ad46]/20 mx-2 my-1"></div>
+                      <button
+                        type="button"
+                        onClick={handleSignOut}
+                        disabled={isSigningOut}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#2a1a1a] text-sm font-medium text-[#ff6b6b] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <span className="material-symbols-outlined text-xl">logout</span>
+                        {isSigningOut ? messages.navbar.signingOut : messages.navbar.signOut}
+                      </button>
+                    </div>
+                  )}
+                </li>
+              );
+            }
 
-          if (item.sectionId === "acces-client" && effectiveIsSignedIn) {
             return (
-              <li className="site-nav__item site-nav__item--profile relative group" key={item.sectionId}>
-                <button
-                  className={`site-nav__link${isCurrent ? " is-current" : ""} ${isProfileOpen ? "opacity-100" : "opacity-80"} hover:opacity-100 transition-opacity`}
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  aria-expanded={isProfileOpen}
-                  aria-haspopup="true"
+              <li className="site-nav__item" key={item.sectionId}>
+                <Link
+                  className={`site-nav__link${isCurrent ? " is-current" : ""}`}
+                  href={getNavItemHref(pathname, item)}
+                  aria-current={ariaCurrent}
+                  onClick={() => setIsMenuOpen(false)}
+                  prefetch={true}
                 >
                   <Image
                     className="site-nav__icon"
@@ -445,118 +424,80 @@ export function Navbar({
                     aria-hidden="true"
                     width={42}
                     height={42}
+                    loading="lazy"
                   />
-                  <div className="flex items-center gap-1">
-                    <span>{label}</span>
-                    <span className={`material-symbols-outlined text-[14px] transition-transform duration-200 ${isProfileOpen ? "rotate-180" : ""}`}>expand_more</span>
-                  </div>
-                </button>
-
-                {isProfileOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-[#25303a] border border-[#e5ad46]/20 rounded-xl shadow-xl py-2 z-[110] animate-in fade-in zoom-in-95 duration-200">
-                    <Link
-                      href="/mon-profil"
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#e5ad46] transition-colors"
-                      onClick={() => setIsProfileOpen(false)}
-                    >
-                      <span className="material-symbols-outlined text-xl">person</span>
-                        {messages.navbar.dashboard}
-                    </Link>
-                    {effectiveUserRole === "admin" && (
-                      <Link
-                        href="/backoffice"
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#e5ad46] transition-colors"
-                        onClick={() => setIsProfileOpen(false)}
-                      >
-                        <span className="material-symbols-outlined text-xl">admin_panel_settings</span>
-                        {messages.navbar.administration}
-                      </Link>
-                    )}
-                    <div className="h-px bg-[#e5ad46]/20 mx-2 my-1"></div>
-                    <button
-                      type="button"
-                      onClick={handleSignOut}
-                      disabled={isSigningOut}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#2a1a1a] text-sm font-medium text-[#ff6b6b] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      <span className="material-symbols-outlined text-xl">logout</span>
-                      {isSigningOut ? messages.navbar.signingOut : messages.navbar.signOut}
-                    </button>
-                  </div>
-                )}
+                  <span>{label}</span>
+                </Link>
               </li>
             );
+          })}
+
+          <li className="site-nav__item site-nav__item--theme">
+            <ThemeToggle initialTheme={initialTheme} />
+          </li>
+
+          <li className="site-nav__item site-nav__item--language">
+            <button
+              type="button"
+              className="site-nav__language-trigger"
+              title={messages.navbar.languageTitle}
+              onClick={handleToggleLocale}
+            >
+              <Image
+                className="site-nav__icon site-nav__icon--language"
+                src="/navbar/navbar-language.svg"
+                alt=""
+                aria-hidden="true"
+                width={42}
+                height={42}
+                loading="lazy"
+              />
+              <span className="site-nav__language-name">
+                {locale === "fr" ? messages.common.french : messages.common.english}
+              </span>
+            </button>
+          </li>
+        </ul>
+
+        <button
+          type="button"
+          className="max-[900px]:flex max-[900px]:items-center max-[900px]:justify-center hidden h-10 w-10 rounded-xl transition-colors hover:bg-[#e5ad46]/10"
+          onClick={handleToggleBurger}
+          aria-label="Menu"
+          aria-expanded={isMenuOpen}
+          aria-controls="site-mobile-menu"
+        >
+          <span className="material-symbols-outlined text-[#e5ad46] text-2xl">
+            {isMenuOpen ? "close" : "menu"}
+          </span>
+        </button>
+      </nav>
+
+      <MobileMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        initialTheme={initialTheme}
+        locale={locale}
+        messages={messages}
+        isSignedIn={effectiveIsSignedIn}
+        isSigningOut={isSigningOut}
+        onToggleTheme={(next) => {
+          setCurrentTheme(next);
+          document.documentElement.dataset.theme = next;
+          document.documentElement.style.colorScheme = next;
+          writeBrowserCookie("theme", next, {
+            maxAge: 60 * 60 * 24 * 365,
+            path: "/",
+            sameSite: "Lax",
+          });
+          if (typeof window !== "undefined") {
+            window.localStorage.setItem("theme", next);
           }
-
-          return (
-            <li className="site-nav__item" key={item.sectionId}>
-              <Link
-                className={`site-nav__link${isCurrent ? " is-current" : ""}`}
-                href={getNavItemHref(pathname, item)}
-                aria-current={ariaCurrent}
-                onClick={() => setIsMenuOpen(false)}
-                prefetch={true} // Smart preloading
-              >
-                <Image
-                  className="site-nav__icon"
-                  src={item.icon}
-                  alt=""
-                  aria-hidden="true"
-                  width={42}
-                  height={42}
-                  loading="lazy" // Lazy load images!
-                />
-                <span>{label}</span>
-              </Link>
-            </li>
-          );
-        })}
-
-        <li className="site-nav__item site-nav__item--theme">
-          <ThemeToggle initialTheme={initialTheme} />
-        </li>
-
-        <li className="site-nav__item site-nav__item--language">
-          <button
-            type="button"
-            className="site-nav__language-trigger"
-            title={messages.navbar.languageTitle}
-            aria-expanded={isLanguageOpen}
-            onClick={() => setIsLanguageOpen((open) => !open)}
-          >
-            <Image
-              className="site-nav__icon site-nav__icon--language"
-              src="/navbar/navbar-language.svg"
-              alt=""
-              aria-hidden="true"
-              width={42}
-              height={42}
-              loading="lazy"
-            />
-            <span className="site-nav__language-name">
-              {locale === "fr" ? messages.common.french : messages.common.english}
-            </span>
-          </button>
-          {isLanguageOpen ? (
-            <div className="site-nav__language-menu is-open">
-              <button
-                type="button"
-                className={`site-nav__language-option-button${locale === "fr" ? " is-current" : ""}`}
-                onClick={() => handleLocaleChange("fr")}
-              >
-                {messages.common.french}
-              </button>
-              <button
-                type="button"
-                className={`site-nav__language-option-button${locale === "en" ? " is-current" : ""}`}
-                onClick={() => handleLocaleChange("en")}
-              >
-                {messages.common.english}
-              </button>
-            </div>
-          ) : null}
-        </li>
-      </ul>
-    </nav>
+        }}
+        onLocaleChange={handleLocaleChange}
+        onSignOut={handleSignOut}
+        brandFallbackText="JMR TEXTILE"
+      />
+    </>
   );
 }

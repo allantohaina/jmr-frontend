@@ -40,7 +40,15 @@ function persistTheme(theme: ThemeName) {
   });
 }
 
-export function ThemeToggle({ initialTheme }: { initialTheme: ThemeName }) {
+export function ThemeToggle({
+  initialTheme,
+  compact = false,
+  onChangeExplicit,
+}: {
+  initialTheme: ThemeName;
+  compact?: boolean;
+  onChangeExplicit?: (next: ThemeName) => void;
+}) {
   const { messages } = useLocale();
   const [theme, setTheme] = useState<ThemeName>(initialTheme);
   const [mounted, setMounted] = useState(false);
@@ -62,22 +70,24 @@ export function ThemeToggle({ initialTheme }: { initialTheme: ThemeName }) {
     setTheme(nextTheme);
     applyTheme(nextTheme);
     persistTheme(nextTheme);
+    onChangeExplicit?.(nextTheme);
   }
 
   const isLight = theme === "light";
+  const className = compact ? "theme-toggle theme-toggle--compact" : "theme-toggle";
 
   if (!mounted) {
     return (
       <button
         type="button"
-        className="theme-toggle"
+        className={className}
         aria-label={messages.theme.switchToLight}
         aria-pressed={false}
         title={messages.theme.lightMode}
         suppressHydrationWarning
       >
         <Sun className="theme-toggle__icon" aria-hidden="true" />
-        <span className="theme-toggle__label">{messages.theme.lightShort}</span>
+        {!compact ? <span className="theme-toggle__label">{messages.theme.lightShort}</span> : null}
       </button>
     );
   }
@@ -85,7 +95,7 @@ export function ThemeToggle({ initialTheme }: { initialTheme: ThemeName }) {
   return (
     <button
       type="button"
-      className="theme-toggle"
+      className={className}
       aria-label={isLight ? messages.theme.switchToDark : messages.theme.switchToLight}
       aria-pressed={isLight}
       onClick={handleToggle}
@@ -96,9 +106,11 @@ export function ThemeToggle({ initialTheme }: { initialTheme: ThemeName }) {
       ) : (
         <Sun className="theme-toggle__icon" aria-hidden="true" />
       )}
-      <span className="theme-toggle__label">
-        {isLight ? messages.theme.darkShort : messages.theme.lightShort}
-      </span>
+      {!compact ? (
+        <span className="theme-toggle__label">
+          {isLight ? messages.theme.darkShort : messages.theme.lightShort}
+        </span>
+      ) : null}
     </button>
   );
 }

@@ -37,39 +37,9 @@ const quoteRequestSchema = z.object({
 
 type QuoteRequestFormData = z.infer<typeof quoteRequestSchema>;
 
-function buildQuoteRequestPayload(data: QuoteRequestFormData, files: File[]) {
-  const apiFormData = new FormData();
-  const textFields = [
-    "name",
-    "email",
-    "phone",
-    "message",
-    "request_type",
-    "tissu",
-    "coupe",
-    "gabarit",
-    "style",
-    "grammage",
-    "tailles",
-    "quantite",
-    "finitions",
-    "delai_souhaite",
-    "modify_code",
-    "category",
-  ] as const;
-
-  for (const key of textFields) {
-    const value = data[key as keyof QuoteRequestFormData];
-    apiFormData.append(key, value ? String(value) : "");
-  }
-
-  files.forEach((file, index) => {
-    if (file.size > 0) {
-      apiFormData.append(`technical_files[${index}]`, file);
-    }
-  });
-
-  return apiFormData;
+function buildQuoteRequestPayload(data: QuoteRequestFormData) {
+  const { technical_files, ...jsonData } = data;
+  return jsonData;
 }
 
 function QuoteFormContent() {
@@ -80,7 +50,6 @@ function QuoteFormContent() {
   const requestTypeDefault = modifyCode ? "edit" : "new";
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const {
     control,
@@ -120,8 +89,8 @@ function QuoteFormContent() {
     setSubmitError("");
 
     try {
-      const payload = buildQuoteRequestPayload(data, selectedFiles);
-      await authAPI.post("/quotes", payload);
+      const payload = buildQuoteRequestPayload(data);
+      await authAPI.post("/quotes", payload as Record<string, unknown>);
       window.location.assign("/suivi-projet?view=tracking&step=2");
     } catch (error) {
       setSubmitError(getErrorMessage(error));
@@ -501,21 +470,7 @@ function QuoteFormContent() {
                 )}
               </div>
 
-              <div className="md:col-span-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Fichiers techniques (Patrons, Fiches techniques, Photos)</span>
-                <div className="relative group">
-                  <input
-                    type="file"
-                    multiple
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files || []);
-                      setSelectedFiles(files);
-                    }}
-                    className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 py-3 text-[#eccc90] file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-[#e5ad46]/10 file:text-[#e5ad46] hover:file:bg-[#e5ad46]/20 cursor-pointer transition-all"
-                  />
-                  <p className="text-[10px] text-[#eccc90]/40 mt-2 uppercase tracking-widest">Formats acceptes : PDF, PNG, JPG (Max 10Mo)</p>
-                </div>
-              </div>
+              
             </div>
 
             <button

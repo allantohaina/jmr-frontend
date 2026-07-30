@@ -22,6 +22,7 @@ import {
   ChevronDown,
   Shield,
   Ban,
+  Truck,
 } from "lucide-react";
 
 const clientItems = [
@@ -31,20 +32,26 @@ const clientItems = [
   { href: "/backoffice/client/complaints", label: "Plaintes", icon: MessageSquare },
 ];
 
+const productionItems = [
+  { href: "/backoffice/orders", label: "Commandes", icon: Package },
+  { href: "/backoffice/delivery-notes", label: "Bons de livraison", icon: Truck },
+];
+
 const employeeItems = [
   { href: "/backoffice/employee/tickets", label: "Tickets réparation", icon: Wrench },
   { href: "/backoffice/employee/tasks", label: "Suivi étapes", icon: ClipboardList },
 ];
 
-const adminItems = [
-  { href: "/backoffice/admin/bans", label: "Bannissements", icon: Shield },
-  { href: "/backoffice/admin/blacklist", label: "Blacklist", icon: Ban },
-];
-
 const financeItems = [
+  { href: "/backoffice/purchases", label: "Achats", icon: ShoppingCart },
   { href: "/backoffice/finance/expenses", label: "Dépenses", icon: TrendingDown },
   { href: "/backoffice/finance/invoices", label: "Factures", icon: Receipt },
   { href: "/backoffice/finance/payroll", label: "Paie", icon: DollarSign },
+];
+
+const adminItems = [
+  { href: "/backoffice/admin/bans", label: "Bannissements", icon: Shield },
+  { href: "/backoffice/admin/blacklist", label: "Blacklist", icon: Ban },
 ];
 
 function NavGroup({ title, items }: { title: string; items: { href: string; label: string; icon: React.ElementType }[] }) {
@@ -115,6 +122,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           </Link>
 
           <NavGroup title="Clients" items={clientItems} />
+          <NavGroup title="Production" items={productionItems} />
           <NavGroup title="Employés" items={employeeItems} />
           <NavGroup title="Finance" items={financeItems} />
           <NavGroup title="Administration" items={adminItems} />
@@ -156,6 +164,24 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-2">
               <ClipboardList className="h-4 w-4 text-[#e5ad46]" />
               <span className="text-[8px] font-bold uppercase tracking-widest">Tâches</span>
+            </div>
+          </Link>
+          <Link href="/backoffice/orders" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
+            <div className="flex items-center gap-2">
+              <Package className="h-4 w-4 text-[#e5ad46]" />
+              <span className="text-[8px] font-bold uppercase tracking-widest">Prod.</span>
+            </div>
+          </Link>
+          <Link href="/backoffice/delivery-notes" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
+            <div className="flex items-center gap-2">
+              <Truck className="h-4 w-4 text-[#e5ad46]" />
+              <span className="text-[8px] font-bold uppercase tracking-widest">BL</span>
+            </div>
+          </Link>
+          <Link href="/backoffice/purchases" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
+            <div className="flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4 text-[#e5ad46]" />
+              <span className="text-[8px] font-bold uppercase tracking-widest">Achats</span>
             </div>
           </Link>
           <Link href="/backoffice/finance/invoices" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
