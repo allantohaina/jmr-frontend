@@ -35,9 +35,9 @@ export default function AdminDashboardPage() {
   }, []);
 
   return (
-    <div className="px-12 py-10 space-y-12">
+    <div className="px-4 md:px-12 py-6 md:py-10 space-y-8 md:space-y-12">
       {/* Financial Overview with Chart */}
-      <section className="bg-white p-10 rounded-[2.5rem] border border-[#163526]/5 shadow-sm space-y-8">
+      <section className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-[#163526]/5 shadow-sm space-y-6 md:space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
             <h2 className="font-headline text-3xl text-[#163526] mb-2">Bilan Financier Mensuel</h2>
@@ -55,7 +55,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="h-[400px] w-full">
+        <div className="h-[250px] sm:h-[300px] md:h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data}>
               <defs>
@@ -200,13 +200,13 @@ export default function AdminDashboardPage() {
       </section>
 
       {/* Orders Table Section */}
-      <section className="space-y-6">
-        <div className="flex justify-between items-end px-2">
+      <section className="space-y-4 md:space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 px-2">
           <div>
             <h2 className="font-headline text-3xl text-[#163526]">Commandes Actives</h2>
             <p className="text-[#1b1c19]/40 text-xs font-bold uppercase tracking-widest mt-1">Flux de production en temps réel</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3 flex-wrap">
             <button 
               onClick={() => setFilterActive(!filterActive)}
               className={`px-6 py-3 font-bold text-[10px] uppercase tracking-widest rounded-xl flex items-center gap-2 border transition-all shadow-sm ${
@@ -223,7 +223,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-[#163526]/5">
+        <div className="bg-white rounded-[2rem] shadow-sm border border-[#163526]/5 overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#163526]/5 border-b border-[#163526]/5">
@@ -308,8 +308,8 @@ export default function AdminDashboardPage() {
       </section>
 
       {/* Bento Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-20">
-        <div className="md:col-span-2 bg-[#163526] rounded-[2rem] p-10 text-white flex justify-between items-center group overflow-hidden relative shadow-xl">
+      <section className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-8 pb-10 md:pb-20">
+        <div className="md:col-span-2 bg-[#163526] rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-10 text-white flex justify-between items-center group overflow-hidden relative shadow-xl">
           <div className="relative z-10">
             <h3 className="font-headline text-3xl italic mb-4">Excellence Technique</h3>
             <p className="text-white/60 text-sm max-w-xs leading-relaxed">98.4% des commandes passent le contrôle qualité au premier essai ce mois-ci.</p>
@@ -321,14 +321,14 @@ export default function AdminDashboardPage() {
             <span className="material-symbols-outlined text-[240px]">workspace_premium</span>
           </div>
         </div>
-        <div className="bg-white rounded-[2rem] p-10 flex flex-col justify-between border border-[#163526]/5 shadow-sm group">
+        <div className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-10 flex flex-col justify-between border border-[#163526]/5 shadow-sm group">
           <span className="material-symbols-outlined text-orange-500 text-4xl group-hover:scale-110 transition-transform">notifications_active</span>
           <div>
             <p className="text-5xl font-headline font-bold text-[#163526]">03</p>
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1b1c19]/40 mt-2">Alertes de production</p>
           </div>
         </div>
-        <div className="bg-white rounded-[2rem] p-10 flex flex-col justify-between border border-[#163526]/5 shadow-sm">
+        <div className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-10 flex flex-col justify-between border border-[#163526]/5 shadow-sm">
           <div className="flex -space-x-3 mb-6">
             {[1,2,3,4].map(i => (
               <div key={i} className="w-10 h-10 rounded-full border-4 border-white bg-[#163526]/10 flex items-center justify-center text-[10px] font-bold text-[#163526]">OP</div>

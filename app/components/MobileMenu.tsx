@@ -161,7 +161,7 @@ export default function MobileMenu({
         aria-label="Menu de navigation"
         aria-hidden={!isOpen}
         style={{ width: 0, transition: "width 0.5s ease-out", visibility: isOpen ? "visible" : "hidden" }}
-        className="mobile-menu fixed inset-y-0 left-0 z-[1000] flex flex-col h-screen max-w-[300px] shadow-2xl overflow-x-hidden"
+        className="mobile-menu fixed inset-y-0 left-0 z-[1000] flex flex-col h-screen max-w-[85vw] shadow-2xl overflow-x-hidden"
       >
         {/* HEADER */}
         <header className="mobile-menu__header w-full flex items-center justify-between px-5 pt-5 pb-3">

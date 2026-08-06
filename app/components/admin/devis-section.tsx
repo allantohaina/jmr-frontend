@@ -81,7 +81,7 @@ export function DevisSection() {
       ) : null}
 
       {isLoading ? (
-        <div className="flex items-center justify-center rounded-[2rem] border border-[#163526]/5 bg-white py-16 text-[#163526]/50">
+        <div className="flex items-center justify-center rounded-[2rem] border border-[#163526]/5 bg-white py-10 md:py-16 text-[#163526]/50">
           <Loader2 className="mr-3 h-5 w-5 animate-spin" />
           Chargement des devis...
         </div>

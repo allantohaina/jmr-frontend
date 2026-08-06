@@ -49,7 +49,7 @@ export default function TasksPage() {
         <h1 className="font-headline text-2xl text-[#e5ad46]">Suivi Employés</h1>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-xl bg-[#25303a] p-4 border border-green-500/20">
           <p className="text-xs text-green-400 uppercase tracking-widest font-bold">Présents</p>
           <p className="text-3xl font-bold text-green-400 mt-1">{presentCount}</p>

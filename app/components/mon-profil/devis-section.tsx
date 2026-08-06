@@ -93,7 +93,7 @@ export function DevisSection({ quotes }: { quotes: QuoteRecord[] }) {
             </tbody>
           </table>
           {quotes.length === 0 && (
-            <div className="py-20 text-center">
+            <div className="py-12 md:py-20 text-center">
               <span className="material-symbols-outlined text-5xl text-[#e5ad46]/10 mb-4">description</span>
               <p className="text-[#eccc90]/40 text-sm font-medium">Aucun devis disponible pour le moment.</p>
             </div>
