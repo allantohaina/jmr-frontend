@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/app/components/theme-toggle";
 import { writeBrowserCookie } from "@/app/lib/auth";
 import { LOCALE_COOKIE_NAME, type Locale } from "@/app/lib/locale";
 import type { ThemeName } from "@/app/lib/theme";
+import { scrollToSection } from "@/app/lib/scroll";
 
 const ICON_SIZE = 42;
 const GOLD_FILTER = {
@@ -51,10 +52,10 @@ type StaticNavLink = {
 };
 
 const STATIC_NAV_LINKS: StaticNavLink[] = [
-  { labelKey: "home", href: "/#accueil", sectionId: "accueil", icon: "/navbar/navbar-home.svg" },
-  { labelKey: "services", href: "/#nos-services", sectionId: "nos-services", icon: "/navbar/navbar-services.svg" },
-  { labelKey: "about", href: "/#a-propos", sectionId: "a-propos", icon: "/navbar/navbar-about.svg" },
-  { labelKey: "clientSpace", href: "/#acces-client", sectionId: "acces-client", icon: "/navbar/navbar-profile.svg" },
+  { labelKey: "home", href: "/", sectionId: "accueil", icon: "/navbar/navbar-home.svg" },
+  { labelKey: "services", href: "/", sectionId: "nos-services", icon: "/navbar/navbar-services.svg" },
+  { labelKey: "about", href: "/", sectionId: "a-propos", icon: "/navbar/navbar-about.svg" },
+  { labelKey: "clientSpace", href: "/", sectionId: "acces-client", icon: "/navbar/navbar-profile.svg" },
 ];
 
 export default function MobileMenu({
@@ -187,7 +188,11 @@ export default function MobileMenu({
                 key={link.sectionId}
                 href={link.href}
                 data-nav-section={link.sectionId}
-                onClick={closeImmediately}
+                onClick={(e) => {
+                  closeImmediately();
+                  e.preventDefault();
+                  scrollToSection(link.sectionId);
+                }}
                 className="mobile-menu__link flex items-center gap-3 px-3 py-3 rounded-xl no-underline transition-colors"
               >
                 <Image

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale } from "@/app/components/locale-provider";
+import { scrollToSection } from "@/app/lib/scroll";
 
 type SocialItem = {
   key: string;
@@ -35,10 +36,10 @@ export function Footer() {
   const { messages } = useLocale();
 
   const footerLinks = [
-    { label: messages.footer.home, href: "/#accueil" },
-    { label: messages.footer.services, href: "/#nos-services" },
-    { label: messages.footer.about, href: "/#a-propos" },
-    { label: messages.footer.clientSpace, href: "/#acces-client" },
+    { label: messages.footer.home, sectionId: "accueil" },
+    { label: messages.footer.services, sectionId: "nos-services" },
+    { label: messages.footer.about, sectionId: "a-propos" },
+    { label: messages.footer.clientSpace, sectionId: "acces-client" },
   ];
 
   const legalLinks = [
@@ -61,7 +62,7 @@ export function Footer() {
           <div className="lg:col-span-4">
             <Link
               className="inline-flex flex-col gap-4 p-8 bg-[#1e2a38] rounded-2xl shadow-2xl mb-8 group transition-transform hover:-translate-y-1 border border-[#e5ad46]/20"
-              href="/#accueil"
+              href="/"
               aria-label="Accueil JMR Textile"
             >
               <Image
@@ -86,7 +87,11 @@ export function Footer() {
               {footerLinks.map((link) => (
                 <li key={link.label}>
                   <Link
-                    href={link.href}
+                    href="/"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToSection(link.sectionId);
+                    }}
                     className="font-body text-xs uppercase tracking-widest text-[#eccc90]/70 hover:text-[#e5ad46] hover:translate-x-1 transition-all inline-block"
                   >
                     {link.label}

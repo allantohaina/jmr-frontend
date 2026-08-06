@@ -120,7 +120,7 @@ export type CommandeRecord = {
   quantite: number;
   prix_unitaire: number;
   total: number;
-  statut_production: string;
+  statut_production: StatutProduction;
   pieces_produites: number;
   date_commande: string;
   date_livraison_prevue?: string | null;
@@ -166,6 +166,8 @@ export const STATUTS_PRODUCTION = [
   "Prête",
   "Livrée",
 ] as const;
+
+export type StatutProduction = (typeof STATUTS_PRODUCTION)[number];
 
 export const STATUTS_BON_LIVRAISON = [
   "Préparé",

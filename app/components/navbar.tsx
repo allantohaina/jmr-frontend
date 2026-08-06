@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { scrollToSection } from "@/app/lib/scroll";
 
 import { useLocale } from "@/app/components/locale-provider";
 import { ThemeToggle } from "@/app/components/theme-toggle";
@@ -26,7 +27,7 @@ type NavItem = {
 
 function getNavItemHref(pathname: string, item: NavItem) {
   if (pathname === "/" && item.homeAnchor) {
-    return `/#${item.sectionId}`;
+    return "/";
   }
 
   return item.route;
@@ -318,9 +319,15 @@ export function Navbar({
       <nav className="site-nav" aria-label={messages.navbar.ariaLabel}>
         <Link
           className="site-nav__brand"
-          href="/#accueil"
+          href="/"
           aria-label={messages.navbar.home + " JMR Textile"}
-          onClick={() => setIsMenuOpen(false)}
+          onClick={(e) => {
+            setIsMenuOpen(false);
+            if (pathname === "/") {
+              e.preventDefault();
+              scrollToSection("accueil");
+            }
+          }}
         >
           {isBrandLogoError ? (
             <span className="site-nav__brand-fallback">JMR Textile</span>
@@ -414,7 +421,13 @@ export function Navbar({
                   className={`site-nav__link${isCurrent ? " is-current" : ""}`}
                   href={getNavItemHref(pathname, item)}
                   aria-current={ariaCurrent}
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={(e) => {
+                    setIsMenuOpen(false);
+                    if (pathname === "/" && item.homeAnchor) {
+                      e.preventDefault();
+                      scrollToSection(item.sectionId);
+                    }
+                  }}
                   prefetch={true}
                 >
                   <Image

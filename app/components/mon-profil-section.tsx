@@ -79,7 +79,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
     return () => { active = false; };
   }, []);
 
-  const activeCommandes = commandes.filter((c) => c.statut_production !== "Livré");
+  const activeCommandes = commandes.filter((c) => c.statut_production !== "Livrée");
   const pendingQuotes = quotes.filter((q) => q.status === "pending" || q.status === "draft");
   const alertCount = quotes.filter((q) => q.status === "sent" || q.status === "production").length;
 

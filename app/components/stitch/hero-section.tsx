@@ -6,6 +6,7 @@ import Link from "next/link";
 import { EditableText } from "../editable-text";
 import { useLocale } from "@/app/components/locale-provider";
 import { useContent } from "@/app/lib/use-content";
+import { scrollToSection } from "@/app/lib/scroll";
 
 export function HeroSection({ isAdmin = false }: { isAdmin?: boolean }) {
   const { messages } = useLocale();
@@ -49,10 +50,10 @@ export function HeroSection({ isAdmin = false }: { isAdmin?: boolean }) {
             className="font-body text-base md:text-lg text-on-surface-variant max-w-xl mb-8 md:mb-10 leading-relaxed"
           />
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <Link href="#nos-services" className="bg-primary text-on-primary px-8 md:px-10 py-4 md:py-5 min-h-[44px] rounded-xl font-body font-bold uppercase tracking-widest text-xs hover:bg-secondary transition-colors shadow-xl shadow-primary/20 text-center inline-flex items-center justify-center">
+            <Link href="/" onClick={(e) => { e.preventDefault(); scrollToSection("nos-services"); }} className="bg-primary text-on-primary px-8 md:px-10 py-4 md:py-5 min-h-[44px] rounded-xl font-body font-bold uppercase tracking-widest text-xs hover:bg-secondary transition-colors shadow-xl shadow-primary/20 text-center inline-flex items-center justify-center">
               {messages.hero.primaryCta}
             </Link>
-            <Link href="#acces-client" className="border border-primary/30 text-primary px-8 md:px-10 py-4 md:py-5 min-h-[44px] rounded-xl font-body font-bold uppercase tracking-widest text-xs hover:border-primary hover:bg-primary/10 transition-all text-center inline-flex items-center justify-center">
+            <Link href="/" onClick={(e) => { e.preventDefault(); scrollToSection("acces-client"); }} className="border border-primary/30 text-primary px-8 md:px-10 py-4 md:py-5 min-h-[44px] rounded-xl font-body font-bold uppercase tracking-widest text-xs hover:border-primary hover:bg-primary/10 transition-all text-center inline-flex items-center justify-center">
               {messages.hero.secondaryCta}
             </Link>
           </div>

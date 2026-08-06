@@ -6,6 +6,7 @@ import React from "react";
 import { EditableText } from "../editable-text";
 import { useLocale } from "@/app/components/locale-provider";
 import { useContent } from "@/app/lib/use-content";
+import { scrollToSection } from "@/app/lib/scroll";
 
 export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
   const { messages } = useLocale();
@@ -146,7 +147,7 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
                 tag="p"
                 className="font-body text-on-surface-variant text-base md:text-lg mb-6 md:mb-10 leading-relaxed"
               />
-              <Link href="#acces-client" className="inline-flex items-center justify-center min-h-[44px] bg-primary text-on-primary px-8 md:px-10 py-4 md:py-5 rounded-xl font-body text-xs uppercase tracking-[0.2em] font-bold hover:bg-secondary transition-all shadow-lg shadow-primary/20">
+              <Link href="/" onClick={(e) => { e.preventDefault(); scrollToSection("acces-client"); }} className="inline-flex items-center justify-center min-h-[44px] bg-primary text-on-primary px-8 md:px-10 py-4 md:py-5 rounded-xl font-body text-xs uppercase tracking-[0.2em] font-bold hover:bg-secondary transition-all shadow-lg shadow-primary/20">
                 {messages.services.service4Cta}
               </Link>
             </div>

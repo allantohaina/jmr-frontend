@@ -4,11 +4,12 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Home, WandSparkles, Info, User, Settings, ExternalLink, FileText } from "lucide-react";
+import { scrollToSection } from "@/app/lib/scroll";
 
 const NAV_LINKS = [
-  { href: "/#accueil", label: "Accueil", icon: Home },
-  { href: "/#nos-services", label: "Nos services", icon: WandSparkles },
-  { href: "/#a-propos", label: "À propos", icon: Info },
+  { href: "/", sectionId: "accueil", label: "Accueil", icon: Home },
+  { href: "/", sectionId: "nos-services", label: "Nos services", icon: WandSparkles },
+  { href: "/", sectionId: "a-propos", label: "À propos", icon: Info },
   { href: "/mon-profil", label: "Espace client", icon: User },
 ];
 
@@ -44,7 +45,7 @@ export function MobileSidebar({ isStaff, userFirstName }: MobileDrawerProps) {
   }, [open]);
 
   const isActive = (href: string) => {
-    if (href === "/#accueil" && pathname !== "/") return false;
+    if (href === "/" && pathname !== "/") return false;
     return pathname === href || pathname?.startsWith(href.split("#")[0]);
   };
 
@@ -91,13 +92,19 @@ export function MobileSidebar({ isStaff, userFirstName }: MobileDrawerProps) {
 
         <nav className="flex-1 overflow-y-auto px-4 py-6">
           <ul className="space-y-1">
-            {NAV_LINKS.map(({ href, label, icon: Icon }) => {
+            {NAV_LINKS.map(({ href, label, icon: Icon, sectionId }) => {
               const active = isActive(href);
               return (
                 <li key={href}>
                   <Link
                     href={href}
-                    onClick={closeDrawer}
+                    onClick={(e) => {
+                      closeDrawer();
+                      if (sectionId) {
+                        e.preventDefault();
+                        scrollToSection(sectionId);
+                      }
+                    }}
                     className={`flex items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-bold uppercase tracking-widest transition-all ${
                       active
                         ? "bg-[#e5ad46]/10 text-[#e5ad46]"
