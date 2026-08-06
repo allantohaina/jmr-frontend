@@ -5852,3 +5852,480 @@ html[data-theme="light"] .site-footer-modern .bg-\[\#e5ad46\]\/10 {
     display: none !important;
   }
 }
+
+/* =====================================================================
+   SMALL PHONES (320px – 400px) : 3.2" à 3.9" (2010-2013)
+   ---------------------------------------------------------------------
+   Ajuste typographie, padding, grilles et boutons pour les plus petits
+   écrans mobiles. Les valeurs fluides (clamp) couvrent déjà une grande
+   partie du travail ; ces règles comblent les derniers cas limites.
+   ===================================================================== */
+@media (max-width: 400px) {
+  /* --- NAV --- */
+  .site-nav {
+    padding: 8px 0;
+  }
+
+  .site-nav__brand {
+    width: min(100%, 220px);
+  }
+
+  .site-nav__brand-logo {
+    max-height: 54px;
+  }
+
+  .site-nav__brand-motto {
+    display: none;
+  }
+
+  .site-nav__menu-toggle {
+    min-height: 40px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
+  .site-nav__menu-toggle-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* --- HERO --- */
+  .home-page__hero-grid {
+    padding: clamp(36px, 10vw, 64px) 0 clamp(40px, 8vw, 72px);
+  }
+
+  .home-page__title {
+    font-size: clamp(28px, 11vw, 42px);
+  }
+
+  .home-page__eyebrow {
+    font-size: clamp(10px, 3.2vw, 14px);
+    padding: 0;
+    min-height: auto;
+  }
+
+  .home-page__description {
+    font-size: clamp(14px, 4vw, 18px);
+  }
+
+  .home-page__benefit {
+    font-size: clamp(13px, 3.6vw, 16px);
+    padding-left: 16px;
+  }
+
+  .home-page__benefit::before {
+    width: 6px;
+    height: 6px;
+    left: 0;
+    top: 0.7em;
+  }
+
+  .home-page__action {
+    min-height: 48px;
+    font-size: clamp(13px, 3.6vw, 16px);
+    padding: 0 18px;
+    letter-spacing: 0.02em;
+  }
+
+  .home-page__cta-group {
+    gap: 10px;
+  }
+
+  /* --- SERVICES --- */
+  .services-flow {
+    gap: 14px;
+  }
+
+  .services-flow__step {
+    padding: 0;
+  }
+
+  .services-flow__title {
+    min-height: 0;
+    font-size: clamp(20px, 6.5vw, 30px);
+    margin-bottom: 6px;
+  }
+
+  .services-flow__media-wrap {
+    width: min(100%, 200px);
+  }
+
+  .services-page__claim {
+    margin-top: 32px;
+    font-size: clamp(26px, 8.5vw, 40px);
+  }
+
+  .services-page__cta,
+  .project-tracking-page__cta,
+  .project-status-page__cta {
+    min-width: 0;
+    min-height: 52px;
+    padding: 10px 22px;
+    font-size: clamp(18px, 5.5vw, 28px);
+  }
+
+  /* --- ABOUT --- */
+  .about-page__body {
+    padding: clamp(16px, 4vw, 24px);
+    gap: 14px;
+  }
+
+  .about-page__intro {
+    font-size: clamp(24px, 8vw, 36px);
+  }
+
+  .about-page__paragraph {
+    font-size: clamp(14px, 3.8vw, 17px);
+  }
+
+  .about-page__subheading {
+    font-size: clamp(18px, 5.5vw, 28px);
+  }
+
+  .about-page__contact-email {
+    font-size: clamp(14px, 4.2vw, 18px);
+    word-break: break-all;
+  }
+
+  /* --- SECTION SHELL --- */
+  .ui-section-shell {
+    padding: 28px 4px 56px;
+  }
+
+  .ui-section-title {
+    font-size: clamp(28px, 8.5vw, 42px);
+  }
+
+  /* --- QUOTE / DEMANDE DEVIS --- */
+  .quote-page__hero {
+    padding: 72px 12px 96px;
+  }
+
+  .quote-page__hero-title {
+    font-size: clamp(36px, 12vw, 54px);
+  }
+
+  .quote-page__hero-description {
+    font-size: clamp(14px, 4.2vw, 18px);
+    max-width: 18ch;
+  }
+
+  .quote-page__hero-action {
+    min-width: 0;
+    min-height: 52px;
+    font-size: clamp(13px, 3.8vw, 16px);
+    padding: 0 18px;
+  }
+
+  .quote-page__hero-actions {
+    gap: 10px;
+  }
+
+  .quote-page__content {
+    padding-bottom: 48px;
+  }
+
+  .quote-page__section-title {
+    font-size: clamp(28px, 9vw, 44px);
+  }
+
+  .quote-page__section-lead {
+    font-size: clamp(14px, 3.8vw, 17px);
+  }
+
+  .quote-page__intro,
+  .quote-page__form {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .quote-page .project-request-form__submit {
+    min-height: 50px;
+    font-size: 15px;
+    padding: 0 20px;
+    width: 100%;
+  }
+
+  /* --- AUTH / LOGIN --- */
+  .auth-card {
+    padding: 72px 14px 14px;
+    border-radius: 28px;
+    min-height: auto;
+  }
+
+  .auth-card__avatar-shell {
+    width: 120px;
+    height: 120px;
+    top: -48px;
+    border-width: 4px;
+  }
+
+  .auth-card__avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .auth-card__avatar img {
+    width: 56px;
+    height: 56px;
+  }
+
+  .auth-card__title {
+    font-size: clamp(24px, 8vw, 34px);
+  }
+
+  .auth-card__input {
+    height: 44px;
+    font-size: 16px;
+  }
+
+  .auth-card__action {
+    min-height: 50px;
+    font-size: clamp(18px, 6vw, 26px);
+  }
+
+  /* --- FOOTER --- */
+  .site-footer__panel {
+    padding: 22px 14px;
+    border-radius: 22px;
+  }
+
+  .site-footer__inner {
+    width: min(100%, calc(100% - 12px));
+  }
+
+  .site-footer__brand-card {
+    padding: 14px;
+  }
+
+  .site-footer__social-icon {
+    width: 44px;
+    height: 44px;
+    padding: 8px;
+  }
+
+  .site-footer__legal-list {
+    font-size: clamp(14px, 4vw, 18px);
+    gap: 8px;
+  }
+
+  .site-footer__bug-link {
+    min-height: 46px;
+    font-size: 12px;
+    padding: 0 16px;
+  }
+
+  /* --- PROJECT TRACKING / STATUS --- */
+  .project-tracking-step,
+  .project-tracking-center {
+    padding: 0;
+  }
+
+  .project-tracking-step__text,
+  .project-tracking-center__text {
+    font-size: clamp(18px, 6vw, 28px);
+  }
+
+  .project-tracking-step__badge,
+  .project-tracking-step__badge--center {
+    left: -14px;
+    top: -8px;
+  }
+
+  .project-status-flow__label {
+    font-size: clamp(18px, 6vw, 28px);
+  }
+
+  .project-status-flow__dot {
+    width: clamp(44px, 14vw, 60px);
+    height: clamp(44px, 14vw, 60px);
+  }
+
+  .project-status-page__summary {
+    padding: 22px 12px;
+    border-radius: 20px;
+    min-height: 200px;
+  }
+
+  .project-status-page__message {
+    font-size: clamp(22px, 7.5vw, 30px);
+  }
+
+  /* --- PROFILE / MON PROFIL --- */
+  .profile-card {
+    padding: 20px 16px;
+    border-radius: 22px;
+  }
+
+  .profile-card__top {
+    gap: 12px;
+  }
+
+  .profile-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    font-size: 1.1rem;
+  }
+
+  .profile-list li {
+    padding: 10px 12px;
+  }
+
+  /* --- FORMS --- */
+  .project-request-form__grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .project-request-form__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .project-request-form__submit,
+  .project-request-form__secondary {
+    width: 100%;
+    min-height: 48px;
+    font-size: 15px;
+  }
+
+  /* --- MOBILE MENU (très petits écrans) --- */
+  .mobile-menu {
+    width: 88vw;
+  }
+
+  .mobile-menu__link {
+    padding: 12px 14px !important;
+    font-size: 14px;
+  }
+
+  .mobile-menu__btn-lang,
+  .theme-toggle-mobile-wrapper {
+    width: 46px;
+    height: 46px;
+  }
+
+  /* --- ACCESS PAGE --- */
+  .access-page__card {
+    min-height: auto;
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .access-page__card h2 {
+    font-size: clamp(22px, 7vw, 30px);
+  }
+
+  .access-page__action {
+    min-height: 44px;
+    padding: 0 16px;
+    font-size: clamp(12px, 3.6vw, 14px);
+  }
+
+  .access-page__step {
+    padding: 10px 12px;
+  }
+
+  .access-page__step-number {
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
+  }
+
+  /* --- NOTIFICATION CARDS --- */
+  .notifications-page__cards {
+    gap: 12px;
+  }
+
+  /* --- PAYMENT OPTIONS --- */
+  .project-payment-option {
+    width: min(100%, 160px);
+    min-height: min(100%, 160px);
+    padding: 10px;
+    border-radius: 24px;
+  }
+
+  .project-payment-option__icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .project-payment-option__label {
+    font-size: clamp(22px, 6vw, 30px);
+  }
+}
+
+/* =====================================================================
+   TINY PHONES (sous 360px) : cas extrêmes Samsung Galaxy Mini etc.
+   ===================================================================== */
+@media (max-width: 360px) {
+  .home-page__title {
+    font-size: clamp(24px, 10vw, 34px);
+  }
+
+  .home-page__description {
+    font-size: clamp(13px, 3.8vw, 16px);
+  }
+
+  .home-page__action {
+    min-height: 44px;
+    font-size: 12px;
+    padding: 0 14px;
+  }
+
+  .ui-section-title {
+    font-size: clamp(24px, 8vw, 34px);
+  }
+
+  .services-page__cta,
+  .project-tracking-page__cta,
+  .project-status-page__cta {
+    font-size: clamp(16px, 5.5vw, 22px);
+    min-height: 48px;
+    padding: 8px 16px;
+  }
+
+  .quote-page__hero-title {
+    font-size: clamp(30px, 10vw, 42px);
+  }
+
+  .quote-page__hero-action {
+    min-height: 48px;
+    font-size: 12px;
+  }
+
+  .auth-card__title {
+    font-size: clamp(20px, 7vw, 28px);
+  }
+
+  .auth-card__input {
+    height: 40px;
+    font-size: 15px;
+  }
+
+  .auth-card__action {
+    min-height: 46px;
+    font-size: clamp(16px, 5.5vw, 22px);
+  }
+
+  .about-page__intro {
+    font-size: clamp(20px, 7vw, 28px);
+  }
+
+  .about-page__contact-email {
+    font-size: 13px;
+  }
+
+  .project-status-flow__label {
+    font-size: clamp(16px, 5.5vw, 24px);
+  }
+
+  .services-flow__title {
+    font-size: clamp(18px, 6vw, 24px);
+  }
+
+  .services-page__claim {
+    font-size: clamp(22px, 7.5vw, 32px);
+  }
+}
