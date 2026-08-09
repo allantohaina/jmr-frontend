@@ -141,7 +141,7 @@ export default function MobileMenu({
     writeBrowserCookie(LOCALE_COOKIE_NAME, next, { maxAge: 60 * 60 * 24 * 365, path: "/", sameSite: "Lax" });
   }
 
-  function closeImmediately() { onClose(); }
+  function closeImmediately() { document.activeElement instanceof HTMLElement && document.activeElement.blur(); onClose(); }
 
   return (
     <div className="block max-[900px]:block hidden">
