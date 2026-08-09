@@ -1,7 +1,7 @@
 import { AUTH_COOKIE_NAME, readBrowserCookie } from "./auth";
 
-const DEFAULT_API_URL = "http://localhost:8081/api";
-const FALLBACK_API_URL = "http://localhost:8080/api";
+const DEFAULT_API_URL = "https://api.jmrtextile.com/api";
+const FALLBACK_API_URL = "http://localhost:8081/api";
 const API_REQUEST_TIMEOUT_MS = 15_000;
 
 function normalizeApiUrl(value: string) {
