@@ -343,6 +343,12 @@ export const authAPI = {
     }, token);
   },
 
+  delete: async <TResponse = unknown>(endpoint: string, token?: string) => {
+    return fetchWithAuth<TResponse>(endpoint, {
+      method: "DELETE",
+    }, token);
+  },
+
   signQuote: async (quoteId: string | number, signature: { name: string; signedAt: string | Date }) => {
     return fetchWithAuth<QuoteRecord>(`/quotes/${quoteId}/sign`, {
       method: "PUT",

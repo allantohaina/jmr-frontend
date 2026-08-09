@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { authAPI } from "@/app/lib";
 
 import { 
   XAxis, 
@@ -12,15 +13,6 @@ import {
   AreaChart,
   Area
 } from "recharts";
-
-const data = [
-  { name: "Jan", ventes: 45000, depenses: 32000 },
-  { name: "Fév", ventes: 52000, depenses: 35000 },
-  { name: "Mar", ventes: 48000, depenses: 31000 },
-  { name: "Avr", ventes: 61000, depenses: 42000 },
-  { name: "Mai", ventes: 55000, depenses: 38000 },
-  { name: "Juin", ventes: 67000, depenses: 45000 },
-];
 
 interface Visitor {
   id: string;
@@ -33,6 +25,71 @@ interface Visitor {
 export default function AdminDashboardPage() {
   const [filterActive, setFilterActive] = useState(false);
   const [visitors, setVisitors] = useState<Visitor[]>([]);
+  const [dashboardData, setDashboardData] = useState({
+    demandesEnAttente: 0,
+    cotationsEnAttente: 0,
+    commandesEnCours: 0,
+    commandesEnRetard: 0,
+    caMois: 0,
+    acomptes: 0,
+    soldes: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [chartData, setChartData] = useState<Array<{ name: string; ventes: number; depenses: number }>>([]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        // Récupérer les données de demandes
+        const demandesRes = await authAPI.get<{ data: any[]; counts: Record<string, number> }>("/demandes-client");
+        const demandesCounts = demandesRes.data?.counts || {};
+        const demandesEnAttente = (demandesCounts['Nouvelle'] || 0) + (demandesCounts['En cours d\'étude'] || 0);
+
+        // Récupérer les données de commandes
+        const commandesRes = await authAPI.get<{ data: any[]; counts: Record<string, number> }>("/commandes");
+        const commandesCounts = commandesRes.data?.counts || {};
+        const commandesEnCours = commandesCounts['en_retard'] || 0;
+        const commandesEnRetard = commandesCounts['en_retard'] || 0;
+        const caMois = commandesCounts['ca_mois'] || 0;
+
+        // Récupérer les données de quotes pour acomptes/soldes
+        const quotesRes = await authAPI.get<{ data: any[] }>("/quotes");
+        const quotes = quotesRes.data?.data || [];
+        let acomptes = 0;
+        let soldes = 0;
+        quotes.forEach((q: any) => {
+          if (q.deposit_paid) acomptes += parseFloat(q.deposit_amount || 0);
+          if (q.balance_paid) soldes += parseFloat(q.balance_amount || 0);
+        });
+
+        setDashboardData({
+          demandesEnAttente,
+          cotationsEnAttente: quotes.filter((q: any) => q.status === 'draft' || q.status === 'sent').length,
+          commandesEnCours,
+          commandesEnRetard,
+          caMois,
+          acomptes,
+          soldes,
+        });
+
+        // Données de graphique (simulées pour l'instant - à remplacer par vraies données historiques)
+        setChartData([
+          { name: "Jan", ventes: 45000, depenses: 32000 },
+          { name: "Fév", ventes: 52000, depenses: 35000 },
+          { name: "Mar", ventes: 48000, depenses: 31000 },
+          { name: "Avr", ventes: 61000, depenses: 42000 },
+          { name: "Mai", ventes: 55000, depenses: 38000 },
+          { name: "Juin", ventes: caMois || 67000, depenses: 45000 },
+        ]);
+      } catch (error) {
+        console.error("Erreur chargement dashboard:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   return (
     <div className="px-4 md:px-12 py-6 md:py-10 space-y-8 md:space-y-12">
@@ -52,12 +109,17 @@ export default function AdminDashboardPage() {
               <div className="w-3 h-3 rounded-full bg-orange-400"></div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/60">Dépenses</span>
             </div>
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/40">
+                {dashboardData.commandesEnCours} en cours
+              </span>
+            </div>
           </div>
         </div>
 
         <div className="h-[250px] sm:h-[300px] md:h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data}>
+            <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="colorVentes" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#163526" stopOpacity={0.1}/>
@@ -157,12 +219,12 @@ export default function AdminDashboardPage() {
           </div>
           <p className="font-label font-bold uppercase text-[10px] tracking-[0.2em] text-[#1b1c19]/40 mb-4">Devis en attente</p>
           <div className="flex items-baseline gap-2">
-            <span className="font-headline text-4xl font-bold text-[#163526]">142.800</span>
-            <span className="font-headline text-xl text-[#1b1c19]/60">€</span>
+            <span className="font-headline text-4xl font-bold text-[#163526]">{dashboardData.cotationsEnAttente}</span>
+            <span className="font-headline text-xl text-[#1b1c19]/60">devis</span>
           </div>
           <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-orange-500">
             <span className="material-symbols-outlined text-sm">trending_up</span>
-            <span>+12% vs MOIS DERNIER</span>
+            <span>À traiter</span>
           </div>
         </Link>
 
@@ -172,13 +234,13 @@ export default function AdminDashboardPage() {
           <div className="space-y-4">
             <div className="flex items-baseline gap-2">
               <span className="text-[10px] text-white/40 font-bold uppercase">Acomptes:</span>
-              <span className="font-headline text-3xl font-bold">54.210</span>
-              <span className="font-headline text-lg opacity-40">€</span>
+              <span className="font-headline text-3xl font-bold">{dashboardData.acomptes.toLocaleString()}</span>
+              <span className="font-headline text-lg opacity-40">Ar</span>
             </div>
             <div className="flex items-baseline gap-2 border-t border-white/10 pt-4">
               <span className="text-[10px] text-white/40 font-bold uppercase">Soldes:</span>
-              <span className="font-headline text-2xl font-bold text-orange-400">28.150</span>
-              <span className="font-headline text-lg opacity-40">€</span>
+              <span className="font-headline text-2xl font-bold text-orange-400">{dashboardData.soldes.toLocaleString()}</span>
+              <span className="font-headline text-lg opacity-40">Ar</span>
             </div>
           </div>
           <div className="mt-6 flex items-center gap-2 text-[10px] font-bold text-orange-400">
@@ -187,11 +249,11 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <Link href="/backoffice/production" className="bg-white p-8 rounded-2xl border border-[#163526]/5 shadow-sm hover:shadow-md transition-all group">
-          <p className="font-label font-bold uppercase text-[10px] tracking-[0.2em] text-[#1b1c19]/40 mb-4">Marge estimée globale</p>
+        <Link href="/backoffice/orders" className="bg-white p-8 rounded-2xl border border-[#163526]/5 shadow-sm hover:shadow-md transition-all group">
+          <p className="font-label font-bold uppercase text-[10px] tracking-[0.2em] text-[#1b1c19]/40 mb-4">CA du mois</p>
           <div className="flex items-baseline gap-2">
-            <span className="font-headline text-4xl font-bold text-[#163526]">32.4</span>
-            <span className="font-headline text-xl text-[#1b1c19]/60">%</span>
+            <span className="font-headline text-4xl font-bold text-[#163526]">{dashboardData.caMois.toLocaleString()}</span>
+            <span className="font-headline text-xl text-[#1b1c19]/60">Ar</span>
           </div>
           <div className="mt-6 h-1.5 w-full bg-[#163526]/5 rounded-full overflow-hidden">
             <div className="h-full bg-orange-500 w-[68%] rounded-full shadow-[0_0_10px_rgba(249,115,22,0.3)] transition-all group-hover:w-[72%]"></div>
