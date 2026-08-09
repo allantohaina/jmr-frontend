@@ -15,6 +15,7 @@ import { signOutClient } from "@/app/lib/auth-client";
 import { authAPI, type UserProfile } from "@/app/lib/api";
 import { LOCALE_COOKIE_NAME, type Locale } from "@/app/lib/locale";
 import type { ThemeName } from "@/app/lib/theme";
+import { TEXTILE_PROBLEM_THREADS } from "@/app/lib";
 
 type NavItem = {
   route: string;
@@ -61,6 +62,8 @@ export function Navbar({
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [sessionUser, setSessionUser] = useState<UserProfile | null>(null);
   const [currentTheme, setCurrentTheme] = useState<ThemeName>(initialTheme);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const hasNotifications = TEXTILE_PROBLEM_THREADS.length > 0;
   const effectiveUserFirstName = sessionUser?.first_name ?? userFirstName;
   const effectiveUserRole = sessionUser?.role ?? userRole;
   const effectiveIsSignedIn = isSignedIn || !!sessionUser;
@@ -181,10 +184,13 @@ export function Navbar({
       if (isProfileOpen && !(event.target as Element).closest(".site-nav__item--profile")) {
         setIsProfileOpen(false);
       }
+      if (isNotifOpen && !(event.target as Element).closest(".site-nav__item--notif")) {
+        setIsNotifOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isProfileOpen]);
+  }, [isProfileOpen, isNotifOpen]);
 
   useEffect(() => {
     if (!isMenuOpen) {
@@ -448,6 +454,42 @@ export function Navbar({
           <li className="site-nav__item site-nav__item--theme">
             <ThemeToggle initialTheme={initialTheme} />
           </li>
+
+          {hasNotifications && (
+            <li className="site-nav__item site-nav__item--notif relative">
+              <button
+                type="button"
+                className="site-nav__language-trigger"
+                title="Notifications"
+                onClick={() => setIsNotifOpen(!isNotifOpen)}
+                aria-expanded={isNotifOpen}
+              >
+                <Image
+                  className="site-nav__icon"
+                  src="/notification_bell.svg"
+                  alt=""
+                  aria-hidden="true"
+                  width={24}
+                  height={24}
+                  loading="lazy"
+                />
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#e5ad46] rounded-full" />
+              </button>
+
+              {isNotifOpen && (
+                <div className="absolute top-full right-0 mt-2 w-80 bg-[#25303a] border border-[#e5ad46]/20 rounded-xl shadow-xl py-4 px-4 z-[110] animate-in fade-in zoom-in-95 duration-200">
+                  <h3 className="text-sm font-semibold text-[#e5ad46] mb-3">Notifications</h3>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {TEXTILE_PROBLEM_THREADS.map((thread) => (
+                      <div key={thread.id} className="p-3 rounded-lg bg-[#1e2a38] text-sm text-white/80">
+                        {thread.title}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </li>
+          )}
 
           <li className="site-nav__item site-nav__item--language">
             <button

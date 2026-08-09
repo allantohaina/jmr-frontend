@@ -11,6 +11,7 @@ import {
 import { getUser, getToken } from "@/app/lib/auth";
 import { signOutClient } from "@/app/lib/auth-client";
 import { authAPI, type UserProfile } from "@/app/lib/api";
+import { TEXTILE_PROBLEM_THREADS } from "@/app/lib";
 
 export function HomePageClient() {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -40,6 +41,7 @@ export function HomePageClient() {
 
   const isSignedIn = isMounted && !!user;
   const isAdmin = user?.role === "admin";
+  const hasNotifications = TEXTILE_PROBLEM_THREADS.length > 0;
 
   return (
     <div className="home-page">
@@ -55,7 +57,7 @@ export function HomePageClient() {
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,_#e9c176,_transparent)]"></div>
           </div>
           <div className="relative z-10">
-            {isSignedIn ? (
+            {isSignedIn && hasNotifications ? (
               <NotificationsSection user={user} />
             ) : (
               <AuthAccessSection />
