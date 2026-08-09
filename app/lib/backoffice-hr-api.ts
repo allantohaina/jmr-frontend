@@ -36,27 +36,9 @@ function toBody(body?: RequestBody) {
   return body instanceof FormData ? body : JSON.stringify(body);
 }
 
-function getRuntimeLabel() {
-  return typeof window === "undefined" ? "server" : "browser";
-}
-
-function logRequest(runtime: string, method: string, path: string, attempt: number, total: number) {
-  console.info(`[HR API][${runtime}] ${method} ${path} (${attempt}/${total})`);
-}
-
-function logSuccess(runtime: string, method: string, path: string, status: number) {
-  console.info(`[HR API][${runtime}] ${status} ${method} ${path}`);
-}
-
-function logFailure(runtime: string, method: string, path: string, error: unknown) {
-  console.error(`[HR API][${runtime}] failed ${method} ${path}`, error);
-}
-
 async function request<T>(path: string, init: RequestInit = {}): Promise<HrApiResponse<T>> {
   const headers = new Headers(init.headers);
   const isFormData = init.body instanceof FormData;
-  const runtime = getRuntimeLabel();
-  const method = (init.method ?? "GET").toString().toUpperCase();
   const targetPath = `/hr${path}`;
   const targetUrl = `${getBackendApiUrl()}${targetPath}`;
   const token = typeof window === "undefined" ? null : localStorage.getItem("jmr_token");
@@ -72,8 +54,6 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<HrApiRe
   if (token && !headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${token}`);
   }
-
-  logRequest(runtime, method, targetUrl, 1, 1);
 
   try {
     const response = await fetch(targetUrl, {
@@ -93,8 +73,6 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<HrApiRe
       throw new Error(readMessage(payload) || "Une erreur est survenue.");
     }
 
-    logSuccess(runtime, method, targetPath, response.status);
-
     if (payload && typeof payload === "object" && "data" in payload) {
       return payload as HrApiResponse<T>;
     }
@@ -104,7 +82,6 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<HrApiRe
       data: payload as T,
     };
   } catch (error) {
-    logFailure(runtime, method, targetPath, error);
     throw error;
   }
 }

@@ -17,9 +17,7 @@ interface StockItem {
 
 // Mock save function for API
 const mockUpdateQuantity = async (id: number, newQty: number) => {
-  // Simulate network call
   await new Promise(resolve => setTimeout(resolve, 500));
-  console.log('Quantity updated for id:', id, 'to:', newQty);
 };
 
 export function AtelierStock() {

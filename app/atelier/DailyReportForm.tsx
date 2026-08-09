@@ -22,7 +22,6 @@ interface Task {
 
 const mockSaveTasks = async (tasks: Task[]) => {
   await new Promise(resolve => setTimeout(resolve, 1000));
-  console.log('Tasks saved to server:', tasks);
 };
 
 export function DailyReportForm() {
@@ -40,7 +39,7 @@ export function DailyReportForm() {
     initialData: initialTasks,
     saveFn: mockSaveTasks,
     debounceTime: 3000, // Auto save every 3 seconds
-    onSaveStart: () => console.log('Saving...'),
+    onSaveStart: () => {},
     onSaveSuccess: () => {
       showToast('Rapport auto-sauvegardé !', 'success');
     },

@@ -24,9 +24,6 @@ export function VisitorTracker() {
     if (!visitorId) {
       visitorId = generatePseudonym();
       localStorage.setItem("jmr_visitor_id", visitorId);
-      console.log(`[VISITOR] Nouveau visiteur identifié : ${visitorId}`);
-    } else {
-      console.log(`[VISITOR] Bon retour, ${visitorId}`);
     }
 
     // Ici, on pourrait envoyer un "ping" au serveur pour dire que ce visiteur est en ligne

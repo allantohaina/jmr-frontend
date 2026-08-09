@@ -7,43 +7,9 @@ function normalizeApiUrl(value: string) {
   return value.replace(/\/+$/, "");
 }
 
-function getFallbackApiUrl(baseUrl: string) {
-  try {
-    const parsed = new URL(baseUrl);
-
-    if (parsed.hostname !== "localhost" && parsed.hostname !== "127.0.0.1" && parsed.hostname !== "::1") {
-      return undefined;
-    }
-
-    if (parsed.port && parsed.port !== "8081") {
-      return undefined;
-    }
-
-    parsed.port = "8080";
-    return normalizeApiUrl(parsed.toString());
-  } catch {
-    if (baseUrl.includes("localhost:8081")) {
-      return normalizeApiUrl(baseUrl.replace("localhost:8081", "localhost:8080"));
-    }
-
-    if (baseUrl.includes("127.0.0.1:8081")) {
-      return normalizeApiUrl(baseUrl.replace("127.0.0.1:8081", "127.0.0.1:8080"));
-    }
-
-    return undefined;
-  }
-}
-
 export function getBackendApiUrls() {
   const configuredUrl = normalizeApiUrl(process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL);
-  const urls = [configuredUrl];
-  const fallbackUrl = getFallbackApiUrl(configuredUrl);
-
-  if (fallbackUrl && fallbackUrl !== configuredUrl) {
-    urls.push(fallbackUrl);
-  }
-
-  return Array.from(new Set(urls));
+  return [configuredUrl];
 }
 
 function isRetryableBackendError(error: unknown) {
@@ -52,26 +18,6 @@ function isRetryableBackendError(error: unknown) {
 
 function isRetryableBackendStatus(status: number) {
   return status === 502 || status === 503 || status === 504;
-}
-
-function getRuntimeLabel() {
-  return typeof window === "undefined" ? "server" : "browser";
-}
-
-function logApiAttempt(runtime: string, method: string, endpoint: string, apiUrl: string, attempt: number, total: number) {
-  console.info(`[API][${runtime}] ${method} ${endpoint} -> ${apiUrl} (${attempt}/${total})`);
-}
-
-function logApiRetry(runtime: string, method: string, endpoint: string, apiUrl: string, reason: string) {
-  console.warn(`[API][${runtime}] retry ${method} ${endpoint} via ${apiUrl} because ${reason}`);
-}
-
-function logApiSuccess(runtime: string, method: string, endpoint: string, apiUrl: string, status: number) {
-  console.info(`[API][${runtime}] ${status} ${method} ${endpoint} via ${apiUrl}`);
-}
-
-function logApiFailure(runtime: string, method: string, endpoint: string, apiUrl: string, error: unknown) {
-  console.error(`[API][${runtime}] failed ${method} ${endpoint} via ${apiUrl}`, error);
 }
 
 export type ApiResponse<T = unknown> = {
@@ -264,12 +210,9 @@ export async function fetchWithAuth<T = unknown>(
   }
 
   const apiUrls = getBackendApiUrls();
-  const runtime = getRuntimeLabel();
-  const method = (options.method ?? "GET").toString().toUpperCase();
 
   for (let index = 0; index < apiUrls.length; index += 1) {
     const apiUrl = apiUrls[index];
-    logApiAttempt(runtime, method, endpoint, apiUrl, index + 1, apiUrls.length);
 
     try {
       const timeoutController = new AbortController();
@@ -280,8 +223,6 @@ export async function fetchWithAuth<T = unknown>(
         response = await fetch(`${apiUrl}${endpoint}`, {
           ...options,
           headers,
-          // Authentication is sent with the bearer token. Do not send browser
-          // cookies cross-origin: public auth requests then stay CORS-simple.
           credentials: options.credentials ?? "omit",
           signal: options.signal ?? timeoutController.signal,
         });
@@ -290,23 +231,14 @@ export async function fetchWithAuth<T = unknown>(
       }
 
       if (!response.ok && isRetryableBackendStatus(response.status) && index < apiUrls.length - 1) {
-        logApiRetry(runtime, method, endpoint, apiUrl, `status ${response.status}`);
         continue;
       }
 
-      let data: unknown;
-      try {
-        data = await response.json();
-      } catch (error) {
-        console.error("Failed to parse API response as JSON:", error);
-        throw new Error(`Invalid JSON response from server (${response.status})`);
-      }
+      const data: unknown = await response.json().catch(() => null);
 
       if (!response.ok) {
         throw new Error(readErrorMessage(data) || "Une erreur est survenue.");
       }
-
-      logApiSuccess(runtime, method, endpoint, apiUrl, response.status);
 
       if (data && typeof data === "object" && !("status" in data) && !("data" in data)) {
         return {
@@ -318,15 +250,13 @@ export async function fetchWithAuth<T = unknown>(
       return data as ApiResponse<T>;
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
-        throw new Error("L’API ne répond pas après 15 secondes. Vérifiez la connexion entre le frontend et le backend, puis réessayez.");
+        throw new Error("L'API ne répond pas après 15 secondes. Vérifiez la connexion entre le frontend et le backend, puis réessayez.");
       }
 
       if (index < apiUrls.length - 1 && isRetryableBackendError(error)) {
-        logApiRetry(runtime, method, endpoint, apiUrl, "network error");
         continue;
       }
 
-      logApiFailure(runtime, method, endpoint, apiUrl, error);
       throw error;
     }
   }
