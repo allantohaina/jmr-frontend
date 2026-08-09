@@ -4,6 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { AuthAccessSection } from "@/app/components";
 import { getSafeRedirectPath, getToken } from "@/app/lib";
 
+function isStaffSubdomain(): boolean {
+  if (typeof window === "undefined") return false;
+  const host = window.location.hostname;
+  return host.startsWith("admin.") || host.startsWith("worker.");
+}
+
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -14,6 +20,11 @@ export default function LoginPage() {
   }, []);
 
   useEffect(() => {
+    if (isStaffSubdomain()) {
+      window.location.replace("/login/staff");
+      return;
+    }
+
     const token = getToken();
     if (token && redirectPath && redirectPath !== "/mon-profil") {
       window.location.assign(redirectPath);
