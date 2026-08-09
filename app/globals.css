@@ -5135,6 +5135,35 @@ html[data-theme="light"] footer [class*="border-[#e5ad46]"] {
   border-color: rgba(19, 35, 54, 0.14);
 }
 
+html[data-theme="light"] footer img[src*="logo-dark"] {
+  content: url("/navbar/logo-light.svg");
+}
+
+/* Dashboard light mode */
+html[data-theme="light"] [class*="bg-[#25303a]"] {
+  background-color: #ffffff !important;
+}
+html[data-theme="light"] [class*="bg-[#1e2a38]"] {
+  background-color: #f7f2e8 !important;
+}
+html[data-theme="light"] [class*="text-[#e5ad46]"] {
+  color: var(--sec) !important;
+}
+html[data-theme="light"] [class*="border-[#e5ad46]/5"],
+html[data-theme="light"] [class*="border-[#e5ad46]/10"] {
+  border-color: rgba(23, 48, 77, 0.1) !important;
+}
+html[data-theme="light"] [class*="bg-[#e5ad46]/5"],
+html[data-theme="light"] [class*="bg-[#e5ad46]/10"] {
+  background-color: rgba(201, 130, 45, 0.1) !important;
+}
+html[data-theme="light"] [class*="hover\\:bg-[#25303a]"]:hover {
+  background-color: #f7f2e8 !important;
+}
+html[data-theme="light"] [class*="hover\\:shadow-md"]:hover {
+  box-shadow: 0 4px 24px rgba(18, 29, 45, 0.08) !important;
+}
+
 @media (max-width: 900px) {
   .theme-toggle {
     width: 100%;

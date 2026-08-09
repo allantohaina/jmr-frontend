@@ -334,7 +334,7 @@ export function Navbar({
           ) : (
             <Image
               className="site-nav__brand-logo"
-              src="/navbar/logo-dark.svg"
+              src={currentTheme === "light" ? "/navbar/logo-light.svg" : "/navbar/logo-dark.svg"}
               alt="JMR Textile"
               width={413}
               height={92}
