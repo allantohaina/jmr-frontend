@@ -118,8 +118,19 @@ export async function authenticateWithForm(formData: FormData) {
   const rememberMe = formData.get("remember") === "on";
   persistAuthSession(payload, rememberMe);
 
+  const role = payload.user?.role;
+  let redirectTo = resolveAuthRedirect(intent, nextPath);
+
+  if (intent === "login") {
+    if (role === "admin") {
+      redirectTo = "/backoffice";
+    } else if (role === "worker") {
+      redirectTo = "/atelier";
+    }
+  }
+
   return {
-    redirectTo: resolveAuthRedirect(intent, nextPath),
+    redirectTo,
     user: payload.user,
   };
 }

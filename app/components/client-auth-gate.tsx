@@ -35,7 +35,13 @@ export function ClientAuthGate({
         const verifiedUser = response.data ?? storedUser;
 
         if (allowedRoles?.length && !allowedRoles.includes(String(verifiedUser.role))) {
-          window.location.replace(verifiedUser.role === "worker" ? "/atelier" : redirectTo);
+          if (verifiedUser.role === "worker") {
+            window.location.replace("/atelier");
+          } else if (verifiedUser.role === "admin") {
+            window.location.replace("/backoffice");
+          } else {
+            window.location.replace(redirectTo);
+          }
           return;
         }
 
@@ -44,7 +50,6 @@ export function ClientAuthGate({
           setIsChecking(false);
         }
       } catch (error) {
-        console.error("Session verification failed:", error);
         window.location.replace(redirectTo);
       }
     }
