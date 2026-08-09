@@ -51,6 +51,10 @@ function quoteStatusLabel(s?: string | null) {
   }
 }
 
+function quoteReference(quote: QuoteRecord) {
+  return `Demande #${String(quote.id).padStart(5, "0")}`;
+}
+
 export function MonProfilSection({ variant = "preview", user }: MonProfilSectionProps) {
   const [quotes, setQuotes] = useState<QuoteRecord[]>([]);
   const [commandes, setCommandes] = useState<CommandeRecord[]>([]);
@@ -81,6 +85,9 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
 
   const activeCommandes = commandes.filter((c) => c.statut_production !== "Livrée");
   const pendingQuotes = quotes.filter((q) => q.status === "pending" || q.status === "draft");
+  const latestPendingQuote = [...pendingQuotes].sort(
+    (a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
+  )[0];
   const alertCount = quotes.filter((q) => q.status === "sent" || q.status === "production").length;
 
   const stats = [
@@ -96,7 +103,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
       label: "Devis en attente",
       value: String(pendingQuotes.length).padStart(2, "0"),
       detail: pendingQuotes.length > 0
-        ? `Dernier le ${formatDate(pendingQuotes[0].created_at ?? "")}`
+        ? `Dernier le ${formatDate(latestPendingQuote?.created_at ?? "")}`
         : "Aucun devis en attente",
       icon: "request_quote",
     },
@@ -164,6 +171,52 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
             </div>
           ) : (
             <>
+              {latestPendingQuote && (
+                <section
+                  className="relative overflow-hidden border border-[#e5ad46]/20 bg-[#202b35] px-6 py-7 shadow-[0_24px_60px_rgba(12,18,25,0.18)] md:px-10 md:py-9"
+                  aria-labelledby="quote-pending-title"
+                >
+                  <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_82%_38%,rgba(229,173,70,0.13),transparent_56%)]" />
+                  <div className="relative flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between">
+                    <div className="max-w-xl">
+                      <div className="mb-4 flex items-center gap-3">
+                        <span className="flex h-9 w-9 items-center justify-center border border-[#e5ad46]/30 bg-[#e5ad46]/10 text-[#e5ad46]">
+                          <span className="material-symbols-outlined text-[19px]">mark_email_unread</span>
+                        </span>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#e5ad46]">Demande en attente</p>
+                      </div>
+                      <h2 id="quote-pending-title" className="font-headline text-3xl font-bold leading-tight text-[#f1bd58] md:text-4xl">
+                        Votre demande a bien été reçue.
+                      </h2>
+                      <p className="mt-3 text-sm leading-relaxed text-[#eccc90]/65">
+                        {quoteReference(latestPendingQuote)}{latestPendingQuote.name ? ` — ${latestPendingQuote.name}` : ""} envoyée le {formatDate(latestPendingQuote.created_at ?? "")}.
+                        Notre équipe vous répondra sous <span className="font-bold text-[#eccc90]">2 à 3 jours ouvrés</span>.
+                      </p>
+                    </div>
+
+                    <ol className="quote-progress-grid grid w-full max-w-2xl grid-cols-1 gap-5 sm:grid-cols-3" aria-label="Suivi de votre demande de devis">
+                      <li className="quote-progress-step quote-progress-step--done">
+                        <span className="quote-progress-marker" aria-hidden="true"><span className="material-symbols-outlined text-[16px]">check</span></span>
+                        <span className="quote-progress-line" aria-hidden="true" />
+                        <p>Demande reçue</p>
+                        <small>Terminée</small>
+                      </li>
+                      <li className="quote-progress-step quote-progress-step--current">
+                        <span className="quote-progress-marker" aria-hidden="true"><span className="h-2 w-2 rounded-full bg-[#25303a]" /></span>
+                        <span className="quote-progress-line" aria-hidden="true" />
+                        <p>Analyse par notre équipe</p>
+                        <small>En cours</small>
+                      </li>
+                      <li className="quote-progress-step">
+                        <span className="quote-progress-marker" aria-hidden="true" />
+                        <p>Devis envoyé</p>
+                        <small>À venir</small>
+                      </li>
+                    </ol>
+                  </div>
+                </section>
+              )}
+
               {/* Metrics Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {stats.map((metric, idx) => (
@@ -208,8 +261,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                         quotes.slice(0, 5).map((q) => (
                           <div
                             key={q.id}
-                            onClick={() => setSelectedQuote(q)}
-                            className="group p-6 md:p-8 hover:bg-[#25303a] transition-all cursor-pointer flex flex-col md:flex-row justify-between gap-4"
+                            className="group p-6 md:p-8 transition-colors hover:bg-[#e5ad46]/[0.025] flex flex-col md:flex-row justify-between gap-4"
                           >
                             <div className="space-y-2 min-w-0">
                               <div className="flex items-center gap-3 flex-wrap">
@@ -227,9 +279,15 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                             </div>
                             <div className="flex items-center gap-4 shrink-0">
                               <span className="text-lg font-headline font-bold text-[#e5ad46]">{q.amount ? `${Number(q.amount).toLocaleString("fr-FR")} Ar` : "-"}</span>
-                              <div className="w-8 h-8 bg-[#e5ad46]/5 rounded-full flex items-center justify-center text-[#e5ad46] group-hover:bg-[#e5ad46] group-hover:text-white transition-all">
-                                <span className="material-symbols-outlined text-lg">arrow_forward</span>
-                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setSelectedQuote(q)}
+                                className="inline-flex items-center gap-2 border border-[#e5ad46]/25 px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#e5ad46] transition-colors hover:bg-[#e5ad46] hover:text-[#25303a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e5ad46]"
+                                aria-label={`Voir le détail de ${quoteReference(q)}`}
+                              >
+                                Détail
+                                <span className="material-symbols-outlined text-base">arrow_forward</span>
+                              </button>
                             </div>
                           </div>
                         ))
@@ -308,6 +366,142 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
             </>
           )}
         </div>
+        {selectedQuote && (
+          <div className="fixed inset-0 z-50 flex items-end bg-[#111a22]/80 p-4 backdrop-blur-sm sm:items-center sm:justify-center" role="presentation">
+            <section
+              className="w-full max-w-xl border border-[#e5ad46]/25 bg-[#25303a] p-6 shadow-2xl sm:p-8"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="quote-dialog-title"
+            >
+              <div className="flex items-start justify-between gap-5 border-b border-[#e5ad46]/10 pb-5">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#e5ad46]">Détail de la demande</p>
+                  <h2 id="quote-dialog-title" className="mt-2 font-headline text-3xl font-bold text-[#eccc90]">{quoteReference(selectedQuote)}</h2>
+                </div>
+                <button type="button" onClick={() => setSelectedQuote(null)} className="text-[#e5ad46]/70 transition-colors hover:text-[#e5ad46] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e5ad46]" aria-label="Fermer le détail">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+              <dl className="mt-6 space-y-5">
+                <div>
+                  <dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#e5ad46]/50">Statut</dt>
+                  <dd className="mt-1 text-sm font-bold text-[#eccc90]">{quoteStatusLabel(selectedQuote.status)}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#e5ad46]/50">Demande</dt>
+                  <dd className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-[#eccc90]/70">{selectedQuote.message || "Aucun détail complémentaire."}</dd>
+                </div>
+                <div className="flex flex-wrap gap-x-8 gap-y-3">
+                  <div>
+                    <dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#e5ad46]/50">Envoyée le</dt>
+                    <dd className="mt-1 text-sm text-[#eccc90]/70">{formatDate(selectedQuote.created_at ?? "")}</dd>
+                  </div>
+                  {selectedQuote.amount && <div><dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#e5ad46]/50">Montant</dt><dd className="mt-1 text-sm text-[#eccc90]/70">{Number(selectedQuote.amount).toLocaleString("fr-FR")} Ar</dd></div>}
+                </div>
+              </dl>
+            </section>
+          </div>
+        )}
+        <style jsx>{`
+          .quote-progress-step {
+            position: relative;
+            min-width: 0;
+            color: rgba(236, 204, 144, 0.42);
+          }
+
+          .quote-progress-marker {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            width: 2rem;
+            height: 2rem;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(229, 173, 70, 0.2);
+            border-radius: 999px;
+            background: #202b35;
+          }
+
+          .quote-progress-step p {
+            margin-top: 0.8rem;
+            color: inherit;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            line-height: 1.35;
+          }
+
+          .quote-progress-step small {
+            display: block;
+            margin-top: 0.25rem;
+            color: rgba(236, 204, 144, 0.32);
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+          }
+
+          .quote-progress-step--done,
+          .quote-progress-step--current {
+            color: #eccc90;
+          }
+
+          .quote-progress-step--done .quote-progress-marker {
+            border-color: #e5ad46;
+            background: #e5ad46;
+            color: #25303a;
+            box-shadow: 0 0 0 0 rgba(229, 173, 70, 0.52);
+            animation: quote-complete-pulse 2.8s ease-out infinite;
+          }
+
+          .quote-progress-step--current .quote-progress-marker {
+            border-color: #e5ad46;
+            background: #e5ad46;
+            animation: quote-current-breathe 2.2s ease-in-out infinite;
+          }
+
+          .quote-progress-step--done small,
+          .quote-progress-step--current small {
+            color: rgba(236, 204, 144, 0.68);
+          }
+
+          .quote-progress-line {
+            position: absolute;
+            top: 1rem;
+            left: 2rem;
+            right: -0.8rem;
+            height: 1px;
+            background: rgba(229, 173, 70, 0.15);
+          }
+
+          .quote-progress-step--done .quote-progress-line {
+            background: #e5ad46;
+          }
+
+          @keyframes quote-complete-pulse {
+            0%, 42% { box-shadow: 0 0 0 0 rgba(229, 173, 70, 0.48); }
+            72%, 100% { box-shadow: 0 0 0 9px rgba(229, 173, 70, 0); }
+          }
+
+          @keyframes quote-current-breathe {
+            0%, 100% { box-shadow: 0 0 0 3px rgba(229, 173, 70, 0.08); }
+            50% { box-shadow: 0 0 0 7px rgba(229, 173, 70, 0.18); }
+          }
+
+          @media (max-width: 639px) {
+            .quote-progress-grid { padding-left: 0.15rem; row-gap: 0; }
+            .quote-progress-step { display: grid; grid-template-columns: 2rem minmax(0, 1fr); column-gap: 0.85rem; }
+            .quote-progress-step p { margin-top: 0.1rem; }
+            .quote-progress-step small { grid-column: 2; margin-top: -0.75rem; }
+            .quote-progress-line { top: 2rem; bottom: 0; left: 1rem; right: auto; width: 1px; height: auto; }
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .quote-progress-step--done .quote-progress-marker,
+            .quote-progress-step--current .quote-progress-marker { animation: none; }
+          }
+        `}</style>
       </section>
     );
   }

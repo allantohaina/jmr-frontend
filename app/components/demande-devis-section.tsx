@@ -4,10 +4,11 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useCallback } from "react";
 import { authAPI } from "@/app/lib";
 import { getErrorMessage } from "@/app/lib/errors";
+import { CsvPreview } from "@/app/components/document-preview";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { ArrowRight, Check, ChevronDown, Loader2, ShieldCheck } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, FileImage, Loader2, ShieldCheck, UploadCloud } from "lucide-react";
 
 // 1. DEFINIR LE SCHEMA DE VALIDATION ZOD
 const quoteRequestSchema = z.object({
@@ -38,8 +39,15 @@ const quoteRequestSchema = z.object({
 type QuoteRequestFormData = z.infer<typeof quoteRequestSchema>;
 
 function buildQuoteRequestPayload(data: QuoteRequestFormData) {
-  const { technical_files, ...jsonData } = data;
-  return jsonData;
+  const { technical_files, ...values } = data;
+  const payload = new FormData();
+  Object.entries(values).forEach(([key, value]) => payload.append(key, String(value ?? "")));
+
+  if (technical_files instanceof FileList) {
+    Array.from(technical_files).forEach((file) => payload.append("technical_files[]", file));
+  }
+
+  return payload;
 }
 
 function QuoteFormContent() {
@@ -50,6 +58,7 @@ function QuoteFormContent() {
   const requestTypeDefault = modifyCode ? "edit" : "new";
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [attachments, setAttachments] = useState<File[]>([]);
 
   const {
     control,
@@ -89,8 +98,11 @@ function QuoteFormContent() {
     setSubmitError("");
 
     try {
+      const files = data.technical_files instanceof FileList ? Array.from(data.technical_files) : [];
+      if (files.length > 5) throw new Error("Ajoutez au maximum 5 fichiers de référence.");
+      if (files.some((file) => file.size > 10 * 1024 * 1024)) throw new Error("Chaque fichier doit faire moins de 10 Mo.");
       const payload = buildQuoteRequestPayload(data);
-      await authAPI.post("/quotes", payload as Record<string, unknown>);
+      await authAPI.post("/quotes", payload);
       window.location.assign("/suivi-projet?view=tracking&step=2");
     } catch (error) {
       setSubmitError(getErrorMessage(error));
@@ -213,6 +225,44 @@ function QuoteFormContent() {
                 {errors.category && (
                   <p className="text-red-300 text-xs mt-2">{errors.category.message}</p>
                 )}
+              </div>
+
+              <div className="md:col-span-2 rounded-2xl border border-dashed border-[#e5ad46]/25 bg-[#1e2a38]/60 p-5">
+                <Controller
+                  name="technical_files"
+                  control={control}
+                  render={({ field: { onChange, ref } }) => (
+                    <label className="block cursor-pointer" htmlFor="quote-technical-files">
+                      <span className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/55">
+                        <FileImage className="h-4 w-4 text-[#e5ad46]" /> Images et documents de référence
+                      </span>
+                      <span className="mb-4 block text-xs leading-relaxed text-[#eccc90]/50">
+                        Ajoutez vos croquis, photos d’inspiration ou documents techniques. JPG, PNG, WEBP, PDF et CSV — 5 fichiers maximum, 10 Mo par fichier.
+                      </span>
+                      <span className="inline-flex items-center gap-2 rounded-xl bg-[#e5ad46]/10 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] transition-colors hover:bg-[#e5ad46]/20">
+                        <UploadCloud className="h-4 w-4" /> Choisir des fichiers
+                      </span>
+                      <input
+                        id="quote-technical-files"
+                        ref={ref}
+                        className="sr-only"
+                        type="file"
+                        multiple
+                        accept="image/jpeg,image/png,image/webp,application/pdf,text/csv,.csv"
+                        onChange={(event) => {
+                          onChange(event.target.files);
+                          setAttachments(Array.from(event.target.files ?? []));
+                        }}
+                      />
+                    </label>
+                  )}
+                />
+                {attachments.length > 0 ? (
+                  <div className="mt-4 space-y-2">
+                    <p className="text-xs text-[#eccc90]/60">{attachments.length} fichier{attachments.length > 1 ? "s" : ""} sélectionné{attachments.length > 1 ? "s" : ""}</p>
+                    {attachments.filter((file) => file.type === "text/csv" || file.name.toLowerCase().endsWith(".csv")).map((file) => <CsvPreview key={`${file.name}-${file.lastModified}`} file={file} />)}
+                  </div>
+                ) : null}
               </div>
 
               <div>

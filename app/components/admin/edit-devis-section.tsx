@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { ProblemHierarchyPanel } from "../problem-hierarchy-panel";
 import { TEXTILE_PROBLEM_THREADS, authAPI } from "@/app/lib";
+import { DocumentPreview } from "@/app/components/document-preview";
 
 type QuoteRecord = {
   id: string | number;
@@ -387,19 +388,13 @@ export function EditDevisSection({ id }: { id: string }) {
             <div className="grid grid-cols-1 gap-2">
               {quote.files && quote.files.length > 0 ? (
                 quote.files.map((file, idx) => (
-                  <a 
-                    key={idx} 
-                    href={file.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between p-3 bg-[#faf9f4] rounded-xl border border-[#163526]/5 hover:border-orange-500/30 transition-colors group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="material-symbols-outlined text-orange-500">description</span>
-                      <span className="text-[11px] font-bold text-[#163526] truncate max-w-[150px]">{file.name}</span>
-                    </div>
-                    <span className="material-symbols-outlined text-[#163526]/20 group-hover:text-orange-500 transition-colors">download</span>
-                  </a>
+                  <div key={idx} className="space-y-2">
+                    <a href={file.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-[#faf9f4] rounded-xl border border-[#163526]/5 hover:border-orange-500/30 transition-colors group">
+                      <div className="flex items-center gap-3"><span className="material-symbols-outlined text-orange-500">description</span><span className="text-[11px] font-bold text-[#163526] truncate max-w-[150px]">{file.name}</span></div>
+                      <span className="material-symbols-outlined text-[#163526]/20 group-hover:text-orange-500 transition-colors">download</span>
+                    </a>
+                    <DocumentPreview file={file} />
+                  </div>
                 ))
               ) : (
                 <div className="p-4 bg-[#faf9f4] rounded-xl border border-dashed border-[#163526]/10 text-center">
