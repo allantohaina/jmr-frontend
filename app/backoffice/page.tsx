@@ -1,20 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 
 import { 
-  BarChart, 
-  Bar, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
   AreaChart,
-  Area,
-  LineChart,
-  Line
+  Area
 } from "recharts";
 
 const data = [
@@ -26,13 +22,17 @@ const data = [
   { name: "Juin", ventes: 67000, depenses: 45000 },
 ];
 
+interface Visitor {
+  id: string;
+  pseudonym: string;
+  page: string;
+  duration: string;
+  status: string;
+}
+
 export default function AdminDashboardPage() {
   const [filterActive, setFilterActive] = useState(false);
-  const [visitors, setVisitors] = useState<any[]>([]);
-
-  useEffect(() => {
-    setVisitors([]);
-  }, []);
+  const [visitors, setVisitors] = useState<Visitor[]>([]);
 
   return (
     <div className="px-4 md:px-12 py-6 md:py-10 space-y-8 md:space-y-12">
@@ -137,14 +137,14 @@ export default function AdminDashboardPage() {
           </div>
           <div className="py-8 text-center">
             <span className="material-symbols-outlined text-green-500 text-5xl mb-4">verified_user</span>
-            <p className="text-sm font-bold text-[#163526]">Système d'obfuscation actif</p>
-            <p className="text-[10px] text-[#163526]/40 uppercase font-bold mt-1">Lien legacy /admin protégé</p>
+            <p className="text-sm font-bold text-[#163526]">Syst&egrave;me d&apos;obfuscation actif</p>
+            <p className="text-[10px] text-[#163526]/40 uppercase font-bold mt-1">Lien legacy /admin prot&eacute;g&eacute;</p>
           </div>
           <button 
-            onClick={() => alert("Génération d'un nouveau lien sécurisé...")}
+            onClick={() => alert("G&eacute;n&eacute;ration d&apos;un nouveau lien s&eacute;curis&eacute;...")}
             className="w-full py-4 border border-[#163526]/10 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-[#163526]/5 transition-all"
           >
-            Changer l'URL sécurisée
+            Changer l&apos;URL s&eacute;curis&eacute;e
           </button>
         </div>
       </section>
@@ -242,7 +242,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <div>
                       <p className="font-bold text-sm text-[#163526]">Maison Haussmann</p>
-                      <p className="text-[10px] text-[#1b1c19]/40 uppercase font-bold tracking-widest italic">Veste Laine "Hiver 24"</p>
+                      <p className="text-[10px] text-[#1b1c19]/40 uppercase font-bold tracking-widest italic">Veste Laine &laquo;Hiver 24&raquo;</p>
                     </div>
                   </div>
                 </td>
@@ -274,7 +274,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <div>
                       <p className="font-bold text-sm text-[#163526]">Atelier Granville</p>
-                      <p className="text-[10px] text-[#1b1c19]/40 uppercase font-bold tracking-widest italic">Robe Soie "Capucine"</p>
+                      <p className="text-[10px] text-[#1b1c19]/40 uppercase font-bold tracking-widest italic">Robe Soie &laquo;Capucine&raquo;</p>
                     </div>
                   </div>
                 </td>

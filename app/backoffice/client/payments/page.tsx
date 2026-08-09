@@ -2,14 +2,22 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { authAPI } from "@/app/lib/api";
+import { authAPI, type QuoteRecord } from "@/app/lib/api";
 import { CreditCard, Loader } from "lucide-react";
+
+interface PaymentRow {
+  ref: string;
+  client: string;
+  amount: string;
+  status: string;
+  date: string | undefined;
+}
 
 export default function PaymentsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const statusFilter = searchParams.get("status");
-  const [payments, setPayments] = useState<any[]>([]);
+  const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   const filteredPayments = statusFilter ? payments.filter((p) => p.status === statusFilter) : payments;
@@ -22,17 +30,23 @@ export default function PaymentsPage() {
   }, [router, searchParams]);
 
   useEffect(() => {
-    Promise.all([
-      authAPI.get<any[]>("/quotes").catch(() => ({ data: [] })),
-    ]).then(([quotes]) => {
-      setPayments((quotes.data || []).filter((q: any) => q.deposit_paid || q.balance_paid).map((q: any) => ({
-        ref: q.id?.toString().slice(0, 8) || "N/A",
-        client: q.name || q.email,
-        amount: q.amount || "0",
-        status: q.balance_paid ? "payé" : "acompte",
-        date: q.updated_at || q.created_at,
-      })));
-    }).finally(() => setLoading(false));
+    authAPI.get<{ data: QuoteRecord[] }>("/quotes")
+      .then((res) => {
+        const quotes: QuoteRecord[] = Array.isArray(res.data) ? res.data : (res.data?.data ?? []);
+        setPayments(
+          quotes
+            .filter((q) => q.deposit_paid || q.balance_paid)
+            .map((q): PaymentRow => ({
+              ref: q.id?.toString().slice(0, 8) || "N/A",
+              client: q.name || q.email || "Inconnu",
+              amount: q.amount?.toString() || "0",
+              status: q.balance_paid ? "payé" : "acompte",
+              date: q.updated_at || q.created_at,
+            }))
+        );
+      })
+      .catch(() => setPayments([]))
+      .finally(() => setLoading(false));
   }, []);
 
   return (

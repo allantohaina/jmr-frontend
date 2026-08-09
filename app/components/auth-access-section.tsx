@@ -55,8 +55,7 @@ const signupSchema = z.object({
   .refine((data) => {
     if (!data.country) return true;
     try {
-      // Cast country to any to avoid TypeScript issues with libphonenumber-js types
-      return isValidPhoneNumber(data.phone, data.country as any);
+      return isValidPhoneNumber(data.phone, data.country as Parameters<typeof isValidPhoneNumber>[1]);
     } catch {
       return false;
     }

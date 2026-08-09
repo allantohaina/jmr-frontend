@@ -2,26 +2,25 @@
 
 import { useState, useCallback, useRef } from 'react';
 
-interface UseOptimisticOptions<T> {
+interface UseOptimisticOptions<T, TResult = unknown> {
   initialData: T;
   onError?: (error: Error, rollbackData: T) => void;
-  onSuccess?: (result: any) => void;
+  onSuccess?: (result: TResult) => void;
 }
 
-export function useOptimistic<T>({
+export function useOptimistic<T, TResult = unknown>({
   initialData,
   onError,
   onSuccess
-}: UseOptimisticOptions<T>) {
+}: UseOptimisticOptions<T, TResult>) {
   const [data, setData] = useState<T>(initialData);
   const pendingActionsRef = useRef<Set<string>>(new Set());
   const historyRef = useRef<T[]>([initialData]);
 
   const updateOptimistic = useCallback((
     newState: T | ((prev: T) => T),
-    asyncAction: () => Promise<any>
+    asyncAction: () => Promise<TResult>
   ) => {
-    // 1. Apply optimistic update immediately
     const previousState = data;
     const updatedState = typeof newState === 'function' 
       ? (newState as (prev: T) => T)(data) 
@@ -33,14 +32,11 @@ export function useOptimistic<T>({
     const actionId = crypto.randomUUID();
     pendingActionsRef.current.add(actionId);
     
-    // 2. Execute real API call
     asyncAction()
       .then((result) => {
-        // Success
         onSuccess?.(result);
       })
       .catch((error) => {
-        // Rollback on failure
         console.error('Optimistic update failed, rolling back:', error);
         setData(previousState);
         historyRef.current = [previousState];

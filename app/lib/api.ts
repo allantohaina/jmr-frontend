@@ -77,6 +77,8 @@ export type QuoteRecord = {
   notifications?: Array<{ id: string; type: "delay" | "error" | "info"; message: string; date: string }>;
   created_at?: string;
   updated_at?: string;
+  admin_signature_name?: string | null;
+  admin_signature_at?: string | null;
 };
 
 export type CommandeRecord = {
@@ -99,6 +101,8 @@ export type CommandeRecord = {
   client_email?: string;
   client_first_name?: string;
   client_last_name?: string;
+  admin_signature_name?: string | null;
+  admin_signature_at?: string | null;
 };
 
 export type AchatRecord = {
@@ -124,6 +128,8 @@ export type BonLivraisonRecord = {
   created_at?: string;
   commande_numero?: string;
   commande_designation?: string;
+  admin_signature_name?: string | null;
+  admin_signature_at?: string | null;
 };
 
 export const STATUTS_PRODUCTION = [
@@ -335,6 +341,36 @@ export const authAPI = {
       method: "PUT",
       body: toRequestBody(data),
     }, token);
+  },
+
+  signQuote: async (quoteId: string | number, signature: { name: string; signedAt: string | Date }) => {
+    return fetchWithAuth<QuoteRecord>(`/quotes/${quoteId}/sign`, {
+      method: "PUT",
+      body: JSON.stringify({
+        admin_signature_name: signature.name,
+        admin_signature_at: signature.signedAt instanceof Date ? signature.signedAt.toISOString() : signature.signedAt,
+      }),
+    });
+  },
+
+  signCommande: async (commandeId: string, signature: { name: string; signedAt: string | Date }) => {
+    return fetchWithAuth<CommandeRecord>(`/commandes/${commandeId}/sign`, {
+      method: "PUT",
+      body: JSON.stringify({
+        admin_signature_name: signature.name,
+        admin_signature_at: signature.signedAt instanceof Date ? signature.signedAt.toISOString() : signature.signedAt,
+      }),
+    });
+  },
+
+  signBonLivraison: async (bonId: string, signature: { name: string; signedAt: string | Date }) => {
+    return fetchWithAuth<BonLivraisonRecord>(`/bon-livraison/${bonId}/sign`, {
+      method: "PUT",
+      body: JSON.stringify({
+        admin_signature_name: signature.name,
+        admin_signature_at: signature.signedAt instanceof Date ? signature.signedAt.toISOString() : signature.signedAt,
+      }),
+    });
   },
 };
 

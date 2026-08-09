@@ -98,15 +98,15 @@ export function validateQuoteRequest(data: {
 }
 
 // Compose validators
-export function validateFields<T extends Record<string, any>>(
+export function validateFields<T extends Record<string, unknown>>(
   data: T,
-  validators: Partial<Record<keyof T, (value: any) => ValidationError[]>>
+  validators: Partial<Record<keyof T, (value: unknown) => ValidationError[]>>
 ): ValidationResult<T> {
   const allErrors: ValidationError[] = [];
   
   for (const [field, validator] of Object.entries(validators)) {
     if (validator) {
-      const fieldErrors = validator(data[field]);
+      const fieldErrors = validator(data[field as keyof T]);
       allErrors.push(...fieldErrors);
     }
   }

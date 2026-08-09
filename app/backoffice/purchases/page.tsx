@@ -3,14 +3,10 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { 
-  ShoppingCart, 
   Plus, 
   Search, 
-  FileText, 
   TrendingDown,
   Package,
-  Calendar,
-  Filter,
   X,
 } from "lucide-react";
 import { debounce } from "@/app/lib/utils";

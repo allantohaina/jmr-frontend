@@ -1,12 +1,51 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Plus, Search, X, PackageCheck, CalendarDays, ClipboardList, CircleAlert, Check, Truck, Package } from "lucide-react";
+import { Plus, Search, X, PackageCheck, CalendarDays, ClipboardList, CircleAlert, Check, Truck, Package, Loader, Printer } from "lucide-react";
 import { authAPI, BonLivraisonRecord, STATUTS_BON_LIVRAISON } from "@/app/lib/api";
 import { debounce } from "@/app/lib/utils";
+import { TextileDocument, AdminSignaturePanel } from "@/app/components/documents";
+import type { DocumentSignature, DocumentLineItem, TextileDocumentProps } from "@/app/components/documents/types";
 
 const deliverySteps = ["Préparation", "Prête à expédier", "Expédiée", "Livrée"];
+
+function bonToDoc(b: BonLivraisonRecord): Omit<TextileDocumentProps, "kind"> {
+  const lines: DocumentLineItem[] = (b.articles ?? []).map((a) => ({
+    description: a.designation,
+    quantity: a.quantite,
+    unit: a.unite,
+    unitPrice: 0,
+    taxRate: 0,
+  }));
+
+  if (lines.length === 0) {
+    lines.push({
+      description: b.commande_designation ?? "Articles à livrer",
+      quantity: 1,
+      unit: "lot",
+      unitPrice: 0,
+      taxRate: 0,
+    });
+  }
+
+  return {
+    number: b.numero ?? `BL-${String(b.id).slice(0, 8).toUpperCase()}`,
+    issuedAt: b.date_livraison ?? new Date().toISOString(),
+    client: {
+      name: b.destinataire,
+    },
+    lines,
+    currency: "MGA",
+    status: b.statut,
+    orderReference: b.commande_numero ?? undefined,
+    deliveryAddress: b.destinataire,
+    notes: b.notes ?? undefined,
+    signature: b.admin_signature_name && b.admin_signature_at
+      ? { name: b.admin_signature_name, signedAt: b.admin_signature_at }
+      : undefined,
+  };
+}
 
 function statusTone(status: string) {
   if (status === "Livré") return "bg-emerald-50 text-emerald-800 border-emerald-200";
@@ -18,7 +57,6 @@ function statusTone(status: string) {
 function progressForStatus(status: string) {
   if (status === "Livré") return 3;
   if (status === "Expédié") return 2;
-  // « Préparé » signifie que la préparation est terminée : le colis est prêt à expédier.
   return 1;
 }
 
@@ -39,6 +77,8 @@ export default function AdminDeliveryNotesPage() {
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(searchParams.get("id"));
+  const [showDoc, setShowDoc] = useState(false);
+  const [savingSignature, setSavingSignature] = useState(false);
 
   const [formData, setFormData] = useState({
     commande_id: "", numero: "", date_livraison: new Date().toISOString().slice(0, 10),
@@ -47,13 +87,29 @@ export default function AdminDeliveryNotesPage() {
 
   const [commandes, setCommandes] = useState<{ id: string; numero: string }[]>([]);
 
-  const handleSearchChange = useCallback(debounce((val: string) => {
-    setDebouncedSearch(val);
-    const params = new URLSearchParams(searchParams.toString());
-    if (val) params.set("search", val);
-    else params.delete("search");
-    router.replace(`?${params.toString()}`, { scroll: false });
-  }, 300), [router, searchParams]);
+  const debouncedSearchRef = useRef<((val: string) => void) | null>(null);
+  const handleSearchChange = (val: string) => {
+    if (!debouncedSearchRef.current) {
+      debouncedSearchRef.current = debounce((v: string) => {
+        setDebouncedSearch(v);
+        const params = new URLSearchParams(searchParams.toString());
+        if (v) params.set("search", v);
+        else params.delete("search");
+        router.replace(`?${params.toString()}`, { scroll: false });
+      }, 300);
+    }
+    if (debouncedSearchRef.current) {
+      debouncedSearchRef.current(val);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (debouncedSearchRef.current) {
+        // cleanup debounce if needed
+      }
+    };
+  }, []);
 
   const fetchBons = useCallback(async () => {
     setIsLoading(true);
@@ -101,6 +157,17 @@ export default function AdminDeliveryNotesPage() {
       setError(err instanceof Error ? err.message : "Erreur");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleApprove = async (signature: DocumentSignature) => {
+    if (!selectedBon) return;
+    setSavingSignature(true);
+    try {
+      await authAPI.signBonLivraison(selectedBon.id, signature);
+      await fetchBons();
+    } finally {
+      setSavingSignature(false);
     }
   };
 
@@ -216,12 +283,18 @@ export default function AdminDeliveryNotesPage() {
                       <span>Date: {b.date_livraison}</span>
                     </div>
                   </div>
-                  <div className="shrink-0">
+                  <div className="shrink-0 flex items-center gap-2">
                     <button
-                      onClick={() => setSelectedId(b.id)}
-                      className="rounded-lg border border-[#e5ad46]/40 px-3 py-2 text-[9px] font-bold uppercase tracking-widest text-[#163526] transition hover:border-[#e5ad46] hover:bg-[#e5ad46] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#e5ad46]"
+                      onClick={() => { setSelectedId(b.id); setShowDoc(false); }}
+                      className="rounded-lg border border-[#163526]/15 px-3 py-2 text-[9px] font-bold uppercase tracking-widest text-[#163526] transition hover:border-[#e5ad46] hover:text-[#e5ad46] focus:outline-none focus:ring-2 focus:ring-[#e5ad46]"
                     >
                       Détails
+                    </button>
+                    <button
+                      onClick={() => { setSelectedId(b.id); setShowDoc(true); }}
+                      className="rounded-lg border border-[#e5ad46]/40 px-3 py-2 text-[9px] font-bold uppercase tracking-widest text-[#163526] transition hover:bg-[#e5ad46] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#e5ad46]"
+                    >
+                      Bon A4
                     </button>
                   </div>
                 </div>
@@ -232,7 +305,7 @@ export default function AdminDeliveryNotesPage() {
         )}
       </div>
 
-      {selectedBon && (
+      {selectedBon && !showDoc && (
         <div
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#163526]/35 p-0 sm:p-6 backdrop-blur-[2px] animate-in fade-in duration-200"
           role="presentation"
@@ -250,9 +323,18 @@ export default function AdminDeliveryNotesPage() {
                 <h2 id="delivery-note-title" className="font-headline text-2xl text-[#163526] md:text-4xl">Expédition pour {selectedBon.destinataire}</h2>
                 <p className="mt-2 flex items-center gap-2 text-xs text-[#163526]/55"><CalendarDays className="h-3.5 w-3.5" /> Prévue le {selectedBon.date_livraison}</p>
               </div>
-              <button onClick={() => setSelectedId(null)} aria-label="Fermer le détail" className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#163526]/10 text-[#163526]/60 transition hover:border-[#163526] hover:bg-[#163526] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#e5ad46]">
-                <X className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowDoc(true)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-[#e5ad46]/40 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#163526] hover:bg-[#e5ad46]/10 transition-colors"
+                >
+                  <Printer className="h-4 w-4" /> Voir le bon A4
+                </button>
+                <button onClick={() => setSelectedId(null)} aria-label="Fermer le détail" className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#163526]/10 text-[#163526]/60 transition hover:border-[#163526] hover:bg-[#163526] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#e5ad46]">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </header>
 
             <div className="space-y-7 px-6 py-7 md:px-10 md:py-9">
@@ -300,6 +382,62 @@ export default function AdminDeliveryNotesPage() {
               <footer className="flex flex-col gap-3 border-t border-[#163526]/10 pt-6 sm:flex-row sm:items-center sm:justify-between"><p className="flex items-center gap-2 text-xs text-[#163526]/50"><ClipboardList className="h-4 w-4" /> Mettre à jour l’avancement du bon</p><div className="flex flex-wrap gap-2">{STATUTS_BON_LIVRAISON.map((status) => <button key={status} disabled={status === selectedBon.statut} onClick={() => updateStatut(selectedBon.id, status)} className={`rounded-lg border px-3 py-2 text-[9px] font-bold uppercase tracking-wide transition focus:outline-none focus:ring-2 focus:ring-[#e5ad46] disabled:cursor-default ${status === selectedBon.statut ? "border-[#163526] bg-[#163526] text-white" : "border-[#163526]/15 bg-white text-[#163526]/65 hover:border-[#e5ad46] hover:text-[#163526]"}`}>{status}</button>)}</div></footer>
             </div>
           </section>
+        </div>
+      )}
+
+      {selectedBon && showDoc && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#0b1320]/70 p-0 sm:p-6 backdrop-blur-sm print:static print:bg-transparent print:p-0 print:backdrop-blur-0"
+          role="presentation"
+          onMouseDown={(e) => { if (e.target === e.currentTarget) setShowDoc(false); }}
+        >
+          <div className="relative w-full max-w-[920px] max-h-[96vh] overflow-y-auto bg-transparent sm:rounded-2xl print:max-h-none print:overflow-visible">
+            <div className="sticky top-0 z-20 flex items-center justify-between gap-3 bg-[#163526]/95 px-4 py-3 sm:px-6 sm:py-4 backdrop-blur border-b border-[#e5ad46]/15 print:hidden">
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-[.22em] text-[#eccc90]/45">Bon de livraison · A4</p>
+                <h2 className="font-headline text-lg text-[#eccc90]">{selectedBon.numero}</h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="inline-flex items-center gap-2 rounded-lg border border-[#e5ad46]/40 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[#eccc90] hover:bg-[#e5ad46]/15 transition"
+                >
+                  <Printer className="h-4 w-4" /> Imprimer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDoc(false)}
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#eccc90]/15 text-[#eccc90]/60 hover:bg-[#eccc90]/10 hover:text-[#eccc90] transition"
+                  aria-label="Fermer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="px-0 py-4 sm:px-2 sm:py-6 print:px-0 print:py-0">
+              <TextileDocument kind="delivery_note" {...bonToDoc(selectedBon)} />
+
+              <div className="px-4 sm:px-6 mt-6 print:hidden max-w-[210mm] mx-auto">
+                {savingSignature ? (
+                  <div className="flex items-center justify-center gap-2 rounded-xl border border-[#e5ad46]/30 bg-[#fffdf8] p-5 text-[#172d42]">
+                    <Loader className="h-4 w-4 animate-spin text-[#e5ad46]" />
+                    <span className="text-xs font-bold uppercase tracking-widest">Enregistrement de la signature…</span>
+                  </div>
+                ) : (
+                  <AdminSignaturePanel
+                    initialSignature={
+                      selectedBon.admin_signature_name && selectedBon.admin_signature_at
+                        ? { name: selectedBon.admin_signature_name, signedAt: selectedBon.admin_signature_at }
+                        : undefined
+                    }
+                    onApprove={handleApprove}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

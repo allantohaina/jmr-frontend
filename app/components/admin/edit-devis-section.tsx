@@ -5,6 +5,9 @@ import Link from "next/link";
 import { ProblemHierarchyPanel } from "../problem-hierarchy-panel";
 import { TEXTILE_PROBLEM_THREADS, authAPI } from "@/app/lib";
 import { DocumentPreview } from "@/app/components/document-preview";
+import { TextileDocument, AdminSignaturePanel } from "@/app/components/documents";
+import type { DocumentSignature, DocumentLineItem, TextileDocumentProps } from "@/app/components/documents/types";
+import { Loader, Printer } from "lucide-react";
 
 type QuoteRecord = {
   id: string | number;
@@ -19,6 +22,10 @@ type QuoteRecord = {
   deposit_paid?: boolean;
   balance_paid?: boolean;
   files?: Array<{ name: string; url: string; type: string }>;
+  created_at?: string;
+  request_type?: string;
+  admin_signature_name?: string | null;
+  admin_signature_at?: string | null;
 };
 
 type Notice = {
@@ -122,6 +129,7 @@ export function EditDevisSection({ id }: { id: string }) {
   const [formBalance, setFormBalance] = useState("");
   const [depositPaid, setDepositPaid] = useState(false);
   const [balancePaid, setBalancePaid] = useState(false);
+  const [savingSignature, setSavingSignature] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -258,6 +266,90 @@ export function EditDevisSection({ id }: { id: string }) {
     }
 
     void updateQuote(new FormData(event.currentTarget));
+  }
+
+  function quoteToQuoteDoc(q: QuoteRecord): Omit<TextileDocumentProps, "kind"> {
+    const amount = parseFloat(String(q.amount ?? "0"));
+    const deposit = parseFloat(String(q.deposit_amount ?? "0"));
+    const balance = parseFloat(String(q.balance_amount ?? "0"));
+    const taxRate = 20;
+    const subtotal = amount / (1 + taxRate / 100);
+
+    const lines: DocumentLineItem[] = [];
+    if (deposit > 0) {
+      lines.push({
+        description: "Acompte — 30% à la commande",
+        quantity: 1,
+        unit: "lot",
+        unitPrice: deposit / (1 + taxRate / 100),
+        taxRate,
+        reference: "Tranche 1",
+      });
+    }
+    if (balance > 0) {
+      lines.push({
+        description: "Solde — 70% à livraison",
+        quantity: 1,
+        unit: "lot",
+        unitPrice: balance / (1 + taxRate / 100),
+        taxRate,
+        reference: "Tranche 2",
+      });
+    }
+    if (lines.length === 0) {
+      lines.push({
+        description: q.message ? `Devis textile — ${q.message.slice(0, 80)}` : "Prestation de confection textile",
+        quantity: 1,
+        unit: "lot",
+        unitPrice: subtotal,
+        taxRate,
+        reference: q.request_type ?? "",
+      });
+    }
+
+    const validUntil = q.created_at
+      ? new Date(new Date(q.created_at).getTime() + 30 * 24 * 3600 * 1000).toISOString()
+      : undefined;
+
+    return {
+      number: `DEV-${String(q.id).slice(0, 8).toUpperCase()}`,
+      issuedAt: q.created_at ?? new Date().toISOString(),
+      validUntil,
+      client: {
+        name: q.name ?? "Client",
+        email: q.email ?? undefined,
+        phone: q.phone ?? undefined,
+        address: q.message ? `Projet : ${q.message.slice(0, 120)}` : undefined,
+      },
+      lines,
+      currency: "EUR",
+      status: formatStatusLabel(q.status),
+      notes: q.message ?? undefined,
+      paymentTerms: deposit > 0 && balance > 0
+        ? `Acompte de ${formatAmount(deposit)} € · Solde de ${formatAmount(balance)} € à livraison`
+        : "Paiement à 30 jours",
+      signature: q.admin_signature_name && q.admin_signature_at
+        ? { name: q.admin_signature_name, signedAt: q.admin_signature_at }
+        : undefined,
+    };
+  }
+
+  async function handleApprove(signature: DocumentSignature) {
+    setSavingSignature(true);
+    setNotice(null);
+    try {
+      await authAPI.signQuote(id, signature);
+      setQuote((current) =>
+        current
+          ? { ...current, admin_signature_name: signature.name, admin_signature_at: signature.signedAt instanceof Date ? signature.signedAt.toISOString() : signature.signedAt }
+          : current,
+      );
+      setNotice({ tone: "success", message: "Approbation administrative enregistrée." });
+    } catch {
+      setNotice({ tone: "danger", message: "Impossible d'enregistrer la signature." });
+    } finally {
+      setSavingSignature(false);
+    }
   }
 
   if (isLoading) {
@@ -578,6 +670,42 @@ export function EditDevisSection({ id }: { id: string }) {
           </div>
         </form>
       </div>
+
+      <section className="space-y-6 print:space-y-0">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 print:hidden">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[.22em] text-[#a67428]">Document A4 · Imprimable</p>
+            <h3 className="font-headline text-2xl text-[#163526] mt-1">Aperçu du devis</h3>
+          </div>
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-2 rounded-2xl border border-[#163526]/15 bg-white px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#163526] hover:border-[#e5ad46] hover:text-[#e5ad46] transition-colors"
+          >
+            <Printer className="h-4 w-4" /> Imprimer
+          </button>
+        </div>
+
+        <TextileDocument kind="quote" {...quoteToQuoteDoc(quote)} />
+
+        <div className="print:hidden max-w-[210mm] mx-auto">
+          {savingSignature ? (
+            <div className="flex items-center justify-center gap-2 rounded-2xl border border-[#e5ad46]/30 bg-[#fffdf8] p-6 text-[#172d42] shadow-sm">
+              <Loader className="h-4 w-4 animate-spin text-[#e5ad46]" />
+              <span className="text-xs font-bold uppercase tracking-widest">Enregistrement de la signature…</span>
+            </div>
+          ) : (
+            <AdminSignaturePanel
+              initialSignature={
+                quote.admin_signature_name && quote.admin_signature_at
+                  ? { name: quote.admin_signature_name, signedAt: quote.admin_signature_at }
+                  : undefined
+              }
+              onApprove={handleApprove}
+            />
+          )}
+        </div>
+      </section>
     </div>
   );
 }

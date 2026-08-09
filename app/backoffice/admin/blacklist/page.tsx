@@ -49,7 +49,7 @@ export default function AdminBlacklistPage() {
         setNewReason("");
         fetchData();
       }
-    } catch (e) {
+    } catch {
       alert("Erreur lors de l'ajout à la blacklist");
     }
   };
@@ -59,7 +59,7 @@ export default function AdminBlacklistPage() {
     try {
       await fetchWithAuth(`/admin/blacklist/${id}`, { method: "DELETE" });
       fetchData();
-    } catch (e) {
+    } catch {
       alert("Erreur lors de la suppression");
     }
   };

@@ -72,7 +72,7 @@ export default function AdminBansPage() {
         setBanDuration("");
         fetchData();
       }
-    } catch (e) {
+    } catch {
       alert("Erreur lors du bannissement");
     }
   };
@@ -82,7 +82,7 @@ export default function AdminBansPage() {
     try {
       await fetchWithAuth(`/admin/bans/${banId}`, { method: "DELETE" });
       fetchData();
-    } catch (e) {
+    } catch {
       alert("Erreur lors de la levée du ban");
     }
   };
@@ -153,7 +153,7 @@ export default function AdminBansPage() {
                         <ShieldOff className="h-4 w-4" /> Banni
                         {userBan?.expires_at && (
                           <span className="text-[10px] text-[#eccc90]/40">
-                            jusqu'au {new Date(userBan.expires_at).toLocaleDateString()}
+                            jusqu&apos;au {new Date(userBan.expires_at).toLocaleDateString()}
                           </span>
                         )}
                       </span>

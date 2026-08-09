@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { authenticateWithForm } from "@/app/lib";
-import { getToken, getSafeRedirectPath } from "@/app/lib";
-import { useLocale } from "@/app/components/locale-provider";
+import { getToken } from "@/app/lib";
 
 type StaffRole = "admin" | "worker";
 
@@ -35,7 +35,6 @@ const roleConfig = {
 };
 
 export default function StaffLoginPage() {
-  const { messages } = useLocale();
   const [role, setRole] = useState<StaffRole>("admin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -176,9 +175,9 @@ export default function StaffLoginPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <a href="/" className="text-[11px] text-white/30 hover:text-white/50 transition-colors">
+            <Link href="/" className="text-[11px] text-white/30 hover:text-white/50 transition-colors">
               ← Retour au site
-            </a>
+            </Link>
           </div>
         </div>
 

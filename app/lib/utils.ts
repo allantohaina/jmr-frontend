@@ -1,11 +1,11 @@
 
 // Debounce utility function - perfect for search/filters/autocomplete
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
+export function debounce<TArgs extends unknown[], TResult>(
+  func: (...args: TArgs) => TResult,
   wait: number = 300
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null;
-  return function (...args: Parameters<T>) {
+): (...args: TArgs) => void {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  return function (...args: TArgs) {
     if (timeout) clearTimeout(timeout);
     timeout = setTimeout(() => {
       func(...args);
@@ -14,12 +14,12 @@ export function debounce<T extends (...args: any[]) => any>(
 }
 
 // Throttle utility
-export function throttle<T extends (...args: any[]) => any>(
-  func: T,
+export function throttle<TArgs extends unknown[], TResult>(
+  func: (...args: TArgs) => TResult,
   limit: number = 300
-): (...args: Parameters<T>) => void {
+): (...args: TArgs) => void {
   let inThrottle: boolean = false;
-  return function (...args: Parameters<T>) {
+  return function (...args: TArgs) {
     if (!inThrottle) {
       func(...args);
       inThrottle = true;
