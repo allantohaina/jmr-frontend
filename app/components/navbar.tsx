@@ -12,10 +12,9 @@ import { ThemeToggle } from "@/app/components/theme-toggle";
 import MobileMenu from "@/app/components/MobileMenu";
 import { getUser, writeBrowserCookie, getToken } from "@/app/lib/auth";
 import { signOutClient } from "@/app/lib/auth-client";
-import { authAPI, type UserProfile } from "@/app/lib/api";
+import { authAPI, notificationsAPI, type NotificationRecord, type UserProfile } from "@/app/lib/api";
 import { LOCALE_COOKIE_NAME, type Locale } from "@/app/lib/locale";
 import type { ThemeName } from "@/app/lib/theme";
-import { TEXTILE_PROBLEM_THREADS } from "@/app/lib";
 
 type NavItem = {
   route: string;
@@ -63,11 +62,13 @@ export function Navbar({
   const [sessionUser, setSessionUser] = useState<UserProfile | null>(null);
   const [currentTheme, setCurrentTheme] = useState<ThemeName>(initialTheme);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const hasNotifications = TEXTILE_PROBLEM_THREADS.length > 0;
+  const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const effectiveUserFirstName = sessionUser?.first_name ?? userFirstName;
   const effectiveUserRole = sessionUser?.role ?? userRole;
   const effectiveIsSignedIn = isSignedIn || !!sessionUser;
   const isStaff = effectiveUserRole === "admin" || effectiveUserRole === "worker";
+  const hasNotifications = effectiveIsSignedIn;
   const navItems: NavItem[] = [
     {
       route: "/",
@@ -191,6 +192,30 @@ export function Navbar({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isProfileOpen, isNotifOpen]);
+
+  useEffect(() => {
+    if (!effectiveIsSignedIn) {
+      setNotifications([]);
+      setUnreadNotifications(0);
+      return;
+    }
+
+    let active = true;
+    const loadNotifications = async () => {
+      try {
+        const response = await notificationsAPI.list();
+        if (!active) return;
+        setNotifications(response.data.data ?? []);
+        setUnreadNotifications(response.data.unread_count ?? 0);
+      } catch {
+        // A notification failure must never block navigation.
+      }
+    };
+
+    void loadNotifications();
+    const intervalId = window.setInterval(loadNotifications, 60_000);
+    return () => { active = false; window.clearInterval(intervalId); };
+  }, [effectiveIsSignedIn]);
 
   useEffect(() => {
     if (!isMenuOpen) {
@@ -473,17 +498,37 @@ export function Navbar({
                   height={24}
                   loading="lazy"
                 />
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#e5ad46] rounded-full" />
+                {unreadNotifications > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-2.5 h-2.5 px-1 bg-[#e5ad46] text-[#163526] text-[9px] font-bold leading-[18px] text-center rounded-full">
+                    {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                  </span>
+                )}
               </button>
 
               {isNotifOpen && (
                 <div className="absolute top-full right-0 mt-2 w-80 bg-[#25303a] border border-[#e5ad46]/20 rounded-xl shadow-xl py-4 px-4 z-[110] animate-in fade-in zoom-in-95 duration-200">
                   <h3 className="text-sm font-semibold text-[#e5ad46] mb-3">Notifications</h3>
                   <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {TEXTILE_PROBLEM_THREADS.map((thread) => (
-                      <div key={thread.id} className="p-3 rounded-lg bg-[#1e2a38] text-sm text-white/80">
-                        {thread.title}
-                      </div>
+                    {notifications.length === 0 ? (
+                      <p className="p-3 text-sm text-white/60">Aucune notification pour le moment.</p>
+                    ) : notifications.map((notification) => (
+                      <Link
+                        key={notification.id}
+                        href={notification.action_url || "/mon-profil"}
+                        onClick={() => {
+                          setIsNotifOpen(false);
+                          if (!notification.read_at) {
+                            void notificationsAPI.markRead(notification.id).then(() => {
+                              setNotifications((current) => current.map((item) => item.id === notification.id ? { ...item, read_at: new Date().toISOString() } : item));
+                              setUnreadNotifications((count) => Math.max(0, count - 1));
+                            });
+                          }
+                        }}
+                        className={`block p-3 rounded-lg text-sm transition-colors ${notification.read_at ? "bg-[#1e2a38] text-white/65" : "bg-[#1e2a38] text-white hover:bg-[#344454]"}`}
+                      >
+                        <span className="block font-semibold">{notification.title}</span>
+                        <span className="block mt-1 text-xs text-white/60 line-clamp-2">{notification.message}</span>
+                      </Link>
                     ))}
                   </div>
                 </div>

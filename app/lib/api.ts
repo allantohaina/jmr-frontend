@@ -34,6 +34,31 @@ export type UserProfile = {
   role?: "admin" | "worker" | "user" | string;
 };
 
+export type NotificationRecord = {
+  id: string;
+  entity_type: "quote" | "commande" | "ticket" | "payment" | string;
+  entity_id?: string | null;
+  event: string;
+  type: "info" | "success" | "warning" | "error" | string;
+  title: string;
+  message: string;
+  action_url?: string | null;
+  read_at?: string | null;
+  created_at: string;
+};
+
+export type PaymentRecord = {
+  id: string;
+  quote_id: string;
+  commande_id?: string | null;
+  phase: "deposit" | "balance";
+  amount: number | string;
+  status: "submitted" | "verified" | "rejected";
+  proof_path?: string | null;
+  review_note?: string | null;
+  created_at: string;
+};
+
 export type QuoteRecord = {
   id: number | string;
   name?: string;
@@ -311,4 +336,16 @@ export const authAPI = {
       body: toRequestBody(data),
     }, token);
   },
+};
+
+export const notificationsAPI = {
+  list: async (unreadOnly = false) =>
+    fetchWithAuth<{ data: NotificationRecord[]; unread_count: number }>(
+      `/notifications${unreadOnly ? "?unread_only=true" : ""}`,
+      { method: "GET" },
+    ),
+  markRead: async (id: string) =>
+    fetchWithAuth<NotificationRecord>(`/notifications/${id}/read`, { method: "PUT" }),
+  markAllRead: async () =>
+    fetchWithAuth<{ message: string }>("/notifications/read-all", { method: "PUT" }),
 };
