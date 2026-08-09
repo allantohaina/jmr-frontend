@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/app/components/theme-toggle";
 import { writeBrowserCookie } from "@/app/lib/auth";
 import { LOCALE_COOKIE_NAME, type Locale } from "@/app/lib/locale";
@@ -75,6 +76,7 @@ export default function MobileMenu({
   const touchStartY = useRef<number | null>(null);
   const touchCurrentX = useRef<number | null>(null);
   const asideRef = useRef<HTMLElement | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -190,8 +192,10 @@ export default function MobileMenu({
                 data-nav-section={link.sectionId}
                 onClick={(e) => {
                   closeImmediately();
-                  e.preventDefault();
-                  scrollToSection(link.sectionId);
+                  if (pathname === "/") {
+                    e.preventDefault();
+                    scrollToSection(link.sectionId);
+                  }
                 }}
                 className="mobile-menu__link flex items-center gap-3 px-3 py-3 rounded-xl no-underline transition-colors"
               >
