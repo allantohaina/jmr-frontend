@@ -52,7 +52,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <meta httpEquiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://api.jmrtextile.com http://localhost:8081 http://localhost:8080; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; frame-src 'none'; object-src 'none'; base-uri 'self'" />
+        <meta httpEquiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://api.jmrtextile.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; frame-src 'none'; object-src 'none'; base-uri 'self'" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

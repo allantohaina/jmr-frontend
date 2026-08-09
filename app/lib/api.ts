@@ -1,7 +1,6 @@
 import { AUTH_COOKIE_NAME, readBrowserCookie } from "./auth";
 
 const DEFAULT_API_URL = "https://api.jmrtextile.com/api";
-const FALLBACK_API_URL = "http://localhost:8081/api";
 const API_REQUEST_TIMEOUT_MS = 15_000;
 
 function normalizeApiUrl(value: string) {
@@ -42,8 +41,6 @@ export function getBackendApiUrls() {
 
   if (fallbackUrl && fallbackUrl !== configuredUrl) {
     urls.push(fallbackUrl);
-  } else if (!process.env.NEXT_PUBLIC_API_URL && configuredUrl === DEFAULT_API_URL) {
-    urls.push(FALLBACK_API_URL);
   }
 
   return Array.from(new Set(urls));
