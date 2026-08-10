@@ -458,7 +458,7 @@ const alertCount = submittedQuotes.filter((q) => q.status === "sent" || q.status
                 </div>
                 <div>
                   <dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#e5ad46]/50">Demande</dt>
-                  <dd className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-[#eccc90]/70">{selectedQuote.message || "Aucun détail complémentaire."}</dd>
+                  <dd className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-[#eccc90]/70 max-h-40 overflow-y-auto break-words">{selectedQuote.message || "Aucun détail complémentaire."}</dd>
                 </div>
                 <div className="flex flex-wrap gap-x-8 gap-y-3">
                   <div>
