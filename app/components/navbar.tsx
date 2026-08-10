@@ -503,6 +503,7 @@ export function Navbar({
                     {unreadNotifications > 9 ? "9+" : unreadNotifications}
                   </span>
                 )}
+                <span className="site-nav__language-name">Notifications</span>
               </button>
 
               {isNotifOpen && (

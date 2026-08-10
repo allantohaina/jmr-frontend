@@ -85,7 +85,7 @@ function resolveAuthErrorMessage(error?: string | null) {
   return getErrorMessage(error);
 }
 
-export function AuthAccessSection({ nextPath = "/mon-profil", error }: AuthAccessSectionProps) {
+export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionProps) {
   const { messages } = useLocale();
   const [errorMessage, setErrorMessage] = useState(resolveAuthErrorMessage(error));
   const [signupFeedback, setSignupFeedback] = useState<SignupFeedback | null>(null);
