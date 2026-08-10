@@ -184,7 +184,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                   aria-labelledby="quote-pending-title"
                 >
                   <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_82%_38%,rgba(229,173,70,0.13),transparent_56%)]" />
-                  <div className="relative flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between">
+<div className="relative flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between">
                     <div className="max-w-xl">
                       <div className="mb-4 flex items-center gap-3">
                         <span className="flex h-9 w-9 items-center justify-center border border-[#e5ad46]/30 bg-[#e5ad46]/10 text-[#e5ad46]">
@@ -200,26 +200,6 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                         Notre équipe vous répondra sous <span className="font-bold text-[#eccc90]">2 à 3 jours ouvrés</span>.
                       </p>
                     </div>
-
-                    <ol className="quote-progress-grid grid w-full max-w-2xl grid-cols-1 gap-5 sm:grid-cols-3" aria-label="Suivi de votre demande de devis">
-                      <li className="quote-progress-step quote-progress-step--done">
-                        <span className="quote-progress-marker" aria-hidden="true"><span className="material-symbols-outlined text-[16px]">check</span></span>
-                        <span className="quote-progress-line" aria-hidden="true" />
-                        <p>Demande reçue</p>
-                        <small>Terminée</small>
-                      </li>
-                      <li className="quote-progress-step quote-progress-step--current">
-                        <span className="quote-progress-marker" aria-hidden="true"><span className="h-2 w-2 rounded-full bg-[#25303a]" /></span>
-                        <span className="quote-progress-line" aria-hidden="true" />
-                        <p>Analyse par notre équipe</p>
-                        <small>En cours</small>
-                      </li>
-                      <li className="quote-progress-step">
-                        <span className="quote-progress-marker" aria-hidden="true" />
-                        <p>Devis envoyé</p>
-                        <small>À venir</small>
-                      </li>
-                    </ol>
                   </div>
                 </section>
               )}
@@ -248,8 +228,16 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                 <div className="lg:col-span-2 space-y-10">
                   {/* Devis Section */}
                   <div className="bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 shadow-sm overflow-hidden">
-                    <div className="px-10 py-8 border-b border-[#e5ad46]/5 flex justify-between items-center">
+                    <div className="px-10 py-8 border-b border-[#e5ad46]/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                       <h2 className="font-headline text-2xl text-[#e5ad46] font-bold">Mes devis</h2>
+                      <div className="flex flex-wrap gap-4 text-[9px] font-bold uppercase tracking-widest text-[#e5ad46]/50">
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#e5ad46]/40" /> Brouillon</span>
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-yellow-400" /> À préciser</span>
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#e5ad46]" /> Envoyé</span>
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-400" /> Accepté</span>
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-400" /> Production</span>
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-400" /> Refusé</span>
+                      </div>
                       <Link href="/demande-devis" className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] hover:underline">
                         Nouveau devis
                       </Link>
@@ -272,6 +260,14 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                           >
                             <div className="space-y-2 min-w-0">
                               <div className="flex items-center gap-3 flex-wrap">
+                                <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                                  q.status === "accepted" ? "bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]" :
+                                  q.status === "production" ? "bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)]" :
+                                  q.status === "sent" ? "bg-[#e5ad46] shadow-[0_0_8px_rgba(229,173,70,0.6)]" :
+                                  q.status === "needs_info" ? "bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.6)] animate-pulse" :
+                                  q.status === "rejected" ? "bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.6)]" :
+                                  "bg-[#e5ad46]/40"
+                                }`} title={quoteStatusLabel(q.status)} />
                                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] bg-[#e5ad46]/10 px-3 py-1 rounded-full">
                                   {q.name ?? "Client"}
                                 </span>
@@ -280,6 +276,10 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                                     ? "bg-[#e5ad46] text-white"
                                     : q.status === "needs_info"
                                     ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                    : q.status === "sent"
+                                    ? "bg-[#e5ad46]/20 text-[#e5ad46] border border-[#e5ad46]/30"
+                                    : q.status === "rejected"
+                                    ? "bg-red-500/20 text-red-400 border border-red-500/30"
                                     : "bg-[#e5ad46]/5 text-[#e5ad46]"
                                 }`}>
                                   {quoteStatusLabel(q.status)}
@@ -297,7 +297,6 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                               })()}
                             </div>
                             <div className="flex items-center gap-4 shrink-0">
-                              <span className="text-lg font-headline font-bold text-[#e5ad46]">{q.amount ? `${Number(q.amount).toLocaleString("fr-FR")} Ar` : "-"}</span>
                               <button
                                 type="button"
                                 onClick={() => setSelectedQuote(q)}
@@ -452,102 +451,8 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
           </div>
         )}
         <style jsx>{`
-          .quote-progress-step {
-            position: relative;
-            min-width: 0;
-            color: rgba(236, 204, 144, 0.42);
-          }
-
-          .quote-progress-marker {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            width: 2rem;
-            height: 2rem;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(229, 173, 70, 0.2);
-            border-radius: 999px;
-            background: #202b35;
-          }
-
-          .quote-progress-step p {
-            margin-top: 0.8rem;
-            color: inherit;
-            font-size: 0.68rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            line-height: 1.35;
-          }
-
-          .quote-progress-step small {
-            display: block;
-            margin-top: 0.25rem;
-            color: rgba(236, 204, 144, 0.32);
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 0.13em;
-            text-transform: uppercase;
-          }
-
-          .quote-progress-step--done,
-          .quote-progress-step--current {
-            color: #eccc90;
-          }
-
-          .quote-progress-step--done .quote-progress-marker {
-            border-color: #e5ad46;
-            background: #e5ad46;
-            color: #25303a;
-            box-shadow: 0 0 0 0 rgba(229, 173, 70, 0.52);
-            animation: quote-complete-pulse 2.8s ease-out infinite;
-          }
-
-          .quote-progress-step--current .quote-progress-marker {
-            border-color: #e5ad46;
-            background: #e5ad46;
-            animation: quote-current-breathe 2.2s ease-in-out infinite;
-          }
-
-          .quote-progress-step--done small,
-          .quote-progress-step--current small {
-            color: rgba(236, 204, 144, 0.68);
-          }
-
-          .quote-progress-line {
-            position: absolute;
-            top: 1rem;
-            left: 2rem;
-            right: -0.8rem;
-            height: 1px;
-            background: rgba(229, 173, 70, 0.15);
-          }
-
-          .quote-progress-step--done .quote-progress-line {
-            background: #e5ad46;
-          }
-
-          @keyframes quote-complete-pulse {
-            0%, 42% { box-shadow: 0 0 0 0 rgba(229, 173, 70, 0.48); }
-            72%, 100% { box-shadow: 0 0 0 9px rgba(229, 173, 70, 0); }
-          }
-
-          @keyframes quote-current-breathe {
-            0%, 100% { box-shadow: 0 0 0 3px rgba(229, 173, 70, 0.08); }
-            50% { box-shadow: 0 0 0 7px rgba(229, 173, 70, 0.18); }
-          }
-
-          @media (max-width: 639px) {
-            .quote-progress-grid { padding-left: 0.15rem; row-gap: 0; }
-            .quote-progress-step { display: grid; grid-template-columns: 2rem minmax(0, 1fr); column-gap: 0.85rem; }
-            .quote-progress-step p { margin-top: 0.1rem; }
-            .quote-progress-step small { grid-column: 2; margin-top: -0.75rem; }
-            .quote-progress-line { top: 2rem; bottom: 0; left: 1rem; right: auto; width: 1px; height: auto; }
-          }
-
           @media (prefers-reduced-motion: reduce) {
-            .quote-progress-step--done .quote-progress-marker,
-            .quote-progress-step--current .quote-progress-marker { animation: none; }
+            .animate-pulse { animation: none; }
           }
         `}</style>
       </section>
