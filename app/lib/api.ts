@@ -81,6 +81,7 @@ export type QuoteRecord = {
   admin_signature_at?: string | null;
   confirmation_deadline?: string | null;
   confirmation_days?: number;
+  date_livraison_prevue?: string | null;
 };
 
 export type CommandeRecord = {

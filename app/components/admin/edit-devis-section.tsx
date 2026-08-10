@@ -27,6 +27,9 @@ type QuoteRecord = {
   request_type?: string;
   admin_signature_name?: string | null;
   admin_signature_at?: string | null;
+  confirmation_deadline?: string | null;
+  confirmation_days?: number;
+  date_livraison_prevue?: string | null;
 };
 
 type Notice = {
@@ -133,6 +136,7 @@ export function EditDevisSection({ id }: { id: string }) {
   const [balancePaid, setBalancePaid] = useState(false);
   const [savingSignature, setSavingSignature] = useState(false);
   const [confirmationDays, setConfirmationDays] = useState(7);
+  const [formDeliveryDate, setFormDeliveryDate] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -164,6 +168,7 @@ export function EditDevisSection({ id }: { id: string }) {
         setFormBalance(normalizeText(nextQuote.balance_amount));
         setDepositPaid(!!nextQuote.deposit_paid);
         setBalancePaid(!!nextQuote.balance_paid);
+        setFormDeliveryDate(normalizeText(nextQuote.date_livraison_prevue));
       } catch {
         if (!active) {
           return;
@@ -214,6 +219,7 @@ export function EditDevisSection({ id }: { id: string }) {
         balance_amount: nextBalance,
         deposit_paid: depositPaid,
         balance_paid: balancePaid,
+        date_livraison_prevue: formDeliveryDate || null,
       });
 
       setQuote((current) =>
@@ -708,19 +714,31 @@ export function EditDevisSection({ id }: { id: string }) {
                   : "Envoyer le devis au client"}
             </button>
             {quote.status !== "sent" && quote.status !== "production" && (
-              <div className="flex items-center gap-3 mt-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/50 whitespace-nowrap">Délai de confirmation</label>
-                <select
-                  value={confirmationDays}
-                  onChange={(e) => setConfirmationDays(Number(e.target.value))}
-                  className="flex-1 border border-[#163526]/10 rounded-lg px-3 py-2 text-sm text-[#163526] bg-white"
-                >
-                  <option value={3}>3 jours</option>
-                  <option value={5}>5 jours</option>
-                  <option value={7}>7 jours</option>
-                  <option value={10}>10 jours</option>
-                  <option value={14}>14 jours</option>
-                </select>
+              <div className="space-y-3 mt-2">
+                <div className="flex items-center gap-3">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/50 whitespace-nowrap">Délai de confirmation</label>
+                  <select
+                    value={confirmationDays}
+                    onChange={(e) => setConfirmationDays(Number(e.target.value))}
+                    className="flex-1 border border-[#163526]/10 rounded-lg px-3 py-2 text-sm text-[#163526] bg-white"
+                  >
+                    <option value={3}>3 jours</option>
+                    <option value={5}>5 jours</option>
+                    <option value={7}>7 jours</option>
+                    <option value={10}>10 jours</option>
+                    <option value={14}>14 jours</option>
+                  </select>
+                </div>
+                <div className="flex items-center gap-3">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/50 whitespace-nowrap">Date de livraison prévue</label>
+                  <input
+                    type="date"
+                    value={formDeliveryDate}
+                    onChange={(e) => setFormDeliveryDate(e.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
+                    className="flex-1 border border-[#163526]/10 rounded-lg px-3 py-2 text-sm text-[#163526] bg-white"
+                  />
+                </div>
               </div>
             )}
           </div>

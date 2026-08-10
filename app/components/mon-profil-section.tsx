@@ -417,6 +417,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                     <dd className="mt-1 text-sm text-[#eccc90]/70">{formatDate(selectedQuote.created_at ?? "")}</dd>
                   </div>
                   {selectedQuote.amount && <div><dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#e5ad46]/50">Montant</dt><dd className="mt-1 text-sm text-[#eccc90]/70">{Number(selectedQuote.amount).toLocaleString("fr-FR")} Ar</dd></div>}
+                  {selectedQuote.date_livraison_prevue && <div><dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#e5ad46]/50">Livraison prévue</dt><dd className="mt-1 text-sm text-[#eccc90]/70">{formatDate(selectedQuote.date_livraison_prevue)}</dd></div>}
                 </div>
                 {selectedQuote.status === "sent" && (() => {
                   const cd = confirmationCountdown(selectedQuote.confirmation_deadline);
