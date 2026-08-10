@@ -2,13 +2,13 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useCallback, useEffect } from "react";
-import { authAPI, draftsAPI, type QuoteDraft } from "@/app/lib";
+import { authAPI, draftsAPI, type QuoteDraft, getToken } from "@/app/lib";
 import { getErrorMessage } from "@/app/lib/errors";
 import { CsvPreview } from "@/app/components/document-preview";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { ArrowRight, Check, ChevronDown, FileImage, Loader2, ShieldCheck, UploadCloud } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, FileImage, Loader2, ShieldCheck, UploadCloud, AlertTriangle } from "lucide-react";
 
 
 // 1. DEFINIR LE SCHEMA DE VALIDATION ZOD
@@ -72,6 +72,9 @@ function QuoteFormContent() {
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
+  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
+  const [pendingQuoteCount, setPendingQuoteCount] = useState(0);
+  const [duplicateFormData, setDuplicateFormData] = useState<QuoteRequestFormData | null>(null);
 
   const {
     control,
@@ -166,8 +169,30 @@ function QuoteFormContent() {
   }
 
   async function onSubmit(data: QuoteRequestFormData) {
+    try {
+      const token = getToken();
+      if (token) {
+        const quotesRes = await authAPI.get<{ data?: Array<{ statut?: string }> }>("/quotes", token);
+        const quotes = (quotesRes.data?.data ?? quotesRes.data ?? []) as Array<{ statut?: string }>;
+        const pendingQuotes = quotes.filter((q) => q.statut === "En attente" || q.statut === "En attente de signature");
+        if (pendingQuotes.length > 0) {
+          setPendingQuoteCount(pendingQuotes.length);
+          setDuplicateFormData(data);
+          setShowDuplicateWarning(true);
+          return;
+        }
+      }
+    } catch {
+      // If we can't check, proceed with submission
+    }
+
+    await proceedSubmit(data);
+  }
+
+  async function proceedSubmit(data: QuoteRequestFormData) {
     setIsSubmitting(true);
     setSubmitError("");
+    setShowDuplicateWarning(false);
 
     try {
       const files = data.technical_files instanceof FileList ? Array.from(data.technical_files) : [];
@@ -184,6 +209,17 @@ const payload = buildQuoteRequestPayload(data);
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  function handleConfirmDuplicate() {
+    if (duplicateFormData) {
+      proceedSubmit(duplicateFormData);
+    }
+  }
+
+  function handleCancelDuplicate() {
+    setShowDuplicateWarning(false);
+    setDuplicateFormData(null);
   }
 
   return (
@@ -253,6 +289,41 @@ const payload = buildQuoteRequestPayload(data);
           </div>
 
           <form className="rounded-[2rem] border border-[#e5ad46]/5 bg-[#25303a] p-5 shadow-2xl sm:p-6 md:rounded-[2.5rem] md:p-12 lg:col-span-2" onSubmit={handleSubmit(onSubmit)}>
+            {showDuplicateWarning && (
+              <div className="mb-8 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-6">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-400/20">
+                    <AlertTriangle className="h-5 w-5 text-amber-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="mb-2 text-sm font-bold text-amber-400">
+                      Devis en cours de traitement
+                    </h3>
+                    <p className="mb-4 text-sm text-[#eccc90]/70">
+                      Vous avez déjà <strong>{pendingQuoteCount} devis en attente</strong>. 
+                      Souhaitez-vous tout de même envoyer une nouvelle demande ?
+                    </p>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={handleConfirmDuplicate}
+                        disabled={isSubmitting}
+                        className="rounded-lg bg-amber-400 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#1e2a38] transition-colors hover:bg-amber-300"
+                      >
+                        Oui, envoyer quand même
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCancelDuplicate}
+                        className="rounded-lg border border-[#e5ad46]/20 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#eccc90]/60 transition-colors hover:bg-white/5"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             {submitError ? (
               <div className="rounded-2xl border border-red-400/20 bg-red-400/10 px-5 py-4 text-sm text-red-100 mb-8" role="alert">
                 {submitError}

@@ -21,12 +21,20 @@ export function ClientAuthGate({
   useEffect(() => {
     let mounted = true;
 
+    function getLoginRedirect(): string {
+      if (typeof window === "undefined") return redirectTo;
+      const host = window.location.hostname;
+      if (host.startsWith("worker.")) return "/worker-login/";
+      if (host.startsWith("admin.")) return "/admin-login/";
+      return redirectTo;
+    }
+
     async function verifySession() {
       const storedUser = getUser();
       const token = getToken();
 
       if (!storedUser || !token) {
-        window.location.replace(redirectTo);
+        window.location.replace(getLoginRedirect());
         return;
       }
 
@@ -40,7 +48,7 @@ export function ClientAuthGate({
           } else if (verifiedUser.role === "admin") {
             window.location.replace("/backoffice");
           } else {
-            window.location.replace(redirectTo);
+            window.location.replace(getLoginRedirect());
           }
           return;
         }
@@ -50,7 +58,7 @@ export function ClientAuthGate({
           setIsChecking(false);
         }
       } catch (error) {
-        window.location.replace(redirectTo);
+        window.location.replace(getLoginRedirect());
       }
     }
 

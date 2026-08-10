@@ -48,6 +48,7 @@ const productionItems = [
 ];
 
 const employeeItems = [
+  { href: "/backoffice/employee/manage", label: "Gestion employés", icon: Users },
   { href: "/backoffice/employee/tickets", label: "Tickets réparation", icon: Wrench },
   { href: "/backoffice/employee/tasks", label: "Suivi étapes", icon: ClipboardList },
 ];

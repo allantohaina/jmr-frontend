@@ -31,9 +31,15 @@ export type UserProfile = {
   first_name?: string;
   last_name?: string;
   email?: string;
+  phone?: string;
   role?: "admin" | "worker" | "user" | string;
   is_privileged?: boolean;
   cumulative_revenue?: number;
+  department?: string;
+  position?: string;
+  hire_date?: string;
+  cin?: string;
+  profile_image?: string;
 };
 
 export type NotificationRecord = {
@@ -381,6 +387,43 @@ export const authAPI = {
         admin_signature_name: signature.name,
         admin_signature_at: signature.signedAt instanceof Date ? signature.signedAt.toISOString() : signature.signedAt,
       }),
+    });
+  },
+};
+
+export type WorkerCreatePayload = {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  phone?: string;
+  role?: "admin" | "worker";
+  department?: string;
+  position?: string;
+  hire_date?: string;
+  cin?: string;
+  profile_image?: string;
+};
+
+export type CSVImportResult = {
+  message: string;
+  created: { line: number; email: string; role: string }[];
+  errors: { line: number; email: string; error: string }[];
+};
+
+export const usersAPI = {
+  createWorker: async (data: WorkerCreatePayload) =>
+    fetchWithAuth<{ message: string; user: UserProfile }>("/users/worker", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  importCSV: async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return fetchWithAuth<CSVImportResult>("/users/import-csv", {
+      method: "POST",
+      body: formData,
     });
   },
 };
