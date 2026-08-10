@@ -6,6 +6,7 @@ import { authAPI, CommandeRecord, STATUTS_PRODUCTION } from "@/app/lib/api";
 import { TextileDocument, AdminSignaturePanel } from "@/app/components/documents";
 import type { DocumentSignature, DocumentLineItem, TextileDocumentProps } from "@/app/components/documents/types";
 import { Loader, X, Printer } from "lucide-react";
+import { AttachmentUploader } from "@/app/components/admin/attachment-uploader";
 
 function commandeToDoc(c: CommandeRecord): Omit<TextileDocumentProps, "kind"> {
   const lines: DocumentLineItem[] = [
@@ -240,6 +241,9 @@ export default function AdminCommandesPage() {
                           <p className="text-[#163526]/70 text-xs italic">{c.notes}</p>
                         </div>
                       )}
+                    </div>
+                    <div className="col-span-full mt-6 pt-6 border-t border-[#163526]/5">
+                      <AttachmentUploader entityType="commande" entityId={c.id} />
                     </div>
                   </div>
                 )}

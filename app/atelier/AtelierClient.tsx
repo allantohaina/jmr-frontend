@@ -249,7 +249,7 @@ export default function AtelierClient() {
           {currentView === "history" && (
             <div className="flex flex-col items-center justify-center py-20 text-[#eccc90]/20">
               <History className="w-16 h-16 mb-4" />
-              <p className="font-headline text-xl">L'historique sera bientôt disponible</p>
+              <p className="font-headline text-xl">L&apos;historique sera bientôt disponible</p>
             </div>
           )}
         </main>

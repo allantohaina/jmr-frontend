@@ -7,7 +7,8 @@ import { TEXTILE_PROBLEM_THREADS, authAPI } from "@/app/lib";
 import { DocumentPreview } from "@/app/components/document-preview";
 import { TextileDocument, AdminSignaturePanel } from "@/app/components/documents";
 import type { DocumentSignature, DocumentLineItem, TextileDocumentProps } from "@/app/components/documents/types";
-import { Loader, Printer } from "lucide-react";
+import { Loader, Printer, ShoppingCart } from "lucide-react";
+import { AttachmentUploader } from "./attachment-uploader";
 
 type QuoteRecord = {
   id: string | number;
@@ -352,6 +353,24 @@ export function EditDevisSection({ id }: { id: string }) {
     }
   }
 
+  const handleCreateOrder = async () => {
+    if (!quote || quote.status !== "accepted") return;
+    if (!confirm("Créer une commande à partir de ce devis accepté ?")) return;
+    try {
+      setNotice({ tone: "success", message: "Création de la commande en cours..." });
+      const res = await authAPI.post<{ id: string; data?: { id: string } }>(`/quotes/${id}/convert-to-commande`, {});
+      const commandeId = res.data?.data?.id || res.data?.id;
+      if (commandeId) {
+        setNotice({ tone: "success", message: "Commande créée avec succès" });
+        window.location.href = `/backoffice/orders?id=${commandeId}`;
+      } else {
+        setNotice({ tone: "danger", message: "Commande créée mais impossible de récupérer l'ID" });
+      }
+    } catch {
+      setNotice({ tone: "danger", message: "Erreur lors de la création de la commande" });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="px-6 md:px-12 py-10 animate-pulse">
@@ -477,23 +496,7 @@ export function EditDevisSection({ id }: { id: string }) {
 
           <div className="pt-6 border-t border-[#163526]/5 space-y-4">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Documents & Pièces jointes</p>
-            <div className="grid grid-cols-1 gap-2">
-              {quote.files && quote.files.length > 0 ? (
-                quote.files.map((file, idx) => (
-                  <div key={idx} className="space-y-2">
-                    <a href={file.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-[#faf9f4] rounded-xl border border-[#163526]/5 hover:border-orange-500/30 transition-colors group">
-                      <div className="flex items-center gap-3"><span className="material-symbols-outlined text-orange-500">description</span><span className="text-[11px] font-bold text-[#163526] truncate max-w-[150px]">{file.name}</span></div>
-                      <span className="material-symbols-outlined text-[#163526]/20 group-hover:text-orange-500 transition-colors">download</span>
-                    </a>
-                    <DocumentPreview file={file} />
-                  </div>
-                ))
-              ) : (
-                <div className="p-4 bg-[#faf9f4] rounded-xl border border-dashed border-[#163526]/10 text-center">
-                  <p className="text-[10px] text-[#1b1c19]/40 font-bold uppercase tracking-widest">Aucun fichier joint</p>
-                </div>
-              )}
-            </div>
+            <AttachmentUploader entityType="cotation" entityId={id} />
           </div>
 
           <div className="pt-6 border-t border-[#163526]/5">
@@ -643,6 +646,28 @@ export function EditDevisSection({ id }: { id: string }) {
               >
                 <span className="material-symbols-outlined text-sm">precision_manufacturing</span>
                 Lancer la Production
+              </button>
+            ) : null}
+            
+            {quote.status === "accepted" && !quote.deposit_paid ? (
+              <button
+                type="button"
+                onClick={handleCreateOrder}
+                className="w-full py-4 bg-green-600 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+              >
+                <ShoppingCart className="h-4 w-4" />
+                Créer la Commande
+              </button>
+            ) : null}
+            
+            {quote.status === "accepted" && quote.deposit_paid ? (
+              <button
+                type="button"
+                onClick={handleCreateOrder}
+                className="w-full py-4 bg-green-600 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+              >
+                <ShoppingCart className="h-4 w-4" />
+                Créer la Commande
               </button>
             ) : null}
             

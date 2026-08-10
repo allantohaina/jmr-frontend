@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AlertCircle, Loader2, Plus, Pencil, XCircle } from "lucide-react";
 import { authAPI } from "@/app/lib";
+import { AttachmentUploader } from "./attachment-uploader";
 
 type DemandeClient = {
   id: string;
@@ -27,12 +29,14 @@ const STATUS_OPTIONS = [
 ];
 
 export function DemandesClientSection() {
+  const searchParams = useSearchParams();
   const [demandes, setDemandes] = useState<DemandeClient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState<Notice>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [selectedDemandeId, setSelectedDemandeId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     nom_client: "",
     entreprise: "",
@@ -57,6 +61,22 @@ export function DemandesClientSection() {
   };
 
   useEffect(() => { fetchDemandes(); }, []);
+
+  useEffect(() => {
+    const nom_client = searchParams.get("nom_client");
+    const email = searchParams.get("email");
+    const telephone = searchParams.get("telephone");
+    if (nom_client) {
+      setFormData((prev) => ({
+        ...prev,
+        nom_client,
+        email: email ?? prev.email,
+        telephone: telephone ?? prev.telephone,
+      }));
+      setShowForm(true);
+      setEditingId(null);
+    }
+  }, [searchParams]);
 
   const resetForm = () => {
     setFormData({
@@ -92,6 +112,35 @@ export function DemandesClientSection() {
       fetchDemandes();
     } catch {
       setNotice({ tone: "danger", message: "Erreur lors du refus" });
+    }
+  };
+
+  const handleConvertToQuote = async (d: DemandeClient) => {
+    if (!confirm("Convertir cette demande en cotation ?")) return;
+    try {
+      // Create a new quote from the demande
+      const quoteRes = await authAPI.post<{ id: string }>("/quotes", {
+        name: d.nom_client,
+        email: d.email,
+        phone: d.telephone,
+        message: d.description,
+        status: "draft",
+        request_type: "new",
+      });
+      const quoteId = quoteRes.data?.id;
+      if (quoteId) {
+        // Link the demande to the new quote
+        await authAPI.put(`/demandes-client/${d.id}`, {
+          statut: "Convertie en cotation",
+          cotation_id: quoteId,
+        });
+        setNotice({ tone: "success", message: "Demande convertie en cotation" });
+        fetchDemandes();
+        // Redirect to edit the new quote
+        window.location.href = `/backoffice/devis/edit?id=${quoteId}`;
+      }
+    } catch {
+      setNotice({ tone: "danger", message: "Erreur lors de la conversion" });
     }
   };
 
@@ -282,8 +331,16 @@ export function DemandesClientSection() {
                     </td>
                   </tr>
                 ) : (
-                  demandes.map((d) => (
-                    <tr key={d.id} className="hover:bg-[#163526]/[0.02]">
+demandes.map((d) => (
+                      <tr
+                        key={d.id}
+                        className={`hover:bg-[#163526]/[0.02] transition-colors cursor-pointer ${
+                          selectedDemandeId === d.id ? "bg-[#faf9f4]" : ""
+                        }`}
+                        onClick={() =>
+                          setSelectedDemandeId(selectedDemandeId === d.id ? null : d.id)
+                        }
+                      >
                       <td className="px-6 py-4">
                         <p className="text-sm font-bold text-[#163526]">{d.nom_client}</p>
                         {d.entreprise && <p className="text-xs text-[#163526]/60">{d.entreprise}</p>}
@@ -312,6 +369,15 @@ export function DemandesClientSection() {
                           >
                             <Pencil className="h-4 w-4" />
                           </button>
+                          {d.statut !== "Refusée" && d.statut !== "Convertie en cotation" && (
+                            <button
+                              onClick={() => handleConvertToQuote(d)}
+                              className="p-2 rounded-lg border border-green-100 text-green-600 hover:bg-green-50 transition-colors"
+                              title="Convertir en cotation"
+                            >
+                              <span className="material-symbols-outlined text-sm">transform</span>
+                            </button>
+                          )}
                           {d.statut !== "Refusée" && (
                             <button
                               onClick={() => handleRefuse(d.id)}
@@ -327,10 +393,32 @@ export function DemandesClientSection() {
                   ))
                 )}
               </tbody>
-            </table>
+</table>
           </div>
         </div>
       )}
-    </div>
-  );
-}
+
+      {selectedDemandeId && (
+         <div className="bg-white rounded-2xl border border-[#163526]/5 shadow-sm overflow-hidden mt-6">
+           <div className="p-6 border-b border-[#163526]/5 flex justify-between items-center">
+             <div>
+               <h3 className="font-headline text-xl text-[#163526]">Détails de la demande</h3>
+               <p className="text-xs text-[#1b1c19]/40 uppercase tracking-widest mt-1">
+                 {demandes.find((d) => d.id === selectedDemandeId)?.nom_client}
+               </p>
+             </div>
+             <button
+               onClick={() => setSelectedDemandeId(null)}
+               className="p-2 rounded-lg border border-[#163526]/10 text-[#163526] hover:border-orange-500 hover:text-orange-500 transition-colors"
+             >
+               <XCircle className="h-4 w-4" />
+             </button>
+           </div>
+           <div className="p-6">
+             <AttachmentUploader entityType="demande" entityId={selectedDemandeId} />
+           </div>
+         </div>
+       )}
+     </div>
+   );
+ }

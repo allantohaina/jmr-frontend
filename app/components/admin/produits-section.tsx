@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertCircle, Loader2, Plus, Pencil, Trash2 } from "lucide-react";
+import { AlertCircle, Loader2, Plus, Pencil, Trash2, XCircle } from "lucide-react";
 import { authAPI } from "@/app/lib";
+import { AttachmentUploader } from "./attachment-uploader";
 
 type Produit = {
   id: string;
@@ -20,6 +21,20 @@ type Produit = {
   created_at: string;
 };
 
+type ProduitPayload = {
+  nom: string;
+  categorie: string | null;
+  conso_tissu_unitaire: number;
+  conso_tissu_par_taille?: Record<string, number> | null;
+  niveau_difficulte_defaut: number;
+  moq: number;
+  cout_matiere_defaut: number;
+  cout_mo_par_piece: number;
+  frais_generaux_pct: number;
+  description: string | null;
+  photo_url: string | null;
+};
+
 type Notice = { tone: "success" | "danger"; message: string } | null;
 
 export function ProduitsSection() {
@@ -29,6 +44,7 @@ export function ProduitsSection() {
   const [notice, setNotice] = useState<Notice>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [selectedProduitId, setSelectedProduitId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     nom: "",
     categorie: "",
@@ -111,7 +127,7 @@ export function ProduitsSection() {
     setIsSaving(true);
     setNotice(null);
 
-    const payload: any = {
+    const payload: ProduitPayload = {
       nom: formData.nom,
       categorie: formData.categorie || null,
       conso_tissu_unitaire: parseFloat(formData.conso_tissu_unitaire) || 0,
@@ -154,7 +170,7 @@ export function ProduitsSection() {
       <div className="flex justify-between items-end">
         <div>
           <h2 className="font-headline text-2xl md:text-3xl text-[#163526]">Fiches Produits</h2>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#1b1c19]/40 mt-1">Référentiel des produits de l'atelier</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#1b1c19]/40 mt-1">Référentiel des produits de l&apos;atelier</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
@@ -359,8 +375,16 @@ export function ProduitsSection() {
                     </td>
                   </tr>
                 ) : (
-                  produits.map((p) => (
-                    <tr key={p.id} className="hover:bg-[#163526]/[0.02]">
+produits.map((p) => (
+                      <tr
+                        key={p.id}
+                        className={`hover:bg-[#163526]/[0.02] transition-colors cursor-pointer ${
+                          selectedProduitId === p.id ? "bg-[#faf9f4]" : ""
+                        }`}
+                        onClick={() =>
+                          setSelectedProduitId(selectedProduitId === p.id ? null : p.id)
+                        }
+                      >
                       <td className="px-6 py-4">
                         <p className="text-sm font-bold text-[#163526]">{p.nom}</p>
                       </td>
@@ -401,7 +425,29 @@ export function ProduitsSection() {
             </table>
           </div>
         </div>
-      )}
-    </div>
-  );
-}
+       )}
+
+       {selectedProduitId && (
+         <div className="bg-white rounded-2xl border border-[#163526]/5 shadow-sm overflow-hidden mt-6">
+           <div className="p-6 border-b border-[#163526]/5 flex justify-between items-center">
+             <div>
+               <h3 className="font-headline text-xl text-[#163526]">Détails du produit</h3>
+               <p className="text-xs text-[#1b1c19]/40 uppercase tracking-widest mt-1">
+                 {produits.find((p) => p.id === selectedProduitId)?.nom}
+               </p>
+             </div>
+             <button
+               onClick={() => setSelectedProduitId(null)}
+               className="p-2 rounded-lg border border-[#163526]/10 text-[#163526] hover:border-orange-500 hover:text-orange-500 transition-colors"
+             >
+               <XCircle className="h-4 w-4" />
+             </button>
+           </div>
+           <div className="p-6">
+             <AttachmentUploader entityType="produit" entityId={selectedProduitId} />
+           </div>
+         </div>
+       )}
+     </div>
+   );
+ }

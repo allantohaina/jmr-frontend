@@ -23,6 +23,7 @@ import {
   Shield,
   Ban,
   Truck,
+  Users,
 } from "lucide-react";
 
 const clientItems = [
@@ -30,6 +31,15 @@ const clientItems = [
   { href: "/backoffice/client/orders", label: "Commandes", icon: Package },
   { href: "/backoffice/client/payments", label: "Paiements", icon: CreditCard },
   { href: "/backoffice/client/complaints", label: "Plaintes", icon: MessageSquare },
+];
+
+const atelierItems = [
+  { href: "/backoffice/demandes", label: "Demandes client", icon: MessageSquare },
+  { href: "/backoffice/devis", label: "Cotations / Devis", icon: FileText },
+  { href: "/backoffice/orders", label: "Commandes", icon: Package },
+  { href: "/backoffice/produits", label: "Fiches produits", icon: Wrench },
+  { href: "/backoffice/clients", label: "Historique client", icon: Users },
+  { href: "/backoffice/production", label: "Production", icon: ClipboardList },
 ];
 
 const productionItems = [
@@ -122,6 +132,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           </Link>
 
           <NavGroup title="Clients" items={clientItems} />
+          <NavGroup title="Atelier JMR" items={atelierItems} />
           <NavGroup title="Production" items={productionItems} />
           <NavGroup title="Employés" items={employeeItems} />
           <NavGroup title="Finance" items={financeItems} />

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { authAPI } from "@/app/lib";
 
 import { 
@@ -22,9 +23,44 @@ interface Visitor {
   status: string;
 }
 
+type CommandeRow = {
+  id: string;
+  numero?: string;
+  designation?: string;
+  statut_production?: string;
+  pieces_produites?: number;
+  quantite?: number;
+  total?: number;
+  client_first_name?: string;
+  client_email?: string;
+  en_retard?: boolean;
+  created_at?: string;
+  date_livraison_prevue?: string;
+  notes?: string;
+};
+
+type QuoteRow = {
+  id: string;
+  status?: string;
+  deposit_paid?: boolean;
+  balance_paid?: boolean;
+  deposit_amount?: number | string;
+  balance_amount?: number | string;
+};
+
+type AchatRow = {
+  id: string;
+  created_at?: string;
+  total_amount?: number | string;
+  montant_total?: number | string;
+  montant?: number | string;
+};
+
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const [filterActive, setFilterActive] = useState(false);
   const [visitors, setVisitors] = useState<Visitor[]>([]);
+  const [commandes, setCommandes] = useState<CommandeRow[]>([]);
   const [dashboardData, setDashboardData] = useState({
     demandesEnAttente: 0,
     cotationsEnAttente: 0,
@@ -41,30 +77,32 @@ export default function AdminDashboardPage() {
     const fetchDashboardData = async () => {
       try {
         // Récupérer les données de demandes
-        const demandesRes = await authAPI.get<{ data: any[]; counts: Record<string, number> }>("/demandes-client");
+        const demandesRes = await authAPI.get<{ data: unknown[]; counts: Record<string, number> }>("/demandes-client");
         const demandesCounts = demandesRes.data?.counts || {};
-        const demandesEnAttente = (demandesCounts['Nouvelle'] || 0) + (demandesCounts['En cours d\'étude'] || 0);
+        const demandesEnAttente = (demandesCounts['Nouvelle'] || 0) + (demandesCounts["En cours d'étude"] || 0);
 
         // Récupérer les données de commandes
-        const commandesRes = await authAPI.get<{ data: any[]; counts: Record<string, number> }>("/commandes");
+        const commandesRes = await authAPI.get<{ data: CommandeRow[]; counts: Record<string, number> }>("/commandes");
         const commandesCounts = commandesRes.data?.counts || {};
-        const commandesEnCours = commandesCounts['en_retard'] || 0;
+        const commandesData = commandesRes.data?.data || [];
+        const commandesEnCours = commandesData.filter((c: CommandeRow) => c.statut_production !== "Livrée").length;
         const commandesEnRetard = commandesCounts['en_retard'] || 0;
         const caMois = commandesCounts['ca_mois'] || 0;
+        setCommandes(commandesData);
 
         // Récupérer les données de quotes pour acomptes/soldes
-        const quotesRes = await authAPI.get<{ data: any[] }>("/quotes");
+        const quotesRes = await authAPI.get<{ data: QuoteRow[] }>("/quotes");
         const quotes = quotesRes.data?.data || [];
         let acomptes = 0;
         let soldes = 0;
-        quotes.forEach((q: any) => {
-          if (q.deposit_paid) acomptes += parseFloat(q.deposit_amount || 0);
-          if (q.balance_paid) soldes += parseFloat(q.balance_amount || 0);
+        quotes.forEach((q: QuoteRow) => {
+          if (q.deposit_paid) acomptes += Number(q.deposit_amount || 0);
+          if (q.balance_paid) soldes += Number(q.balance_amount || 0);
         });
 
         setDashboardData({
           demandesEnAttente,
-          cotationsEnAttente: quotes.filter((q: any) => q.status === 'draft' || q.status === 'sent').length,
+          cotationsEnAttente: quotes.filter((q: QuoteRow) => q.status === 'draft' || q.status === 'sent').length,
           commandesEnCours,
           commandesEnRetard,
           caMois,
@@ -72,15 +110,48 @@ export default function AdminDashboardPage() {
           soldes,
         });
 
-        // Données de graphique (simulées pour l'instant - à remplacer par vraies données historiques)
-        setChartData([
-          { name: "Jan", ventes: 45000, depenses: 32000 },
-          { name: "Fév", ventes: 52000, depenses: 35000 },
-          { name: "Mar", ventes: 48000, depenses: 31000 },
-          { name: "Avr", ventes: 61000, depenses: 42000 },
-          { name: "Mai", ventes: 55000, depenses: 38000 },
-          { name: "Juin", ventes: caMois || 67000, depenses: 45000 },
-        ]);
+        // Construire le graphique à partir des vraies données mensuelles
+        const monthlyData: Record<string, { ventes: number; depenses: number }> = {};
+        const monthNames = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
+        const now = new Date();
+        
+        // Initialiser les 6 derniers mois
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+          monthlyData[key] = { ventes: 0, depenses: 0 };
+        }
+
+        // Agréger les commandes par mois
+        commandesData.forEach((c: CommandeRow) => {
+          if (c.created_at) {
+            const key = c.created_at.substring(0, 7);
+            if (monthlyData[key]) {
+              monthlyData[key].ventes += Number(c.total || 0);
+            }
+          }
+        });
+
+        // Agréger les achats (dépenses) par mois
+        try {
+          const achatsRes = await authAPI.get<{ data: AchatRow[] }>("/achats");
+          const achats = achatsRes.data?.data || [];
+          achats.forEach((a: AchatRow) => {
+            if (a.created_at) {
+              const key = a.created_at.substring(0, 7);
+              if (monthlyData[key]) {
+                monthlyData[key].depenses += Number(a.total_amount || a.montant_total || a.montant || 0);
+              }
+            }
+          });
+        } catch {}
+
+        const chartArray = Object.entries(monthlyData).map(([key, val]) => {
+          const monthIdx = parseInt(key.split('-')[1], 10) - 1;
+          return { name: monthNames[monthIdx], ventes: Math.round(val.ventes), depenses: Math.round(val.depenses) };
+        });
+
+        setChartData(chartArray);
       } catch (error) {
         console.error("Erreur chargement dashboard:", error);
       } finally {
@@ -296,75 +367,68 @@ export default function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#163526]/5">
-              <tr className="hover:bg-[#163526]/[0.02] transition-colors group">
-                <td className="px-8 py-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[#faf9f4] rounded-xl flex items-center justify-center border border-[#163526]/10 group-hover:scale-110 transition-transform">
-                      <span className="material-symbols-outlined text-[#163526]">apparel</span>
-                    </div>
-                    <div>
-                      <p className="font-bold text-sm text-[#163526]">Maison Haussmann</p>
-                      <p className="text-[10px] text-[#1b1c19]/40 uppercase font-bold tracking-widest italic">Veste Laine &laquo;Hiver 24&raquo;</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-8 py-6">
-                  <span className="px-4 py-1.5 bg-[#163526]/10 text-[#163526] text-[10px] font-bold uppercase rounded-full tracking-widest border border-[#163526]/5">Production</span>
-                </td>
-                <td className="px-8 py-6 w-1/3">
-                  <div className="flex flex-col gap-2">
-                    <div className="flex justify-between text-[9px] font-bold uppercase text-[#1b1c19]/30 tracking-tighter">
-                      <span>Pré-Prod</span>
-                      <span>Prod</span>
-                      <span>Finition</span>
-                    </div>
-                    <div className="h-2 w-full bg-[#163526]/5 rounded-full flex overflow-hidden p-0.5">
-                      <div className="h-full bg-[#163526] w-1/3 rounded-full mr-0.5"></div>
-                      <div className="h-full bg-[#163526] w-1/3 opacity-40 rounded-full"></div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-8 py-6 text-right">
-                  <span className="text-[#1b1c19]/30 text-[10px] font-bold uppercase tracking-widest">RAS</span>
-                </td>
-              </tr>
-              <tr className="hover:bg-[#163526]/[0.02] transition-colors group">
-                <td className="px-8 py-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[#faf9f4] rounded-xl flex items-center justify-center border border-[#163526]/10 group-hover:scale-110 transition-transform">
-                      <span className="material-symbols-outlined text-[#163526]">styler</span>
-                    </div>
-                    <div>
-                      <p className="font-bold text-sm text-[#163526]">Atelier Granville</p>
-                      <p className="text-[10px] text-[#1b1c19]/40 uppercase font-bold tracking-widest italic">Robe Soie &laquo;Capucine&raquo;</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-8 py-6">
-                  <span className="px-4 py-1.5 bg-orange-500/10 text-orange-600 text-[10px] font-bold uppercase rounded-full tracking-widest border border-orange-500/10">Prêt</span>
-                </td>
-                <td className="px-8 py-6 w-1/3">
-                  <div className="flex flex-col gap-2">
-                    <div className="flex justify-between text-[9px] font-bold uppercase text-[#1b1c19]/30 tracking-tighter">
-                      <span>Pré-Prod</span>
-                      <span>Prod</span>
-                      <span>Finition</span>
-                    </div>
-                    <div className="h-2 w-full bg-[#163526]/5 rounded-full flex overflow-hidden p-0.5">
-                      <div className="h-full bg-[#163526] w-1/3 rounded-full mr-0.5"></div>
-                      <div className="h-full bg-[#163526] w-1/3 rounded-full mr-0.5"></div>
-                      <div className="h-full bg-[#163526] w-1/3 opacity-20 rounded-full"></div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-8 py-6 text-right">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl text-[10px] font-bold uppercase tracking-widest animate-pulse border border-red-100 shadow-sm">
-                    <span className="material-symbols-outlined text-xs">warning</span>
-                    Paiement en attente
-                  </div>
-                </td>
-              </tr>
-            </tbody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={4} className="px-8 py-12 text-center">
+                      <span className="text-sm text-[#1b1c19]/40">Chargement...</span>
+                    </td>
+                  </tr>
+                ) : commandes.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-8 py-12 text-center">
+                      <span className="text-sm italic text-[#1b1c19]/40">Aucune commande pour le moment.</span>
+                    </td>
+                  </tr>
+                ) : (
+                  commandes.slice(0, 8).map((c: CommandeRow) => {
+                    const enRetard = c.en_retard;
+                    const pct = c.quantite && c.quantite > 0 ? Math.min(100, Math.round(((c.pieces_produites || 0) / c.quantite) * 100)) : 0;
+                    return (
+                      <tr key={c.id} className="hover:bg-[#163526]/[0.02] transition-colors group cursor-pointer" onClick={() => router.push(`/backoffice/orders?id=${c.id}`)}>
+                        <td className="px-8 py-6">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-[#faf9f4] rounded-xl flex items-center justify-center border border-[#163526]/10 group-hover:scale-110 transition-transform">
+                              <span className="material-symbols-outlined text-[#163526]">checkroom</span>
+                            </div>
+                            <div>
+                              <p className="font-bold text-sm text-[#163526]">{c.client_first_name || c.client_email || "Client"}</p>
+                              <p className="text-[10px] text-[#1b1c19]/40 uppercase font-bold tracking-widest italic">{c.designation || "Sans désignation"}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-8 py-6">
+                          <span className={`px-4 py-1.5 text-[10px] font-bold uppercase rounded-full tracking-widest border ${
+                            c.statut_production === "Livrée" ? "bg-green-50 text-green-700 border-green-100" :
+                            enRetard ? "bg-red-50 text-red-600 border-red-100" :
+                            "bg-[#163526]/10 text-[#163526] border-[#163526]/5"
+                          }`}>{c.statut_production}</span>
+                        </td>
+                        <td className="px-8 py-6 w-1/3">
+                          <div className="flex flex-col gap-2">
+                            <div className="flex justify-between text-[9px] font-bold uppercase text-[#1b1c19]/30 tracking-tighter">
+                              <span>{c.pieces_produites} / {c.quantite} pièces</span>
+                              <span>{pct}%</span>
+                            </div>
+                            <div className="h-2 w-full bg-[#163526]/5 rounded-full flex overflow-hidden p-0.5">
+                              <div className="h-full bg-[#163526] rounded-full transition-all" style={{ width: `${pct}%` }}></div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-8 py-6 text-right">
+                          {enRetard ? (
+                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl text-[10px] font-bold uppercase tracking-widest animate-pulse border border-red-100 shadow-sm">
+                              <span className="material-symbols-outlined text-xs">warning</span>
+                              En retard
+                            </div>
+                          ) : (
+                            <span className="text-[#1b1c19]/30 text-[10px] font-bold uppercase tracking-widest">RAS</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
           </table>
         </div>
       </section>

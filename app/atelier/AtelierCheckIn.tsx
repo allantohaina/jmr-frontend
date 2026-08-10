@@ -47,7 +47,7 @@ export function AtelierCheckIn() {
           </div>
           <div>
             <h2 className="font-headline text-2xl text-[#e5ad46]">Check-in Quotidien</h2>
-            <p className="text-[10px] uppercase tracking-widest text-[#eccc90]/40 font-bold">Rapport d'activité & Présence</p>
+            <p className="text-[10px] uppercase tracking-widest text-[#eccc90]/40 font-bold">Rapport d&apos;activité & Présence</p>
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@ export function AtelierCheckIn() {
           {/* Date & Time Section */}
           <div className="space-y-6">
             <div className="relative">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2 block">Date de l'activité</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2 block">Date de l&apos;activité</label>
               <button
                 type="button"
                 onClick={() => setShowCalendar(!showCalendar)}
@@ -93,7 +93,7 @@ export function AtelierCheckIn() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2 block">Heure d'arrivée</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2 block">Heure d&apos;arrivée</label>
               <div className="relative">
                 <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#eccc90]/40" />
                 <input
@@ -146,7 +146,7 @@ export function AtelierCheckIn() {
               />
             </div>
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2 block">Tâches Prévues (Aujourd'hui)</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2 block">Tâches Prévues (Aujourd&apos;hui)</label>
               <textarea
                 value={checkInData.plannedTasks}
                 onChange={(e) => setCheckInData({ ...checkInData, plannedTasks: e.target.value })}
@@ -160,7 +160,7 @@ export function AtelierCheckIn() {
         <div className="pt-4 border-t border-[#e5ad46]/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2 text-[#eccc90]/40">
             <MessageSquare className="w-4 h-4" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">Une notification sera envoyée à l'admin</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">Une notification sera envoyée à l&apos;admin</span>
           </div>
           <button
             type="submit"

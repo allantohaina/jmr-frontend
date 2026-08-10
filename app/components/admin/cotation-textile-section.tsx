@@ -31,6 +31,24 @@ type CotationData = {
   statut: string;
 };
 
+type QuoteRecord = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  message?: string;
+  client_id?: string;
+  produit_id?: string;
+  matiere_fournie_par?: "atelier" | "client";
+  conso_tissu_unitaire?: number;
+  taux_chute_pct?: number;
+  niveau_difficulte?: number;
+  prix_matiere_par_metre?: number;
+  cout_mo_par_piece?: number;
+  frais_generaux_pct?: number;
+  quantite_commandee?: number;
+  status?: string;
+};
+
 type CalculResult = {
   tissu_avec_chute_par_piece: number;
   cout_matiere: number;
@@ -44,17 +62,30 @@ type CalculResult = {
 type Notice = { tone: "success" | "danger"; message: string } | null;
 
 const STATUS_OPTIONS = [
-  { value: "Brouillon", label: "Brouillon" },
-  { value: "Envoyée", label: "Envoyée" },
-  { value: "Acceptée", label: "Acceptée" },
-  { value: "Refusée", label: "Refusée" },
-  { value: "Expirée", label: "Expirée" },
+  { value: "draft", label: "Brouillon" },
+  { value: "sent", label: "Envoyée" },
+  { value: "accepted", label: "Acceptée" },
+  { value: "rejected", label: "Refusée" },
+  { value: "expired", label: "Expirée" },
 ];
 
-export function CotationTextileSection({ quoteId }: { quoteId?: string }) {
+const STATUS_ALIASES: Record<string, string> = {
+  "Brouillon": "draft",
+  "Envoyée": "sent",
+  "Envoyé": "sent",
+  "Acceptée": "accepted",
+  "Accepté": "accepted",
+  "Refusée": "rejected",
+  "Refusé": "rejected",
+  "Expirée": "expired",
+  "Expiré": "expired",
+};
+
+export function CotationTextileSection({ quoteId, clientId, initialName, initialEmail, initialPhone }: { quoteId?: string; clientId?: string; initialName?: string; initialEmail?: string; initialPhone?: string }) {
   const [produits, setProduits] = useState<Produit[]>([]);
   const [isLoadingProduits, setIsLoadingProduits] = useState(true);
   const [formData, setFormData] = useState<CotationData>({
+    client_id: clientId,
     matiere_fournie_par: "atelier",
     conso_tissu_unitaire: 0,
     taux_chute_pct: 10,
@@ -63,8 +94,12 @@ export function CotationTextileSection({ quoteId }: { quoteId?: string }) {
     cout_mo_par_piece: 0,
     frais_generaux_pct: 20,
     quantite_commandee: 0,
-    statut: "Brouillon",
+    statut: "draft",
   });
+  const [clientName, setClientName] = useState(initialName || "");
+  const [clientEmail, setClientEmail] = useState(initialEmail || "");
+  const [clientPhone, setClientPhone] = useState(initialPhone || "");
+  const [clientMessage, setClientMessage] = useState("");
   const [calculs, setCalculs] = useState<CalculResult>({
     tissu_avec_chute_par_piece: 0,
     cout_matiere: 0,
@@ -91,6 +126,41 @@ export function CotationTextileSection({ quoteId }: { quoteId?: string }) {
   };
 
   useEffect(() => { fetchProduits(); }, []);
+
+  useEffect(() => {
+    if (!quoteId) return;
+    let active = true;
+    (async () => {
+      try {
+        const res = await authAPI.get<QuoteRecord>(`/quotes/${quoteId}`);
+        const q = res.data;
+        if (!active || !q) return;
+        const rawStatus = String(q.status || "");
+        const mappedStatus = STATUS_ALIASES[rawStatus] || (STATUS_OPTIONS.some(o => o.value === rawStatus) ? rawStatus : "draft");
+        setFormData((prev) => ({
+          ...prev,
+          client_id: q.client_id || prev.client_id,
+          produit_id: q.produit_id || prev.produit_id,
+          matiere_fournie_par: q.matiere_fournie_par || prev.matiere_fournie_par,
+          conso_tissu_unitaire: Number(q.conso_tissu_unitaire) || prev.conso_tissu_unitaire,
+          taux_chute_pct: Number(q.taux_chute_pct) || prev.taux_chute_pct,
+          niveau_difficulte: Number(q.niveau_difficulte) || prev.niveau_difficulte,
+          prix_matiere_par_metre: Number(q.prix_matiere_par_metre) || prev.prix_matiere_par_metre,
+          cout_mo_par_piece: Number(q.cout_mo_par_piece) || prev.cout_mo_par_piece,
+          frais_generaux_pct: Number(q.frais_generaux_pct) || prev.frais_generaux_pct,
+          quantite_commandee: Number(q.quantite_commandee) || prev.quantite_commandee,
+          statut: mappedStatus,
+        }));
+        const p = produits.find(p => p.id === q.produit_id);
+        if (p) setSelectedProduit(p);
+        if (q.name) setClientName(q.name);
+        if (q.email) setClientEmail(q.email);
+        if (q.phone) setClientPhone(q.phone);
+        if (q.message) setClientMessage(q.message);
+      } catch {}
+    })();
+    return () => { active = false; };
+  }, [quoteId, produits]);
 
   const calculerPrix = (data: CotationData): CalculResult => {
     const tissuAvecChute = data.conso_tissu_unitaire * (1 + data.taux_chute_pct / 100);
@@ -134,8 +204,8 @@ export function CotationTextileSection({ quoteId }: { quoteId?: string }) {
     }
   };
 
-  const handleChange = (field: keyof CotationData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleChange = (field: keyof CotationData, value: string | number) => {
+    setFormData((prev) => ({ ...prev, [field]: value as CotationData[keyof CotationData] }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -147,6 +217,10 @@ export function CotationTextileSection({ quoteId }: { quoteId?: string }) {
       ...formData,
       ...calculs,
       client_id: formData.client_id || null,
+      name: clientName.trim(),
+      email: clientEmail.trim(),
+      phone: clientPhone.trim() || null,
+      message: clientMessage.trim() || "Demande de cotation textile",
     };
 
     try {
@@ -154,8 +228,14 @@ export function CotationTextileSection({ quoteId }: { quoteId?: string }) {
         await authAPI.put(`/quotes/${quoteId}`, payload);
         setNotice({ tone: "success", message: "Cotation mise à jour" });
       } else {
-        await authAPI.post("/quotes", payload);
+        const res = await authAPI.post<{ id?: string }>("/quotes", payload);
+        const newId = res.data?.id;
         setNotice({ tone: "success", message: "Cotation créée" });
+        if (newId) {
+          setTimeout(() => {
+            window.location.href = `/backoffice/devis/edit?id=${newId}`;
+          }, 800);
+        }
       }
     } catch {
       setNotice({ tone: "danger", message: "Erreur lors de l'enregistrement" });
@@ -193,6 +273,51 @@ export function CotationTextileSection({ quoteId }: { quoteId?: string }) {
                 <Calculator className="h-5 w-5 text-orange-500" />
                 Paramètres de calcul
               </h3>
+
+              <div className="rounded-2xl border border-[#163526]/10 bg-[#faf9f4] p-4 space-y-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Client</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Nom *</label>
+                    <input
+                      required
+                      value={clientName}
+                      onChange={(e) => setClientName(e.target.value)}
+                      className="w-full bg-white border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                      placeholder="Nom du client"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Email *</label>
+                    <input
+                      required
+                      type="email"
+                      value={clientEmail}
+                      onChange={(e) => setClientEmail(e.target.value)}
+                      className="w-full bg-white border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                      placeholder="email@exemple.com"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Téléphone</label>
+                    <input
+                      value={clientPhone}
+                      onChange={(e) => setClientPhone(e.target.value)}
+                      className="w-full bg-white border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                      placeholder="+261 XX XXX XX"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Description du besoin</label>
+                  <textarea
+                    value={clientMessage}
+                    onChange={(e) => setClientMessage(e.target.value)}
+                    className="w-full bg-white border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10 h-16"
+                    placeholder="Description du projet..."
+                  />
+                </div>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -340,7 +465,7 @@ export function CotationTextileSection({ quoteId }: { quoteId?: string }) {
                 </div>
 
                 <div className="flex justify-between items-center py-2 border-b border-white/10">
-                  <span className="text-xs text-white/60 uppercase tracking-widest">Coût main d'œuvre</span>
+                  <span className="text-xs text-white/60 uppercase tracking-widest">Coût main d&apos;œuvre</span>
                   <span className="font-mono text-sm font-bold">{calculs.cout_main_oeuvre.toLocaleString()} Ar</span>
                 </div>
 

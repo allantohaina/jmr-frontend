@@ -31,6 +31,7 @@ type Quote = {
 
 type Commande = {
   id: string;
+  client_id?: string;
   numero: string;
   designation?: string;
   statut_production: string;
@@ -75,7 +76,7 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
       // Récupérer les commandes du client
       const commandesRes = await authAPI.get<{ data: Commande[] }>("/commandes");
       const clientCommandes = (commandesRes.data?.data || []).filter((c: Commande) => 
-        (c as any).client_id === clientId
+        c.client_id === clientId
       );
       setCommandes(clientCommandes);
 
@@ -95,13 +96,24 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
   useEffect(() => { fetchClientData(); }, [clientId]);
 
   const handleCreateDemande = () => {
-    setNotice({ tone: "success", message: "Redirection vers création de demande..." });
-    // window.location.href = `/backoffice/demandes?client=${clientId}`;
+    if (!client) return;
+    const params = new URLSearchParams({
+      nom_client: `${client.first_name || ""} ${client.last_name || ""}`.trim(),
+      email: client.email || "",
+      telephone: client.phone || "",
+    });
+    window.location.href = `/backoffice/demandes?${params.toString()}`;
   };
 
   const handleCreateQuote = () => {
-    setNotice({ tone: "success", message: "Redirection vers création de cotation..." });
-    // window.location.href = `/backoffice/devis?client=${clientId}`;
+    if (!client) return;
+    const params = new URLSearchParams({
+      client_id: clientId,
+      name: `${client.first_name || ""} ${client.last_name || ""}`.trim(),
+      email: client.email || "",
+      phone: client.phone || "",
+    });
+    window.location.href = `/backoffice/devis/nouvelle?${params.toString()}`;
   };
 
   if (isLoading) {
@@ -174,7 +186,7 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
               <p className="text-sm font-bold text-[#163526]">{client.phone || "—"}</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-1">Chiffre d'affaires cumulé</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-1">Chiffre d&apos;affaires cumulé</p>
               <p className="text-sm font-bold text-[#163526]">{caCumule.toLocaleString()} Ar</p>
             </div>
           </div>

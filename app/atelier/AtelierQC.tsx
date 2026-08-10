@@ -112,7 +112,7 @@ export function AtelierQC() {
               <Camera className="w-6 h-6 text-blue-400 flex-shrink-0" />
               <div>
                 <p className="text-sm font-bold text-blue-100 mb-1">Preuve visuelle requise</p>
-                <p className="text-xs text-blue-200/60">Prenez une photo du produit fini avec son étiquette pour les archives de l'atelier.</p>
+                <p className="text-xs text-blue-200/60">Prenez une photo du produit fini avec son étiquette pour les archives de l&apos;atelier.</p>
                 <button type="button" className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-blue-600 transition-colors">
                   Téléverser Photo
                 </button>
@@ -123,7 +123,7 @@ export function AtelierQC() {
           <div className="pt-10 border-t border-[#e5ad46]/10 flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2 text-[#eccc90]/40">
               <AlertCircle className="w-4 h-4" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">Le rapport sera archivé et visible par l'admin</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest">Le rapport sera archivé et visible par l&apos;admin</span>
             </div>
             <button
               type="submit"
