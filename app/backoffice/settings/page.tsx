@@ -8,17 +8,21 @@ export default function AdminSettingsPage() {
   const [tfaEnabled, setTfaEnabled] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
   const [truncating, setTruncating] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
 
   const handleTruncate = async () => {
+    if (!adminPassword.trim()) return;
     setTruncating(true);
     setResult(null);
     try {
-      const res = await authAPI.post<{ message: string; truncated: string[] }>("/admin/truncate", {});
+      const res = await authAPI.post<{ message: string; truncated: string[] }>("/admin/truncate", { password: adminPassword });
       setResult({ ok: true, message: res.data?.message || "Données supprimées." });
       setShowConfirm(false);
-    } catch (err) {
-      setResult({ ok: false, message: err instanceof Error ? err.message : "Erreur lors de la suppression." });
+      setAdminPassword("");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erreur lors de la suppression.";
+      setResult({ ok: false, message: msg });
     } finally {
       setTruncating(false);
     }
@@ -108,26 +112,37 @@ export default function AdminSettingsPage() {
             Supprimer les données de test
           </button>
         ) : (
-          <div className="flex items-center gap-4 p-4 bg-red-50 rounded-xl border border-red-200">
-            <AlertTriangle className="h-5 w-5 text-red-500 shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm font-bold text-red-700">Êtes-vous sûr ?</p>
-              <p className="text-xs text-red-600 mt-1">Cette action est irréversible. Toutes les données de test seront supprimées.</p>
+          <div className="p-4 bg-red-50 rounded-xl border border-red-200 space-y-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-bold text-red-700">Confirmez votre identité</p>
+                <p className="text-xs text-red-600 mt-1">Entrez votre mot de passe admin pour supprimer toutes les données de test. Cette action est irréversible.</p>
+              </div>
             </div>
-            <div className="flex gap-2 shrink-0">
+            <input
+              type="password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              placeholder="Mot de passe administrateur"
+              className="w-full px-4 py-3 bg-white border border-red-200 rounded-xl text-sm text-[#163526] placeholder:text-red-300 outline-none focus:border-red-400 transition-colors"
+              onKeyDown={(e) => { if (e.key === "Enter" && adminPassword.trim()) handleTruncate(); }}
+              autoFocus
+            />
+            <div className="flex items-center gap-3 justify-end">
               <button
-                onClick={() => setShowConfirm(false)}
+                onClick={() => { setShowConfirm(false); setAdminPassword(""); }}
                 className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded-lg border border-gray-200 hover:bg-gray-50 transition-all"
               >
                 Annuler
               </button>
               <button
                 onClick={handleTruncate}
-                disabled={truncating}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-red-700 transition-all active:scale-95 disabled:opacity-50"
+                disabled={truncating || !adminPassword.trim()}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-red-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {truncating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
-                {truncating ? "Suppression..." : "Confirmer"}
+                {truncating ? "Suppression..." : "Confirmer la suppression"}
               </button>
             </div>
           </div>
