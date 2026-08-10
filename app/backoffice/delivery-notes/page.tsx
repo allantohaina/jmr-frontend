@@ -148,6 +148,19 @@ export default function AdminDeliveryNotesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+
+    const errors: string[] = [];
+    if (!formData.commande_id) errors.push("La commande est requise.");
+    if (!formData.numero.trim() || formData.numero.trim().length < 3) errors.push("Le numéro du bon de livraison est requis (min. 3 caractères).");
+    if (!formData.date_livraison) errors.push("La date de livraison est requise.");
+    if (!formData.destinataire.trim() || formData.destinataire.trim().length < 2) errors.push("Le destinataire est requis (min. 2 caractères).");
+
+    if (errors.length > 0) {
+      setError(errors.join(" "));
+      setSaving(false);
+      return;
+    }
+
     try {
       await authAPI.post("/bon-livraison", formData);
       setShowForm(false);

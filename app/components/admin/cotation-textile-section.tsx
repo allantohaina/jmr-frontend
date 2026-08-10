@@ -213,6 +213,21 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
     setIsSaving(true);
     setNotice(null);
 
+    const errors: string[] = [];
+    if (!clientName.trim() || clientName.trim().length < 2) errors.push("Le nom du client est requis (min. 2 caractères).");
+    if (!clientEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmail.trim())) errors.push("L'email du client est requis et doit être valide.");
+    if (formData.quantite_commandee < 1) errors.push("La quantité commandée doit être au moins de 1.");
+    if (formData.conso_tissu_unitaire < 0) errors.push("La consommation tissu ne peut pas être négative.");
+    if (formData.prix_matiere_par_metre < 0) errors.push("Le prix matière par mètre ne peut pas être négatif.");
+    if (formData.cout_mo_par_piece < 0) errors.push("Le coût main d'oeuvre ne peut pas être négatif.");
+    if (formData.frais_generaux_pct < 0 || formData.frais_generaux_pct > 100) errors.push("Le pourcentage de frais généraux doit être entre 0 et 100.");
+
+    if (errors.length > 0) {
+      setNotice({ tone: "danger", message: errors.join(" ") });
+      setIsSaving(false);
+      return;
+    }
+
     const payload = {
       ...formData,
       ...calculs,

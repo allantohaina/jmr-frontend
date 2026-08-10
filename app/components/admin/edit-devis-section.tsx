@@ -188,6 +188,19 @@ export function EditDevisSection({ id }: { id: string }) {
     const nextDeposit = normalizeText(String(formData.get("deposit_amount") ?? ""));
     const nextBalance = normalizeText(String(formData.get("balance_amount") ?? ""));
 
+    const errors: string[] = [];
+    if (!nextStatus) errors.push("Le statut est requis.");
+    if (!nextAmount || isNaN(Number(nextAmount)) || Number(nextAmount) < 0) errors.push("Le montant total doit être un nombre positif.");
+    if (nextDeposit && (isNaN(Number(nextDeposit)) || Number(nextDeposit) < 0)) errors.push("L'acompte doit être un nombre positif.");
+    if (nextBalance && (isNaN(Number(nextBalance)) || Number(nextBalance) < 0)) errors.push("Le solde doit être un nombre positif.");
+    if (nextDeposit && nextAmount && Number(nextDeposit) > Number(nextAmount)) errors.push("L'acompte ne peut pas dépasser le montant total.");
+    if (nextBalance && nextAmount && Number(nextBalance) > Number(nextAmount)) errors.push("Le solde ne peut pas dépasser le montant total.");
+
+    if (errors.length > 0) {
+      setNotice({ tone: "danger", message: errors.join(" ") });
+      return;
+    }
+
     setIsSaving(true);
     setNotice(null);
 

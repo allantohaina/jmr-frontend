@@ -14,9 +14,23 @@ export function PaiementSection({ id }: { id: string }) {
     const transactionRef = String(formData.get("transaction_ref") ?? "");
     const proofOfPayment = formData.get("proof_of_payment");
 
+    const errors: string[] = [];
+    if (!paymentType) errors.push("La méthode de paiement est requise.");
+    if (transactionRef.trim().length < 5) errors.push("La référence de la transaction doit comporter au moins 5 caractères.");
+    if (!proofOfPayment || !(proofOfPayment instanceof File) || proofOfPayment.size === 0) {
+      errors.push("La preuve de paiement est requise (PDF, PNG, JPG ou WEBP).");
+    } else {
+      if (proofOfPayment.size > 10 * 1024 * 1024) errors.push("Le fichier ne doit pas dépasser 10 Mo.");
+      const allowed = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+      if (!allowed.includes(proofOfPayment.type)) errors.push("Format non autorisé. Utilisez PDF, PNG, JPG ou WEBP.");
+    }
+    if (errors.length > 0) {
+      throw new Error(errors.join(" "));
+    }
+
     const data = new FormData();
     data.append("payment_type", paymentType);
-    data.append("transaction_ref", transactionRef);
+    data.append("transaction_ref", transactionRef.trim());
 
     if (proofOfPayment instanceof File && proofOfPayment.size > 0) {
       data.append("proof_of_payment", proofOfPayment);

@@ -149,6 +149,17 @@ export function DemandesClientSection() {
     setIsSaving(true);
     setNotice(null);
 
+    const errors: string[] = [];
+    if (!formData.nom_client.trim() || formData.nom_client.trim().length < 2) errors.push("Le nom du client est requis (min. 2 caractères).");
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) errors.push("L'adresse email n'est pas valide.");
+    if (!formData.description.trim() || formData.description.trim().length < 10) errors.push("La description est requise (min. 10 caractères).");
+
+    if (errors.length > 0) {
+      setNotice({ tone: "danger", message: errors.join(" ") });
+      setIsSaving(false);
+      return;
+    }
+
     const payload = {
       ...formData,
       email: formData.email || null,

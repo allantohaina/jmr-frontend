@@ -66,6 +66,18 @@ export default function AdminPurchasesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+
+    const errors: string[] = [];
+    if (!formData.fournisseur.trim() || formData.fournisseur.trim().length < 2) errors.push("Le nom du fournisseur est requis (min. 2 caractères).");
+    if (!formData.montant || formData.montant <= 0) errors.push("Le montant doit être supérieur à 0.");
+    if (!formData.date_achat) errors.push("La date d'achat est requise.");
+
+    if (errors.length > 0) {
+      showToast(errors.join(" "), "error");
+      setSaving(false);
+      return;
+    }
+
     try {
       await authAPI.post("/achats", formData);
       setShowForm(false);

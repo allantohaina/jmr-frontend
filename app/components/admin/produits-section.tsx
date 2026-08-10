@@ -127,6 +127,21 @@ export function ProduitsSection() {
     setIsSaving(true);
     setNotice(null);
 
+    const errors: string[] = [];
+    if (!formData.nom.trim() || formData.nom.trim().length < 2) errors.push("Le nom du produit est requis (min. 2 caractères).");
+    if (!formData.conso_tissu_unitaire || parseFloat(formData.conso_tissu_unitaire) < 0) errors.push("La consommation tissu doit être un nombre positif.");
+    if (!formData.niveau_difficulte_defaut || parseFloat(formData.niveau_difficulte_defaut) < 0) errors.push("Le niveau de difficulté doit être positif.");
+    if (!formData.moq || parseInt(formData.moq) < 1) errors.push("La MOQ doit être d'au moins 1.");
+    if (!formData.cout_matiere_defaut || parseFloat(formData.cout_matiere_defaut) < 0) errors.push("Le coût matière ne peut pas être négatif.");
+    if (!formData.cout_mo_par_piece || parseFloat(formData.cout_mo_par_piece) < 0) errors.push("Le coût main d'oeuvre ne peut pas être négatif.");
+    if (parseFloat(formData.frais_generaux_pct) < 0 || parseFloat(formData.frais_generaux_pct) > 100) errors.push("Le pourcentage de frais généraux doit être entre 0 et 100.");
+
+    if (errors.length > 0) {
+      setNotice({ tone: "danger", message: errors.join(" ") });
+      setIsSaving(false);
+      return;
+    }
+
     const payload: ProduitPayload = {
       nom: formData.nom,
       categorie: formData.categorie || null,
