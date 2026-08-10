@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authAPI } from "@/app/lib";
 import ExchangeRateWidget from "@/app/components/exchange-rate-widget";
+import { PrivilegeBadge } from "@/app/components/admin/privilege-badge";
+import type { UserProfile } from "@/app/lib/api";
 
 import { 
   XAxis, 
@@ -26,6 +28,7 @@ interface Visitor {
 
 type CommandeRow = {
   id: string;
+  client_id?: string;
   numero?: string;
   designation?: string;
   statut_production?: string;
@@ -73,6 +76,7 @@ export default function AdminDashboardPage() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [chartData, setChartData] = useState<Array<{ name: string; ventes: number; depenses: number }>>([]);
+  const [clientsMap, setClientsMap] = useState<Record<string, UserProfile>>({});
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -153,6 +157,15 @@ export default function AdminDashboardPage() {
         });
 
         setChartData(chartArray);
+
+        // Fetch clients for privilege badges
+        try {
+          const clientsRes = await authAPI.get<{ data: UserProfile[] }>("/users/clients-revenue");
+          const clientsData = (clientsRes.data?.data || []) as UserProfile[];
+          const map: Record<string, UserProfile> = {};
+          clientsData.forEach((u: UserProfile) => { map[u.id] = u; });
+          setClientsMap(map);
+        } catch {}
       } catch (error) {
         console.error("Erreur chargement dashboard:", error);
       } finally {
@@ -376,7 +389,16 @@ export default function AdminDashboardPage() {
                               <span className="material-symbols-outlined text-[#163526]">checkroom</span>
                             </div>
                             <div>
-                              <p className="font-bold text-sm text-[#163526]">{c.client_first_name || c.client_email || "Client"}</p>
+                              <p className="font-bold text-sm text-[#163526]">
+                                {c.client_first_name || c.client_email || "Client"}
+                                {c.client_id && clientsMap[c.client_id] && (
+                                  <PrivilegeBadge
+                                    isPrivileged={clientsMap[c.client_id].is_privileged}
+                                    cumulativeRevenue={clientsMap[c.client_id].cumulative_revenue}
+                                    className="ml-2"
+                                  />
+                                )}
+                              </p>
                               <p className="text-[10px] text-[#1b1c19]/40 uppercase font-bold tracking-widest italic">{c.designation || "Sans désignation"}</p>
                             </div>
                           </div>

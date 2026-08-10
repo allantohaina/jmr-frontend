@@ -32,6 +32,8 @@ export type UserProfile = {
   last_name?: string;
   email?: string;
   role?: "admin" | "worker" | "user" | string;
+  is_privileged?: boolean;
+  cumulative_revenue?: number;
 };
 
 export type NotificationRecord = {

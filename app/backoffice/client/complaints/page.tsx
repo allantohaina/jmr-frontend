@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { authAPI, type UserProfile } from "@/app/lib/api";
+import { PrivilegeBadge } from "@/app/components/admin/privilege-badge";
 import { MessageSquare, Search, Loader } from "lucide-react";
 import { debounce } from "@/app/lib/utils";
 
@@ -22,8 +23,9 @@ export default function ComplaintsPage() {
   }, 300), [router, searchParams]);
 
   useEffect(() => {
-    authAPI.get<UserProfile[]>("/users").then((res) => {
-      setClients(res.data.filter((u) => u.role === "user"));
+    authAPI.get<{ data: UserProfile[] }>("/users/clients-revenue").then((res) => {
+      const data = (res.data?.data || []) as UserProfile[];
+      setClients(data.filter((u) => u.role === "user"));
     }).catch(() => setClients([])).finally(() => setLoading(false));
   }, []);
 
@@ -58,7 +60,14 @@ export default function ComplaintsPage() {
                     {c.first_name?.[0]}{c.last_name?.[0]}
                   </div>
                   <div>
-                    <p className="font-semibold text-[#eccc90]">{c.first_name} {c.last_name}</p>
+                    <p className="font-semibold text-[#eccc90]">
+                      {c.first_name} {c.last_name}
+                      <PrivilegeBadge
+                        isPrivileged={c.is_privileged}
+                        cumulativeRevenue={c.cumulative_revenue}
+                        className="ml-2"
+                      />
+                    </p>
                     <p className="text-xs text-[#eccc90]/50">ID: {c.id?.toString().slice(0, 8)}…</p>
                   </div>
                 </div>

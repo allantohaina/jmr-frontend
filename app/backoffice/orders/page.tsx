@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { authAPI, CommandeRecord, STATUTS_PRODUCTION } from "@/app/lib/api";
+import { authAPI, CommandeRecord, STATUTS_PRODUCTION, type UserProfile } from "@/app/lib/api";
 import { TextileDocument, AdminSignaturePanel } from "@/app/components/documents";
 import type { DocumentSignature, DocumentLineItem, TextileDocumentProps } from "@/app/components/documents/types";
+import { PrivilegeBadge } from "@/app/components/admin/privilege-badge";
 import { Loader, X, Printer } from "lucide-react";
 import { AttachmentUploader } from "@/app/components/admin/attachment-uploader";
 
@@ -48,6 +49,7 @@ export default function AdminCommandesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [commandes, setCommandes] = useState<CommandeRecord[]>([]);
+  const [clientsMap, setClientsMap] = useState<Record<string, UserProfile>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(searchParams.get("id"));
@@ -58,8 +60,16 @@ export default function AdminCommandesPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await authAPI.get<{ data: CommandeRecord[] }>("/commandes");
-      setCommandes(Array.isArray(res.data) ? res.data : []);
+      const [cmdRes, clientsRes] = await Promise.all([
+        authAPI.get<{ data: CommandeRecord[] }>("/commandes"),
+        authAPI.get<{ data: UserProfile[] }>("/users/clients-revenue"),
+      ]);
+      setCommandes(Array.isArray(cmdRes.data) ? cmdRes.data : []);
+      const map: Record<string, UserProfile> = {};
+      ((clientsRes.data?.data || []) as UserProfile[]).forEach((u: UserProfile) => {
+        map[u.id] = u;
+      });
+      setClientsMap(map);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
       setCommandes([]);
@@ -166,6 +176,13 @@ export default function AdminCommandesPage() {
                     </div>
                     <p className="text-sm font-bold text-[#163526] truncate">
                       {c.client_first_name || c.client_email || "Client"} — {c.designation || "Sans désignation"}
+                      {c.client_id && clientsMap[c.client_id] && (
+                        <PrivilegeBadge
+                          isPrivileged={clientsMap[c.client_id].is_privileged}
+                          cumulativeRevenue={clientsMap[c.client_id].cumulative_revenue}
+                          className="ml-2"
+                        />
+                      )}
                     </p>
                     <div className="flex items-center gap-4 mt-1 text-[10px] text-[#163526]/40 font-medium">
                       <span>Qté: {c.quantite}</span>
@@ -218,7 +235,16 @@ export default function AdminCommandesPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 text-sm">
                       <div>
                         <p className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40 mb-1">Client</p>
-                        <p className="font-medium text-[#163526]">{c.client_first_name || c.client_email || "—"}</p>
+                        <p className="font-medium text-[#163526]">
+                          {c.client_first_name || c.client_email || "—"}
+                          {c.client_id && clientsMap[c.client_id] && (
+                            <PrivilegeBadge
+                              isPrivileged={clientsMap[c.client_id].is_privileged}
+                              cumulativeRevenue={clientsMap[c.client_id].cumulative_revenue}
+                              className="ml-2"
+                            />
+                          )}
+                        </p>
                       </div>
                       <div>
                         <p className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40 mb-1">Désignation</p>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertCircle, Loader2, FileText, ShoppingCart, DollarSign } from "lucide-react";
+import { AlertCircle, Loader2, FileText, ShoppingCart, DollarSign, Award } from "lucide-react";
 import { authAPI } from "@/app/lib";
 
 type Client = {
@@ -11,6 +11,7 @@ type Client = {
   email: string;
   phone?: string;
   address?: string;
+  is_privileged?: boolean;
 };
 
 type Demande = {
@@ -41,6 +42,8 @@ type Commande = {
 
 type Notice = { tone: "success" | "danger"; message: string } | null;
 
+const PRIVILEGE_REVENUE_THRESHOLD = 500000;
+
 export function ClientHistorySection({ clientId }: { clientId: string }) {
   const [client, setClient] = useState<Client | null>(null);
   const [demandes, setDemandes] = useState<Demande[]>([]);
@@ -50,6 +53,7 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState<Notice>(null);
+  const [togglingPrivilege, setTogglingPrivilege] = useState(false);
 
   const fetchClientData = async () => {
     setIsLoading(true);
@@ -116,6 +120,23 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
     window.location.href = `/backoffice/devis/nouvelle?${params.toString()}`;
   };
 
+  const isAutoPrivileged = caCumule >= PRIVILEGE_REVENUE_THRESHOLD;
+  const isPrivileged = client?.is_privileged || isAutoPrivileged;
+
+  const handleTogglePrivilege = async () => {
+    if (!client) return;
+    setTogglingPrivilege(true);
+    try {
+      await authAPI.put(`/users/${clientId}/privilege`, {});
+      setClient({ ...client, is_privileged: !client.is_privileged });
+      setNotice({ tone: "success", message: client.is_privileged ? "Client retiré des privilégiés" : "Client marqué comme privilégié" });
+    } catch {
+      setNotice({ tone: "danger", message: "Erreur lors de la mise à jour" });
+    } finally {
+      setTogglingPrivilege(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="px-4 md:px-12 py-8 md:py-10">
@@ -175,7 +196,28 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
       {/* Info Client */}
       {client && (
         <div className="bg-white rounded-2xl p-6 md:p-8 border border-[#163526]/5 shadow-sm">
-          <h3 className="font-headline text-xl text-[#163526] mb-4">Informations</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-headline text-xl text-[#163526]">Informations</h3>
+            <div className="flex items-center gap-3">
+              {isPrivileged && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold uppercase tracking-widest rounded-full">
+                  <Award className="h-3 w-3" />
+                  Client privilégié
+                </span>
+              )}
+              <button
+                onClick={handleTogglePrivilege}
+                disabled={togglingPrivilege}
+                className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border transition-all ${
+                  client.is_privileged
+                    ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                    : "bg-[#163526]/5 text-[#163526]/60 border-[#163526]/10 hover:bg-[#163526]/10"
+                } ${togglingPrivilege ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+              >
+                {togglingPrivilege ? "..." : client.is_privileged ? "Retirer privilège" : "Marquer privilégié"}
+              </button>
+            </div>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-1">Email</p>
@@ -187,7 +229,10 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-1">Chiffre d&apos;affaires cumulé</p>
-              <p className="text-sm font-bold text-[#163526]">{caCumule.toLocaleString()} Ar</p>
+              <p className={`text-sm font-bold ${isAutoPrivileged ? "text-amber-600" : "text-[#163526]"}`}>
+                {caCumule.toLocaleString()} Ar
+                {isAutoPrivileged && <span className="ml-2 text-[9px] font-bold uppercase text-amber-500">auto</span>}
+              </p>
             </div>
           </div>
         </div>
