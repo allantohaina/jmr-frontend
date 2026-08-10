@@ -27,7 +27,17 @@ const quoteRequestSchema = z.object({
   tailles: z.string().optional(),
   quantite: z.string().optional(),
   finitions: z.string().optional(),
-  delai_souhaite: z.string().optional(),
+  delai_souhaite: z.string().optional().refine(
+    (val) => {
+      if (!val || val.trim() === "") return true;
+      const parsed = new Date(val);
+      if (isNaN(parsed.getTime())) return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return parsed >= today;
+    },
+    { message: "La date souhaitée ne peut pas être dans le passé" }
+  ),
   request_type: z.enum(["new", "edit", "add"]),
   message: z
     .string()
@@ -459,12 +469,17 @@ function QuoteFormContent() {
                   render={({ field }) => (
                     <input
                       {...field}
-                      type="text"
-                      placeholder="Ex: avant fin avril"
-                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
+                      type="date"
+                      min={new Date().toISOString().split("T")[0]}
+                      className={`w-full h-14 rounded-2xl border bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all ${
+                        errors.delai_souhaite ? "border-red-400/50" : "border-[#e5ad46]/10"
+                      }`}
                     />
                   )}
                 />
+                {errors.delai_souhaite && (
+                  <p className="text-red-300 text-xs mt-2">{errors.delai_souhaite.message}</p>
+                )}
               </div>
 
               <div className="md:col-span-2">
