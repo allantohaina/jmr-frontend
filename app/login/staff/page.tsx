@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { authenticateWithForm } from "@/app/lib";
 import { getToken } from "@/app/lib";
+import { loginRateLimiter } from "@/app/lib/rate-limit";
 
 type StaffRole = "admin" | "worker";
 
@@ -59,6 +60,13 @@ export default function StaffLoginPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    const rateLimit = loginRateLimiter.check("global");
+    if (!rateLimit.allowed) {
+      setError("Trop de tentatives de connexion. Veuillez patienter 15 minutes.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {

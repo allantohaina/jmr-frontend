@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLocale } from "@/app/components/locale-provider";
 import { authenticateWithForm } from "@/app/lib";
+import { loginRateLimiter } from "@/app/lib/rate-limit";
 import { useForm, Controller, useWatch, type FieldErrors } from "react-hook-form";
 import { getErrorMessage } from "@/app/lib/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -124,6 +125,13 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
 
   async function handleLoginSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    const rateLimitKey = typeof window !== "undefined" ? "global" : "server";
+    const rateLimit = loginRateLimiter.check(rateLimitKey);
+    if (!rateLimit.allowed) {
+      setErrorMessage("Trop de tentatives de connexion. Veuillez patienter 15 minutes.");
+      return;
+    }
 
     const formData = new FormData(event.currentTarget);
     const intent = "login" as const;
