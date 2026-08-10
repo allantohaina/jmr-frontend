@@ -51,7 +51,7 @@ function persistAuthSession(payload: AuthSuccessPayload, rememberMe = false) {
   const cookieOptions = {
     path: "/",
     sameSite: "Lax" as const,
-    secure,
+    secure: true,
     ...(rememberMe ? { maxAge: AUTH_COOKIE_MAX_AGE } : {}),
   };
 
