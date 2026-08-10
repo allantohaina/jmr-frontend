@@ -114,7 +114,7 @@ function QuoteFormContent() {
       if (files.some((file) => file.size > 10 * 1024 * 1024)) throw new Error("Chaque fichier doit faire moins de 10 Mo.");
       const payload = buildQuoteRequestPayload(data);
       await authAPI.post("/quotes", payload);
-      window.location.assign("/mon-profil");
+      router.push("/mon-profil");
     } catch (error) {
       setSubmitError(getErrorMessage(error));
     } finally {
