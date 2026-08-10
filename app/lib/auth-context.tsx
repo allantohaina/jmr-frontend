@@ -15,8 +15,8 @@ type AuthContextType = {
   isSignedIn: boolean;
   isAdmin: boolean;
   isWorker: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: { email: string; password: string; first_name: string; last_name: string }) => Promise<void>;
+  login: (email: string, password: string, altcha?: string) => Promise<void>;
+  register: (data: { email: string; password: string; first_name: string; last_name: string; altcha?: string }) => Promise<void>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
   isLoading: boolean;
@@ -61,8 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const response = await authAPI.login(email, password);
+  const login = useCallback(async (email: string, password: string, altcha?: string) => {
+    const response = await authAPI.login(email, password, altcha);
     if (response.status === "success" && response.data) {
       const { token: newToken, user: newUser } = response.data;
       setToken(newToken);
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const register = useCallback(async (data: { email: string; password: string; first_name: string; last_name: string }) => {
+  const register = useCallback(async (data: { email: string; password: string; first_name: string; last_name: string; altcha?: string }) => {
     const response = await authAPI.register(data);
     if (response.status === "success" && response.data) {
       const { token: newToken, user: newUser } = response.data;

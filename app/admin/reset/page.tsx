@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AltchaWidget } from "@/app/components/altcha-widget";
 
 const API_URL = "https://api.jmrtextile.com/api";
 const RESET_SECRET = "jmr-reset-2026";
@@ -53,6 +54,10 @@ export default function AdminResetPage() {
     setIsLoading(true);
     setMessage("");
 
+    const form = e.target as HTMLFormElement;
+    const altchaInput = form.querySelector<HTMLInputElement>('input[name="altcha"]');
+    const altchaToken = altchaInput?.value || "";
+
     try {
       const res = await fetch(`${API_URL}/admin/reset-password`, {
         method: "POST",
@@ -60,7 +65,7 @@ export default function AdminResetPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${secret}`,
         },
-        body: JSON.stringify({ email: selectedEmail, password: newPassword }),
+        body: JSON.stringify({ email: selectedEmail, password: newPassword, altcha: altchaToken }),
       });
       const data = await res.json();
 
@@ -153,6 +158,7 @@ export default function AdminResetPage() {
                 className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:border-[#e5ad46]/50 placeholder:text-white/20"
                 required
               />
+              <AltchaWidget />
               <button
                 type="submit"
                 disabled={isLoading}

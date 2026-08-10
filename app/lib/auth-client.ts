@@ -72,6 +72,7 @@ export async function authenticateWithForm(formData: FormData) {
   const email = readTextField(formData, "email");
   const password = readTextField(formData, "password");
   const nextPath = readTextField(formData, "next");
+  const altchaToken = readTextField(formData, "altcha");
 
   if (!email || !password) {
     throw new Error("Veuillez renseigner votre e-mail et votre mot de passe.");
@@ -103,6 +104,7 @@ export async function authenticateWithForm(formData: FormData) {
         phone: phone || undefined,
         country: country || undefined,
         address: address || undefined,
+        altcha: altchaToken || undefined,
       });
 
       payload = response.data;
@@ -111,7 +113,7 @@ export async function authenticateWithForm(formData: FormData) {
       throw error;
     }
   } else {
-    const response = await authAPI.login(email, password);
+    const response = await authAPI.login(email, password, altchaToken || undefined);
     payload = response.data;
   }
 

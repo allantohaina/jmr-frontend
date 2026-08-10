@@ -9,6 +9,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { ArrowRight, Check, ChevronDown, FileImage, Loader2, ShieldCheck, UploadCloud } from "lucide-react";
+import { AltchaWidget } from "@/app/components/altcha-widget";
 
 // 1. DEFINIR LE SCHEMA DE VALIDATION ZOD
 const quoteRequestSchema = z.object({
@@ -536,6 +537,10 @@ function QuoteFormContent() {
               </div>
 
               
+            </div>
+
+            <div className="mt-6 flex justify-center">
+              <AltchaWidget />
             </div>
 
             <button
