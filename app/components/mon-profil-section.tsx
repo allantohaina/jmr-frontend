@@ -43,6 +43,7 @@ function quoteStatusLabel(s?: string | null) {
   switch (s) {
     case "pending": return "En attente";
     case "draft": return "Brouillon";
+    case "needs_info": return "À préciser";
     case "sent": return "Devis envoyé";
     case "accepted": return "Accepté";
     case "production": return "En production";
@@ -84,11 +85,11 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   }, []);
 
   const activeCommandes = commandes.filter((c) => c.statut_production !== "Livrée");
-  const pendingQuotes = quotes.filter((q) => q.status === "pending" || q.status === "draft");
+  const pendingQuotes = quotes.filter((q) => q.status === "pending" || q.status === "draft" || q.status === "needs_info");
   const latestPendingQuote = [...pendingQuotes].sort(
     (a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
   )[0];
-  const alertCount = quotes.filter((q) => q.status === "sent" || q.status === "production").length;
+  const alertCount = quotes.filter((q) => q.status === "sent" || q.status === "production" || q.status === "needs_info").length;
 
   const stats = [
     {
@@ -265,7 +266,10 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                                 </span>
                                 <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${
                                   q.status === "production" || q.status === "accepted"
-                                    ? "bg-[#e5ad46] text-white" : "bg-[#e5ad46]/5 text-[#e5ad46]"
+                                    ? "bg-[#e5ad46] text-white"
+                                    : q.status === "needs_info"
+                                    ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                    : "bg-[#e5ad46]/5 text-[#e5ad46]"
                                 }`}>
                                   {quoteStatusLabel(q.status)}
                                 </span>
@@ -303,14 +307,14 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                       </div>
                     ) : (
                       <div className="divide-y divide-[#e5ad46]/5">
-                        {quotes.filter((q) => q.status === "sent" || q.status === "production").slice(0, 10).map((q) => (
+                        {quotes.filter((q) => q.status === "sent" || q.status === "production" || q.status === "needs_info").slice(0, 10).map((q) => (
                           <div key={q.id} className="p-6 md:p-8 flex items-start gap-4">
                             <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${
-                              q.status === "production" ? "bg-orange-500 animate-pulse" : "bg-[#e5ad46]"
+                              q.status === "production" ? "bg-orange-500 animate-pulse" : q.status === "needs_info" ? "bg-yellow-400 animate-pulse" : "bg-[#e5ad46]"
                             }`} />
                             <div className="min-w-0">
                               <p className="text-sm font-bold text-[#e5ad46]">
-                                {q.status === "production" ? "En production" : "Devis envoyé"}
+                                {q.status === "production" ? "En production" : q.status === "needs_info" ? "À préciser" : "Devis envoyé"}
                               </p>
                               <p className="text-xs text-[#e5ad46]/50 mt-1">
                                 {q.name} — {q.message?.slice(0, 100)}

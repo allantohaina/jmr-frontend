@@ -63,6 +63,7 @@ type Notice = { tone: "success" | "danger"; message: string } | null;
 
 const STATUS_OPTIONS = [
   { value: "draft", label: "Brouillon" },
+  { value: "needs_info", label: "À préciser" },
   { value: "sent", label: "Envoyée" },
   { value: "accepted", label: "Acceptée" },
   { value: "rejected", label: "Refusée" },

@@ -36,6 +36,7 @@ type Notice = {
 
 const STATUS_OPTIONS = [
   { value: "draft", label: "Brouillon" },
+  { value: "needs_info", label: "À préciser" },
   { value: "sent", label: "Envoye" },
   { value: "accepted", label: "Accepte" },
   { value: "production", label: "Production" },
