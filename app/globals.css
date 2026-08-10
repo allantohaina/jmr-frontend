@@ -4792,8 +4792,8 @@ body {
 }
 
 .theme-toggle__icon {
-  width: clamp(32px, 2.3vw, 42px);
-  height: clamp(32px, 2.3vw, 42px);
+  width: 42px;
+  height: 42px;
   stroke-width: 2.5;
   color: var(--text-dark);
   filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.1));
@@ -4805,11 +4805,11 @@ body {
 }
 
 .theme-toggle__label {
-  font-size: clamp(10px, 0.82vw, 14px);
+  font-size: var(--fs-nav);
   line-height: 1.18;
   text-transform: uppercase;
   white-space: nowrap;
-  letter-spacing: 0.035em;
+  letter-spacing: 0.015em;
   font-weight: 500;
   color: inherit;
 }

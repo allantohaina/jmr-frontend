@@ -391,7 +391,7 @@ export function Navbar({
               return (
                 <li className="site-nav__item site-nav__item--profile relative group" key={item.sectionId}>
                   <button
-                    className={`site-nav__link${isCurrent ? " is-current" : ""} ${isProfileOpen ? "opacity-100" : "opacity-80"} hover:opacity-100 transition-opacity`}
+                    className={`site-nav__link${isCurrent ? " is-current" : ""}`}
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                     aria-expanded={isProfileOpen}
                     aria-haspopup="true"
@@ -494,8 +494,8 @@ export function Navbar({
                   src="/notification_bell.svg"
                   alt=""
                   aria-hidden="true"
-                  width={24}
-                  height={24}
+                  width={42}
+                  height={42}
                   loading="lazy"
                 />
                 {unreadNotifications > 0 && (
