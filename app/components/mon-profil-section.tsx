@@ -52,6 +52,17 @@ function quoteStatusLabel(s?: string | null) {
   }
 }
 
+function confirmationCountdown(deadline?: string | null): { text: string; expired: boolean; urgent: boolean } | null {
+  if (!deadline) return null;
+  const diff = new Date(deadline).getTime() - Date.now();
+  if (diff <= 0) return { text: "Délai expiré", expired: true, urgent: false };
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  if (days > 0) return { text: `${days}j ${hours}h restants`, expired: false, urgent: days <= 2 };
+  const minutes = Math.floor((diff % 3600000) / 60000);
+  return { text: `${hours}h ${minutes}min restants`, expired: false, urgent: true };
+}
+
 function quoteReference(quote: QuoteRecord) {
   return `Demande #${String(quote.id).padStart(5, "0")}`;
 }
@@ -275,6 +286,15 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                                 </span>
                               </div>
                               <p className="text-sm text-[#e5ad46]/60 leading-relaxed line-clamp-2">{q.message}</p>
+                              {q.status === "sent" && (() => {
+                                const cd = confirmationCountdown(q.confirmation_deadline);
+                                if (!cd) return null;
+                                return (
+                                  <p className={`mt-2 text-[10px] font-bold uppercase tracking-widest ${cd.expired ? "text-red-400" : cd.urgent ? "text-orange-400 animate-pulse" : "text-[#e5ad46]/60"}`}>
+                                    {cd.expired ? "Délai de confirmation expiré" : `Confirmer dans ${cd.text}`}
+                                  </p>
+                                );
+                              })()}
                             </div>
                             <div className="flex items-center gap-4 shrink-0">
                               <span className="text-lg font-headline font-bold text-[#e5ad46]">{q.amount ? `${Number(q.amount).toLocaleString("fr-FR")} Ar` : "-"}</span>
@@ -398,6 +418,34 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                   </div>
                   {selectedQuote.amount && <div><dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#e5ad46]/50">Montant</dt><dd className="mt-1 text-sm text-[#eccc90]/70">{Number(selectedQuote.amount).toLocaleString("fr-FR")} Ar</dd></div>}
                 </div>
+                {selectedQuote.status === "sent" && (() => {
+                  const cd = confirmationCountdown(selectedQuote.confirmation_deadline);
+                  const isExpired = cd?.expired;
+                  return (
+                    <div className="mt-6 border-t border-[#e5ad46]/10 pt-6 space-y-4">
+                      {cd && (
+                        <p className={`text-xs font-bold uppercase tracking-widest ${isExpired ? "text-red-400" : cd.urgent ? "text-orange-400" : "text-[#e5ad46]/60"}`}>
+                          {isExpired ? "Le délai de confirmation a expiré" : `Délai de confirmation : ${cd.text}`}
+                        </p>
+                      )}
+                      {!isExpired && (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (!confirm("Confirmer ce devis ? Cette action est irréversible.")) return;
+                            try {
+                              await authAPI.post(`/quotes/${selectedQuote.id}/confirm`, {});
+                              window.location.reload();
+                            } catch { alert("Erreur lors de la confirmation."); }
+                          }}
+                          className="w-full py-3 bg-[#e5ad46] text-[#25303a] text-[11px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#eccc90] transition-all shadow-lg shadow-[#e5ad46]/20"
+                        >
+                          Confirmer le devis
+                        </button>
+                      )}
+                    </div>
+                  );
+                })()}
               </dl>
             </section>
           </div>

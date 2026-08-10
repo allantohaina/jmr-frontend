@@ -132,6 +132,7 @@ export function EditDevisSection({ id }: { id: string }) {
   const [depositPaid, setDepositPaid] = useState(false);
   const [balancePaid, setBalancePaid] = useState(false);
   const [savingSignature, setSavingSignature] = useState(false);
+  const [confirmationDays, setConfirmationDays] = useState(7);
 
   useEffect(() => {
     let active = true;
@@ -255,7 +256,7 @@ export function EditDevisSection({ id }: { id: string }) {
     setNotice(null);
 
     try {
-      await authAPI.put(`/quotes/${id}`, { status: "sent" });
+      await authAPI.put(`/quotes/${id}`, { status: "sent", confirmation_days: confirmationDays });
 
       setQuote((current) => (current ? { ...current, status: "sent" } : current));
       setFormStatus("sent");
@@ -706,6 +707,22 @@ export function EditDevisSection({ id }: { id: string }) {
                   ? "Deja envoye"
                   : "Envoyer le devis au client"}
             </button>
+            {quote.status !== "sent" && quote.status !== "production" && (
+              <div className="flex items-center gap-3 mt-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/50 whitespace-nowrap">Délai de confirmation</label>
+                <select
+                  value={confirmationDays}
+                  onChange={(e) => setConfirmationDays(Number(e.target.value))}
+                  className="flex-1 border border-[#163526]/10 rounded-lg px-3 py-2 text-sm text-[#163526] bg-white"
+                >
+                  <option value={3}>3 jours</option>
+                  <option value={5}>5 jours</option>
+                  <option value={7}>7 jours</option>
+                  <option value={10}>10 jours</option>
+                  <option value={14}>14 jours</option>
+                </select>
+              </div>
+            )}
           </div>
         </form>
       </div>

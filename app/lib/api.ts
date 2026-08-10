@@ -79,6 +79,8 @@ export type QuoteRecord = {
   updated_at?: string;
   admin_signature_name?: string | null;
   admin_signature_at?: string | null;
+  confirmation_deadline?: string | null;
+  confirmation_days?: number;
 };
 
 export type CommandeRecord = {
