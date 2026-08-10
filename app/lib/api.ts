@@ -387,7 +387,7 @@ export const authAPI = {
 
 export const notificationsAPI = {
   list: async (unreadOnly = false) =>
-    fetchWithAuth<{ data: NotificationRecord[]; unread_count: number }>(
+    fetchWithAuth<NotificationRecord[]>(
       `/notifications${unreadOnly ? "?unread_only=true" : ""}`,
       { method: "GET" },
     ),

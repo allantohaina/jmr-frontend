@@ -24,7 +24,7 @@ export default function ComplaintsPage() {
 
   useEffect(() => {
     authAPI.get<{ data: UserProfile[] }>("/users/clients-revenue").then((res) => {
-      const data = (res.data?.data || []) as UserProfile[];
+      const data = (Array.isArray(res.data) ? res.data : (res.data?.data || [])) as UserProfile[];
       setClients(data.filter((u) => u.role === "user"));
     }).catch(() => setClients([])).finally(() => setLoading(false));
   }, []);

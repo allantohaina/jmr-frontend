@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { authAPI } from "@/app/lib";
 import ExchangeRateWidget from "@/app/components/exchange-rate-widget";
 import { PrivilegeBadge } from "@/app/components/admin/privilege-badge";
-import type { UserProfile } from "@/app/lib/api";
+import type { ApiResponse, UserProfile } from "@/app/lib/api";
 
 import { 
   XAxis, 
@@ -82,14 +82,14 @@ export default function AdminDashboardPage() {
     const fetchDashboardData = async () => {
       try {
         // Récupérer les données de demandes
-        const demandesRes = await authAPI.get<{ data: unknown[]; counts: Record<string, number> }>("/demandes-client");
-        const demandesCounts = demandesRes.data?.counts || {};
+        const demandesRes = await authAPI.get<unknown[]>("/demandes-client");
+        const demandesCounts = (demandesRes as ApiResponse<unknown[]> & { counts?: Record<string, number> }).counts || {};
         const demandesEnAttente = (demandesCounts['Nouvelle'] || 0) + (demandesCounts["En cours d'étude"] || 0);
 
         // Récupérer les données de commandes
-        const commandesRes = await authAPI.get<{ data: CommandeRow[]; counts: Record<string, number> }>("/commandes");
-        const commandesCounts = commandesRes.data?.counts || {};
-        const commandesData = commandesRes.data?.data || [];
+        const commandesRes = await authAPI.get<CommandeRow[]>("/commandes");
+        const commandesCounts = (commandesRes as ApiResponse<CommandeRow[]> & { counts?: Record<string, number> }).counts || {};
+        const commandesData: CommandeRow[] = Array.isArray(commandesRes.data) ? commandesRes.data : [];
         const commandesEnCours = commandesData.filter((c: CommandeRow) => c.statut_production !== "Livrée").length;
         const commandesEnRetard = commandesCounts['en_retard'] || 0;
         const caMois = commandesCounts['ca_mois'] || 0;
@@ -97,7 +97,7 @@ export default function AdminDashboardPage() {
 
         // Récupérer les données de quotes pour acomptes/soldes
         const quotesRes = await authAPI.get<{ data: QuoteRow[] }>("/quotes");
-        const quotes = quotesRes.data?.data || [];
+        const quotes: QuoteRow[] = Array.isArray(quotesRes.data) ? quotesRes.data : (quotesRes.data?.data || []);
         let acomptes = 0;
         let soldes = 0;
         quotes.forEach((q: QuoteRow) => {
@@ -140,7 +140,7 @@ export default function AdminDashboardPage() {
         // Agréger les achats (dépenses) par mois
         try {
           const achatsRes = await authAPI.get<{ data: AchatRow[] }>("/achats");
-          const achats = achatsRes.data?.data || [];
+          const achats: AchatRow[] = Array.isArray(achatsRes.data) ? achatsRes.data : (achatsRes.data?.data || []);
           achats.forEach((a: AchatRow) => {
             if (a.created_at) {
               const key = a.created_at.substring(0, 7);
@@ -161,7 +161,7 @@ export default function AdminDashboardPage() {
         // Fetch clients for privilege badges
         try {
           const clientsRes = await authAPI.get<{ data: UserProfile[] }>("/users/clients-revenue");
-          const clientsData = (clientsRes.data?.data || []) as UserProfile[];
+          const clientsData = (Array.isArray(clientsRes.data) ? clientsRes.data : (clientsRes.data?.data || [])) as UserProfile[];
           const map: Record<string, UserProfile> = {};
           clientsData.forEach((u: UserProfile) => { map[u.id] = u; });
           setClientsMap(map);

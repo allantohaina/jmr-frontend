@@ -38,7 +38,7 @@ export function AttachmentUploader({ entityType, entityId, maxSizeMB = 5, onUplo
       const res = await authAPI.get<{ data: Attachment[] }>(
         `/attachments?entity_type=${entityType}&entity_id=${entityId}`
       );
-      setAttachments(res.data?.data || []);
+      setAttachments(Array.isArray(res.data) ? res.data : (res.data?.data || []));
     } catch {
       setError("Impossible de charger les pièces jointes");
     } finally {

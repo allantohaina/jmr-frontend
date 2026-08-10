@@ -60,26 +60,26 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
     setError("");
     try {
       // Récupérer les infos client
-      const clientRes = await authAPI.get<{ data: Client }>(`/users/${clientId}`);
-      setClient(clientRes.data?.data || null);
+      const clientRes = await authAPI.get<Client>(`/users/${clientId}`);
+      setClient(clientRes.data || null);
 
       // Récupérer les demandes du client
-      const demandesRes = await authAPI.get<{ data: Demande[] }>("/demandes-client");
-      const clientDemandes = (demandesRes.data?.data || []).filter((d: Demande) => 
-        d.nom_client.toLowerCase().includes(clientRes.data?.data?.first_name?.toLowerCase() || "")
+      const demandesRes = await authAPI.get<Demande[] | { data: Demande[] }>("/demandes-client");
+      const clientDemandes = (Array.isArray(demandesRes.data) ? demandesRes.data : ((demandesRes.data as { data?: Demande[] }).data || [])).filter((d: Demande) => 
+        d.nom_client.toLowerCase().includes(clientRes.data?.first_name?.toLowerCase() || "")
       );
       setDemandes(clientDemandes);
 
       // Récupérer les quotes du client
-      const quotesRes = await authAPI.get<{ data: Quote[] }>("/quotes");
-      const clientQuotes = (quotesRes.data?.data || []).filter((q: Quote) => 
-        q.name?.toLowerCase().includes(clientRes.data?.data?.first_name?.toLowerCase() || "")
+      const quotesRes = await authAPI.get<Quote[] | { data: Quote[] }>("/quotes");
+      const clientQuotes = (Array.isArray(quotesRes.data) ? quotesRes.data : ((quotesRes.data as { data?: Quote[] }).data || [])).filter((q: Quote) => 
+        q.name?.toLowerCase().includes(clientRes.data?.first_name?.toLowerCase() || "")
       );
       setQuotes(clientQuotes);
 
       // Récupérer les commandes du client
-      const commandesRes = await authAPI.get<{ data: Commande[] }>("/commandes");
-      const clientCommandes = (commandesRes.data?.data || []).filter((c: Commande) => 
+      const commandesRes = await authAPI.get<Commande[] | { data: Commande[] }>("/commandes");
+      const clientCommandes = (Array.isArray(commandesRes.data) ? commandesRes.data : ((commandesRes.data as { data?: Commande[] }).data || [])).filter((c: Commande) => 
         c.client_id === clientId
       );
       setCommandes(clientCommandes);

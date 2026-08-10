@@ -42,8 +42,8 @@ export default function AdminBansPage() {
         authAPI.get<{ data: User[] }>("/users"),
         authAPI.get<{ data: Ban[] }>("/admin/bans"),
       ]);
-      if (usersRes.status === "success") setUsers(usersRes.data.data ?? []);
-      if (bansRes.status === "success") setBans(bansRes.data.data ?? []);
+      setUsers(Array.isArray(usersRes.data) ? usersRes.data : (usersRes.data?.data ?? []));
+      setBans(Array.isArray(bansRes.data) ? bansRes.data : (bansRes.data?.data ?? []));
     } catch (e) {
       console.error("Failed to fetch data", e);
     } finally {
@@ -66,7 +66,7 @@ export default function AdminBansPage() {
         reason: banReason.trim(),
         expires_at: expiresAt,
       });
-      if (res.status === "success") {
+      if (res.data) {
         setBanModal(null);
         setBanReason("");
         setBanDuration("");

@@ -205,8 +205,8 @@ export function Navbar({
       try {
         const response = await notificationsAPI.list();
         if (!active) return;
-        setNotifications(response.data.data ?? []);
-        setUnreadNotifications(response.data.unread_count ?? 0);
+        setNotifications(Array.isArray(response.data) ? response.data : ((response.data as { data?: unknown })?.data as NotificationRecord[] | undefined) ?? []);
+        setUnreadNotifications((response as { unread_count?: number }).unread_count ?? 0);
       } catch {
         // A notification failure must never block navigation.
       }

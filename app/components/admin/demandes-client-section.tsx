@@ -52,7 +52,7 @@ export function DemandesClientSection() {
     setError("");
     try {
       const res = await authAPI.get<{ data: DemandeClient[]; counts: Record<string, number> }>("/demandes-client");
-      setDemandes((res.data?.data) || []);
+      setDemandes(Array.isArray(res.data) ? res.data : (res.data?.data || []));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur de chargement");
     } finally {

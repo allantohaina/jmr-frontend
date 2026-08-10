@@ -83,8 +83,8 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
           authAPI.get<{ data: CommandeRecord[] }>("/commandes").catch(() => null),
         ]);
         if (!active) return;
-        if (qRes) setQuotes(qRes.data.data ?? []);
-        if (cRes) setCommandes(cRes.data.data ?? []);
+        if (qRes) setQuotes(Array.isArray(qRes.data) ? qRes.data : (qRes.data?.data ?? []));
+        if (cRes) setCommandes(Array.isArray(cRes.data) ? cRes.data : (cRes.data?.data ?? []));
       } catch (e) {
         if (active) setError(getErrorMessage(e));
       } finally {

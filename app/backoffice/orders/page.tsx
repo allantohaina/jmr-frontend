@@ -66,7 +66,7 @@ export default function AdminCommandesPage() {
       ]);
       setCommandes(Array.isArray(cmdRes.data) ? cmdRes.data : []);
       const map: Record<string, UserProfile> = {};
-      ((clientsRes.data?.data || []) as UserProfile[]).forEach((u: UserProfile) => {
+      ((Array.isArray(clientsRes.data) ? clientsRes.data : (clientsRes.data?.data || [])) as UserProfile[]).forEach((u: UserProfile) => {
         map[u.id] = u;
       });
       setClientsMap(map);

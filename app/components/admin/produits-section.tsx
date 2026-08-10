@@ -65,7 +65,7 @@ export function ProduitsSection() {
     setError("");
     try {
       const res = await authAPI.get<{ data: Produit[] }>("/produits");
-      setProduits((res.data?.data) || []);
+      setProduits(Array.isArray(res.data) ? res.data : (res.data?.data || []));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur de chargement");
     } finally {

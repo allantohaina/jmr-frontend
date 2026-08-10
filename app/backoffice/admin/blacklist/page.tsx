@@ -24,7 +24,7 @@ export default function AdminBlacklistPage() {
     setLoading(true);
     try {
       const res = await authAPI.get<{ data: BlacklistEntry[] }>("/admin/blacklist");
-      if (res.status === "success") setEntries(res.data.data ?? []);
+      setEntries(Array.isArray(res.data) ? res.data : (res.data?.data ?? []));
     } catch (e) {
       console.error("Failed to fetch blacklist", e);
     } finally {
@@ -42,7 +42,7 @@ export default function AdminBlacklistPage() {
         ip_address: newIp || null,
         reason: newReason || null,
       });
-      if (res.status === "success") {
+      if (res.data) {
         setShowAdd(false);
         setNewEmail("");
         setNewIp("");

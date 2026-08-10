@@ -118,7 +118,7 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
     setIsLoadingProduits(true);
     try {
       const res = await authAPI.get<{ data: Produit[] }>("/produits");
-      setProduits((res.data?.data) || []);
+      setProduits(Array.isArray(res.data) ? res.data : (res.data?.data || []));
     } catch {
       setProduits([]);
     } finally {
