@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authAPI } from "@/app/lib";
+import ExchangeRateWidget from "@/app/components/exchange-rate-widget";
 
 import { 
   XAxis, 
@@ -263,23 +264,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white p-8 rounded-[2rem] border border-[#163526]/5 shadow-sm flex flex-col justify-between">
-          <div>
-            <h3 className="font-headline text-xl text-[#163526] mb-2">Sécurité du Portail</h3>
-            <p className="text-xs text-[#163526]/40 font-bold uppercase tracking-widest">Surveillance des accès directs</p>
-          </div>
-          <div className="py-8 text-center">
-            <span className="material-symbols-outlined text-green-500 text-5xl mb-4">verified_user</span>
-            <p className="text-sm font-bold text-[#163526]">Syst&egrave;me d&apos;obfuscation actif</p>
-            <p className="text-[10px] text-[#163526]/40 uppercase font-bold mt-1">Lien legacy /admin prot&eacute;g&eacute;</p>
-          </div>
-          <button 
-            onClick={() => alert("G&eacute;n&eacute;ration d&apos;un nouveau lien s&eacute;curis&eacute;...")}
-            className="w-full py-4 border border-[#163526]/10 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-[#163526]/5 transition-all"
-          >
-            Changer l&apos;URL s&eacute;curis&eacute;e
-          </button>
-        </div>
+        <ExchangeRateWidget />
       </section>
 
       {/* Financial Hero Section */}
