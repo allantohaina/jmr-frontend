@@ -1,60 +1,29 @@
 Options -Indexes
 
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ /index.html [L]
+# php -- BEGIN cPanel-generated handler, do not edit
+<IfModule mime_module>
+  AddHandler application/x-httpd-ea-php85 .php .php8 .phtml
 </IfModule>
+# php -- END cPanel-generated handler, do not edit
 
-# Next.js static export cache strategy
-<IfModule mod_expires.c>
-    ExpiresActive On
+RewriteEngine On
 
-    # No cache for HTML — always fetch fresh to get new chunk references
-    ExpiresByType text/html "access plus 0 seconds"
+# Sert les fichiers statiques existants (CSS, JS, images, etc.)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
 
-    # No cache for JSON/text route manifests
-    ExpiresByType text/plain "access plus 0 seconds"
-    ExpiresByType application/json "access plus 0 seconds"
+# Sert les dossiers avec index.html (routes avec trailing slash)
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_FILENAME}/index.html -f
+RewriteRule ^(.+)$ /$1/index.html [L]
 
-    # Long cache for hashed static assets (Next.js content-hashed filenames)
-    ExpiresByType application/javascript "access plus 1 year"
-    ExpiresByType text/css "access plus 1 year"
-    ExpiresByType image/svg+xml "access plus 1 year"
-    ExpiresByType image/png "access plus 1 year"
-    ExpiresByType image/jpeg "access plus 1 year"
-    ExpiresByType image/webp "access plus 1 year"
-    ExpiresByType image/avif "access plus 1 year"
-    ExpiresByType image/x-icon "access plus 1 year"
-    ExpiresByType application/font-woff2 "access plus 1 year"
-    ExpiresByType application/font-woff "access plus 1 year"
-    ExpiresByType application/manifest+json "access plus 1 year"
-</IfModule>
+# Essaie avec .html extension
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.*)$ $1.html [L]
 
-<IfModule mod_headers.c>
-    # No-cache for HTML
-    <FilesMatch "\.(html|txt)$">
-        Header set Cache-Control "no-cache, no-store, must-revalidate"
-        Header set Pragma "no-cache"
-        Header set Expires "0"
-    </FilesMatch>
+# Fallback → index.html (SPA routing pour les routes client-side)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ /index.html [L]
 
-    # Long cache for content-hashed assets
-    <FilesMatch "\.(js|css)$">
-        Header set Cache-Control "public, max-age=31536000, immutable"
-    </FilesMatch>
-
-    <FilesMatch "\.(png|jpg|jpeg|gif|webp|avif|svg|ico)$">
-        Header set Cache-Control "public, max-age=31536000, immutable"
-    </FilesMatch>
-
-    <FilesMatch "\.(woff|woff2)$">
-        Header set Cache-Control "public, max-age=31536000, immutable"
-    </FilesMatch>
-
-    # JSON/text manifests — no cache
-    <FilesMatch "\.(txt|json)$">
-        Header set Cache-Control "no-cache, no-store, must-revalidate"
-    </FilesMatch>
-</IfModule>
+ErrorDocument 404 /404.html
