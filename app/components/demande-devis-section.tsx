@@ -1,8 +1,8 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense, useState, useCallback } from "react";
-import { authAPI } from "@/app/lib";
+import { Suspense, useState, useCallback, useEffect } from "react";
+import { authAPI, draftsAPI, type QuoteDraft } from "@/app/lib";
 import { getErrorMessage } from "@/app/lib/errors";
 import { CsvPreview } from "@/app/components/document-preview";
 import { useForm, Controller } from "react-hook-form";
@@ -65,15 +65,19 @@ function QuoteFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const modifyCode = searchParams.get("modify");
+  const draftId = searchParams.get("draft");
   const categoryParam = searchParams.get("category");
   const requestTypeDefault = modifyCode ? "edit" : "new";
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
 
   const {
     control,
     handleSubmit,
+    getValues,
+    reset,
     formState: { errors },
   } = useForm<QuoteRequestFormData>({
     resolver: zodResolver(quoteRequestSchema),
@@ -104,6 +108,63 @@ function QuoteFormContent() {
     router.replace(`?${params.toString()}`, { scroll: false });
   }, [router, searchParams]);
 
+  const [draft, setDraft] = useState<QuoteDraft | null>(null);
+
+  const loadDraft = useCallback(async (id: string) => {
+    try {
+      const res = await draftsAPI.list();
+      const all = (Array.isArray(res.data) ? res.data : (res.data as { data?: unknown })?.data ?? []) as QuoteDraft[];
+      const found = all.find((d) => String(d.id) === id);
+      if (found) {
+        setDraft(found);
+        const payload = (found.payload ?? {}) as Record<string, string>;
+        reset({
+          category: (payload.category as string) || categoryParam || "",
+          name: (payload.name as string) || "",
+          email: (payload.email as string) || "",
+          phone: (payload.phone as string) || "",
+          tissu: (payload.tissu as string) || "",
+          coupe: (payload.coupe as string) || "",
+          gabarit: (payload.gabarit as string) || "",
+          style: (payload.style as string) || "",
+          grammage: (payload.grammage as string) || "",
+          tailles: (payload.tailles as string) || "",
+          quantite: (payload.quantite as string) || "",
+          finitions: (payload.finitions as string) || "",
+          delai_souhaite: (payload.delai_souhaite as string) || "",
+          request_type: ((payload.request_type as string) || "new") as QuoteRequestFormData["request_type"],
+          message: (payload.message as string) || "",
+          modify_code: (payload.modify_code as string) || modifyCode || "",
+        });
+      }
+    } catch {
+      // Draft not found — ignore, render empty form.
+    }
+  }, [categoryParam, modifyCode, reset]);
+
+  useEffect(() => {
+    if (draftId) void loadDraft(draftId);
+  }, [draftId, loadDraft]);
+
+  async function saveDraft(event: React.FormEvent) {
+    event.preventDefault();
+    setSubmitError("");
+    setIsSavingDraft(true);
+    try {
+      const values = getValues();
+      const payload: Record<string, unknown> = {};
+      (Object.keys(values) as (keyof QuoteRequestFormData)[]).forEach((key) => {
+        if (key !== "technical_files") payload[key] = values[key] ?? "";
+      });
+      await draftsAPI.save({ id: draft?.id, payload });
+      router.push("/mon-profil");
+    } catch (error) {
+      setSubmitError(getErrorMessage(error));
+    } finally {
+      setIsSavingDraft(false);
+    }
+  }
+
   async function onSubmit(data: QuoteRequestFormData) {
     setIsSubmitting(true);
     setSubmitError("");
@@ -112,8 +173,11 @@ function QuoteFormContent() {
       const files = data.technical_files instanceof FileList ? Array.from(data.technical_files) : [];
       if (files.length > 5) throw new Error("Ajoutez au maximum 5 fichiers de référence.");
       if (files.some((file) => file.size > 10 * 1024 * 1024)) throw new Error("Chaque fichier doit faire moins de 10 Mo.");
-      const payload = buildQuoteRequestPayload(data);
+const payload = buildQuoteRequestPayload(data);
       await authAPI.post("/quotes", payload);
+      if (draft?.id) {
+        try { await draftsAPI.remove(draft.id); } catch { /* best effort */ }
+      }
       router.push("/mon-profil");
     } catch (error) {
       setSubmitError(getErrorMessage(error));
@@ -539,23 +603,49 @@ function QuoteFormContent() {
               
             </div>
 
-            <button
-              className="w-full mt-12 py-5 bg-[#e5ad46] text-[#1e2a38] text-xs font-bold uppercase tracking-[0.3em] rounded-2xl shadow-xl shadow-[#e5ad46]/10 hover:bg-[#eccc90] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Envoi en cours...
-                </>
-              ) : (
-                <>
-                  Envoyer ma demande
-                  <ArrowRight className="h-4 w-4" />
-                </>
+<div className="mt-12 gap-4 grid grid-cols-1 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={(event) => void saveDraft(event)}
+                disabled={isSavingDraft || isSubmitting}
+                className="w-full py-5 border border-[#e5ad46]/25 text-[#e5ad46] text-xs font-bold uppercase tracking-[0.3em] rounded-2xl hover:bg-[#e5ad46]/10 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSavingDraft ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Enregistrement...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-base">save</span>
+                    Enregistrer le brouillon
+                  </>
+                )}
+              </button>
+
+              <button
+                className="w-full py-5 bg-[#e5ad46] text-[#1e2a38] text-xs font-bold uppercase tracking-[0.3em] rounded-2xl shadow-xl shadow-[#e5ad46]/10 hover:bg-[#eccc90] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Envoi en cours...
+                  </>
+                ) : (
+                  <>
+                    Envoyer ma demande
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </button>
+              {draft && (
+                <p className="sm:col-span-2 text-center text-[10px] uppercase tracking-widest text-[#eccc90]/50">
+                  Vous modifiez un brouillon. Cliquez sur Envoyer pour l&apos;envoyer à notre équipe.
+                </p>
               )}
-            </button>
+            </div>
           </form>
         </div>
       </section>

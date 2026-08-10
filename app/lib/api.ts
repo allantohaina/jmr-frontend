@@ -396,3 +396,24 @@ export const notificationsAPI = {
   markAllRead: async () =>
     fetchWithAuth<{ message: string }>("/notifications/read-all", { method: "PUT" }),
 };
+
+export type QuoteDraft = {
+  id: string;
+  client_id?: string | null;
+  payload?: Record<string, unknown>;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export const draftsAPI = {
+  list: async () => fetchWithAuth<QuoteDraft[]>("/quote-drafts", { method: "GET" }),
+  save: async (input: { id?: string; payload: Record<string, unknown> }) =>
+    fetchWithAuth<QuoteDraft>(`/quote-drafts`, {
+      method: "POST",
+      body: JSON.stringify({ id: input.id, ...input.payload }),
+    }),
+  submit: async (id: string) =>
+    fetchWithAuth<QuoteRecord>(`/quote-drafts/${id}/submit`, { method: "POST" }),
+  remove: async (id: string) =>
+    fetchWithAuth<{ message: string }>(`/quote-drafts/${id}`, { method: "DELETE" }),
+};

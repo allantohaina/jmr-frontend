@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { UserProfile } from "@/app/lib";
-import { authAPI, type QuoteRecord, type CommandeRecord } from "@/app/lib";
+import { authAPI, draftsAPI, type QuoteRecord, type CommandeRecord, type QuoteDraft } from "@/app/lib";
 import { getErrorMessage } from "@/app/lib/errors";
 
 type ProfileCard = {
@@ -67,24 +67,60 @@ function quoteReference(quote: QuoteRecord) {
   return `Demande #${String(quote.id).padStart(5, "0")}`;
 }
 
+function draftLabel(draft: QuoteDraft): string {
+  const payload = draft.payload as Record<string, string> | undefined;
+  const category = payload?.category ? String(payload.category) : "";
+  const name = payload?.name ? String(payload.name) : "";
+  const categories: Record<string, string> = {
+    pantalon: "Pantalon",
+    jupe: "Jupe",
+    shirt: "T-shirt / Débardeur",
+    polo: "Polo",
+    chemise: "Chemise / Chemisier",
+    veste: "Veste / Blazer",
+    manteau: "Manteau / Parka",
+    robe: "Robe",
+    sweat: "Sweat-shirt / Hoodie",
+    short: "Short / Bermuda",
+    pull: "Pull / Cardigan",
+    "sous-vetement": "Sous-vêtements / Lingerie",
+    accessoire: "Accessoires (Écharpes, Bonnets...)",
+    uniforme: "Uniforme / Workwear",
+    sport: "Sportswear",
+    enfant: "Enfant / Bébé",
+    autre: "Autre projet sur-mesure",
+  };
+  const label = categories[category] || category || "Demande de devis";
+  return name ? `${label} — ${name}` : label;
+}
+
+function draftDate(draft: QuoteDraft): string {
+  return formatDate(draft.updated_at || draft.created_at || "");
+}
+
 export function MonProfilSection({ variant = "preview", user }: MonProfilSectionProps) {
   const [quotes, setQuotes] = useState<QuoteRecord[]>([]);
   const [commandes, setCommandes] = useState<CommandeRecord[]>([]);
+  const [drafts, setDrafts] = useState<QuoteDraft[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedQuote, setSelectedQuote] = useState<QuoteRecord | null>(null);
+  const [showAllQuotes, setShowAllQuotes] = useState(false);
+  const [showAllDrafts, setShowAllDrafts] = useState(false);
 
   useEffect(() => {
     let active = true;
     async function load() {
       try {
-        const [qRes, cRes] = await Promise.all([
+        const [qRes, cRes, dRes] = await Promise.all([
           authAPI.get<{ data: QuoteRecord[]; total: number }>("/quotes").catch(() => null),
           authAPI.get<{ data: CommandeRecord[] }>("/commandes").catch(() => null),
+          draftsAPI.list().catch(() => null),
         ]);
         if (!active) return;
         if (qRes) setQuotes(Array.isArray(qRes.data) ? qRes.data : (qRes.data?.data ?? []));
         if (cRes) setCommandes(Array.isArray(cRes.data) ? cRes.data : (cRes.data?.data ?? []));
+        if (dRes) setDrafts(Array.isArray(dRes.data) ? dRes.data : ((dRes.data as { data?: unknown })?.data as QuoteDraft[] | undefined) ?? []);
       } catch (e) {
         if (active) setError(getErrorMessage(e));
       } finally {
@@ -95,12 +131,14 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
     return () => { active = false; };
   }, []);
 
-  const activeCommandes = commandes.filter((c) => c.statut_production !== "Livrée");
-  const pendingQuotes = quotes.filter((q) => q.status === "pending" || q.status === "draft" || q.status === "needs_info");
+const activeCommandes = commandes.filter((c) => c.statut_production !== "Livrée");
+  // Le statut par defaut d'un devis soumis est "pending" (plus "draft"). Les vrais brouillons vivent dans quote_drafts.
+  const submittedQuotes = quotes.filter((q) => q.status !== "draft");
+  const pendingQuotes = submittedQuotes.filter((q) => q.status === "pending" || q.status === "needs_info");
   const latestPendingQuote = [...pendingQuotes].sort(
     (a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
   )[0];
-  const alertCount = quotes.filter((q) => q.status === "sent" || q.status === "production" || q.status === "needs_info").length;
+const alertCount = submittedQuotes.filter((q) => q.status === "sent" || q.status === "production" || q.status === "needs_info").length;
 
   const stats = [
     {
@@ -112,12 +150,12 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
       icon: "conveyor_belt",
     },
     {
-      label: "Devis en attente",
-      value: String(pendingQuotes.length).padStart(2, "0"),
-      detail: pendingQuotes.length > 0
-        ? `Dernier le ${formatDate(latestPendingQuote?.created_at ?? "")}`
-        : "Aucun devis en attente",
-      icon: "request_quote",
+      label: "Brouillons",
+      value: String(drafts.length).padStart(2, "0"),
+      detail: drafts.length > 0
+        ? `${drafts.length} devis non envoye${drafts.length > 1 ? "s" : ""} à finaliser`
+        : "Aucun brouillon",
+      icon: "edit_note",
     },
     {
       label: "Notifications",
@@ -130,12 +168,12 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   ];
 
   const recentItems = [
-    ...quotes.map((q) => ({ type: "quote" as const, date: q.created_at ?? "", label: "Nouveau devis", detail: `${q.name} - ${q.message?.slice(0, 80)}` })),
+    ...submittedQuotes.map((q) => ({ type: "quote" as const, date: q.created_at ?? "", label: "Nouveau devis", detail: `${q.name} - ${q.message?.slice(0, 80)}` })),
     ...commandes.map((c) => ({ type: "commande" as const, date: c.date_commande ?? "", label: "Commande passée", detail: `${c.numero} - ${c.designation ?? ""}` })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10);
 
   if (variant === "dashboard") {
-    const hasData = !isLoading && (quotes.length > 0 || commandes.length > 0);
+    const hasData = !isLoading && (quotes.length > 0 || commandes.length > 0 || drafts.length > 0);
 
     return (
       <section className="min-h-screen bg-[#25303a] pb-24">
@@ -228,15 +266,15 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                 <div className="lg:col-span-2 space-y-10">
                   {/* Devis Section */}
                   <div className="bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 shadow-sm overflow-hidden">
-                    <div className="px-10 py-8 border-b border-[#e5ad46]/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+<div className="px-10 py-8 border-b border-[#e5ad46]/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                       <h2 className="font-headline text-2xl text-[#e5ad46] font-bold">Mes devis</h2>
                       <div className="flex flex-wrap gap-4 text-[9px] font-bold uppercase tracking-widest text-[#e5ad46]/50">
-                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#e5ad46]/40" /> Brouillon</span>
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-400" /> En attente</span>
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-violet-400" /> Envoyé</span>
                         <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-yellow-400" /> À préciser</span>
-                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#e5ad46]" /> Envoyé</span>
                         <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-400" /> Accepté</span>
                         <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-400" /> Production</span>
-                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-400" /> Refusé</span>
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-400" /> Annulé</span>
                       </div>
                       <Link href="/demande-devis" className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] hover:underline">
                         Nouveau devis
@@ -245,7 +283,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                     <div className="divide-y divide-[#e5ad46]/5">
                       {isLoading ? (
                         <div className="p-10 text-center text-[#e5ad46]/40 text-sm">Chargement...</div>
-                      ) : quotes.length === 0 ? (
+                      ) : submittedQuotes.length === 0 ? (
                         <div className="p-10 text-center">
                           <p className="text-[#e5ad46]/40 text-sm mb-4">Aucun devis pour le moment</p>
                           <Link href="/demande-devis" className="inline-block px-6 py-3 bg-[#e5ad46] text-[#1e2a38] text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#eccc90] transition-all">
@@ -253,7 +291,8 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                           </Link>
                         </div>
                       ) : (
-                        quotes.slice(0, 5).map((q) => (
+                        <>
+                          {(showAllQuotes ? submittedQuotes : submittedQuotes.slice(0, 4)).map((q) => (
                           <div
                             key={q.id}
                             className="group p-6 md:p-8 transition-colors hover:bg-[#e5ad46]/[0.025] flex flex-col md:flex-row justify-between gap-4"
@@ -263,10 +302,10 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                                 <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
                                   q.status === "accepted" ? "bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]" :
                                   q.status === "production" ? "bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)]" :
-                                  q.status === "sent" ? "bg-[#e5ad46] shadow-[0_0_8px_rgba(229,173,70,0.6)]" :
+                                  q.status === "sent" ? "bg-violet-400 shadow-[0_0_8px_rgba(167,139,250,0.6)]" :
                                   q.status === "needs_info" ? "bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.6)] animate-pulse" :
                                   q.status === "rejected" ? "bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.6)]" :
-                                  "bg-[#e5ad46]/40"
+                                  "bg-slate-400"
                                 }`} title={quoteStatusLabel(q.status)} />
                                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] bg-[#e5ad46]/10 px-3 py-1 rounded-full">
                                   {q.name ?? "Client"}
@@ -277,7 +316,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                                     : q.status === "needs_info"
                                     ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
                                     : q.status === "sent"
-                                    ? "bg-[#e5ad46]/20 text-[#e5ad46] border border-[#e5ad46]/30"
+                                    ? "bg-violet-500/20 text-violet-400 border border-violet-500/30"
                                     : q.status === "rejected"
                                     ? "bg-red-500/20 text-red-400 border border-red-500/30"
                                     : "bg-[#e5ad46]/5 text-[#e5ad46]"
@@ -308,7 +347,18 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                               </button>
                             </div>
                           </div>
-                        ))
+                        ))}
+                          {submittedQuotes.length > 4 && (
+                            <button
+                              type="button"
+                              onClick={() => setShowAllQuotes((v) => !v)}
+                              className="w-full flex items-center justify-center gap-2 py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#e5ad46] transition-colors hover:bg-[#e5ad46]/[0.03]"
+                            >
+                              <span className="material-symbols-outlined text-base">{showAllQuotes ? "expand_less" : "expand_more"}</span>
+                              {showAllQuotes ? "Voir moins" : `Voir plus (${submittedQuotes.length - 4} autres)`}
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
