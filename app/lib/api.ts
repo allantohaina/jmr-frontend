@@ -296,14 +296,14 @@ export async function fetchWithAuth<T = unknown>(
 }
 
 export const authAPI = {
-  login: async (email: string, password: string, altcha?: string) => {
+  login: async (email: string, password: string) => {
     return fetchWithAuth<{ token: string; refresh_token?: string; user: UserProfile }>("/users/login", {
       method: "POST",
-      body: JSON.stringify({ email, password, altcha }),
+      body: JSON.stringify({ email, password }),
     });
   },
 
-  register: async (userData: RegisterPayload & { altcha?: string }) => {
+  register: async (userData: RegisterPayload) => {
     return fetchWithAuth<{ token: string; refresh_token?: string; user: UserProfile }>("/users/register", {
       method: "POST",
       body: JSON.stringify(userData),

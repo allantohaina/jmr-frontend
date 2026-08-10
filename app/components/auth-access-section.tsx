@@ -9,7 +9,6 @@ import { getErrorMessage } from "@/app/lib/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
-import { AltchaWidget } from "@/app/components/altcha-widget";
 
 // Liste des pays avec code ISO et indicatif téléphonique
 const countries = [
@@ -273,11 +272,7 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between rounded-xl border border-outline-variant/20 bg-surface-container-low p-5">
-                    <div className="flex items-center gap-4">
-                      <AltchaWidget />
-                    </div>
-                  </div>
+
 
                   <button
                     className="w-full rounded-lg bg-primary py-5 font-label text-xs font-bold uppercase tracking-[0.3em] text-on-primary shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
@@ -559,8 +554,6 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
                       )}
                     </div>
                   </div>
-
-                  <AltchaWidget className="mt-2" />
 
                   <button
                     className="mt-4 w-full rounded-lg border-2 border-primary py-5 font-label text-xs font-bold uppercase tracking-[0.3em] text-primary transition-all duration-300 hover:bg-primary hover:text-on-primary disabled:cursor-not-allowed disabled:opacity-60"
