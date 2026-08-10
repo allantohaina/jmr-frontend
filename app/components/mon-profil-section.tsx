@@ -135,12 +135,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                 <h1 className="font-headline text-5xl text-[#e5ad46] font-bold tracking-tight leading-none mb-3">Tableau de bord</h1>
                 <p className="text-[#e5ad46]/50 text-sm font-medium">Bienvenue, <span className="text-[#e5ad46] font-bold">{user?.first_name} {user?.last_name}</span></p>
               </div>
-              <div className="bg-[#e5ad46]/5 px-6 py-3 rounded-full border border-[#e5ad46]/10">
-                <p className="text-[#e5ad46] text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#e5ad46]"></span>
-                  Statut : {user?.role === 'admin' ? 'Administrateur' : user?.role === 'worker' ? 'Artisan Atelier' : 'Client Privilégié'}
-                </p>
-              </div>
+
             </div>
           </div>
         </div>
