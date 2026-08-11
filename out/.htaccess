@@ -9,11 +9,6 @@ Options -Indexes
 
     RewriteCond %{HTTP_HOST} ^admin\.jmrtextile\.com$ [NC]
     RewriteRule ^$ /admin-login/ [R=302,L]
-
-    # SPA fallback
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ /index.html [L]
 </IfModule>
 
 # Next.js static export cache strategy
@@ -22,6 +17,7 @@ Options -Indexes
 
     # No cache for HTML — always fetch fresh to get new chunk references
     ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType text/html; charset=utf-8 "access plus 0 seconds"
 
     # No cache for JSON/text route manifests
     ExpiresByType text/plain "access plus 0 seconds"
@@ -44,9 +40,10 @@ Options -Indexes
 <IfModule mod_headers.c>
     # No-cache for HTML
     <FilesMatch "\.(html|txt)$">
-        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Cache-Control "no-cache, no-store, must-revalidate, proxy-revalidate"
         Header set Pragma "no-cache"
         Header set Expires "0"
+        Header set Surrogate-Control "no-store"
     </FilesMatch>
 
     # Long cache for content-hashed assets
