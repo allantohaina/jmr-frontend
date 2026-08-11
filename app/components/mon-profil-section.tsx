@@ -173,12 +173,12 @@ body{background:var(--bg);color:var(--text-cream);font-family:var(--font-body);-
 .db-quote-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 26px;border-bottom:1px solid rgba(229,173,70,0.06);transition:background .2s;}
 .db-quote-row:last-child{border-bottom:none;}
 .db-quote-row:hover{background:rgba(229,173,70,0.02);}
-.db-quote-left{min-width:0;flex:1;}
+.db-quote-left{min-width:0;flex:1;overflow:hidden;}
 .db-quote-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
 .db-quote-name{font-size:13px;font-weight:700;color:var(--text-cream);}
 .db-quote-status{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:100px;}
 .db-quote-status .dot{width:6px;height:6px;border-radius:50%;}
-.db-quote-msg{font-size:12px;color:var(--text-muted);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:400px;}
+.db-quote-msg{font-size:12px;color:var(--text-muted);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .db-quote-deadline{font-family:var(--font-mono);font-size:10px;margin-top:6px;font-weight:600;}
 .db-quote-deadline.urgent{color:var(--warn);}
 .db-quote-deadline.expired{color:#e05252;}
