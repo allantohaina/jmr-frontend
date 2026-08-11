@@ -4,7 +4,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getUser, getToken } from "@/app/lib/auth";
 import { authAPI } from "@/app/lib/api";
-import type { QuoteRecord, CommandeRecord } from "@/app/lib/api";
+import { checkpointsAPI, addonsAPI, paymentsAPI } from "@/app/lib/api";
+import type { QuoteRecord, CommandeRecord, QuoteCheckpoint, QuoteAddon, PaymentRecord } from "@/app/lib/api";
 import { STATUTS_PRODUCTION } from "@/app/lib/api";
 
 function formatDate(d: string | null | undefined): string {
@@ -20,12 +21,11 @@ function formatDate(d: string | null | undefined): string {
   }
 }
 
-function formatCurrency(val: number | null | undefined): string {
+function formatCurrency(val: string | number | null | undefined): string {
   if (val == null) return "—";
-  return val.toLocaleString("fr-MA", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }) + " DH";
+  const n = typeof val === "string" ? parseFloat(val) : val;
+  if (isNaN(n)) return String(val);
+  return n.toLocaleString("fr-MA") + " Ar";
 }
 
 function shortId(id: string | number): string {
@@ -46,9 +46,35 @@ const STATUS_LABELS: Record<string, string> = {
   accepted: "Acceptée",
   refused: "Refusée",
   expired: "Expirée",
+  production: "En production",
+  completed: "Terminée",
 };
 
 const STEP_LABELS = ["Envoyé", "Accepté", "Production", "Livraison", "Terminé"];
+
+interface Checkpoint {
+  id: string;
+  title: string;
+  desc: string;
+  meta: string;
+  state: "done" | "action" | "upcoming";
+}
+
+interface Addon {
+  id: string;
+  title: string;
+  desc: string;
+  price: number;
+  status: "included" | "pending";
+}
+
+interface Feedback {
+  id: string;
+  avatar: string;
+  name: string;
+  date: string;
+  text: string;
+}
 
 function DevisDetailContent() {
   const router = useRouter();
@@ -57,6 +83,9 @@ function DevisDetailContent() {
 
   const [quote, setQuote] = useState<QuoteRecord | null>(null);
   const [commandes, setCommandes] = useState<CommandeRecord[]>([]);
+  const [checkpoints, setCheckpoints] = useState<QuoteCheckpoint[]>([]);
+  const [addons, setAddons] = useState<QuoteAddon[]>([]);
+  const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openCards, setOpenCards] = useState<Set<string>>(new Set());
@@ -92,6 +121,20 @@ function DevisDetailContent() {
         if (filtered.length > 0) {
           setOpenCards(new Set([filtered[0].id]));
         }
+
+        // Fetch checkpoints, addons, payments in parallel
+        try {
+          const [cpRes, addonRes, payRes] = await Promise.all([
+            checkpointsAPI.list(id).catch(() => ({ data: [] })),
+            addonsAPI.list(id).catch(() => ({ data: [], total_validated: 0 })),
+            paymentsAPI.list(id).catch(() => ({ data: [], total_verified: 0 })),
+          ]);
+          setCheckpoints((cpRes as any).data ?? []);
+          setAddons(((addonRes as any).data ?? []) as QuoteAddon[]);
+          setPayments(((payRes as any).data ?? []) as PaymentRecord[]);
+        } catch {
+          // Non-critical: use defaults
+        }
       } catch (err: any) {
         setError("Impossible de charger les données du devis.");
       } finally {
@@ -112,6 +155,85 @@ function DevisDetailContent() {
       return next;
     });
   }, []);
+
+  const showConfirm = quote && ["accepted", "production", "completed"].includes(quote.status ?? "");
+  const showPayment = quote && Number(quote.amount ?? 0) > 0;
+
+  const defaults: Checkpoint[] = [
+    {
+      id: "cp1",
+      title: "Prototype validé",
+      desc: "Le modèle final a été approuvé avant lancement de la série.",
+      meta: "Validé par vous le " + formatDate(quote?.created_at),
+      state: "done",
+    },
+    {
+      id: "cp2",
+      title: "Premier lot — contrôle qualité",
+      desc: "L&apos;atelier a terminé le contrôle qualité du premier lot et attend votre retour.",
+      meta: "",
+      state: "action",
+    },
+    {
+      id: "cp3",
+      title: "Lot complet avant expédition",
+      desc: "Vérification finale des pièces avant mise en livraison.",
+      meta: "À venir",
+      state: "upcoming",
+    },
+  ];
+
+  const defaultAddons: Addon[] = [
+    {
+      id: "a1",
+      title: "Bouton doré supplémentaire",
+      desc: "Ajout d&apos;un second bouton en laiton doré.",
+      price: 15000,
+      status: "included",
+    },
+    {
+      id: "a2",
+      title: "Broderie motif floral",
+      desc: "Petit motif brodé main sur la poche.",
+      price: 42000,
+      status: "pending",
+    },
+  ];
+
+  const defaultFeedback: Feedback[] = [
+    {
+      id: "fb1",
+      avatar: "A",
+      name: "Atelier JMR",
+      date: formatDate(quote?.updated_at),
+      text: "Le prototype est prêt, nous attendons votre validation pour lancer la série.",
+    },
+  ];
+
+  const displayCheckpoints: Checkpoint[] = checkpoints.length > 0
+    ? checkpoints.map((cp) => ({
+        id: cp.id,
+        title: cp.title,
+        desc: cp.description ?? "",
+        meta: cp.validated_at
+          ? `Validé par ${cp.validated_by ?? "—" } le ${formatDate(cp.validated_at)}`
+          : cp.status === "upcoming" ? "À venir" : "",
+        state: cp.status === "done" ? "done" : cp.status === "upcoming" ? "upcoming" : "action",
+      }))
+    : defaults;
+
+  const displayAddons: Addon[] = addons.length > 0
+    ? addons.map((a) => ({
+        id: a.id,
+        title: a.title,
+        desc: a.description ?? "",
+        price: Number(a.price ?? 0),
+        status: a.status as "included" | "pending",
+      }))
+    : defaultAddons;
+
+  const depositPayment = payments.find((p) => p.phase === "deposit");
+  const balancePayment = payments.find((p) => p.phase === "balance");
 
   if (loading) {
     return (
@@ -141,6 +263,8 @@ function DevisDetailContent() {
   if (!quote) return null;
 
   const showActions = quote.status === "draft" || quote.status === "pending";
+  const totalAddons = displayAddons.reduce((s, a) => s + (a.status === "included" ? a.price : 0), 0);
+  const pendingAddons = defaultAddons.filter((a) => a.status === "pending").length;
 
   return (
     <>
@@ -175,6 +299,75 @@ function DevisDetailContent() {
               {STATUS_LABELS[quote.status ?? ""] ?? quote.status}
             </span>
           </div>
+
+          {/* Quote Confirm Panel */}
+          {showConfirm && (
+            <div className="quote-confirm">
+              <div className="quote-confirm-top">
+                <span className="quote-confirm-icon">✓</span>
+                <span>Prix validé — commande définitive</span>
+              </div>
+              <div className="quote-figures">
+                <figure>
+                  <b>{formatCurrency(quote.amount)}</b>
+                  <span>Montant total chiffré</span>
+                </figure>
+                <figure>
+                  <b>{formatDate(quote.date_livraison_prevue)}</b>
+                  <span>Date de rendu estimée</span>
+                </figure>
+                <figure>
+                  <b>{formatDate(quote.validated_at ?? null)}</b>
+                  <span>Validé par {quote.validated_by ?? "—"}</span>
+                </figure>
+              </div>
+              <div className="quote-confirm-note">
+                Chiffré par l&apos;atelier le <b>{formatDate(quote.created_at)}</b>, puis validé par vos soins le lendemain. L&apos;acompte de la <b>tranche 1</b> a déclenché le lancement de la production.
+              </div>
+            </div>
+          )}
+
+          {/* Payment Grid */}
+          {showPayment && (
+            <div className="panel" style={{ marginBottom: 24 }}>
+              <div className="panel-header">
+                <h3>Paiement</h3>
+                <span className="hint">2 tranches</span>
+              </div>
+              <div className="payment-grid">
+                <div className="payment-card">
+                  <div className="payment-top">
+                    <span className="payment-tag">Tranche 1 · Acompte (50%)</span>
+                    <span className={`payment-status ${depositPayment?.status === "verified" ? "paid" : depositPayment ? "waiting" : "waiting"}`}>
+                      {depositPayment?.status === "verified" ? "Payé" : depositPayment?.status === "submitted" ? "En attente" : "À créer"}
+                    </span>
+                  </div>
+                  <div className="payment-amount">{formatCurrency(depositPayment?.amount ?? quote.deposit_amount ?? Number(quote.amount ?? 0) / 2)}</div>
+                  <div className="payment-desc">
+                    {depositPayment?.status === "verified"
+                      ? `Réglé le ${formatDate(depositPayment.reviewed_at ?? depositPayment.created_at)}`
+                      : depositPayment
+                        ? "En attente de vérification par l'atelier"
+                        : "Sera créée automatiquement après validation du devis"}
+                  </div>
+                </div>
+                <div className="payment-card">
+                  <div className="payment-top">
+                    <span className="payment-tag">Tranche 2 · Solde (50%)</span>
+                    <span className={`payment-status ${balancePayment?.status === "verified" ? "paid" : "waiting"}`}>
+                      {balancePayment?.status === "verified" ? "Payé" : "En attente"}
+                    </span>
+                  </div>
+                  <div className="payment-amount">{formatCurrency(balancePayment?.amount ?? quote.balance_amount ?? Number(quote.amount ?? 0) / 2)}</div>
+                  <div className="payment-desc">
+                    {balancePayment?.status === "verified"
+                      ? `Réglé le ${formatDate(balancePayment.reviewed_at ?? balancePayment.created_at)}`
+                      : "Exigible à la livraison finale du dernier lot"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Action bar */}
           {showActions && (
@@ -279,6 +472,35 @@ function DevisDetailContent() {
                           })}
                         </div>
 
+                        {/* Checkpoints */}
+                        <div className="panel" style={{ marginBottom: 20 }}>
+                          <div className="panel-header">
+                            <h3>Étapes à valider</h3>
+                            <span className="hint">{displayCheckpoints.filter((c) => c.state === "action").length} en attente de votre validation</span>
+                          </div>
+                          <div className="checkpoint-list">
+                            {displayCheckpoints.map((cp) => (
+                              <div key={cp.id} className={`checkpoint-item ${cp.state}`}>
+                                <div className="cp-marker">
+                                  {cp.state === "done" && "✓"}
+                                  {cp.state === "action" && <span className="dot-pulse" />}
+                                </div>
+                                <div className="cp-body">
+                                  <div className="cp-title">{cp.title}</div>
+                                  <div className="cp-desc">{cp.desc}</div>
+                                  {cp.meta && <div className="cp-meta">{cp.meta}</div>}
+                                  {cp.state === "action" && (
+                                    <div className="cp-actions">
+                                      <button className="btn-sm-gold">Valider cette étape</button>
+                                      <button className="btn-sm-outline">Signaler un problème</button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
                         {/* Highlights */}
                         <div className="highlights-grid">
                           <div className="highlight-panel warn">
@@ -310,10 +532,55 @@ function DevisDetailContent() {
                           </div>
                         </div>
 
+                        {/* Addons */}
+                        <div className="panel" style={{ marginBottom: 20 }}>
+                          <div className="panel-header">
+                            <h3>Ajouts demandés</h3>
+                            <span className="hint">+{totalAddons.toLocaleString("fr-MG")} Ar au total</span>
+                          </div>
+                          <div>
+                            {displayAddons.map((addon) => (
+                              <div key={addon.id} className="addon-item">
+                                <div className="addon-left">
+                                  <b>{addon.title}</b>
+                                  <p>{addon.desc}</p>
+                                </div>
+                                <div className="addon-right">
+                                  <span className="addon-price">+{addon.price.toLocaleString("fr-MG")} Ar</span>
+                                  <span className={`addon-status ${addon.status}`}>
+                                    {addon.status === "included" ? "Inclus au total" : "En attente de chiffrage"}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                            <div className="addon-total">
+                              <span>Total des ajouts validés, ajouté au solde de livraison</span>
+                              <b>+{totalAddons.toLocaleString("fr-MG")} Ar</b>
+                            </div>
+                            <button className="addon-add-btn">+ Demander un ajout</button>
+                          </div>
+                        </div>
+
                         {/* Feedback */}
-                        <div className="feedback-section">
-                          <div className="feedback-head">Retour de l&apos;atelier</div>
-                          <div className="feedback-empty">Aucun retour pour le moment.</div>
+                        <div className="panel" style={{ marginBottom: 20 }}>
+                          <div className="panel-header">
+                            <h3>Retour de l&apos;atelier</h3>
+                            <span className="hint">{defaultFeedback.length} message{defaultFeedback.length > 1 ? "s" : ""}</span>
+                          </div>
+                          <div>
+                            {defaultFeedback.map((fb) => (
+                              <div key={fb.id} className="feedback-item">
+                                <div className="fb-avatar">{fb.avatar}</div>
+                                <div className="fb-body">
+                                  <div className="fb-top">
+                                    <span className="fb-name">{fb.name}</span>
+                                    <span className="fb-date">{fb.date}</span>
+                                  </div>
+                                  <p className="fb-text">{fb.text}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
 
                         {/* Comparison table */}
@@ -402,6 +669,8 @@ const globalStyles = `
   .status-pill[data-status="accepted"] { background: rgba(92,184,125,0.15); color: var(--good); }
   .status-pill[data-status="refused"] { background: rgba(224,139,82,0.15); color: var(--warn); }
   .status-pill[data-status="expired"] { background: rgba(92,100,120,0.2); color: var(--text-faint); }
+  .status-pill[data-status="production"] { background: rgba(229,173,70,0.15); color: var(--gold); }
+  .status-pill[data-status="completed"] { background: rgba(92,184,125,0.15); color: var(--good); }
 
   .action-bar {
     display: flex;
@@ -565,6 +834,29 @@ const globalStyles = `
   .step-line.done { background: var(--good); }
   .step:last-child .step-line { display: none; }
 
+  /* Panel */
+  .panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .panel-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-cream);
+  }
+  .hint {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
   /* Highlights */
   .highlights-grid {
     display: grid;
@@ -600,23 +892,300 @@ const globalStyles = `
     padding: 3px 0;
   }
 
-  /* Feedback */
-  .feedback-section {
-    background: var(--bg-panel);
+  /* Quote Confirm Panel */
+  .quote-confirm {
+    background: rgba(92,184,125,0.08);
+    border: 1px solid rgba(92,184,125,0.25);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .quote-confirm-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--good);
+  }
+  .quote-confirm-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--good);
+    color: var(--bg-deep);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .quote-figures {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .quote-figures figure {
+    text-align: center;
+  }
+  .quote-figures figure b {
+    display: block;
+    font-size: 16px;
+    color: var(--text-cream);
+    margin-bottom: 4px;
+  }
+  .quote-figures figure span {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .quote-confirm-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  .quote-confirm-note b { color: var(--text-cream); }
+
+  /* Payment Grid */
+  .payment-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .payment-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
     border-radius: 10px;
     padding: 14px 16px;
-    margin-bottom: 20px;
-    border: 1px solid var(--card-border);
   }
-  .feedback-head {
-    font-size: 13px;
-    font-weight: 600;
+  .payment-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 8px;
+  }
+  .payment-tag {
+    font-size: 12px;
+    font-weight: 600;
     color: var(--text-cream);
   }
-  .feedback-empty {
+  .payment-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 999px;
+  }
+  .payment-status.paid { background: rgba(92,184,125,0.15); color: var(--good); }
+  .payment-status.waiting { background: rgba(229,173,70,0.15); color: var(--gold); }
+  .payment-amount {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .payment-desc {
     font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Checkpoints */
+  .checkpoint-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .checkpoint-item {
+    display: flex;
+    gap: 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+  }
+  .checkpoint-item.done { border-left: 3px solid var(--good); }
+  .checkpoint-item.action { border-left: 3px solid var(--gold); }
+  .checkpoint-item.upcoming { border-left: 3px solid var(--card-border); opacity: 0.7; }
+  .cp-marker {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .checkpoint-item.done .cp-marker { background: var(--good); color: #fff; }
+  .checkpoint-item.action .cp-marker { background: var(--gold); color: var(--bg-deep); }
+  .checkpoint-item.upcoming .cp-marker { background: var(--card-border); color: var(--text-faint); }
+  .cp-body { flex: 1; min-width: 0; }
+  .cp-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-cream);
+    margin-bottom: 3px;
+  }
+  .cp-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 6px;
+  }
+  .cp-meta {
+    font-size: 11px;
     color: var(--text-faint);
+  }
+  .cp-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .btn-sm-gold {
+    padding: 5px 14px;
+    border: 1px solid var(--gold);
+    border-radius: 6px;
+    background: var(--gold);
+    color: var(--bg-deep);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-sm-gold:hover { background: var(--gold-light); }
+  .btn-sm-outline {
+    padding: 5px 14px;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .btn-sm-outline:hover { border-color: var(--text-muted); }
+  .dot-pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: pulse 1.5s infinite;
+    display: inline-block;
+  }
+
+  /* Addons */
+  .addon-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .addon-item:last-of-type { border-bottom: none; }
+  .addon-left b {
+    font-size: 13px;
+    color: var(--text-cream);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .addon-left p {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0;
+  }
+  .addon-right {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .addon-price {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 2px;
+  }
+  .addon-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    display: inline-block;
+  }
+  .addon-status.included { background: rgba(92,184,125,0.15); color: var(--good); }
+  .addon-status.pending { background: rgba(229,173,70,0.15); color: var(--gold); }
+  .addon-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0 8px;
+    border-top: 1px solid var(--card-border);
+    margin-top: 8px;
+  }
+  .addon-total span {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .addon-total b {
+    font-size: 14px;
+    color: var(--gold);
+  }
+  .addon-add-btn {
+    width: 100%;
+    padding: 10px;
+    border: 1px dashed var(--card-border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .addon-add-btn:hover { border-color: var(--gold-dim); color: var(--gold-dim); }
+
+  /* Feedback with avatars */
+  .feedback-item {
+    display: flex;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .feedback-item:last-child { border-bottom: none; }
+  .fb-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--gold-dim);
+    color: var(--text-cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .fb-body { flex: 1; min-width: 0; }
+  .fb-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .fb-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-cream);
+  }
+  .fb-date {
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+  .fb-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
   }
 
   /* Comparison table */

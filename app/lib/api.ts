@@ -64,6 +64,7 @@ export type PaymentRecord = {
   status: "submitted" | "verified" | "rejected";
   proof_path?: string | null;
   review_note?: string | null;
+  reviewed_at?: string | null;
   created_at: string;
 };
 
@@ -100,6 +101,9 @@ export type QuoteRecord = {
   confirmation_deadline?: string | null;
   confirmation_days?: number;
   date_livraison_prevue?: string | null;
+  deposit_paid_at?: string | null;
+  validated_at?: string | null;
+  validated_by?: string | null;
 };
 
 export type CommandeRecord = {
@@ -469,4 +473,77 @@ export const draftsAPI = {
     fetchWithAuth<QuoteRecord>(`/quote-drafts/${id}/submit`, { method: "POST" }),
   remove: async (id: string) =>
     fetchWithAuth<{ message: string }>(`/quote-drafts/${id}`, { method: "DELETE" }),
+};
+
+export type QuoteCheckpoint = {
+  id: string;
+  quote_id: string;
+  commande_id?: string | null;
+  title: string;
+  description?: string | null;
+  status: "upcoming" | "done";
+  validated_at?: string | null;
+  validated_by?: string | null;
+  sort_order?: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export const checkpointsAPI = {
+  list: async (quoteId: string) =>
+    fetchWithAuth<QuoteCheckpoint[]>(`/quote-checkpoints?quote_id=${quoteId}`, { method: "GET" }),
+  get: async (id: string) =>
+    fetchWithAuth<QuoteCheckpoint>(`/quote-checkpoints/${id}`, { method: "GET" }),
+  create: async (data: { quote_id: string; title: string; description?: string; sort_order?: number }) =>
+    fetchWithAuth<QuoteCheckpoint>("/quote-checkpoints", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  validate: async (id: string) =>
+    fetchWithAuth<QuoteCheckpoint>(`/quote-checkpoints/${id}/validate`, { method: "PUT" }),
+  remove: async (id: string) =>
+    fetchWithAuth<{ message: string }>(`/quote-checkpoints/${id}`, { method: "DELETE" }),
+};
+
+export type QuoteAddon = {
+  id: string;
+  quote_id: string;
+  commande_id?: string | null;
+  title: string;
+  description?: string | null;
+  price?: number | null;
+  status: "pending" | "included" | "rejected";
+  created_at?: string;
+  updated_at?: string;
+};
+
+export const addonsAPI = {
+  list: async (quoteId: string) =>
+    fetchWithAuth<{ data: QuoteAddon[]; total_validated: number }>(`/quote-addons?quote_id=${quoteId}`, { method: "GET" }),
+  get: async (id: string) =>
+    fetchWithAuth<QuoteAddon>(`/quote-addons/${id}`, { method: "GET" }),
+  create: async (data: { quote_id: string; title: string; description?: string; price?: number }) =>
+    fetchWithAuth<QuoteAddon>("/quote-addons", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updateStatus: async (id: string, status: string, price?: number) =>
+    fetchWithAuth<QuoteAddon>(`/quote-addons/${id}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ status, price }),
+    }),
+  remove: async (id: string) =>
+    fetchWithAuth<{ message: string }>(`/quote-addons/${id}`, { method: "DELETE" }),
+};
+
+export const paymentsAPI = {
+  list: async (quoteId: string) =>
+    fetchWithAuth<{ data: PaymentRecord[]; total_verified: number }>(`/payments?quote_id=${quoteId}`, { method: "GET" }),
+  get: async (id: string) =>
+    fetchWithAuth<PaymentRecord>(`/payments/${id}`, { method: "GET" }),
+  updateStatus: async (id: string, status: string, reviewNote?: string) =>
+    fetchWithAuth<PaymentRecord>(`/payments/${id}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ status, review_note: reviewNote }),
+    }),
 };
