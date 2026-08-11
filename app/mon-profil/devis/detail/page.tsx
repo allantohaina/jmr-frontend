@@ -477,8 +477,30 @@ function DevisDetailContent() {
             <span className="hint">{commandes.length} commande{commandes.length > 1 ? "s" : ""}</span>
           </div>
 
-          {commandes.length === 0 && (
-            <div className="empty-msg">Aucune commande associée à ce devis.</div>
+          {commandes.length === 0 && quote.status !== "draft" && (
+            <div className="pending-info">
+              <div className="pending-info-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7V12L15 14"/></svg>
+              </div>
+              <div>
+                <div className="pending-info-title">
+                  {quote.status === "pending" && "Votre demande est en cours d'examen par l'atelier."}
+                  {quote.status === "sent" && "Le devis vous a été envoyé — vous pouvez le consulter et le confirmer."}
+                  {quote.status === "needs_info" && "L'atelier a besoin d'informations complémentaires."}
+                  {quote.status === "accepted" && "Devis accepté — la commande sera créée prochainement."}
+                  {quote.status === "production" && "La commande est en cours de production."}
+                  {quote.status === "rejected" && "Ce devis a été refusé."}
+                  {!["pending", "sent", "needs_info", "accepted", "production", "rejected"].includes(quote.status ?? "") && "En attente de traitement par l'atelier."}
+                </div>
+                <div className="pending-info-detail">
+                  {quote.status === "pending" && "Notre équipe vous répondra sous 2 à 3 jours ouvrés avec un chiffrage détaillé."}
+                  {quote.status === "sent" && "Vous avez 7 jours pour confirmer ou refuser ce devis."}
+                  {quote.status === "needs_info" && "N'hésitez pas à nous contacter pour plus de détails."}
+                  {quote.status === "accepted" && "Vous recevrez une notification une fois la commande lancée."}
+                  {quote.status === "production" && "Suivez l'avancement dans la section ci-dessus."}
+                </div>
+              </div>
+            </div>
           )}
 
           {commandes.map((cmd) => {
@@ -933,6 +955,12 @@ a{color:inherit;}
 .section-head h2{font-family:var(--font-serif);font-weight:500;font-size:21px;margin:0;color:var(--gold-light);}
 .section-head .hint{font-size:12px;color:var(--text-faint);}
 .empty-msg{color:var(--text-muted);font-size:14px;padding:32px 0;}
+
+.pending-info{display:flex;align-items:flex-start;gap:16px;background:rgba(217,165,72,0.06);border:1px solid rgba(217,165,72,0.15);border-radius:12px;padding:22px 26px;margin-bottom:24px;}
+.pending-info-icon{width:36px;height:36px;border-radius:9px;background:rgba(217,165,72,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pending-info-icon svg{width:18px;height:18px;stroke:var(--gold-light);}
+.pending-info-title{font-size:14px;font-weight:700;color:var(--text-cream);margin-bottom:4px;}
+.pending-info-detail{font-size:12.5px;color:var(--text-muted);line-height:1.5;}
 
 .order-card{background:var(--card);border:1px solid var(--card-border);border-radius:12px;margin-bottom:16px;overflow:hidden;}
 .order-summary{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;cursor:pointer;flex-wrap:wrap;background:transparent;border:none;color:var(--text-cream);text-align:left;width:100%;-webkit-tap-highlight-color:transparent;}
