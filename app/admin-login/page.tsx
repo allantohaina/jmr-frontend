@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { authenticateWithForm } from "@/app/lib";
-import { getToken } from "@/app/lib";
+import { authenticateWithForm, getToken } from "@/app/lib";
 import { loginRateLimiter } from "@/app/lib/rate-limit";
 
 export default function AdminLoginPage() {
@@ -18,17 +16,17 @@ export default function AdminLoginPage() {
     setIsMounted(true);
     const token = getToken();
     if (token) {
-      window.location.assign("/backoffice");
+      window.location.href = "/backoffice";
     }
   }, []);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    const rateLimit = loginRateLimiter.check("global");
+    const rateLimit = loginRateLimiter.check("admin-login");
     if (!rateLimit.allowed) {
-      setError("Trop de tentatives de connexion. Veuillez patienter 15 minutes.");
+      setError("Trop de tentatives. Veuillez réessayer plus tard.");
       return;
     }
 
@@ -40,118 +38,381 @@ export default function AdminLoginPage() {
       formData.append("email", email);
       formData.append("password", password);
 
-      const { redirectTo, user } = await authenticateWithForm(formData);
+      const result = await authenticateWithForm(formData);
 
-      if (user?.role !== "admin") {
-        setError("Accès refusé. Compte administrateur requis.");
-        setIsLoading(false);
-        return;
+      if (result && result.user && result.user.role === "admin") {
+        window.location.href = "/backoffice";
+      } else {
+        setError("Accès refusé. Vous n'avez pas les droits d'administration.");
       }
-
-      window.location.assign(redirectTo);
-    } catch (err) {
+    } catch (err: unknown) {
       const message =
-        err instanceof Error && err.message
-          ? err.message
-          : "Connexion impossible. Vérifiez vos identifiants.";
+        err instanceof Error ? err.message : "Une erreur est survenue.";
       setError(message);
+    } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   if (!isMounted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#1a2332]">
-        <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#e5ad46]">Chargement...</span>
+      <div style={{ minHeight: "100vh", background: "#1e2a38", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 40, height: 40, border: "3px solid #e5ad46", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a2332] to-[#25303a] flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-10">
-          <Image
-            src="/navbar/logo-dark.svg"
-            alt="JMR Textile"
-            width={180}
-            height={40}
-            className="mx-auto mb-6"
-            priority
-            unoptimized
-          />
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-4 py-2 mb-4">
-            <Image src="/analytics_chart.svg" alt="" width={18} height={18} unoptimized className="opacity-80" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">
-              Administration
-            </span>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Inter:wght@300;400;500;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+          --bg-deep: #1e2a38;
+          --bg-panel: #141e2e;
+          --gold: #e5ad46;
+          --gold-light: #eccc90;
+          --text-cream: #f3efe4;
+          --text-muted: #8b93a7;
+        }
+
+        .admin-login-root {
+          min-height: 100vh;
+          background: var(--bg-deep);
+          font-family: 'Inter', sans-serif;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .panel {
+          position: relative;
+          background: var(--bg-panel);
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 48px;
+          overflow: hidden;
+        }
+
+        .thread-bg {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          opacity: 0.15;
+        }
+
+        .brand-mark {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+
+        .brand-mark h1 {
+          font-family: 'Fraunces', serif;
+          font-weight: 600;
+          font-size: 18px;
+          letter-spacing: 3px;
+          color: var(--gold);
+        }
+
+        .copy-section {
+          position: relative;
+          z-index: 1;
+          margin-top: auto;
+        }
+
+        .copy-section .eyebrow {
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 3px;
+          color: var(--gold);
+          margin-bottom: 16px;
+        }
+
+        .copy-section h2 {
+          font-family: 'Fraunces', serif;
+          font-size: 32px;
+          font-weight: 300;
+          line-height: 1.35;
+          color: var(--text-cream);
+          margin-bottom: 20px;
+        }
+
+        .copy-section p {
+          font-size: 14px;
+          line-height: 1.7;
+          color: var(--text-muted);
+          max-width: 420px;
+        }
+
+        .panel-footer {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          gap: 24px;
+          margin-top: 48px;
+        }
+
+        .panel-footer span {
+          font-size: 11px;
+          letter-spacing: 1px;
+          color: var(--text-muted);
+          text-transform: uppercase;
+        }
+
+        .form-side {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 60px;
+          background: var(--bg-deep);
+        }
+
+        .form-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(229, 173, 70, 0.1);
+          border: 1px solid rgba(229, 173, 70, 0.25);
+          border-radius: 24px;
+          padding: 6px 16px;
+          font-size: 12px;
+          font-weight: 500;
+          color: var(--gold);
+          margin-bottom: 24px;
+          width: fit-content;
+        }
+
+        .back-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          color: var(--text-muted);
+          text-decoration: none;
+          font-size: 13px;
+          margin-bottom: 32px;
+          transition: color 0.2s;
+        }
+
+        .back-link:hover {
+          color: var(--text-cream);
+        }
+
+        .form-side h3 {
+          font-family: 'Fraunces', serif;
+          font-size: 28px;
+          font-weight: 600;
+          color: var(--text-cream);
+          margin-bottom: 6px;
+        }
+
+        .form-side .subtitle {
+          font-size: 11px;
+          font-weight: 500;
+          letter-spacing: 3px;
+          color: var(--text-muted);
+          margin-bottom: 40px;
+        }
+
+        .form-group {
+          margin-bottom: 20px;
+        }
+
+        .form-group label {
+          display: block;
+          font-size: 12px;
+          font-weight: 500;
+          letter-spacing: 1px;
+          color: var(--text-muted);
+          margin-bottom: 8px;
+          text-transform: uppercase;
+        }
+
+        .form-group input {
+          width: 100%;
+          padding: 14px 16px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 10px;
+          color: var(--text-cream);
+          font-family: 'Inter', sans-serif;
+          font-size: 14px;
+          outline: none;
+          transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus {
+          border-color: var(--gold);
+          box-shadow: 0 0 0 3px rgba(229, 173, 70, 0.12);
+          animation: stitchPulse 0.6s ease;
+        }
+
+        .form-group input::placeholder {
+          color: rgba(139, 147, 167, 0.5);
+        }
+
+        @keyframes stitchPulse {
+          0% { box-shadow: 0 0 0 0 rgba(229, 173, 70, 0.3); }
+          50% { box-shadow: 0 0 0 6px rgba(229, 173, 70, 0.08); }
+          100% { box-shadow: 0 0 0 3px rgba(229, 173, 70, 0.12); }
+        }
+
+        .error-box {
+          background: rgba(220, 53, 69, 0.1);
+          border: 1px solid rgba(220, 53, 69, 0.25);
+          border-radius: 10px;
+          padding: 12px 16px;
+          margin-bottom: 20px;
+          color: #f87171;
+          font-size: 13px;
+          line-height: 1.5;
+        }
+
+        .submit-btn {
+          width: 100%;
+          padding: 14px;
+          background: var(--gold);
+          border: none;
+          border-radius: 10px;
+          color: #1e2a38;
+          font-family: 'Inter', sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.2s, transform 0.1s;
+          margin-top: 8px;
+        }
+
+        .submit-btn:hover {
+          background: var(--gold-light);
+        }
+
+        .submit-btn:active {
+          transform: scale(0.98);
+        }
+
+        .submit-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .form-footer-note {
+          text-align: center;
+          font-size: 12px;
+          color: var(--text-muted);
+          margin-top: 28px;
+        }
+
+        @media (max-width: 900px) {
+          .admin-login-root {
+            grid-template-columns: 1fr;
+          }
+          .panel {
+            display: none;
+          }
+          .form-side {
+            padding: 32px 24px;
+          }
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+
+      <div className="admin-login-root">
+        {/* LEFT PANEL */}
+        <div className="panel">
+          <svg className="thread-bg" viewBox="0 0 600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 100 Q200 200 150 400 Q100 600 250 800" stroke="#e5ad46" strokeWidth="1.5" strokeDasharray="8 6" fill="none" />
+            <path d="M120 50 Q300 180 220 450 Q140 720 300 850" stroke="#e5ad46" strokeWidth="1" strokeDasharray="6 8" fill="none" />
+            <path d="M400 30 Q320 250 380 480 Q440 700 350 880" stroke="#eccc90" strokeWidth="1" strokeDasharray="10 5" fill="none" />
+            <path d="M500 120 Q420 300 480 520 Q540 740 430 870" stroke="#e5ad46" strokeWidth="1.2" strokeDasharray="5 9" fill="none" />
+            <path d="M80 200 Q250 320 180 560 Q110 800 280 900" stroke="#eccc90" strokeWidth="0.8" strokeDasharray="4 10" fill="none" />
+          </svg>
+
+          <div className="brand-mark">
+            <img src="/navbar/logo-dark.svg" alt="JMR Textile" style={{ height: 40, width: "auto" }} />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-1">Espace de gestion JMR Textile</h1>
-          <p className="text-xs text-white/40 uppercase tracking-[0.15em]">
-            Connexion sécurisée
-          </p>
+
+          <div className="copy-section">
+            <div className="eyebrow">ESPACE DE GESTION</div>
+            <h2>La précision d&apos;un atelier, orchestrée depuis un seul tableau de bord.</h2>
+            <p>
+              Commandes, collections et clients : pilotez l&apos;ensemble de l&apos;activité JMR Textile avec la même rigueur que celle apportée à chaque pièce cousue à Madagascar.
+            </p>
+          </div>
+
+          <div className="panel-footer">
+            <span>Sécurisé</span>
+            <span>Temps réel</span>
+            <span>© 2026</span>
+          </div>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
-          {error && (
-            <div className="mb-6 rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400" role="alert">
-              {error}
-            </div>
-          )}
+        {/* RIGHT PANEL */}
+        <div className="form-side">
+          <div className="form-badge">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="8" width="2.5" height="5" rx="0.5" fill="#e5ad46" />
+              <rect x="4.5" y="5" width="2.5" height="8" rx="0.5" fill="#e5ad46" />
+              <rect x="8" y="2.5" width="2.5" height="10.5" rx="0.5" fill="#e5ad46" />
+              <rect x="11.5" y="0.5" width="2" height="12.5" rx="0.5" fill="#e5ad46" />
+            </svg>
+            Administration
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label htmlFor="admin-email" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">
-                Email
-              </label>
+          <Link href="/" className="back-link">
+            ← Retour au site
+          </Link>
+
+          <h3>Espace de gestion</h3>
+          <div className="subtitle">CONNEXION SÉCURISÉE</div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="email">Adresse email</label>
               <input
-                id="admin-email"
+                id="email"
                 type="email"
-                required
+                placeholder="admin@jmr-textile.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white outline-none transition-colors focus:border-[#e5ad46]/50 placeholder:text-white/20"
-                placeholder="votre@email.com"
-                autoComplete="username"
+                required
+                autoComplete="email"
               />
             </div>
 
-            <div>
-              <label htmlFor="admin-password" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">
-                Mot de passe
-              </label>
+            <div className="form-group">
+              <label htmlFor="password">Mot de passe</label>
               <input
-                id="admin-password"
+                id="password"
                 type="password"
-                required
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white outline-none transition-colors focus:border-[#e5ad46]/50 placeholder:text-white/20"
-                placeholder="••••••••"
+                required
                 autoComplete="current-password"
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full rounded-lg bg-[#e5ad46] py-4 text-xs font-bold uppercase tracking-[0.3em] text-[#1a2332] shadow-lg shadow-[#e5ad46]/20 transition-all duration-200 hover:bg-[#d4a03f] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isLoading ? "Connexion..." : "Se connecter"}
+            {error && <div className="error-box">{error}</div>}
+
+            <button type="submit" className="submit-btn" disabled={isLoading}>
+              {isLoading ? "Connexion en cours..." : "Se connecter"}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <Link href="/" className="text-[11px] text-white/30 hover:text-white/50 transition-colors">
-              ← Retour au site
-            </Link>
+          <div className="form-footer-note">
+            Accès réservé aux administrateurs autorisés.
           </div>
         </div>
-
-        <p className="mt-8 text-center text-[10px] text-white/20 uppercase tracking-[0.15em]">
-          JMR Textile &copy; {new Date().getFullYear()}
-        </p>
       </div>
-    </div>
+    </>
   );
 }
