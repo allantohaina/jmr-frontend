@@ -536,13 +536,13 @@ function DevisDetailContent() {
                       <tbody>
                         <tr>
                           <td>Quantité</td>
-                          <td>{quote.quantite_commandee ?? cmd.quantite} pièces</td>
+                           <td>{cmd.quantite} pièces</td>
                           <td className="col-active">{cmd.quantite} pièces</td>
                           <td>{cmd.pieces_produites ?? "—"} pièces</td>
                         </tr>
                         <tr>
                           <td>Prix unitaire</td>
-                          <td>{formatCurrency(quote.prix_unitaire_calcule ?? cmd.prix_unitaire)}</td>
+                           <td>{formatCurrency(cmd.prix_unitaire)}</td>
                           <td className="col-active">{formatCurrency(cmd.prix_unitaire)}</td>
                           <td>{formatCurrency(cmd.total)}</td>
                         </tr>
