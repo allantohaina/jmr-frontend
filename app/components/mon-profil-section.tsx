@@ -32,8 +32,6 @@ const PROFILE_ITEMS: ProfileCard[] = [
   },
 ];
 
-
-
 function formatDate(d: string) {
   try { return new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }); }
   catch { return d; }
@@ -51,6 +49,17 @@ function quoteStatusLabel(s?: string | null) {
     default: return s ?? "Nouveau";
   }
 }
+
+const STATUS_DOT: Record<string, string> = {
+  accepted: "#5cb87d",
+  production: "#5c9ad9",
+  completed: "#5cb87d",
+  pending: "#e5ad46",
+  draft: "#5c6478",
+  sent: "#8b7bd4",
+  needs_info: "#d9a548",
+  rejected: "#e08b52",
+};
 
 function confirmationCountdown(deadline?: string | null): { text: string; expired: boolean; urgent: boolean } | null {
   if (!deadline) return null;
@@ -98,6 +107,145 @@ function draftDate(draft: QuoteDraft): string {
   return formatDate(draft.updated_at || draft.created_at || "");
 }
 
+const globalStyles = `
+:root{
+  --bg:#1e2a38;
+  --card:#25303a;
+  --card-border:rgba(229,173,70,0.12);
+  --input-bg:#1b263c;
+  --gold:#e5ad46;
+  --gold-light:#eccc90;
+  --gold-dim:rgba(229,173,70,0.4);
+  --text-cream:#f3efe4;
+  --text-muted:rgba(229,173,70,0.6);
+  --text-faint:rgba(229,173,70,0.35);
+  --warn:#e08b52;
+  --warn-bg:rgba(224,139,82,0.09);
+  --good:#5cb87d;
+  --good-bg:rgba(92,184,125,0.09);
+  --font-serif:'Fraunces','Noto Serif',serif;
+  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
+  --font-body:'Inter','IBM Plex Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text-cream);font-family:var(--font-body);-webkit-font-smoothing:antialiased;}
+
+.db-container{max-width:1100px;margin:0 auto;padding:0 40px;}
+@media(max-width:760px){.db-container{padding:0 20px;}}
+
+.db-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;padding:36px 0 28px;}
+.db-head h1{font-family:var(--font-serif);font-weight:500;font-size:clamp(26px,3.4vw,34px);margin:0;color:var(--gold-light);}
+.eyebrow{font-size:11px;letter-spacing:0.24em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+.eyebrow::before{content:"";width:22px;height:1px;background:var(--gold-dim);}
+
+.db-banner{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:28px 32px;margin-bottom:32px;position:relative;overflow:hidden;}
+.db-banner::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 30%,rgba(229,173,70,0.08),transparent 60%);pointer-events:none;}
+.db-banner-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.db-banner-eyebrow .icon{width:32px;height:32px;border-radius:8px;background:rgba(229,173,70,0.1);display:flex;align-items:center;justify-content:center;}
+.db-banner-eyebrow .icon svg{width:16px;height:16px;stroke:var(--gold);}
+.db-banner-eyebrow span{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);font-weight:700;}
+.db-banner h2{font-family:var(--font-serif);font-weight:500;font-size:22px;color:var(--gold-light);margin-bottom:10px;}
+.db-banner p{font-size:13px;color:var(--text-muted);line-height:1.6;}
+.db-banner p b{color:var(--text-cream);}
+
+.db-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:36px;}
+@media(max-width:800px){.db-metrics{grid-template-columns:1fr;}}
+.db-metric{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:24px 26px;display:flex;align-items:center;gap:18px;}
+.db-metric-icon{width:44px;height:44px;border-radius:10px;background:rgba(229,173,70,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.db-metric-icon svg{width:20px;height:20px;stroke:var(--gold);}
+.db-metric-value{font-family:var(--font-mono);font-size:32px;font-weight:700;color:var(--gold-light);line-height:1;}
+.db-metric-info{margin-left:auto;text-align:right;}
+.db-metric-label{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-faint);font-weight:700;margin-bottom:4px;}
+.db-metric-detail{font-size:11px;color:var(--text-muted);}
+
+.db-grid{display:grid;grid-template-columns:1fr 340px;gap:32px;margin-bottom:48px;}
+@media(max-width:900px){.db-grid{grid-template-columns:1fr;}}
+
+.db-panel{background:var(--card);border:1px solid var(--card-border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+.db-panel-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:22px 26px;border-bottom:1px solid var(--card-border);}
+.db-panel-head h2{font-family:var(--font-serif);font-weight:500;font-size:18px;color:var(--gold-light);}
+.db-panel-head .hint{font-size:11px;color:var(--text-faint);}
+
+.db-filters{display:flex;flex-wrap:wrap;gap:12px;padding:16px 26px;border-bottom:1px solid rgba(229,173,70,0.06);}
+.db-filter{display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-faint);font-weight:600;cursor:default;}
+.db-filter .dot{width:7px;height:7px;border-radius:50%;}
+
+.db-quote-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 26px;border-bottom:1px solid rgba(229,173,70,0.06);transition:background .2s;}
+.db-quote-row:last-child{border-bottom:none;}
+.db-quote-row:hover{background:rgba(229,173,70,0.02);}
+.db-quote-left{min-width:0;flex:1;}
+.db-quote-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+.db-quote-name{font-size:13px;font-weight:700;color:var(--text-cream);}
+.db-quote-status{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:100px;}
+.db-quote-status .dot{width:6px;height:6px;border-radius:50%;}
+.db-quote-msg{font-size:12px;color:var(--text-muted);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:400px;}
+.db-quote-deadline{font-family:var(--font-mono);font-size:10px;margin-top:6px;font-weight:600;}
+.db-quote-deadline.urgent{color:var(--warn);}
+.db-quote-deadline.expired{color:#e05252;}
+.db-quote-action{flex-shrink:0;}
+.db-btn-sm{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:7px;border:1px solid var(--card-border);background:transparent;color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all .2s;text-decoration:none;}
+.db-btn-sm:hover{border-color:var(--gold);color:var(--gold-light);}
+.db-btn-sm svg{width:12px;height:12px;}
+
+.db-btn-gold{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:8px;border:none;background:linear-gradient(180deg,var(--gold-light),var(--gold));color:#1a1204;font-weight:700;font-size:10.5px;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:filter .2s,transform .2s;white-space:nowrap;text-decoration:none;}
+.db-btn-gold:hover{filter:brightness(1.06);transform:translateY(-1px);}
+
+.db-see-more{width:100%;padding:14px;border:none;background:transparent;border-top:1px solid rgba(229,173,70,0.06);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s;}
+.db-see-more:hover{background:rgba(229,173,70,0.03);}
+
+.db-empty{text-align:center;padding:40px 26px;color:var(--text-muted);font-size:13px;}
+
+.db-sidebar{display:flex;flex-direction:column;gap:24px;}
+
+.db-activity{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:26px;}
+.db-activity h2{font-family:var(--font-serif);font-weight:500;font-size:18px;color:var(--gold-light);margin-bottom:20px;}
+.db-timeline{position:relative;padding-left:28px;}
+.db-timeline::before{content:"";position:absolute;left:9px;top:4px;bottom:4px;width:1px;background:var(--card-border);}
+.db-tl-item{position:relative;padding-bottom:20px;}
+.db-tl-item:last-child{padding-bottom:0;}
+.db-tl-dot{position:absolute;left:-28px;top:2px;width:19px;height:19px;border-radius:50%;border:2px solid var(--gold);background:var(--card);display:flex;align-items:center;justify-content:center;}
+.db-tl-dot::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);}
+.db-tl-date{font-family:var(--font-mono);font-size:9.5px;color:var(--text-faint);margin-bottom:4px;letter-spacing:0.04em;}
+.db-tl-label{font-size:12.5px;font-weight:700;color:var(--text-cream);margin-bottom:3px;}
+.db-tl-detail{font-size:11.5px;color:var(--text-muted);line-height:1.5;}
+
+.db-docs{background:var(--input-bg);border:1px solid var(--card-border);border-radius:12px;padding:26px;}
+.db-docs h2{font-family:var(--font-serif);font-weight:500;font-size:18px;color:var(--gold-light);margin-bottom:14px;}
+.db-docs p{font-size:12px;color:var(--text-faint);margin-bottom:18px;}
+.db-docs-btn{width:100%;padding:12px;border-radius:8px;border:1px dashed var(--card-border);background:transparent;color:var(--text-faint);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:not-allowed;transition:all .2s;}
+
+.db-alerts-empty{text-align:center;padding:32px 26px;color:var(--text-faint);font-size:12px;}
+
+.db-alert-row{display:flex;align-items:flex-start;gap:12px;padding:16px 26px;border-bottom:1px solid rgba(229,173,70,0.06);}
+.db-alert-row:last-child{border-bottom:none;}
+.db-alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.db-alert-text{font-size:12.5px;font-weight:600;color:var(--text-cream);margin-bottom:3px;}
+.db-alert-desc{font-size:11.5px;color:var(--text-muted);line-height:1.5;}
+
+.db-modal-overlay{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:rgba(11,17,26,0.8);backdrop-filter:blur(4px);padding:16px;}
+@media(min-width:640px){.db-modal-overlay{align-items:center;}}
+.db-modal{width:100%;max-width:560px;background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:28px;box-shadow:0 24px 60px rgba(0,0,0,0.4);}
+.db-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:18px;border-bottom:1px solid var(--card-border);margin-bottom:20px;}
+.db-modal-head .label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-faint);font-weight:700;}
+.db-modal-head h3{font-family:var(--font-serif);font-weight:500;font-size:22px;color:var(--gold-light);margin-top:6px;}
+.db-modal-close{background:none;border:none;color:var(--text-faint);cursor:pointer;padding:4px;transition:color .2s;}
+.db-modal-close:hover{color:var(--gold-light);}
+.db-modal-close svg{width:18px;height:18px;}
+.db-modal-row{margin-bottom:14px;}
+.db-modal-row .label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint);font-weight:600;margin-bottom:4px;}
+.db-modal-row .value{font-size:13px;color:var(--text-cream);line-height:1.6;}
+.db-modal-row .value.muted{color:var(--text-muted);}
+.db-modal-actions{margin-top:20px;padding-top:18px;border-top:1px solid var(--card-border);}
+.db-modal-actions p{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px;}
+.db-modal-actions p.expired{color:#e05252;}
+.db-modal-actions p.urgent{color:var(--warn);}
+.db-modal-actions p.normal{color:var(--text-faint);}
+.db-modal-btn{width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(180deg,var(--gold-light),var(--gold));color:#1a1204;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:filter .2s;}
+.db-modal-btn:hover{filter:brightness(1.06);}
+
+.site-footer{padding:36px 0 70px;text-align:center;font-size:12px;color:var(--text-faint);border-top:1px solid rgba(229,173,70,0.06);margin-top:40px;}
+`;
+
 export function MonProfilSection({ variant = "preview", user }: MonProfilSectionProps) {
   const [quotes, setQuotes] = useState<QuoteRecord[]>([]);
   const [commandes, setCommandes] = useState<CommandeRecord[]>([]);
@@ -107,6 +255,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   const [selectedQuote, setSelectedQuote] = useState<QuoteRecord | null>(null);
   const [showAllQuotes, setShowAllQuotes] = useState(false);
   const [showAllDrafts, setShowAllDrafts] = useState(false);
+  const [draftFilter, setDraftFilter] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -131,41 +280,13 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
     return () => { active = false; };
   }, []);
 
-const activeCommandes = commandes.filter((c) => c.statut_production !== "Livrée");
-  // Le statut par defaut d'un devis soumis est "pending" (plus "draft"). Les vrais brouillons vivent dans quote_drafts.
+  const activeCommandes = commandes.filter((c) => c.statut_production !== "Livrée");
   const submittedQuotes = quotes.filter((q) => q.status !== "draft");
   const pendingQuotes = submittedQuotes.filter((q) => q.status === "pending" || q.status === "needs_info");
   const latestPendingQuote = [...pendingQuotes].sort(
     (a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
   )[0];
-const alertCount = submittedQuotes.filter((q) => q.status === "sent" || q.status === "production" || q.status === "needs_info").length;
-
-  const stats = [
-    {
-      label: "Commandes en cours",
-      value: String(activeCommandes.length).padStart(2, "0"),
-      detail: activeCommandes.length > 0
-        ? `${activeCommandes[0].numero} - ${activeCommandes[0].statut_production}`
-        : "Aucune commande active",
-      icon: "conveyor_belt",
-    },
-    {
-      label: "Brouillons",
-      value: String(drafts.length).padStart(2, "0"),
-      detail: drafts.length > 0
-        ? `${drafts.length} devis non envoye${drafts.length > 1 ? "s" : ""} à finaliser`
-        : "Aucun brouillon",
-      icon: "edit_note",
-    },
-    {
-      label: "Notifications",
-      value: String(alertCount).padStart(2, "0"),
-      detail: alertCount > 0
-        ? `${alertCount} devis nécessitant votre attention`
-        : "Aucune notification",
-      icon: "notifications_active",
-    },
-  ];
+  const alertCount = submittedQuotes.filter((q) => q.status === "sent" || q.status === "production" || q.status === "needs_info").length;
 
   const recentItems = [
     ...submittedQuotes.map((q) => ({ type: "quote" as const, date: q.created_at ?? "", label: "Nouveau devis", detail: `${q.name} - ${q.message?.slice(0, 80)}` })),
@@ -174,337 +295,264 @@ const alertCount = submittedQuotes.filter((q) => q.status === "sent" || q.status
 
   if (variant === "dashboard") {
     const hasData = !isLoading && (quotes.length > 0 || commandes.length > 0 || drafts.length > 0);
+    const filteredQuotes = draftFilter ? submittedQuotes.filter((q) => q.status === draftFilter) : submittedQuotes;
 
     return (
-      <section className="min-h-screen bg-[#25303a] pb-24">
-        <div className="bg-[#25303a] border-b border-[#e5ad46]/5 py-12">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-              <div className="text-center md:text-left">
-                <p className="text-[#e5ad46] text-[10px] font-bold uppercase tracking-[0.3em] mb-2">Espace Personnel</p>
-                <h1 className="font-headline text-5xl text-[#e5ad46] font-bold tracking-tight leading-none mb-3">Tableau de bord</h1>
-                <p className="text-[#e5ad46]/50 text-sm font-medium">Bienvenue, <span className="text-[#e5ad46] font-bold">{user?.first_name} {user?.last_name}</span></p>
-              </div>
+      <section style={{ minHeight: "100vh", background: "var(--bg)" }}>
+        <style>{globalStyles}</style>
 
+        <header style={{ borderBottom: "1px solid var(--card-border)" }}>
+          <div className="db-container">
+            <div className="db-head">
+              <div>
+                <div className="eyebrow">Espace Personnel</div>
+                <h1>Tableau de bord</h1>
+              </div>
+              <Link href="/demande-devis" className="db-btn-gold">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M12 5V19M5 12H19"/></svg>
+                Nouveau devis
+              </Link>
             </div>
           </div>
-        </div>
+        </header>
 
-        <div className="max-w-7xl mx-auto px-6 mt-12 space-y-12">
+        <main className="db-container" style={{ paddingTop: 32 }}>
           {error && (
-            <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 text-red-400 text-sm" role="alert">
+            <div style={{ background: "rgba(224,82,82,0.08)", border: "1px solid rgba(224,82,82,0.2)", borderRadius: 12, padding: 18, color: "#e05252", fontSize: 13, marginBottom: 28 }} role="alert">
               {error}
             </div>
           )}
 
           {!hasData && !isLoading ? (
-            /* Empty state — no devis yet */
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="w-20 h-20 bg-[#e5ad46]/10 rounded-full flex items-center justify-center mb-6">
-                <span className="material-symbols-outlined text-4xl text-[#e5ad46]">description</span>
+            <div style={{ textAlign: "center", padding: "60px 0" }}>
+              <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(229,173,70,0.08)", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.8" style={{ width: 28, height: 28 }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
               </div>
-              <h2 className="font-headline text-3xl text-[#e5ad46] font-bold mb-3">Pas encore de demande</h2>
-              <p className="text-[#e5ad46]/50 text-sm max-w-md mb-8">
+              <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "var(--gold-light)", marginBottom: 10 }}>Pas encore de demande</h2>
+              <p style={{ color: "var(--text-muted)", fontSize: 13, maxWidth: 400, margin: "0 auto 28px", lineHeight: 1.6 }}>
                 Vous n&apos;avez pas encore soumis de demande de devis. Commencez dès maintenant pour suivre vos projets textile.
               </p>
-              <Link
-                href="/demande-devis"
-                className="px-8 py-4 bg-[#e5ad46] text-[#1e2a38] text-[11px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#eccc90] transition-all shadow-lg shadow-[#e5ad46]/20"
-              >
-                Faire un devis
-              </Link>
+              <Link href="/demande-devis" className="db-btn-gold">Faire un devis</Link>
             </div>
           ) : (
             <>
               {latestPendingQuote && (
-                <section
-                  className="relative overflow-hidden border border-[#e5ad46]/20 bg-[#202b35] px-6 py-7 shadow-[0_24px_60px_rgba(12,18,25,0.18)] md:px-10 md:py-9"
-                  aria-labelledby="quote-pending-title"
-                >
-                  <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_82%_38%,rgba(229,173,70,0.13),transparent_56%)]" />
-<div className="relative flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between">
-                    <div className="max-w-xl">
-                      <div className="mb-4 flex items-center gap-3">
-                        <span className="flex h-9 w-9 items-center justify-center border border-[#e5ad46]/30 bg-[#e5ad46]/10 text-[#e5ad46]">
-                          <span className="material-symbols-outlined text-[19px]">mark_email_unread</span>
-                        </span>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#e5ad46]">Demande en attente</p>
-                      </div>
-                      <h2 id="quote-pending-title" className="font-headline text-3xl font-bold leading-tight text-[#f1bd58] md:text-4xl">
-                        Votre demande a bien été reçue.
-                      </h2>
-                      <p className="mt-3 text-sm leading-relaxed text-[#eccc90]/65">
-                        {quoteReference(latestPendingQuote)}{latestPendingQuote.name ? ` — ${latestPendingQuote.name}` : ""} envoyée le {formatDate(latestPendingQuote.created_at ?? "")}.
-                        Notre équipe vous répondra sous <span className="font-bold text-[#eccc90]">2 à 3 jours ouvrés</span>.
-                      </p>
+                <div className="db-banner">
+                  <div className="db-banner-eyebrow">
+                    <div className="icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
                     </div>
+                    <span>Demande en attente</span>
                   </div>
-                </section>
+                  <h2>Votre demande a bien été reçue.</h2>
+                  <p>
+                    {quoteReference(latestPendingQuote)}{latestPendingQuote.name ? ` — ${latestPendingQuote.name}` : ""} envoyée le {formatDate(latestPendingQuote.created_at ?? "")}.
+                    Notre équipe vous répondra sous <b>2 à 3 jours ouvrés</b>.
+                  </p>
+                </div>
               )}
 
-              {/* Metrics Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {stats.map((metric, idx) => (
-                  <div className="bg-[#25303a] p-8 rounded-[2rem] border border-[#e5ad46]/5 shadow-sm hover:shadow-md transition-all group" key={idx}>
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="w-12 h-12 bg-[#e5ad46]/5 rounded-2xl flex items-center justify-center text-[#e5ad46] group-hover:bg-[#e5ad46] group-hover:text-white transition-colors">
-                        <span className="material-symbols-outlined text-2xl">{metric.icon}</span>
-                      </div>
-                      <span className="text-4xl font-headline font-bold text-[#e5ad46]">
-                        {isLoading ? ".." : metric.value}
-                      </span>
+              <div className="db-metrics">
+                {[
+                  { label: "Commandes en cours", value: String(activeCommandes.length).padStart(2, "0"), detail: activeCommandes.length > 0 ? `${activeCommandes[0].numero} — ${activeCommandes[0].statut_production}` : "Aucune commande active", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01M17 12h.01M7 12h.01"/></svg> },
+                  { label: "Brouillons", value: String(drafts.length).padStart(2, "0"), detail: drafts.length > 0 ? `${drafts.length} devis non envoyé${drafts.length > 1 ? "s" : ""} à finaliser` : "Aucun brouillon", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> },
+                  { label: "Notifications", value: String(alertCount).padStart(2, "0"), detail: alertCount > 0 ? `${alertCount} devis nécessitant votre attention` : "Aucune notification", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg> },
+                ].map((m, i) => (
+                  <div className="db-metric" key={i}>
+                    <div className="db-metric-icon">{m.icon}</div>
+                    <div className="db-metric-value">{isLoading ? ".." : m.value}</div>
+                    <div className="db-metric-info">
+                      <div className="db-metric-label">{m.label}</div>
+                      <div className="db-metric-detail">{m.detail}</div>
                     </div>
-                    <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#e5ad46] mb-2">{metric.label}</h3>
-                    <p className="text-[#e5ad46]/50 text-xs leading-relaxed">{metric.detail}</p>
                   </div>
                 ))}
               </div>
 
-              {/* Main Dashboard Layout */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                {/* Left & Center: Quotes & Alerts */}
-                <div className="lg:col-span-2 space-y-10">
-                  {/* Devis Section */}
-                  <div className="bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 shadow-sm overflow-hidden">
-<div className="px-10 py-8 border-b border-[#e5ad46]/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                      <h2 className="font-headline text-2xl text-[#e5ad46] font-bold">Mes devis</h2>
-                      <div className="flex flex-wrap gap-4 text-[9px] font-bold uppercase tracking-widest text-[#e5ad46]/50">
-                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-400" /> En attente</span>
-                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-violet-400" /> Envoyé</span>
-                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-yellow-400" /> À préciser</span>
-                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-400" /> Accepté</span>
-                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-400" /> Production</span>
-                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-400" /> Annulé</span>
-                      </div>
-                      <Link href="/demande-devis" className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] hover:underline">
-                        Nouveau devis
-                      </Link>
+              <div className="db-grid">
+                <div>
+                  <div className="db-panel">
+                    <div className="db-panel-head">
+                      <h2>Mes devis</h2>
+                      <span className="hint">{submittedQuotes.length} devis</span>
                     </div>
-                    <div className="divide-y divide-[#e5ad46]/5">
-                      {isLoading ? (
-                        <div className="p-10 text-center text-[#e5ad46]/40 text-sm">Chargement...</div>
-                      ) : submittedQuotes.length === 0 ? (
-                        <div className="p-10 text-center">
-                          <p className="text-[#e5ad46]/40 text-sm mb-4">Aucun devis pour le moment</p>
-                          <Link href="/demande-devis" className="inline-block px-6 py-3 bg-[#e5ad46] text-[#1e2a38] text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#eccc90] transition-all">
-                            Faire une demande
-                          </Link>
-                        </div>
-                      ) : (
-                        <>
-                          {(showAllQuotes ? submittedQuotes : submittedQuotes.slice(0, 4)).map((q) => (
-                          <div
-                            key={q.id}
-                            className="group p-6 md:p-8 transition-colors hover:bg-[#e5ad46]/[0.025] flex flex-col md:flex-row justify-between gap-4"
-                          >
-                            <div className="space-y-2 min-w-0">
-                              <div className="flex items-center gap-3 flex-wrap">
-                                <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                                  q.status === "accepted" ? "bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]" :
-                                  q.status === "production" ? "bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.6)]" :
-                                  q.status === "sent" ? "bg-violet-400 shadow-[0_0_8px_rgba(167,139,250,0.6)]" :
-                                  q.status === "needs_info" ? "bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.6)] animate-pulse" :
-                                  q.status === "rejected" ? "bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.6)]" :
-                                  "bg-slate-400"
-                                }`} title={quoteStatusLabel(q.status)} />
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] bg-[#e5ad46]/10 px-3 py-1 rounded-full">
-                                  {q.name ?? "Client"}
-                                </span>
-                                <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${
-                                  q.status === "production" || q.status === "accepted"
-                                    ? "bg-[#e5ad46] text-white"
-                                    : q.status === "needs_info"
-                                    ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                                    : q.status === "sent"
-                                    ? "bg-violet-500/20 text-violet-400 border border-violet-500/30"
-                                    : q.status === "rejected"
-                                    ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                                    : "bg-[#e5ad46]/5 text-[#e5ad46]"
-                                }`}>
+                    <div className="db-filters">
+                      {[{ s: null, l: "Tous" }, { s: "pending", l: "En attente" }, { s: "sent", l: "Envoyé" }, { s: "needs_info", l: "À préciser" }, { s: "accepted", l: "Accepté" }, { s: "production", l: "Production" }, { s: "rejected", l: "Annulé" }].map((f) => (
+                        <button key={f.s ?? "all"} onClick={() => setDraftFilter(f.s)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                          <span className="db-filter" style={{ color: draftFilter === f.s ? "var(--gold-light)" : undefined }}>
+                            <span className="dot" style={{ background: f.s ? (STATUS_DOT[f.s] ?? "var(--gold-dim)") : "var(--text-faint)" }} />
+                            {f.l}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    {isLoading ? (
+                      <div className="db-empty">Chargement...</div>
+                    ) : filteredQuotes.length === 0 ? (
+                      <div className="db-empty">
+                        <p style={{ marginBottom: 16 }}>Aucun devis pour le moment</p>
+                        <Link href="/demande-devis" className="db-btn-gold" style={{ fontSize: 10 }}>Faire une demande</Link>
+                      </div>
+                    ) : (
+                      <>
+                        {(showAllQuotes ? filteredQuotes : filteredQuotes.slice(0, 5)).map((q) => (
+                          <div className="db-quote-row" key={q.id}>
+                            <div className="db-quote-left">
+                              <div className="db-quote-top">
+                                <span className="db-quote-name">{q.name ?? "Client"}</span>
+                                <span className="db-quote-status" style={{ background: `${STATUS_DOT[q.status ?? ""] ?? "var(--gold-dim)"}18`, color: STATUS_DOT[q.status ?? ""] ?? "var(--gold)" }}>
+                                  <span className="dot" style={{ background: STATUS_DOT[q.status ?? ""] ?? "var(--gold-dim)" }} />
                                   {quoteStatusLabel(q.status)}
                                 </span>
                               </div>
-                              <p className="text-sm text-[#e5ad46]/60 leading-relaxed line-clamp-2">{q.message}</p>
+                              <div className="db-quote-msg">{q.message}</div>
                               {q.status === "sent" && (() => {
                                 const cd = confirmationCountdown(q.confirmation_deadline);
                                 if (!cd) return null;
-                                return (
-                                  <p className={`mt-2 text-[10px] font-bold uppercase tracking-widest ${cd.expired ? "text-red-400" : cd.urgent ? "text-orange-400 animate-pulse" : "text-[#e5ad46]/60"}`}>
-                                    {cd.expired ? "Délai de confirmation expiré" : `Confirmer dans ${cd.text}`}
-                                  </p>
-                                );
+                                return <div className={`db-quote-deadline ${cd.expired ? "expired" : cd.urgent ? "urgent" : ""}`}>{cd.expired ? "Délai expiré" : `Confirmer dans ${cd.text}`}</div>;
                               })()}
                             </div>
-                            <div className="flex items-center gap-4 shrink-0">
-                              <button
-                                type="button"
-                                onClick={() => setSelectedQuote(q)}
-                                className="inline-flex items-center gap-2 border border-[#e5ad46]/25 px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#e5ad46] transition-colors hover:bg-[#e5ad46] hover:text-[#25303a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e5ad46]"
-                                aria-label={`Voir le détail de ${quoteReference(q)}`}
-                              >
+                            <div className="db-quote-action">
+                              <Link href={`/mon-profil/devis/detail?id=${q.id}`} className="db-btn-sm">
                                 Détail
-                                <span className="material-symbols-outlined text-base">arrow_forward</span>
-                              </button>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                              </Link>
                             </div>
                           </div>
                         ))}
-                          {submittedQuotes.length > 4 && (
-                            <button
-                              type="button"
-                              onClick={() => setShowAllQuotes((v) => !v)}
-                              className="w-full flex items-center justify-center gap-2 py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#e5ad46] transition-colors hover:bg-[#e5ad46]/[0.03]"
-                            >
-                              <span className="material-symbols-outlined text-base">{showAllQuotes ? "expand_less" : "expand_more"}</span>
-                              {showAllQuotes ? "Voir moins" : `Voir plus (${submittedQuotes.length - 4} autres)`}
-                            </button>
-                          )}
-                        </>
-                      )}
-                    </div>
+                        {filteredQuotes.length > 5 && (
+                          <button className="db-see-more" onClick={() => setShowAllQuotes(!showAllQuotes)}>
+                            {showAllQuotes ? "Voir moins" : `Voir plus (${filteredQuotes.length - 5} autres)`}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 12, height: 12, transform: showAllQuotes ? "rotate(180deg)" : undefined, transition: "transform .2s" }}><path d="M6 9L12 15L18 9"/></svg>
+                          </button>
+                        )}
+                      </>
+                    )}
                   </div>
 
-                  {/* Alerts Section */}
-                  <div className="bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 shadow-sm overflow-hidden">
-                    <div className="px-10 py-8 border-b border-[#e5ad46]/5">
-                      <h2 className="font-headline text-2xl text-[#e5ad46] font-bold">Dernières alertes</h2>
+                  <div className="db-panel">
+                    <div className="db-panel-head">
+                      <h2>Dernières alertes</h2>
+                      <span className="hint">{alertCount} alerte{alertCount !== 1 ? "s" : ""}</span>
                     </div>
                     {isLoading ? (
-                      <div className="p-10 text-center text-[#e5ad46]/40 text-sm">Chargement...</div>
+                      <div className="db-empty">Chargement...</div>
                     ) : alertCount === 0 ? (
-                      <div className="p-10 text-center">
-                        <p className="text-[#e5ad46]/40 text-sm">Aucune alerte pour le moment</p>
-                      </div>
+                      <div className="db-alerts-empty">Aucune alerte pour le moment</div>
                     ) : (
-                      <div className="divide-y divide-[#e5ad46]/5">
-                        {quotes.filter((q) => q.status === "sent" || q.status === "production" || q.status === "needs_info").slice(0, 10).map((q) => (
-                          <div key={q.id} className="p-6 md:p-8 flex items-start gap-4">
-                            <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${
-                              q.status === "production" ? "bg-orange-500 animate-pulse" : q.status === "needs_info" ? "bg-yellow-400 animate-pulse" : "bg-[#e5ad46]"
-                            }`} />
-                            <div className="min-w-0">
-                              <p className="text-sm font-bold text-[#e5ad46]">
-                                {q.status === "production" ? "En production" : q.status === "needs_info" ? "À préciser" : "Devis envoyé"}
-                              </p>
-                              <p className="text-xs text-[#e5ad46]/50 mt-1">
-                                {q.name} — {q.message?.slice(0, 100)}
-                              </p>
-                            </div>
+                      submittedQuotes.filter((q) => q.status === "sent" || q.status === "production" || q.status === "needs_info").slice(0, 8).map((q) => (
+                        <div className="db-alert-row" key={q.id}>
+                          <div className="db-alert-dot" style={{ background: q.status === "production" ? "var(--warn)" : q.status === "needs_info" ? "var(--gold)" : "var(--gold-dim)" }} />
+                          <div>
+                            <div className="db-alert-text">{q.status === "production" ? "En production" : q.status === "needs_info" ? "À préciser" : "Devis envoyé"}</div>
+                            <div className="db-alert-desc">{q.name} — {q.message?.slice(0, 100)}</div>
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))
                     )}
                   </div>
                 </div>
 
-                {/* Right: Activity & Documents */}
-                <div className="space-y-10">
-                  {/* Activité */}
-                  <div className="bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/5 shadow-sm p-10">
-                    <h2 className="font-headline text-2xl text-[#e5ad46] font-bold mb-8">Activité</h2>
+                <div className="db-sidebar">
+                  <div className="db-activity">
+                    <h2>Activité</h2>
                     {isLoading ? (
-                      <p className="text-[#e5ad46]/40 text-sm">Chargement...</p>
+                      <p style={{ color: "var(--text-faint)", fontSize: 12 }}>Chargement...</p>
                     ) : recentItems.length === 0 ? (
-                      <p className="text-[#e5ad46]/40 text-sm">Aucune activité récente</p>
+                      <p style={{ color: "var(--text-faint)", fontSize: 12 }}>Aucune activité récente</p>
                     ) : (
-                      <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-[#e5ad46]/10">
-                        {recentItems.slice(0, 8).map((item, idx) => (
-                          <div className="relative pl-10" key={idx}>
-                            <div className="absolute left-0 top-1.5 w-[23px] h-[23px] bg-[#25303a] border-2 border-[#e5ad46] rounded-full flex items-center justify-center">
-                              <div className="w-2 h-2 bg-[#e5ad46] rounded-full"></div>
-                            </div>
-                            <p className="text-[9px] font-bold uppercase tracking-widest text-[#e5ad46]/30 mb-1">{formatDate(item.date)}</p>
-                            <h4 className="text-sm font-bold text-[#e5ad46] mb-1">{item.label}</h4>
-                            <p className="text-xs text-[#e5ad46]/60 leading-relaxed line-clamp-2">{item.detail}</p>
+                      <div className="db-timeline">
+                        {recentItems.slice(0, 6).map((item, idx) => (
+                          <div className="db-tl-item" key={idx}>
+                            <div className="db-tl-dot" />
+                            <div className="db-tl-date">{formatDate(item.date)}</div>
+                            <div className="db-tl-label">{item.label}</div>
+                            <div className="db-tl-detail">{item.detail}</div>
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
 
-                  {/* Documents */}
-                  <div className="bg-[#1e2a38] rounded-[2.5rem] p-10 text-[#e5ad46] shadow-xl border border-[#e5ad46]/10">
-                    <h2 className="font-headline text-2xl font-bold mb-8">Documents</h2>
-                    <p className="text-[#e5ad46]/40 text-sm">Aucun document pour le moment</p>
-                    <button className="w-full mt-8 py-4 bg-[#25303a]/20 text-[#e5ad46] text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl border border-[#e5ad46]/10 hover:bg-[#25303a]/40 transition-all opacity-50 cursor-not-allowed">
-                      Accéder aux archives
-                    </button>
+                  <div className="db-docs">
+                    <h2>Documents</h2>
+                    <p>Aucun document pour le moment</p>
+                    <button className="db-docs-btn" disabled>Accéder aux archives</button>
                   </div>
                 </div>
               </div>
             </>
           )}
+        </main>
+
+        <div className="db-container">
+          <footer className="site-footer">
+            © 2026 JMR Textile Atelier — Fabrication Madagascar
+          </footer>
         </div>
+
         {selectedQuote && (
-          <div className="fixed inset-0 z-50 flex items-end bg-[#111a22]/80 p-4 backdrop-blur-sm sm:items-center sm:justify-center" role="presentation">
-            <section
-              className="w-full max-w-xl border border-[#e5ad46]/25 bg-[#25303a] p-6 shadow-2xl sm:p-8"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="quote-dialog-title"
-            >
-              <div className="flex items-start justify-between gap-5 border-b border-[#e5ad46]/10 pb-5">
+          <div className="db-modal-overlay" role="presentation" onClick={() => setSelectedQuote(null)}>
+            <div className="db-modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+              <div className="db-modal-head">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#e5ad46]">Détail de la demande</p>
-                  <h2 id="quote-dialog-title" className="mt-2 font-headline text-3xl font-bold text-[#eccc90]">{quoteReference(selectedQuote)}</h2>
+                  <div className="label">Détail de la demande</div>
+                  <h3>{quoteReference(selectedQuote)}</h3>
                 </div>
-                <button type="button" onClick={() => setSelectedQuote(null)} className="text-[#e5ad46]/70 transition-colors hover:text-[#e5ad46] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e5ad46]" aria-label="Fermer le détail">
-                  <span className="material-symbols-outlined">close</span>
+                <button className="db-modal-close" onClick={() => setSelectedQuote(null)} aria-label="Fermer">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                 </button>
               </div>
-              <dl className="mt-6 space-y-5">
-                <div>
-                  <dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#e5ad46]/50">Statut</dt>
-                  <dd className="mt-1 text-sm font-bold text-[#eccc90]">{quoteStatusLabel(selectedQuote.status)}</dd>
+              <div className="db-modal-row">
+                <div className="label">Statut</div>
+                <div className="value" style={{ fontWeight: 700 }}>{quoteStatusLabel(selectedQuote.status)}</div>
+              </div>
+              <div className="db-modal-row">
+                <div className="label">Demande</div>
+                <div className="value muted" style={{ maxHeight: 140, overflowY: "auto" }}>{selectedQuote.message || "Aucun détail complémentaire."}</div>
+              </div>
+              <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
+                <div className="db-modal-row">
+                  <div className="label">Envoyée le</div>
+                  <div className="value muted">{formatDate(selectedQuote.created_at ?? "")}</div>
                 </div>
-                <div>
-                  <dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#e5ad46]/50">Demande</dt>
-                  <dd className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-[#eccc90]/70 max-h-40 overflow-y-auto break-words">{selectedQuote.message || "Aucun détail complémentaire."}</dd>
-                </div>
-                <div className="flex flex-wrap gap-x-8 gap-y-3">
-                  <div>
-                    <dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#e5ad46]/50">Envoyée le</dt>
-                    <dd className="mt-1 text-sm text-[#eccc90]/70">{formatDate(selectedQuote.created_at ?? "")}</dd>
+                {selectedQuote.amount && (
+                  <div className="db-modal-row">
+                    <div className="label">Montant</div>
+                    <div className="value muted" style={{ fontFamily: "var(--font-mono)" }}>{Number(selectedQuote.amount).toLocaleString("fr-FR")} Ar</div>
                   </div>
-                  {selectedQuote.amount && <div><dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#e5ad46]/50">Montant</dt><dd className="mt-1 text-sm text-[#eccc90]/70">{Number(selectedQuote.amount).toLocaleString("fr-FR")} Ar</dd></div>}
-                  {selectedQuote.date_livraison_prevue && <div><dt className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#e5ad46]/50">Livraison prévue</dt><dd className="mt-1 text-sm text-[#eccc90]/70">{formatDate(selectedQuote.date_livraison_prevue)}</dd></div>}
-                </div>
-                {selectedQuote.status === "sent" && (() => {
-                  const cd = confirmationCountdown(selectedQuote.confirmation_deadline);
-                  const isExpired = cd?.expired;
-                  return (
-                    <div className="mt-6 border-t border-[#e5ad46]/10 pt-6 space-y-4">
-                      {cd && (
-                        <p className={`text-xs font-bold uppercase tracking-widest ${isExpired ? "text-red-400" : cd.urgent ? "text-orange-400" : "text-[#e5ad46]/60"}`}>
-                          {isExpired ? "Le délai de confirmation a expiré" : `Délai de confirmation : ${cd.text}`}
-                        </p>
-                      )}
-                      {!isExpired && (
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            if (!confirm("Confirmer ce devis ? Cette action est irréversible.")) return;
-                            try {
-                              await authAPI.post(`/quotes/${selectedQuote.id}/confirm`, {});
-                              window.location.reload();
-                            } catch { alert("Erreur lors de la confirmation."); }
-                          }}
-                          className="w-full py-3 bg-[#e5ad46] text-[#25303a] text-[11px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#eccc90] transition-all shadow-lg shadow-[#e5ad46]/20"
-                        >
-                          Confirmer le devis
-                        </button>
-                      )}
-                    </div>
-                  );
-                })()}
-              </dl>
-            </section>
+                )}
+                {selectedQuote.date_livraison_prevue && (
+                  <div className="db-modal-row">
+                    <div className="label">Livraison prévue</div>
+                    <div className="value muted">{formatDate(selectedQuote.date_livraison_prevue)}</div>
+                  </div>
+                )}
+              </div>
+              {selectedQuote.status === "sent" && (() => {
+                const cd = confirmationCountdown(selectedQuote.confirmation_deadline);
+                const isExpired = cd?.expired;
+                return (
+                  <div className="db-modal-actions">
+                    {cd && (
+                      <p className={isExpired ? "expired" : cd.urgent ? "urgent" : "normal"}>
+                        {isExpired ? "Le délai de confirmation a expiré" : `Délai de confirmation : ${cd.text}`}
+                      </p>
+                    )}
+                    {!isExpired && (
+                      <button className="db-modal-btn" onClick={async () => {
+                        if (!confirm("Confirmer ce devis ? Cette action est irréversible.")) return;
+                        try { await authAPI.post(`/quotes/${selectedQuote.id}/confirm`, {}); window.location.reload(); } catch { alert("Erreur lors de la confirmation."); }
+                      }}>
+                        Confirmer le devis
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         )}
-        <style jsx>{`
-          @media (prefers-reduced-motion: reduce) {
-            .animate-pulse { animation: none; }
-          }
-        `}</style>
       </section>
     );
   }
