@@ -7,3 +7,4 @@ comptes_test.txt
 app.js
 deploy.bat
 wasm-mock.js
+next-env.d.ts
