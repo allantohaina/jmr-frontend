@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { authenticateWithForm, getToken } from "@/app/lib";
 import { loginRateLimiter } from "@/app/lib/rate-limit";
+import { AuthBar } from "@/app/components/auth-bar";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -65,6 +66,7 @@ export default function AdminLoginPage() {
 
   return (
     <>
+      <AuthBar initialTheme="dark" />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Inter:wght@300;400;500;600&display=swap');
 

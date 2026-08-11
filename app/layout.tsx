@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import {
   ScrollReveal,
-  Navbar,
-  Footer,
+  ClientLayout,
   LocaleProvider,
   SuccessToast,
   ToastProvider,
@@ -94,20 +93,14 @@ export default async function RootLayout({
             <a className="skip-link" href="#main-content">
               {messages.common.skipToContent}
             </a>
-            <header className="site-header">
-              <Navbar
-                initialTheme={initialTheme}
-              />
-            </header>
-            <main id="main-content" className="bg-background text-on-background antialiased selection:bg-orange-200 font-body">
+            <ClientLayout initialTheme={initialTheme}>
               {children}
-            </main>
+            </ClientLayout>
             <VisitorTracker />
             <Suspense>
               <SuccessToast />
             </Suspense>
             <ScrollReveal />
-            <Footer />
           </ToastProvider>
         </LocaleProvider>
       </body>

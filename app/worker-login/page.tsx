@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { authenticateWithForm, getToken } from "@/app/lib";
 import { loginRateLimiter } from "@/app/lib/rate-limit";
+import { AuthBar } from "@/app/components/auth-bar";
 
 export default function WorkerLoginPage() {
   const [email, setEmail] = useState("");
@@ -74,6 +75,7 @@ export default function WorkerLoginPage() {
 
   return (
     <div style={{ margin: 0, padding: 0 }}>
+      <AuthBar initialTheme="dark" />
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap');
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
