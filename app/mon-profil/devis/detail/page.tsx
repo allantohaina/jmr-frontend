@@ -89,8 +89,8 @@ function DevisDetailContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openCards, setOpenCards] = useState<Set<string>>(new Set());
-  const [warnExtra, setWarnExtra] = useState(false);
-  const [goodExtra, setGoodExtra] = useState(false);
+  const [warnExtraOpen, setWarnExtraOpen] = useState(false);
+  const [goodExtraOpen, setGoodExtraOpen] = useState(false);
   const [addonFormOpen, setAddonFormOpen] = useState(false);
 
   useEffect(() => {
@@ -458,27 +458,58 @@ function DevisDetailContent() {
                         <div className="hl-head">
                           <span className="icon-box"><svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8"><path d="M12 9V13M12 16.5H12.01M10.3 3.9L2.8 17A2 2 0 004.5 20H19.5A2 2 0 0021.2 17L13.7 3.9A2 2 0 0010.3 3.9Z"/></svg></span>
                           <h4>Points d&apos;attention</h4>
-                          <span>{quoteAlerts.length || 0}</span>
+                          <span>{Math.min(quoteAlerts.length || 0, 3)} sur {quoteAlerts.length || 0}</span>
                         </div>
                         {quoteAlerts.length === 0 ? (
                           <div className="hl-empty">Aucun point d&apos;attention</div>
                         ) : (
-                          <ul>{quoteAlerts.map((a: any, i: number) => <li key={i}>{a.message}</li>)}</ul>
+                          <>
+                            {quoteAlerts.slice(0, warnExtraOpen ? quoteAlerts.length : 3).map((a: any, i: number) => (
+                              <div key={i} className="hl-item">
+                                <span className="num">{String(i + 1).padStart(2, "0")}</span>
+                                <div className="hl-item-body">
+                                  <b>{a.message}</b>
+                                  {a.detail && <p>{a.detail}</p>}
+                                  {a.impact && <span className="impact">{a.impact}</span>}
+                                </div>
+                              </div>
+                            ))}
+                            {quoteAlerts.length > 3 && (
+                              <button className="see-more" onClick={() => setWarnExtraOpen(!warnExtraOpen)}>
+                                {warnExtraOpen ? "Voir moins " : `Voir plus (+${quoteAlerts.length - 3}) `}
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9L12 15L18 9"/></svg>
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                       <div className="hl-panel good">
                         <div className="hl-head">
                           <span className="icon-box"><svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8"><path d="M4 12L9 17L20 6"/></svg></span>
                           <h4>Avancées</h4>
-                          <span>{quoteAdvances.length || 0}</span>
+                          <span>{Math.min(quoteAdvances.length + alerts.length || 0, 3)} sur {quoteAdvances.length + alerts.length || 0}</span>
                         </div>
                         {quoteAdvances.length === 0 && alerts.length === 0 ? (
                           <div className="hl-empty">Aucune avancée signalée</div>
                         ) : (
-                          <ul>
-                            {quoteAdvances.map((a: any, i: number) => <li key={`q-${i}`}>{a.message}</li>)}
-                            {alerts.map((a, i) => <li key={`c-${i}`}>{a.text}</li>)}
-                          </ul>
+                          <>
+                            {[...quoteAdvances.map((a: any) => ({ message: a.message, detail: a.detail, impact: "Terminé" })), ...alerts.map((a) => ({ message: a.text, detail: "", impact: "Terminé" }))].slice(0, goodExtraOpen ? undefined : 3).map((a, i) => (
+                              <div key={i} className="hl-item">
+                                <span className="num">{String(i + 1).padStart(2, "0")}</span>
+                                <div className="hl-item-body">
+                                  <b>{a.message}</b>
+                                  {a.detail && <p>{a.detail}</p>}
+                                  {a.impact && <span className="impact">{a.impact}</span>}
+                                </div>
+                              </div>
+                            ))}
+                            {(quoteAdvances.length + alerts.length) > 3 && (
+                              <button className="see-more" onClick={() => setGoodExtraOpen(!goodExtraOpen)}>
+                                {goodExtraOpen ? "Voir moins " : `Voir plus (+${(quoteAdvances.length + alerts.length) - 3}) `}
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9L12 15L18 9"/></svg>
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
@@ -521,6 +552,30 @@ function DevisDetailContent() {
                             Envoyer
                           </button>
                         </div>
+                      )}
+                    </div>
+
+                    {/* Feedback */}
+                    <div className="panel-header">
+                      <h3>Retour de l&apos;atelier</h3>
+                      <span className="hint">{quoteAlerts.length + quoteAdvances.length} message{(quoteAlerts.length + quoteAdvances.length) > 1 ? "s" : ""}</span>
+                    </div>
+                    <div>
+                      {[...quoteAdvances, ...quoteAlerts].length === 0 ? (
+                        <div className="hl-empty" style={{ padding: "20px 0" }}>Aucun message de l&apos;atelier pour le moment.</div>
+                      ) : (
+                        [...quoteAdvances, ...quoteAlerts].map((msg: any, i: number) => (
+                          <div key={i} className="feedback-item">
+                            <div className="fb-avatar">A</div>
+                            <div className="fb-body">
+                              <div className="fb-top">
+                                <span className="fb-name">Atelier JMR</span>
+                                <span className="fb-date">{formatDate(msg.date ?? msg.created_at)}</span>
+                              </div>
+                              <p className="fb-text">{msg.message}</p>
+                            </div>
+                          </div>
+                        ))
                       )}
                     </div>
 
@@ -752,6 +807,30 @@ a{color:inherit;}
 .hl-empty{font-size:12px;color:var(--text-faint);}
 .hl-panel ul{list-style:none;padding:0;}
 .hl-panel li{font-size:12px;color:var(--text-muted);padding:3px 0;}
+
+.hl-item{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.hl-item:last-child{border-bottom:none;}
+.hl-item .num{font-size:11px;color:var(--text-faint);flex-shrink:0;padding-top:1px;}
+.hl-item-body b{display:block;font-size:13.5px;color:var(--text-cream);font-weight:600;margin-bottom:3px;}
+.hl-item-body p{margin:0;font-size:12.5px;color:var(--text-muted);line-height:1.5;}
+.hl-item-body .impact{display:inline-block;margin-top:6px;font-size:10.5px;font-weight:700;letter-spacing:0.04em;padding:2px 8px;border-radius:5px;}
+.hl-panel.warn .impact{background:rgba(224,139,82,0.16);color:var(--warn);}
+.hl-panel.good .impact{background:rgba(92,184,125,0.16);color:var(--good);}
+
+.see-more{width:100%;margin-top:14px;padding:10px;border-radius:8px;border:1px dashed;background:transparent;font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.hl-panel.warn .see-more{border-color:rgba(224,139,82,0.28);color:var(--warn);}
+.hl-panel.good .see-more{border-color:rgba(92,184,125,0.28);color:var(--good);}
+.see-more:hover{filter:brightness(1.15);}
+.see-more svg{width:12px;height:12px;transition:transform .25s;}
+
+.feedback-item{display:flex;gap:14px;padding:20px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.feedback-item:last-child{border-bottom:none;}
+.fb-avatar{width:36px;height:36px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--gold-light),var(--gold-dim));display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;color:#1a1204;}
+.fb-body{flex:1;min-width:0;}
+.fb-top{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
+.fb-name{font-size:13.5px;font-weight:700;color:var(--text-cream);}
+.fb-date{font-size:11px;color:var(--text-faint);}
+.fb-text{font-size:13px;color:var(--text-muted);line-height:1.65;}
 
 .addon-section{margin-top:8px;}
 .addon-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 0;border-bottom:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;}
