@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getUser, getToken } from "@/app/lib/auth";
-import { authAPI } from "@/app/lib/api";
+import { authAPI, draftsAPI } from "@/app/lib/api";
 import { checkpointsAPI, addonsAPI, paymentsAPI } from "@/app/lib/api";
 import type { QuoteRecord, CommandeRecord, QuoteCheckpoint, QuoteAddon, PaymentRecord } from "@/app/lib/api";
 import { STATUTS_PRODUCTION } from "@/app/lib/api";
@@ -116,11 +116,35 @@ function DevisDetailContent() {
   const [validatingCp, setValidatingCp] = useState<string | null>(null);
 
   const loadQuote = useCallback(async (token: string) => {
-    const [quoteRes, commandesRes] = await Promise.all([
-      authAPI.get<QuoteRecord>(`/quotes/${id}`),
-      authAPI.get<CommandeRecord[]>("/commandes/"),
-    ]);
-    setQuote((quoteRes as any).data ?? quoteRes);
+    let quoteData: QuoteRecord | null = null;
+    try {
+      const quoteRes = await authAPI.get<QuoteRecord>(`/quotes/${id}`);
+      quoteData = (quoteRes as any).data ?? quoteRes;
+    } catch {
+      try {
+        const draftRes = await authAPI.get<{ id: string; payload: Record<string, unknown>; created_at?: string; updated_at?: string }>(`/quote-drafts/${id}`);
+        const draft = (draftRes as any).data ?? draftRes;
+        const payload = draft.payload ?? {};
+        quoteData = {
+          id: draft.id,
+          name: (payload.name as string) ?? "",
+          message: (payload.message as string) ?? "",
+          category: (payload.category as string) ?? "",
+          quantite: payload.quantite != null ? String(payload.quantite) : undefined,
+          status: "draft",
+          created_at: draft.created_at ?? null,
+          updated_at: draft.updated_at ?? null,
+          email: (payload.email as string) ?? "",
+          phone: (payload.phone as string) ?? null,
+          notifications: [],
+        } as QuoteRecord;
+      } catch {
+        throw new Error("NOT_FOUND");
+      }
+    }
+    setQuote(quoteData);
+
+    const commandesRes = await authAPI.get<CommandeRecord[]>("/commandes/").catch(() => ({ data: [] as CommandeRecord[] }));
     const allCommandes: CommandeRecord[] = (commandesRes as any).data ?? commandesRes;
     const filtered = allCommandes.filter((c) => c.cotation_id === id);
     setCommandes(filtered);
@@ -128,14 +152,16 @@ function DevisDetailContent() {
       setOpenCards(new Set([filtered[0].id]));
     }
 
-    const [cpRes, addonRes, payRes] = await Promise.all([
-      checkpointsAPI.list(id as string).catch(() => ({ data: [] })),
-      addonsAPI.list(id as string).catch(() => ({ data: [], total_validated: 0 })),
-      paymentsAPI.list(id as string).catch(() => ({ data: [], total_verified: 0 })),
-    ]);
-    setCheckpoints((cpRes as any).data ?? []);
-    setAddons(((addonRes as any).data ?? []) as QuoteAddon[]);
-    setPayments(((payRes as any).data ?? []) as PaymentRecord[]);
+    if (quoteData?.status !== "draft") {
+      const [cpRes, addonRes, payRes] = await Promise.all([
+        checkpointsAPI.list(id as string).catch(() => ({ data: [] })),
+        addonsAPI.list(id as string).catch(() => ({ data: [], total_validated: 0 })),
+        paymentsAPI.list(id as string).catch(() => ({ data: [], total_verified: 0 })),
+      ]);
+      setCheckpoints((cpRes as any).data ?? []);
+      setAddons(((addonRes as any).data ?? []) as QuoteAddon[]);
+      setPayments(((payRes as any).data ?? []) as PaymentRecord[]);
+    }
   }, [id]);
 
   useEffect(() => {
@@ -178,7 +204,11 @@ function DevisDetailContent() {
   const sendQuote = async () => {
     if (!quote) return;
     try {
-      await authAPI.put(`/quotes/${quote.id}`, { status: "pending" });
+      if (quote.status === "draft") {
+        await draftsAPI.submit(String(quote.id));
+      } else {
+        await authAPI.put(`/quotes/${quote.id}`, { status: "pending" });
+      }
       setQuote({ ...quote, status: "pending" });
     } catch {
       // ignored
