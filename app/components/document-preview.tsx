@@ -1,18 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import Papa from "papaparse";
-import { Document, Page } from "react-pdf";
 import { FileSpreadsheet, FileText, Loader2 } from "lucide-react";
 
 type FileAttachment = { name: string; url: string; type: string };
 
+const PdfDocument = lazy(() => import("react-pdf").then(mod => ({ default: mod.Document })));
+const PdfPage = lazy(() => import("react-pdf").then(mod => ({ default: mod.Page })));
+
 export function DocumentPreview({ file }: { file: FileAttachment }) {
   const [pages, setPages] = useState<number>();
   const [error, setError] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
 
-  if (!isPdf) return null;
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!isPdf || !mounted) return null;
 
   return (
     <div className="overflow-hidden rounded-xl border border-[#163526]/10 bg-[#faf9f4] p-2">
@@ -21,9 +26,11 @@ export function DocumentPreview({ file }: { file: FileAttachment }) {
           <FileText className="h-4 w-4" /> Ouvrir le PDF
         </a>
       ) : (
-        <Document file={file.url} loading={<Loader2 className="m-5 h-5 w-5 animate-spin text-[#e5ad46]" />} onLoadSuccess={({ numPages }) => setPages(numPages)} onLoadError={() => setError(true)}>
-          <Page pageNumber={1} width={220} renderTextLayer={false} renderAnnotationLayer={false} />
-        </Document>
+        <Suspense fallback={<Loader2 className="m-5 h-5 w-5 animate-spin text-[#e5ad46]" />}>
+          <PdfDocument file={file.url} loading={<Loader2 className="m-5 h-5 w-5 animate-spin text-[#e5ad46]" />} onLoadSuccess={({ numPages }) => setPages(numPages)} onLoadError={() => setError(true)}>
+            <PdfPage pageNumber={1} width={220} renderTextLayer={false} renderAnnotationLayer={false} />
+          </PdfDocument>
+        </Suspense>
       )}
       {pages ? <p className="px-2 pt-2 text-[10px] font-bold uppercase tracking-widest text-[#163526]/45">PDF · {pages} page{pages > 1 ? "s" : ""}</p> : null}
     </div>
