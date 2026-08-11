@@ -73,6 +73,16 @@ export type QuoteRecord = {
   email?: string;
   phone?: string;
   message?: string;
+  category?: string;
+  tissu?: string;
+  coupe?: string;
+  gabarit?: string;
+  style?: string;
+  grammage?: string;
+  tailles?: string;
+  quantite?: string;
+  finitions?: string;
+  delai_souhaite?: string;
   request_type?: string;
   modify_code?: string;
   status?: string;
