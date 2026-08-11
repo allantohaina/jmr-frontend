@@ -398,7 +398,7 @@ function DevisDetailContent() {
                 Ce devis est encore <b>en brouillon</b> — vous pouvez le modifier avant de l&apos;envoyer à l&apos;atelier.
               </div>
               <div className="action-buttons">
-                <Link href="/demande-devis" className="btn-outline">
+                <Link href={`/demande-devis?draft=${quote.id}`} className="btn-outline">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 4H6A2 2 0 004 6V18A2 2 0 006 20H18A2 2 0 0020 18V13"/><path d="M18.5 2.5A2.1 2.1 0 0121.5 5.5L12 15L8 16L9 12L18.5 2.5Z"/></svg>
                   Modifier le brouillon
                 </Link>

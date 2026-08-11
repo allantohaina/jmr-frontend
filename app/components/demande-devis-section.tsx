@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useCallback, useEffect } from "react";
-import { authAPI, draftsAPI, type QuoteDraft, getToken } from "@/app/lib";
+import { authAPI, draftsAPI, type QuoteDraft, type QuoteRecord, getToken } from "@/app/lib";
 import { getErrorMessage } from "@/app/lib/errors";
 import { CsvPreview } from "@/app/components/document-preview";
 import { useForm, Controller } from "react-hook-form";
@@ -139,9 +139,37 @@ function QuoteFormContent() {
           message: (payload.message as string) || "",
           modify_code: (payload.modify_code as string) || modifyCode || "",
         });
+        return;
       }
     } catch {
-      // Draft not found — ignore, render empty form.
+      // Drafts API failed, try quotes API
+    }
+    try {
+      const qRes = await authAPI.get<QuoteRecord>(`/quotes/${id}`);
+      const q = (qRes as any).data ?? qRes;
+      if (q && q.status === "draft") {
+        setDraft({ id: String(q.id), payload: q as unknown as Record<string, unknown>, created_at: q.created_at, updated_at: q.updated_at } as QuoteDraft);
+        reset({
+          category: (q.category as string) || categoryParam || "",
+          name: (q.name as string) || "",
+          email: (q.email as string) || "",
+          phone: (q.phone as string) || "",
+          tissu: (q.tissu as string) || "",
+          coupe: (q.coupe as string) || "",
+          gabarit: (q.gabarit as string) || "",
+          style: (q.style as string) || "",
+          grammage: (q.grammage as string) || "",
+          tailles: (q.tailles as string) || "",
+          quantite: (q.quantite as string) || "",
+          finitions: (q.finitions as string) || "",
+          delai_souhaite: (q.delai_souhaite as string) || "",
+          request_type: ((q.request_type as string) || "new") as QuoteRequestFormData["request_type"],
+          message: (q.message as string) || "",
+          modify_code: (q.modify_code as string) || modifyCode || "",
+        });
+      }
+    } catch {
+      // Not found
     }
   }, [categoryParam, modifyCode, reset]);
 
