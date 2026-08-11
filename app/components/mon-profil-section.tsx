@@ -281,7 +281,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   }, []);
 
   const activeCommandes = commandes.filter((c) => c.statut_production !== "Livrée");
-  const submittedQuotes = quotes.filter((q) => q.status !== "draft");
+  const submittedQuotes = quotes;
   const pendingQuotes = submittedQuotes.filter((q) => q.status === "pending" || q.status === "needs_info");
   const latestPendingQuote = [...pendingQuotes].sort(
     (a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
@@ -377,7 +377,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                       <span className="hint">{submittedQuotes.length} devis</span>
                     </div>
                     <div className="db-filters">
-                      {[{ s: null, l: "Tous" }, { s: "pending", l: "En attente" }, { s: "sent", l: "Envoyé" }, { s: "needs_info", l: "À préciser" }, { s: "accepted", l: "Accepté" }, { s: "production", l: "Production" }, { s: "rejected", l: "Annulé" }].map((f) => (
+                      {[{ s: null, l: "Tous" }, { s: "draft", l: "Brouillon" }, { s: "pending", l: "En attente" }, { s: "sent", l: "Envoyé" }, { s: "needs_info", l: "À préciser" }, { s: "accepted", l: "Accepté" }, { s: "production", l: "Production" }, { s: "rejected", l: "Annulé" }].map((f) => (
                         <button key={f.s ?? "all"} onClick={() => setDraftFilter(f.s)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
                           <span className="db-filter" style={{ color: draftFilter === f.s ? "var(--gold-light)" : undefined }}>
                             <span className="dot" style={{ background: f.s ? (STATUS_DOT[f.s] ?? "var(--gold-dim)") : "var(--text-faint)" }} />
