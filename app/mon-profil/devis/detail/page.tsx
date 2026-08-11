@@ -203,6 +203,7 @@ function DevisDetailContent() {
 
   const sendQuote = async () => {
     if (!quote) return;
+    if (!confirm("Envoyer ce devis à l'atelier ? Cette action est irréversible.")) return;
     try {
       if (quote.status === "draft") {
         await draftsAPI.submit(String(quote.id));
@@ -211,7 +212,7 @@ function DevisDetailContent() {
       }
       setQuote({ ...quote, status: "pending" });
     } catch {
-      // ignored
+      alert("Erreur lors de l'envoi. Réessayez.");
     }
   };
 
@@ -404,6 +405,16 @@ function DevisDetailContent() {
                 <button className="btn-gold" onClick={sendQuote}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
                   Envoyer le devis
+                </button>
+                <button className="btn-outline" style={{ color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={async () => {
+                  if (!confirm("Supprimer ce brouillon ?")) return;
+                  try {
+                    await draftsAPI.remove(String(quote.id));
+                    router.push("/mon-profil/devis");
+                  } catch { alert("Erreur lors de la suppression."); }
+                }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                  Supprimer
                 </button>
               </div>
             </div>

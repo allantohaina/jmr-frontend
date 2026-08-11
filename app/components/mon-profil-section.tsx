@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { UserProfile } from "@/app/lib";
@@ -257,6 +257,19 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   const [showAllDrafts, setShowAllDrafts] = useState(false);
   const [draftFilter, setDraftFilter] = useState<string | null>(null);
 
+  const deleteDraft = useCallback(async (draftId: string, source: "draft-api" | "quote") => {
+    if (!confirm("Supprimer ce brouillon ?")) return;
+    try {
+      if (source === "draft-api") {
+        await draftsAPI.remove(draftId);
+      } else {
+        await authAPI.delete(`/quotes/${draftId}`);
+      }
+      setDrafts((prev) => prev.filter((d) => d.id !== draftId));
+      setQuotes((prev) => prev.filter((q) => String(q.id) !== draftId));
+    } catch { /* ignored */ }
+  }, []);
+
   useEffect(() => {
     let active = true;
     async function load() {
@@ -282,6 +295,11 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
 
   const activeCommandes = commandes.filter((c) => c.statut_production !== "Livrée");
   const submittedQuotes = quotes;
+  const allDrafts = [
+    ...drafts.map((d) => ({ source: "draft-api" as const, id: d.id, name: (d.payload as Record<string, string>)?.name ?? "Brouillon", message: (d.payload as Record<string, string>)?.message ?? "", created_at: d.created_at ?? d.updated_at ?? "", status: "draft" })),
+    ...submittedQuotes.filter((q) => q.status === "draft").map((q) => ({ source: "quote" as const, id: String(q.id), name: q.name ?? "", message: q.message ?? "", created_at: q.created_at ?? "", status: "draft" })),
+  ];
+  const draftCount = allDrafts.length;
   const pendingQuotes = submittedQuotes.filter((q) => q.status === "pending" || q.status === "needs_info");
   const latestPendingQuote = [...pendingQuotes].sort(
     (a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
@@ -294,7 +312,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10);
 
   if (variant === "dashboard") {
-    const hasData = !isLoading && (quotes.length > 0 || commandes.length > 0 || drafts.length > 0);
+    const hasData = !isLoading && (quotes.length > 0 || commandes.length > 0 || draftCount > 0);
     const filteredQuotes = draftFilter ? submittedQuotes.filter((q) => q.status === draftFilter) : submittedQuotes;
 
     return (
@@ -355,7 +373,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
               <div className="db-metrics">
                 {[
                   { label: "Commandes en cours", value: String(activeCommandes.length).padStart(2, "0"), detail: activeCommandes.length > 0 ? `${activeCommandes[0].numero} — ${activeCommandes[0].statut_production}` : "Aucune commande active", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01M17 12h.01M7 12h.01"/></svg> },
-                  { label: "Brouillons", value: String(drafts.length).padStart(2, "0"), detail: drafts.length > 0 ? `${drafts.length} devis non envoyé${drafts.length > 1 ? "s" : ""} à finaliser` : "Aucun brouillon", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> },
+                  { label: "Brouillons", value: String(draftCount).padStart(2, "0"), detail: draftCount > 0 ? `${draftCount} devis non envoyé${draftCount > 1 ? "s" : ""} à finaliser` : "Aucun brouillon", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> },
                   { label: "Notifications", value: String(alertCount).padStart(2, "0"), detail: alertCount > 0 ? `${alertCount} devis nécessitant votre attention` : "Aucune notification", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg> },
                 ].map((m, i) => (
                   <div className="db-metric" key={i}>
@@ -417,6 +435,11 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                                 Détail
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                               </Link>
+                              {q.status === "draft" && (
+                                <button className="db-btn-sm" style={{ marginLeft: 8, color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={() => deleteDraft(String(q.id), drafts.some((d) => d.id === String(q.id)) ? "draft-api" : "quote")} title="Supprimer">
+                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                                </button>
+                              )}
                             </div>
                           </div>
                         ))}
