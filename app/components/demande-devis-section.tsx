@@ -8,7 +8,25 @@ import { CsvPreview } from "@/app/components/document-preview";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { ArrowRight, Check, ChevronDown, FileImage, Loader2, ShieldCheck, UploadCloud, AlertTriangle } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, FileImage, Loader2, ShieldCheck, UploadCloud, AlertTriangle, X } from "lucide-react";
+
+const MAX_ATTACHMENTS = 20;
+const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024;
+const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+function formatBytes(bytes: number) {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
+  if (bytes >= 1024) return `${Math.round(bytes / 1024)} Ko`;
+  return `${bytes} o`;
+}
+
+function isImageFile(file: File) {
+  return IMAGE_TYPES.includes(file.type) || /\.(jpe?g|png|webp)$/i.test(file.name);
+}
+
+function isCsvFile(file: File) {
+  return file.type === "text/csv" || file.name.toLowerCase().endsWith(".csv");
+}
 
 
 // 1. DEFINIR LE SCHEMA DE VALIDATION ZOD
@@ -81,6 +99,7 @@ function QuoteFormContent() {
     handleSubmit,
     getValues,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<QuoteRequestFormData>({
     resolver: zodResolver(quoteRequestSchema),
@@ -110,6 +129,14 @@ function QuoteFormContent() {
     else params.delete("category");
     router.replace(`?${params.toString()}`, { scroll: false });
   }, [router, searchParams]);
+
+  function removeAttachment(index: number) {
+    const next = attachments.filter((_, i) => i !== index);
+    setAttachments(next);
+    const dt = new DataTransfer();
+    next.forEach((file) => dt.items.add(file));
+    setValue("technical_files", dt.files);
+  }
 
   const [draft, setDraft] = useState<QuoteDraft | null>(null);
 
@@ -180,6 +207,10 @@ function QuoteFormContent() {
   async function saveDraft(event: React.FormEvent) {
     event.preventDefault();
     setSubmitError("");
+    if (!getToken()) {
+      router.push(`/mon-profil?next=${encodeURIComponent("/demande-devis")}`);
+      return;
+    }
     setIsSavingDraft(true);
     try {
       const values = getValues();
@@ -187,7 +218,11 @@ function QuoteFormContent() {
       (Object.keys(values) as (keyof QuoteRequestFormData)[]).forEach((key) => {
         if (key !== "technical_files") payload[key] = values[key] ?? "";
       });
-      await draftsAPI.save({ id: draft?.id, payload });
+      const saved = await draftsAPI.save({ id: draft?.id, payload });
+      const savedId = (saved as unknown as { data?: { id?: unknown } }).data?.id ?? draft?.id;
+      if (savedId) {
+        setDraft((prev) => ({ id: String(savedId), ...(prev ?? {}) }) as QuoteDraft);
+      }
       router.push("/mon-profil");
     } catch (error) {
       setSubmitError(getErrorMessage(error));
@@ -224,8 +259,8 @@ function QuoteFormContent() {
 
     try {
       const files = data.technical_files instanceof FileList ? Array.from(data.technical_files) : [];
-      if (files.length > 5) throw new Error("Ajoutez au maximum 5 fichiers de référence.");
-      if (files.some((file) => file.size > 10 * 1024 * 1024)) throw new Error("Chaque fichier doit faire moins de 10 Mo.");
+      if (files.length > MAX_ATTACHMENTS) throw new Error(`Ajoutez au maximum ${MAX_ATTACHMENTS} fichiers de référence.`);
+      if (files.some((file) => file.size > MAX_ATTACHMENT_SIZE_BYTES)) throw new Error("Chaque fichier doit faire moins de 10 Mo.");
 const payload = buildQuoteRequestPayload(data);
       await authAPI.post("/quotes", payload);
       if (draft?.id) {
@@ -410,13 +445,13 @@ const payload = buildQuoteRequestPayload(data);
                       <span className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/55">
                         <FileImage className="h-4 w-4 text-[#e5ad46]" /> Images et documents de référence
                       </span>
-                      <span className="mb-4 block text-xs leading-relaxed text-[#eccc90]/50">
-                        Ajoutez vos croquis, photos d’inspiration ou documents techniques. JPG, PNG, WEBP, PDF et CSV — 5 fichiers maximum, 10 Mo par fichier.
+<span className="mb-4 block text-xs leading-relaxed text-[#eccc90]/50">
+                        Ajoutez vos croquis, photos d’inspiration ou documents techniques. JPG, PNG, WEBP, PDF et CSV — {MAX_ATTACHMENTS} fichiers maximum, 10 Mo par fichier.
                       </span>
                       <span className="inline-flex items-center gap-2 rounded-xl bg-[#e5ad46]/10 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] transition-colors hover:bg-[#e5ad46]/20">
                         <UploadCloud className="h-4 w-4" /> Choisir des fichiers
                       </span>
-                      <input
+<input
                         id="quote-technical-files"
                         ref={ref}
                         className="sr-only"
@@ -424,17 +459,54 @@ const payload = buildQuoteRequestPayload(data);
                         multiple
                         accept="image/jpeg,image/png,image/webp,application/pdf,text/csv,.csv"
                         onChange={(event) => {
-                          onChange(event.target.files);
-                          setAttachments(Array.from(event.target.files ?? []));
+                          const picked = Array.from(event.target.files ?? []);
+                          const oversized = picked.filter((file) => file.size > MAX_ATTACHMENT_SIZE_BYTES);
+                          if (oversized.length > 0) {
+                            window.alert(`Chaque fichier doit faire moins de 10 Mo : ${oversized.map((file) => file.name).join(", ")}`);
+                          }
+                          const valid = picked.filter((file) => file.size <= MAX_ATTACHMENT_SIZE_BYTES).slice(0, MAX_ATTACHMENTS);
+                          if (picked.length - valid.length > 0) {
+                            window.alert(`Au maximum ${MAX_ATTACHMENTS} fichiers peuvent être sélectionnés. Les fichiers supplémentaires ont été ignorés.`);
+                          }
+                          const dt = new DataTransfer();
+                          valid.forEach((file) => dt.items.add(file));
+                          onChange(dt.files);
+                          setAttachments(valid);
+                          event.target.value = "";
                         }}
                       />
                     </label>
                   )}
                 />
-                {attachments.length > 0 ? (
+{attachments.length > 0 ? (
                   <div className="mt-4 space-y-2">
-                    <p className="text-xs text-[#eccc90]/60">{attachments.length} fichier{attachments.length > 1 ? "s" : ""} sélectionné{attachments.length > 1 ? "s" : ""}</p>
-                    {attachments.filter((file) => file.type === "text/csv" || file.name.toLowerCase().endsWith(".csv")).map((file) => <CsvPreview key={`${file.name}-${file.lastModified}`} file={file} />)}
+                    <p className="text-xs text-[#eccc90]/60">
+                      {attachments.length} fichier{attachments.length > 1 ? "s" : ""} sélectionné{attachments.length > 1 ? "s" : ""} sur {MAX_ATTACHMENTS} maximum
+                    </p>
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {attachments.map((file, index) => (
+                        <div key={`${file.name}-${file.lastModified}-${index}`} className="flex items-center gap-3 rounded-xl border border-[#e5ad46]/10 bg-[#1e2a38]/70 p-3">
+                          {isImageFile(file) ? (
+                            <img src={URL.createObjectURL(file)} alt={file.name} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
+                          ) : (
+                            <FileImage className="h-9 w-9 shrink-0 text-[#e5ad46]" />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-xs font-medium text-[#eccc90]" title={file.name}>{file.name}</p>
+                            <p className="text-[10px] uppercase tracking-widest text-[#eccc90]/40">{formatBytes(file.size)}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeAttachment(index)}
+                            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[#eccc90]/50 transition-colors hover:bg-white/5 hover:text-red-300"
+                            title="Retirer ce fichier"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    {attachments.filter((file) => isCsvFile(file)).map((file) => <CsvPreview key={`csv-${file.name}-${file.lastModified}`} file={file} />)}
                   </div>
                 ) : null}
               </div>

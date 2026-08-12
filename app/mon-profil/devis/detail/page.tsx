@@ -32,6 +32,52 @@ function shortId(id: string | number): string {
   return String(id).substring(0, 8);
 }
 
+type QuoteFile = { name?: string; url: string; type?: string };
+
+function parseQuoteFiles(quote: QuoteRecord | null): QuoteFile[] {
+  const raw = quote?.files;
+  if (Array.isArray(raw)) return raw as QuoteFile[];
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? (parsed as QuoteFile[]) : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+function isImageType(file: QuoteFile): boolean {
+  return /^image\//.test(file.type ?? "") || /\.(jpe?g|png|webp)$/i.test(file.name ?? "");
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  pantalon: "Pantalon",
+  jupe: "Jupe",
+  shirt: "T-shirt / Débardeur",
+  polo: "Polo",
+  chemise: "Chemise / Chemisier",
+  veste: "Veste / Blazer",
+  manteau: "Manteau / Parka",
+  robe: "Robe",
+  sweat: "Sweat-shirt / Hoodie",
+  short: "Short / Bermuda",
+  pull: "Pull / Cardigan",
+  "sous-vetement": "Sous-vêtements / Lingerie",
+  accessoire: "Accessoires (Écharpes, Bonnets...)",
+  uniforme: "Uniforme / Workwear",
+  sport: "Sportswear",
+  enfant: "Enfant / Bébé",
+  autre: "Autre projet sur-mesure",
+};
+
+const REQUEST_TYPE_LABELS: Record<string, string> = {
+  new: "Nouveau projet",
+  edit: "Edit / modification",
+  add: "Ajout à un dossier",
+};
+
 function statutToStepIndex(statut: string | null | undefined): number {
   if (!statut) return 0;
   if (statut === "Livrée") return 4; // Terminé
@@ -96,6 +142,7 @@ function DevisDetailContent() {
   const id = searchParams.get("id");
 
   const [quote, setQuote] = useState<QuoteRecord | null>(null);
+  const [quoteSource, setQuoteSource] = useState<"quote" | "draft">("quote");
   const [commandes, setCommandes] = useState<CommandeRecord[]>([]);
   const [checkpoints, setCheckpoints] = useState<QuoteCheckpoint[]>([]);
   const [addons, setAddons] = useState<QuoteAddon[]>([]);
@@ -114,9 +161,11 @@ function DevisDetailContent() {
   const [reportSending, setReportSending] = useState(false);
   const [reportMessage, setReportMessage] = useState<string | null>(null);
   const [validatingCp, setValidatingCp] = useState<string | null>(null);
+  const [sendingQuote, setSendingQuote] = useState(false);
 
   const loadQuote = useCallback(async (token: string) => {
     let quoteData: QuoteRecord | null = null;
+    let source: "quote" | "draft" = "quote";
     try {
       const quoteRes = await authAPI.get<QuoteRecord>(`/quotes/${id}`);
       quoteData = (quoteRes as any).data ?? quoteRes;
@@ -125,17 +174,29 @@ function DevisDetailContent() {
         const draftRes = await authAPI.get<{ id: string; payload: Record<string, unknown>; created_at?: string; updated_at?: string }>(`/quote-drafts/${id}`);
         const draft = (draftRes as any).data ?? draftRes;
         const payload = draft.payload ?? {};
+        source = "draft";
         quoteData = {
           id: draft.id,
           name: (payload.name as string) ?? "",
           message: (payload.message as string) ?? "",
           category: (payload.category as string) ?? "",
+          tissu: (payload.tissu as string) ?? "",
+          coupe: (payload.coupe as string) ?? "",
+          gabarit: (payload.gabarit as string) ?? "",
+          style: (payload.style as string) ?? "",
+          grammage: (payload.grammage as string) ?? "",
+          tailles: (payload.tailles as string) ?? "",
           quantite: payload.quantite != null ? String(payload.quantite) : undefined,
+          finitions: (payload.finitions as string) ?? "",
+          delai_souhaite: (payload.delai_souhaite as string) ?? "",
+          request_type: (payload.request_type as string) ?? "",
+          modify_code: (payload.modify_code as string) ?? "",
+          email: (payload.email as string) ?? "",
+          phone: (payload.phone as string) ?? null,
+          files: payload.files != null ? (payload.files as QuoteRecord["files"]) : [],
           status: "draft",
           created_at: draft.created_at ?? null,
           updated_at: draft.updated_at ?? null,
-          email: (payload.email as string) ?? "",
-          phone: (payload.phone as string) ?? null,
           notifications: [],
         } as QuoteRecord;
       } catch {
@@ -143,6 +204,7 @@ function DevisDetailContent() {
       }
     }
     setQuote(quoteData);
+    setQuoteSource(source);
 
     const commandesRes = await authAPI.get<CommandeRecord[]>("/commandes/").catch(() => ({ data: [] as CommandeRecord[] }));
     const allCommandes: CommandeRecord[] = (commandesRes as any).data ?? commandesRes;
@@ -204,15 +266,28 @@ function DevisDetailContent() {
   const sendQuote = async () => {
     if (!quote) return;
     if (!confirm("Envoyer ce devis à l'atelier ? Cette action est irréversible.")) return;
+    setSendingQuote(true);
     try {
-      if (quote.status === "draft") {
-        await draftsAPI.submit(String(quote.id));
-      } else {
-        await authAPI.put(`/quotes/${quote.id}`, { status: "pending" });
+      if (quoteSource === "draft") {
+        const res = await draftsAPI.submit(String(quote.id));
+        const created = (res as unknown as { data?: { data?: { id?: unknown } | unknown; id?: unknown } }).data;
+        const newQuote = (created as { data?: { id?: unknown } | unknown })?.data ?? created;
+        const newId = (newQuote as { id?: unknown })?.id ?? (created as { id?: unknown })?.id;
+        if (newId) {
+          window.location.href = `/mon-profil/devis/detail?id=${String(newId)}`;
+          return;
+        }
+        router.push("/mon-profil/devis");
+        return;
       }
+      await authAPI.put(`/quotes/${quote.id}`, { status: "pending" });
       setQuote({ ...quote, status: "pending" });
+      const token = getToken();
+      if (token) await loadQuote(token);
     } catch {
       alert("Erreur lors de l'envoi. Réessayez.");
+    } finally {
+      setSendingQuote(false);
     }
   };
 
@@ -338,6 +413,7 @@ function DevisDetailContent() {
 
   if (!quote) return null;
 
+  const quoteFiles = parseQuoteFiles(quote);
   const quoteNotifications = Array.isArray(quote.notifications) ? quote.notifications : [];
   const warnItems = quoteNotifications.filter((n: any) => n.type === "delay" || n.type === "error");
   const goodItems = quoteNotifications.filter((n: any) => n.type === "info");
@@ -402,9 +478,9 @@ function DevisDetailContent() {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 4H6A2 2 0 004 6V18A2 2 0 006 20H18A2 2 0 0020 18V13"/><path d="M18.5 2.5A2.1 2.1 0 0121.5 5.5L12 15L8 16L9 12L18.5 2.5Z"/></svg>
                   Modifier le brouillon
                 </Link>
-                <button className="btn-gold" onClick={sendQuote}>
+                <button className="btn-gold" onClick={sendQuote} disabled={sendingQuote}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
-                  Envoyer le devis
+                  {sendingQuote ? "Envoi…" : "Envoyer le devis"}
                 </button>
                 <button className="btn-outline" style={{ color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={async () => {
                   if (!confirm("Supprimer ce brouillon ?")) return;
@@ -416,6 +492,75 @@ function DevisDetailContent() {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
                   Supprimer
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* Détails complets de la demande */}
+          <div className="panel">
+            <div className="panel-header">
+              <h3>Détails de votre demande</h3>
+              <span className="hint">{quote.name || quote.category || "Demande de devis"}</span>
+            </div>
+            <div className="detail-grid">
+              {quote.category ? <div className="detail-item"><div className="label">Catégorie</div><div className="value">{CATEGORY_LABELS[quote.category] ?? quote.category}</div></div> : null}
+              {quote.email ? <div className="detail-item"><div className="label">Email</div><div className="value">{quote.email}</div></div> : null}
+              {quote.phone ? <div className="detail-item"><div className="label">Téléphone</div><div className="value">{quote.phone}</div></div> : null}
+              {quote.tissu ? <div className="detail-item"><div className="label">Tissu</div><div className="value">{quote.tissu}</div></div> : null}
+              {quote.coupe ? <div className="detail-item"><div className="label">Coupe</div><div className="value">{quote.coupe}</div></div> : null}
+              {quote.gabarit ? <div className="detail-item"><div className="label">Gabarit</div><div className="value">{quote.gabarit}</div></div> : null}
+              {quote.style ? <div className="detail-item"><div className="label">Style</div><div className="value">{quote.style}</div></div> : null}
+              {quote.grammage ? <div className="detail-item"><div className="label">Grammage</div><div className="value">{quote.grammage}</div></div> : null}
+              {quote.tailles ? <div className="detail-item"><div className="label">Tailles</div><div className="value">{quote.tailles}</div></div> : null}
+              {quote.quantite ? <div className="detail-item"><div className="label">Quantité</div><div className="value">{quote.quantite}</div></div> : null}
+              {quote.finitions ? <div className="detail-item"><div className="label">Finitions</div><div className="value">{quote.finitions}</div></div> : null}
+              {quote.delai_souhaite ? <div className="detail-item"><div className="label">Délai souhaité</div><div className="value">{formatDate(quote.delai_souhaite)}</div></div> : null}
+              {quote.request_type ? <div className="detail-item"><div className="label">Genre de demande</div><div className="value">{REQUEST_TYPE_LABELS[quote.request_type] ?? quote.request_type}</div></div> : null}
+              {quote.modify_code ? <div className="detail-item"><div className="label">Devis d&apos;origine</div><div className="value">#{quote.modify_code}</div></div> : null}
+              <div className="detail-item"><div className="label">Demande créée le</div><div className="value">{formatDate(quote.created_at)}</div></div>
+            </div>
+            {quote.message ? (
+              <div className="detail-item" style={{ marginBottom: 0 }}>
+                <div className="label">Description du projet</div>
+                <div className="value" style={{ whiteSpace: "pre-wrap" }}>{quote.message}</div>
+              </div>
+            ) : null}
+          </div>
+
+          {quoteFiles.length > 0 && (
+            <div className="panel">
+              <div className="panel-header">
+                <h3>Images et documents de référence</h3>
+                <span className="hint">{quoteFiles.length} fichier{quoteFiles.length > 1 ? "s" : ""}</span>
+              </div>
+              <div className="file-grid">
+                {quoteFiles.map((file, index) => (
+                  <div key={`${file.url}-${index}`} className="file-card">
+                    {isImageType(file) ? (
+                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="file-thumb">
+                        <img
+                          src={file.url}
+                          alt={file.name || "Pièce jointe"}
+                          loading="lazy"
+                          onError={(e) => {
+                            const img = e.currentTarget as HTMLImageElement;
+                            img.style.display = "none";
+                            img.parentElement?.classList.add("fallback");
+                          }}
+                        />
+                      </a>
+                    ) : (
+                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="file-thumb">
+                        <div className="f-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3"/></svg>
+                        </div>
+                      </a>
+                    )}
+                    <a href={file.url} target="_blank" rel="noopener noreferrer" className="file-name" title={file.name || "Fichier"}>
+                      {file.name || "Fichier joint"}
+                    </a>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -1113,4 +1258,23 @@ a{color:inherit;}
 .pending-tag svg{width:12px;height:12px;}
 
 .site-footer{padding:36px 0 70px;text-align:center;font-size:12px;color:var(--text-faint);border-top:1px solid rgba(255,255,255,0.06);margin-top:40px;}
+
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
+@media(max-width:900px){.detail-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.detail-grid{grid-template-columns:1fr;}}
+.detail-item{background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;}
+.detail-item .label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint);font-weight:600;margin-bottom:5px;}
+.detail-item .value{font-size:13px;color:var(--text-cream);line-height:1.5;word-break:break-word;}
+.file-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:18px;}
+.file-card{background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;overflow:hidden;transition:border-color .2s;}
+.file-card:hover{border-color:var(--gold-dim);}
+.file-card a{display:block;text-decoration:none;color:inherit;}
+.file-thumb{height:120px;background:#0b1320;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.file-thumb img{width:100%;height:100%;object-fit:cover;}
+.file-thumb.fallback{display:flex;align-items:center;justify-content:center;}
+.file-thumb.fallback::after{content:"Image";font-family:var(--font-mono);font-size:11px;color:var(--text-faint);}
+.f-icon{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--gold-dim);}
+.f-icon svg{width:30px;height:30px;}
+.file-name{padding:10px 12px;font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.file-name:hover{color:var(--gold-light);}
 `;

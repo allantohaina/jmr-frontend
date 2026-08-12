@@ -314,6 +314,14 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   if (variant === "dashboard") {
     const hasData = !isLoading && (quotes.length > 0 || commandes.length > 0 || draftCount > 0);
     const filteredQuotes = draftFilter ? submittedQuotes.filter((q) => q.status === draftFilter) : submittedQuotes;
+    const showDraftRows = draftFilter === null || draftFilter === "draft";
+    const quoteList = showDraftRows ? submittedQuotes.filter((q) => q.status !== "draft") : filteredQuotes;
+    const draftList = showDraftRows ? allDrafts : [];
+    const totalRows = draftList.length + quoteList.length;
+    const rowLimit = showAllQuotes ? Number.MAX_SAFE_INTEGER : 5;
+    const draftSlice = draftList.slice(0, rowLimit);
+    const quoteSlice = quoteList.slice(0, Math.max(0, rowLimit - draftSlice.length));
+    const hasMoreRows = totalRows > 5;
 
     return (
       <section style={{ minHeight: "100vh", background: "var(--bg)" }}>
@@ -392,7 +400,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                   <div className="db-panel">
                     <div className="db-panel-head">
                       <h2>Mes devis</h2>
-                      <span className="hint">{submittedQuotes.length} devis</span>
+                      <span className="hint">{totalRows} devis</span>
                     </div>
                     <div className="db-filters">
                       {[{ s: null, l: "Tous" }, { s: "draft", l: "Brouillon" }, { s: "pending", l: "En attente" }, { s: "sent", l: "Envoyé" }, { s: "needs_info", l: "À préciser" }, { s: "accepted", l: "Accepté" }, { s: "production", l: "Production" }, { s: "rejected", l: "Annulé" }].map((f) => (
@@ -406,14 +414,38 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                     </div>
                     {isLoading ? (
                       <div className="db-empty">Chargement...</div>
-                    ) : filteredQuotes.length === 0 ? (
+                    ) : totalRows === 0 ? (
                       <div className="db-empty">
                         <p style={{ marginBottom: 16 }}>Aucun devis pour le moment</p>
                         <Link href="/demande-devis" className="db-btn-gold" style={{ fontSize: 10 }}>Faire une demande</Link>
                       </div>
                     ) : (
                       <>
-                        {(showAllQuotes ? filteredQuotes : filteredQuotes.slice(0, 5)).map((q) => (
+                        {draftSlice.map((d) => (
+                          <div className="db-quote-row" key={`draft-${d.id}`}>
+                            <div className="db-quote-left">
+                              <div className="db-quote-top">
+                                <span className="db-quote-status" style={{ background: `${STATUS_DOT.draft}18`, color: STATUS_DOT.draft }}>
+                                  <span className="dot" style={{ background: STATUS_DOT.draft }} />
+                                  Brouillon
+                                </span>
+                              </div>
+                              <div className="db-quote-msg">
+                                {d.name || "Brouillon de devis"}{d.message ? ` — ${String(d.message).slice(0, 90)}` : ""}
+                              </div>
+                            </div>
+                            <div className="db-quote-action">
+                              <Link href={`/demande-devis?draft=${d.id}`} className="db-btn-sm" title="Reprendre la saisie du brouillon">
+                                Reprendre
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                              </Link>
+                              <button className="db-btn-sm" style={{ marginLeft: 8, color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={() => deleteDraft(String(d.id), d.source)} title="Supprimer">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                        {quoteSlice.map((q) => (
                           <div className="db-quote-row" key={q.id}>
                             <div className="db-quote-left">
                               <div className="db-quote-top">
@@ -443,9 +475,9 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                             </div>
                           </div>
                         ))}
-                        {filteredQuotes.length > 5 && (
+                        {hasMoreRows && (
                           <button className="db-see-more" onClick={() => setShowAllQuotes(!showAllQuotes)}>
-                            {showAllQuotes ? "Voir moins" : `Voir plus (${filteredQuotes.length - 5} autres)`}
+                            {showAllQuotes ? "Voir moins" : `Voir plus (${totalRows - 5} autres)`}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 12, height: 12, transform: showAllQuotes ? "rotate(180deg)" : undefined, transition: "transform .2s" }}><path d="M6 9L12 15L18 9"/></svg>
                           </button>
                         )}
