@@ -485,7 +485,11 @@ function DevisDetailContent() {
                 <button className="btn-outline" style={{ color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={async () => {
                   if (!confirm("Supprimer ce brouillon ?")) return;
                   try {
-                    await draftsAPI.remove(String(quote.id));
+                    if (quoteSource === "draft") {
+                      await draftsAPI.remove(String(quote.id));
+                    } else {
+                      await authAPI.delete(`/quotes/${quote.id}`);
+                    }
                     router.push("/mon-profil/devis");
                   } catch { alert("Erreur lors de la suppression."); }
                 }}>
