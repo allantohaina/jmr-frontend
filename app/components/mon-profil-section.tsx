@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { UserProfile } from "@/app/lib";
@@ -8,6 +8,7 @@ import { authAPI, type QuoteRecord, type CommandeRecord } from "@/app/lib";
 import { getErrorMessage } from "@/app/lib/errors";
 import { ConfirmDialog } from "@/app/components/confirm-dialog";
 import { useToast } from "@/app/components/toast-provider";
+import BrouillonsClient from "@/app/components/brouillons-client";
 
 type ProfileCard = {
   title: string;
@@ -37,21 +38,6 @@ const PROFILE_ITEMS: ProfileCard[] = [
 function formatDate(d: string) {
   try { return new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }); }
   catch { return d; }
-}
-
-function timeAgo(d?: string) {
-  if (!d) return "";
-  const diff = Date.now() - new Date(d).getTime();
-  if (Number.isNaN(diff)) return "";
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return "à l'instant";
-  if (min < 60) return `il y a ${min} min`;
-  const h = Math.floor(min / 60);
-  if (h < 24) return `il y a ${h} h`;
-  const days = Math.floor(h / 24);
-  if (days === 1) return "hier";
-  if (days < 7) return `il y a ${days} jours`;
-  return formatDate(d);
 }
 
 function quoteStatusLabel(s?: string | null) {
@@ -245,26 +231,10 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   const [error, setError] = useState("");
   const [selectedQuote, setSelectedQuote] = useState<QuoteRecord | null>(null);
   const [showAllQuotes, setShowAllQuotes] = useState(false);
-  const [showAllDrafts, setShowAllDrafts] = useState(false);
   const [draftFilter, setDraftFilter] = useState<string | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  const [draftCount, setDraftCount] = useState(0);
   const [confirmingQuote, setConfirmingQuote] = useState(false);
   const { showToast } = useToast();
-
-  const deleteDraft = useCallback(async (draftId: string) => {
-    setDeleting(true);
-    try {
-      await authAPI.delete(`/quotes/${draftId}`);
-      setQuotes((prev) => prev.filter((q) => String(q.id) !== draftId));
-      showToast("Brouillon supprimé.");
-    } catch (e) {
-      showToast(getErrorMessage(e), "error");
-    } finally {
-      setDeleting(false);
-      setPendingDelete(null);
-    }
-  }, [showToast]);
 
   useEffect(() => {
     let active = true;
@@ -289,15 +259,6 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
 
   const activeCommandes = commandes.filter((c) => c.statut_production !== "Livrée");
   const submittedQuotes = quotes;
-  const allDrafts = submittedQuotes
-    .filter((q) => q.status === "draft")
-    .map((q) => ({
-      id: String(q.id),
-      titre: q.titre ?? "",
-      progression: q.progression ?? 0,
-      updated_at: q.updated_at ?? q.created_at ?? "",
-    }));
-  const draftCount = allDrafts.length;
   const pendingQuotes = submittedQuotes.filter((q) => q.status === "pending" || q.status === "needs_info");
   const latestPendingQuote = [...pendingQuotes].sort(
     (a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
@@ -312,13 +273,10 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   if (variant === "dashboard") {
     const hasData = !isLoading && (quotes.length > 0 || commandes.length > 0 || draftCount > 0);
     const filteredQuotes = draftFilter ? submittedQuotes.filter((q) => q.status === draftFilter) : submittedQuotes;
-    const showDraftRows = draftFilter === null || draftFilter === "draft";
-    const quoteList = showDraftRows ? submittedQuotes.filter((q) => q.status !== "draft") : filteredQuotes;
-    const draftList = showDraftRows ? allDrafts : [];
-    const totalRows = draftList.length + quoteList.length;
+    const quoteList = filteredQuotes.filter((q) => q.status !== "draft");
+    const totalRows = quoteList.length;
     const rowLimit = showAllQuotes ? Number.MAX_SAFE_INTEGER : 5;
-    const draftSlice = draftList.slice(0, rowLimit);
-    const quoteSlice = quoteList.slice(0, Math.max(0, rowLimit - draftSlice.length));
+    const quoteSlice = quoteList.slice(0, rowLimit);
     const hasMoreRows = totalRows > 5;
 
     return (
@@ -396,12 +354,18 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
               <div className="db-grid">
                 <div>
                   <div className="db-panel">
+                    <div style={{ padding: 26 }}>
+                      <BrouillonsClient onCountChange={setDraftCount} />
+                    </div>
+                  </div>
+
+                  <div className="db-panel">
                     <div className="db-panel-head">
                       <h2>Mes devis</h2>
                       <span className="hint">{totalRows} devis</span>
                     </div>
                     <div className="db-filters">
-                      {[{ s: null, l: "Tous" }, { s: "draft", l: "Brouillon" }, { s: "pending", l: "En attente" }, { s: "sent", l: "Envoyé" }, { s: "needs_info", l: "À préciser" }, { s: "accepted", l: "Accepté" }, { s: "production", l: "Production" }, { s: "rejected", l: "Annulé" }].map((f) => (
+                      {[{ s: null, l: "Tous" }, { s: "pending", l: "En attente" }, { s: "sent", l: "Envoyé" }, { s: "needs_info", l: "À préciser" }, { s: "accepted", l: "Accepté" }, { s: "production", l: "Production" }, { s: "rejected", l: "Annulé" }].map((f) => (
                         <button key={f.s ?? "all"} onClick={() => setDraftFilter(f.s)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
                           <span className="db-filter" style={{ color: draftFilter === f.s ? "var(--gold-light)" : undefined }}>
                             <span className="dot" style={{ background: f.s ? (STATUS_DOT[f.s] ?? "var(--gold-dim)") : "var(--text-faint)" }} />
@@ -419,37 +383,6 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                       </div>
                     ) : (
                       <>
-                        {draftSlice.map((d) => (
-                          <div className="db-quote-row" key={`draft-${d.id}`}>
-                            <div className="db-quote-left">
-                              <div className="db-quote-top">
-                                <span className="db-quote-status" style={{ background: `${STATUS_DOT.draft}18`, color: STATUS_DOT.draft }}>
-                                  <span className="dot" style={{ background: STATUS_DOT.draft }} />
-                                  Brouillon
-                                </span>
-                                <span className="db-quote-date">Modifié {timeAgo(d.updated_at)}</span>
-                              </div>
-                              <div className="db-draft-title" title={d.titre || "Sans objet"}>
-                                {d.titre || "(sans objet)"}
-                              </div>
-                              <div className="db-draft-progress">
-                                <div className="db-draft-progress-track">
-                                  <div className="db-draft-progress-fill" style={{ width: `${Math.max(0, Math.min(100, d.progression))}%` }} />
-                                </div>
-                                <span>{d.progression}% complété</span>
-                              </div>
-                            </div>
-                            <div className="db-quote-action">
-                              <Link href={`/demande-devis?draft=${d.id}`} className="db-btn-sm" title="Reprendre la saisie du brouillon">
-                                Reprendre
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                              </Link>
-                              <button className="db-btn-sm" style={{ marginLeft: 8, color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={() => setPendingDelete(String(d.id))} title="Supprimer">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-                              </button>
-                            </div>
-                          </div>
-                        ))}
                         {quoteSlice.map((q) => (
                           <div className="db-quote-row" key={q.id}>
                             <div className="db-quote-left">
@@ -472,11 +405,6 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                                 Détail
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                               </Link>
-                              {q.status === "draft" && (
-                                <button className="db-btn-sm" style={{ marginLeft: 8, color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={() => setPendingDelete(String(q.id))} title="Supprimer">
-                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-                                </button>
-                              )}
                             </div>
                           </div>
                         ))}
@@ -610,17 +538,6 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
             </div>
           </div>
         )}
-
-        <ConfirmDialog
-          open={!!pendingDelete}
-          title="Supprimer ce brouillon ?"
-          message="Cette action est définitive. Le brouillon sera supprimé de votre espace."
-          confirmLabel="Supprimer"
-          tone="danger"
-          loading={deleting}
-          onCancel={() => setPendingDelete(null)}
-          onConfirm={() => pendingDelete && deleteDraft(pendingDelete)}
-        />
 
         <ConfirmDialog
           open={confirmingQuote}

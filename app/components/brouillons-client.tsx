@@ -51,7 +51,11 @@ function formatDate(iso: string): string {
   return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-export default function BrouillonsClient() {
+type BrouillonsClientProps = {
+  onCountChange?: (count: number) => void;
+};
+
+export default function BrouillonsClient({ onCountChange }: BrouillonsClientProps) {
   const { showToast } = useToast();
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -60,7 +64,10 @@ export default function BrouillonsClient() {
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   useEffect(() => {
-    setDrafts(loadDrafts());
+    const loaded = loadDrafts();
+    setDrafts(loaded);
+    onCountChange?.(loaded.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const sorted = useMemo(
@@ -70,6 +77,7 @@ export default function BrouillonsClient() {
 
   const persist = (next: Draft[]) => {
     setDrafts(next);
+    onCountChange?.(next.length);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     } catch {
@@ -142,81 +150,74 @@ export default function BrouillonsClient() {
   ) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const fieldCls =
-    "w-full bg-[#25303a] border border-[#e5ad46]/10 text-[#eccc90] font-body text-sm px-3 py-2.5 rounded-lg outline-none transition-colors focus:border-[#e5ad46]/60 placeholder:text-[#eccc90]/25";
+    "w-full bg-[#1b263c] border border-[#e5ad46]/15 text-[#f3efe4] font-body text-sm px-3 py-2.5 rounded-lg outline-none transition-colors focus:border-[#e5ad46]/60 placeholder:text-[#f3efe4]/25";
 
   return (
-    <div className="min-h-screen bg-[#1e2a38] font-body text-[#eccc90]">
-      <div className="mx-auto max-w-4xl px-6 py-12 md:py-16">
-        <header className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-[#e5ad46]/10 pb-6">
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#e5ad46]">
-              JMR Textile — Atelier
-            </p>
-            <h1 className="mt-1 font-headline text-3xl font-medium tracking-tight text-[#eccc90]">
-              Brouillons de devis
-            </h1>
-            <p className="mt-1 font-mono text-xs text-[#eccc90]/50">
-              {sorted.length === 0
-                ? "0 brouillon"
-                : sorted.length === 1
-                  ? "1 brouillon"
-                  : `${sorted.length} brouillons`}
-            </p>
-          </div>
-          <button
-            onClick={() => openModal(null)}
-            className="flex items-center gap-2 rounded-lg bg-[#e5ad46] px-5 py-3 text-xs font-bold uppercase tracking-widest text-[#1e2a38] transition-all hover:bg-[#eccc90]"
-          >
-            <Plus className="h-4 w-4" /> Nouveau brouillon
-          </button>
-        </header>
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="font-headline text-lg text-[#eccc90]">Brouillons de devis</h2>
+          <p className="mt-1 font-mono text-[11px] text-[#eccc90]/50">
+            {sorted.length === 0
+              ? "0 brouillon"
+              : sorted.length === 1
+                ? "1 brouillon"
+                : `${sorted.length} brouillons`}
+          </p>
+        </div>
+        <button
+          onClick={() => openModal(null)}
+          className="flex items-center gap-2 rounded-lg bg-[#e5ad46] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] transition-all hover:bg-[#eccc90]"
+        >
+          <Plus className="h-4 w-4" /> Nouveau brouillon
+        </button>
+      </div>
 
-        {sorted.length === 0 ? (
-          <div className="flex flex-col items-center border border-dashed border-[#e5ad46]/15 rounded-xl px-6 py-20 text-center">
-            <FileText className="mb-4 h-10 w-10 text-[#eccc90]/20" />
-            <p className="font-headline text-xl text-[#eccc90]">Aucun brouillon pour l&apos;instant</p>
-            <p className="mt-1 text-sm text-[#eccc90]/50">
-              Créez un brouillon pour préparer un devis avant de l&apos;envoyer.
-            </p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {sorted.map((d) => (
-              <div
-                key={d.id}
-                className="flex flex-col gap-4 rounded-xl border border-[#e5ad46]/10 bg-[#25303a] p-5 transition-colors hover:border-[#e5ad46]/30 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="min-w-0">
-                  <p className="font-mono text-[11px] tracking-wider text-[#e5ad46]">{d.ref}</p>
-                  <p className="truncate font-headline text-lg text-[#eccc90]">
-                    {d.client || "Sans nom"}
-                  </p>
-                  <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#eccc90]/50">
-                    {d.produit && <span>{d.produit}</span>}
-                    {d.quantite && <span>{d.quantite} pcs</span>}
-                    {d.budget && <span>{d.budget} Ar</span>}
-                    <span className="font-mono text-[11px]">Modifié le {formatDate(d.updatedAt)}</span>
-                  </div>
-                </div>
-                <div className="flex shrink-0 gap-2">
-                  <button
-                    onClick={() => openModal(d.id)}
-                    className="flex items-center gap-2 rounded-lg border border-[#e5ad46]/15 px-3 py-2 text-xs text-[#eccc90]/60 transition-colors hover:border-[#e5ad46]/40 hover:text-[#eccc90]"
-                  >
-                    <Pencil className="h-3.5 w-3.5" /> Modifier
-                  </button>
-                  <button
-                    onClick={() => setConfirmDelete(d.id)}
-                    className="flex items-center gap-2 rounded-lg border border-red-400/25 px-3 py-2 text-xs text-red-300 transition-colors hover:bg-red-400/10"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" /> Supprimer
-                  </button>
+      {sorted.length === 0 ? (
+        <div className="mt-4 flex flex-col items-center border border-dashed border-[#e5ad46]/15 rounded-xl px-6 py-10 text-center">
+          <FileText className="mb-3 h-8 w-8 text-[#eccc90]/20" />
+          <p className="font-headline text-base text-[#eccc90]">Aucun brouillon pour l&apos;instant</p>
+          <p className="mt-1 text-xs text-[#eccc90]/50">
+            Créez un brouillon pour préparer un devis avant de l&apos;envoyer.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-4 flex flex-col gap-2">
+          {sorted.map((d) => (
+            <div
+              key={d.id}
+              className="flex flex-col gap-3 rounded-xl border border-[#e5ad46]/12 bg-[#1e2a38] p-4 transition-colors hover:border-[#e5ad46]/35 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div className="min-w-0">
+                <p className="font-mono text-[10px] tracking-wider text-[#e5ad46]">{d.ref}</p>
+                <p className="truncate font-headline text-base text-[#f3efe4]">
+                  {d.client || "Sans nom"}
+                </p>
+                <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-[#eccc90]/50">
+                  {d.produit && <span>{d.produit}</span>}
+                  {d.quantite && <span>{d.quantite} pcs</span>}
+                  {d.budget && <span>{d.budget} Ar</span>}
+                  <span className="font-mono text-[10px]">Modifié le {formatDate(d.updatedAt)}</span>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+              <div className="flex shrink-0 gap-2">
+                <button
+                  onClick={() => openModal(d.id)}
+                  className="flex items-center gap-2 rounded-lg border border-[#e5ad46]/15 px-3 py-2 text-[11px] text-[#eccc90]/60 transition-colors hover:border-[#e5ad46]/40 hover:text-[#eccc90]"
+                >
+                  <Pencil className="h-3.5 w-3.5" /> Modifier
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(d.id)}
+                  className="flex items-center gap-2 rounded-lg border border-red-400/25 px-3 py-2 text-[11px] text-red-300 transition-colors hover:bg-red-400/10"
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> Supprimer
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {modalOpen && (
         <div
