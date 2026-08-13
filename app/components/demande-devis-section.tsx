@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useCallback, useEffect, useRef } from "react";
-import { authAPI, draftsAPI, type QuoteDraft, type QuoteRecord, getToken } from "@/app/lib";
+import { authAPI, type QuoteDraft, type QuoteRecord, getToken } from "@/app/lib";
 import { getErrorMessage } from "@/app/lib/errors";
 import { CsvPreview } from "@/app/components/document-preview";
 import { useForm, Controller } from "react-hook-form";
@@ -182,36 +182,6 @@ function QuoteFormContent() {
 
   const loadDraft = useCallback(async (id: string) => {
     try {
-      const res = await draftsAPI.list();
-      const all = (Array.isArray(res.data) ? res.data : (res.data as { data?: unknown })?.data ?? []) as QuoteDraft[];
-      const found = all.find((d) => String(d.id) === id);
-      if (found) {
-        setDraft(found);
-        const payload = (found.payload ?? {}) as Record<string, string>;
-        reset({
-          category: (payload.category as string) || categoryParam || "",
-          name: (payload.name as string) || "",
-          email: (payload.email as string) || "",
-          phone: (payload.phone as string) || "",
-          tissu: (payload.tissu as string) || "",
-          coupe: (payload.coupe as string) || "",
-          gabarit: (payload.gabarit as string) || "",
-          style: (payload.style as string) || "",
-          grammage: (payload.grammage as string) || "",
-          tailles: (payload.tailles as string) || "",
-          quantite: (payload.quantite as string) || "",
-          finitions: (payload.finitions as string) || "",
-          delai_souhaite: (payload.delai_souhaite as string) || "",
-          request_type: ((payload.request_type as string) || "new") as QuoteRequestFormData["request_type"],
-          message: (payload.message as string) || "",
-          modify_code: (payload.modify_code as string) || modifyCode || "",
-        });
-        return;
-      }
-    } catch {
-      // Drafts API failed, try quotes API
-    }
-    try {
       const qRes = await authAPI.get<QuoteRecord>(`/quotes/${id}`);
       const q = (qRes as any).data ?? qRes;
       if (q && q.status === "draft") {
@@ -234,6 +204,7 @@ function QuoteFormContent() {
           message: (q.message as string) || "",
           modify_code: (q.modify_code as string) || modifyCode || "",
         });
+        return;
       }
     } catch {
       // Not found
@@ -258,10 +229,17 @@ function QuoteFormContent() {
       (Object.keys(values) as (keyof QuoteRequestFormData)[]).forEach((key) => {
         if (key !== "technical_files") payload[key] = values[key] ?? "";
       });
-      const saved = await draftsAPI.save({ id: draft?.id, payload });
-      const savedId = (saved as unknown as { data?: { id?: unknown } }).data?.id ?? draft?.id;
+      payload.status = "draft";
+      let savedId: string | null = null;
+      if (draft?.id) {
+        await authAPI.put(`/quotes/${draft.id}`, payload);
+        savedId = String(draft.id);
+      } else {
+        const res = await authAPI.post<{ id?: string | number }>("/quotes", payload);
+        savedId = String(((res as any).data?.id ?? (res as any).id) ?? "");
+      }
       if (savedId) {
-        setDraft((prev) => ({ id: String(savedId), ...(prev ?? {}) }) as QuoteDraft);
+        setDraft((prev) => ({ id: savedId, ...(prev ?? {}) }) as QuoteDraft);
       }
       router.push("/mon-profil");
     } catch (error) {
@@ -304,7 +282,7 @@ function QuoteFormContent() {
       const payload = buildQuoteRequestPayload(data);
       await authAPI.post("/quotes", payload);
       if (draft?.id) {
-        try { await draftsAPI.remove(draft.id); } catch { /* best effort */ }
+        try { await authAPI.delete(`/quotes/${draft.id}`); } catch { /* best effort */ }
       }
       router.push("/mon-profil");
     } catch (error) {

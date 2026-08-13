@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { UserProfile } from "@/app/lib";
-import { authAPI, draftsAPI, type QuoteRecord, type CommandeRecord, type QuoteDraft } from "@/app/lib";
+import { authAPI, type QuoteRecord, type CommandeRecord } from "@/app/lib";
 import { getErrorMessage } from "@/app/lib/errors";
 import { ConfirmDialog } from "@/app/components/confirm-dialog";
 import { useToast } from "@/app/components/toast-provider";
@@ -76,37 +76,6 @@ function confirmationCountdown(deadline?: string | null): { text: string; expire
 
 function quoteReference(quote: QuoteRecord) {
   return `Demande #${String(quote.id).padStart(5, "0")}`;
-}
-
-function draftLabel(draft: QuoteDraft): string {
-  const payload = draft.payload as Record<string, string> | undefined;
-  const category = payload?.category ? String(payload.category) : "";
-  const name = payload?.name ? String(payload.name) : "";
-  const categories: Record<string, string> = {
-    pantalon: "Pantalon",
-    jupe: "Jupe",
-    shirt: "T-shirt / Débardeur",
-    polo: "Polo",
-    chemise: "Chemise / Chemisier",
-    veste: "Veste / Blazer",
-    manteau: "Manteau / Parka",
-    robe: "Robe",
-    sweat: "Sweat-shirt / Hoodie",
-    short: "Short / Bermuda",
-    pull: "Pull / Cardigan",
-    "sous-vetement": "Sous-vêtements / Lingerie",
-    accessoire: "Accessoires (Écharpes, Bonnets...)",
-    uniforme: "Uniforme / Workwear",
-    sport: "Sportswear",
-    enfant: "Enfant / Bébé",
-    autre: "Autre projet sur-mesure",
-  };
-  const label = categories[category] || category || "Demande de devis";
-  return name ? `${label} — ${name}` : label;
-}
-
-function draftDate(draft: QuoteDraft): string {
-  return formatDate(draft.updated_at || draft.created_at || "");
 }
 
 const globalStyles = `
@@ -251,27 +220,21 @@ body{background:var(--bg);color:var(--text-cream);font-family:var(--font-body);-
 export function MonProfilSection({ variant = "preview", user }: MonProfilSectionProps) {
   const [quotes, setQuotes] = useState<QuoteRecord[]>([]);
   const [commandes, setCommandes] = useState<CommandeRecord[]>([]);
-  const [drafts, setDrafts] = useState<QuoteDraft[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedQuote, setSelectedQuote] = useState<QuoteRecord | null>(null);
   const [showAllQuotes, setShowAllQuotes] = useState(false);
   const [showAllDrafts, setShowAllDrafts] = useState(false);
   const [draftFilter, setDraftFilter] = useState<string | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<{ id: string; source: "draft-api" | "quote" } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [confirmingQuote, setConfirmingQuote] = useState(false);
   const { showToast } = useToast();
 
-  const deleteDraft = useCallback(async (draftId: string, source: "draft-api" | "quote") => {
+  const deleteDraft = useCallback(async (draftId: string) => {
     setDeleting(true);
     try {
-      if (source === "draft-api") {
-        await draftsAPI.remove(draftId);
-      } else {
-        await authAPI.delete(`/quotes/${draftId}`);
-      }
-      setDrafts((prev) => prev.filter((d) => d.id !== draftId));
+      await authAPI.delete(`/quotes/${draftId}`);
       setQuotes((prev) => prev.filter((q) => String(q.id) !== draftId));
       showToast("Brouillon supprimé.");
     } catch (e) {
@@ -286,15 +249,13 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
     let active = true;
     async function load() {
       try {
-        const [qRes, cRes, dRes] = await Promise.all([
+        const [qRes, cRes] = await Promise.all([
           authAPI.get<{ data: QuoteRecord[]; total: number }>("/quotes").catch(() => null),
           authAPI.get<{ data: CommandeRecord[] }>("/commandes").catch(() => null),
-          draftsAPI.list().catch(() => null),
         ]);
         if (!active) return;
         if (qRes) setQuotes(Array.isArray(qRes.data) ? qRes.data : (qRes.data?.data ?? []));
         if (cRes) setCommandes(Array.isArray(cRes.data) ? cRes.data : (cRes.data?.data ?? []));
-        if (dRes) setDrafts(Array.isArray(dRes.data) ? dRes.data : ((dRes.data as { data?: unknown })?.data as QuoteDraft[] | undefined) ?? []);
       } catch (e) {
         if (active) setError(getErrorMessage(e));
       } finally {
@@ -307,10 +268,9 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
 
   const activeCommandes = commandes.filter((c) => c.statut_production !== "Livrée");
   const submittedQuotes = quotes;
-  const allDrafts = [
-    ...drafts.map((d) => ({ source: "draft-api" as const, id: d.id, name: (d.payload as Record<string, string>)?.name ?? "Brouillon", message: (d.payload as Record<string, string>)?.message ?? "", created_at: d.created_at ?? d.updated_at ?? "", status: "draft" })),
-    ...submittedQuotes.filter((q) => q.status === "draft").map((q) => ({ source: "quote" as const, id: String(q.id), name: q.name ?? "", message: q.message ?? "", created_at: q.created_at ?? "", status: "draft" })),
-  ];
+  const allDrafts = submittedQuotes
+    .filter((q) => q.status === "draft")
+    .map((q) => ({ id: String(q.id), name: q.name ?? "", message: q.message ?? "", created_at: q.created_at ?? "", status: "draft" }));
   const draftCount = allDrafts.length;
   const pendingQuotes = submittedQuotes.filter((q) => q.status === "pending" || q.status === "needs_info");
   const latestPendingQuote = [...pendingQuotes].sort(
@@ -451,7 +411,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                                 Reprendre
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                               </Link>
-                              <button className="db-btn-sm" style={{ marginLeft: 8, color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={() => setPendingDelete({ id: String(d.id), source: d.source })} title="Supprimer">
+                              <button className="db-btn-sm" style={{ marginLeft: 8, color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={() => setPendingDelete(String(d.id))} title="Supprimer">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
                               </button>
                             </div>
@@ -480,7 +440,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                               </Link>
                               {q.status === "draft" && (
-                                <button className="db-btn-sm" style={{ marginLeft: 8, color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={() => setPendingDelete({ id: String(q.id), source: drafts.some((d) => d.id === String(q.id)) ? "draft-api" : "quote" })} title="Supprimer">
+                                <button className="db-btn-sm" style={{ marginLeft: 8, color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={() => setPendingDelete(String(q.id))} title="Supprimer">
                                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
                                 </button>
                               )}
@@ -626,7 +586,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
           tone="danger"
           loading={deleting}
           onCancel={() => setPendingDelete(null)}
-          onConfirm={() => pendingDelete && deleteDraft(pendingDelete.id, pendingDelete.source)}
+          onConfirm={() => pendingDelete && deleteDraft(pendingDelete)}
         />
 
         <ConfirmDialog

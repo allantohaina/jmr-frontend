@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getUser, getToken } from "@/app/lib/auth";
-import { authAPI, draftsAPI } from "@/app/lib/api";
+import { authAPI } from "@/app/lib/api";
 import { checkpointsAPI, addonsAPI, paymentsAPI } from "@/app/lib/api";
 import type { QuoteRecord, CommandeRecord, QuoteCheckpoint, QuoteAddon, PaymentRecord } from "@/app/lib/api";
 import { STATUTS_PRODUCTION } from "@/app/lib/api";
@@ -144,7 +144,6 @@ function DevisDetailContent() {
   const id = searchParams.get("id");
 
   const [quote, setQuote] = useState<QuoteRecord | null>(null);
-  const [quoteSource, setQuoteSource] = useState<"quote" | "draft">("quote");
   const [commandes, setCommandes] = useState<CommandeRecord[]>([]);
   const [checkpoints, setCheckpoints] = useState<QuoteCheckpoint[]>([]);
   const [addons, setAddons] = useState<QuoteAddon[]>([]);
@@ -170,46 +169,13 @@ function DevisDetailContent() {
 
   const loadQuote = useCallback(async (token: string) => {
     let quoteData: QuoteRecord | null = null;
-    let source: "quote" | "draft" = "quote";
     try {
       const quoteRes = await authAPI.get<QuoteRecord>(`/quotes/${id}`);
       quoteData = (quoteRes as any).data ?? quoteRes;
     } catch {
-      try {
-        const draftRes = await authAPI.get<{ id: string; payload: Record<string, unknown>; created_at?: string; updated_at?: string }>(`/quote-drafts/${id}`);
-        const draft = (draftRes as any).data ?? draftRes;
-        const payload = draft.payload ?? {};
-        source = "draft";
-        quoteData = {
-          id: draft.id,
-          name: (payload.name as string) ?? "",
-          message: (payload.message as string) ?? "",
-          category: (payload.category as string) ?? "",
-          tissu: (payload.tissu as string) ?? "",
-          coupe: (payload.coupe as string) ?? "",
-          gabarit: (payload.gabarit as string) ?? "",
-          style: (payload.style as string) ?? "",
-          grammage: (payload.grammage as string) ?? "",
-          tailles: (payload.tailles as string) ?? "",
-          quantite: payload.quantite != null ? String(payload.quantite) : undefined,
-          finitions: (payload.finitions as string) ?? "",
-          delai_souhaite: (payload.delai_souhaite as string) ?? "",
-          request_type: (payload.request_type as string) ?? "",
-          modify_code: (payload.modify_code as string) ?? "",
-          email: (payload.email as string) ?? "",
-          phone: (payload.phone as string) ?? null,
-          files: payload.files != null ? (payload.files as QuoteRecord["files"]) : [],
-          status: "draft",
-          created_at: draft.created_at ?? null,
-          updated_at: draft.updated_at ?? null,
-          notifications: [],
-        } as QuoteRecord;
-      } catch {
-        throw new Error("NOT_FOUND");
-      }
+      throw new Error("NOT_FOUND");
     }
     setQuote(quoteData);
-    setQuoteSource(source);
 
     const commandesRes = await authAPI.get<CommandeRecord[]>("/commandes/").catch(() => ({ data: [] as CommandeRecord[] }));
     const allCommandes: CommandeRecord[] = (commandesRes as any).data ?? commandesRes;
@@ -272,18 +238,6 @@ function DevisDetailContent() {
     if (!quote) return;
     setSendingQuote(true);
     try {
-      if (quoteSource === "draft") {
-        const res = await draftsAPI.submit(String(quote.id));
-        const created = (res as unknown as { data?: { data?: { id?: unknown } | unknown; id?: unknown } }).data;
-        const newQuote = (created as { data?: { id?: unknown } | unknown })?.data ?? created;
-        const newId = (newQuote as { id?: unknown })?.id ?? (created as { id?: unknown })?.id;
-        if (newId) {
-          window.location.href = `/mon-profil/devis/detail?id=${String(newId)}`;
-          return;
-        }
-        router.push("/mon-profil/devis");
-        return;
-      }
       await authAPI.put(`/quotes/${quote.id}`, { status: "pending" });
       setQuote({ ...quote, status: "pending" });
       const token = getToken();
@@ -1014,11 +968,7 @@ function DevisDetailContent() {
         onConfirm={async () => {
           if (!quote) return;
           try {
-            if (quoteSource === "draft") {
-              await draftsAPI.remove(String(quote.id));
-            } else {
-              await authAPI.delete(`/quotes/${quote.id}`);
-            }
+            await authAPI.delete(`/quotes/${quote.id}`);
             router.push("/mon-profil/devis");
           } catch {
             showToast("Erreur lors de la suppression.", "error");
