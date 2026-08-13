@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const API_URL = "/api";
+const API_URL = "https://api.jmrtextile.com/api";
 const RESET_SECRET = "jmr-reset-2026";
 
 type User = {

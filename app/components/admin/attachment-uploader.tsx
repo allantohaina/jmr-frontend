@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Upload, X, FileText, Image, Loader2 } from "lucide-react";
-import { authAPI, normalizeFileUrl } from "@/app/lib";
+import { authAPI } from "@/app/lib";
 
 type Attachment = {
   id: string;
@@ -111,7 +111,8 @@ export function AttachmentUploader({ entityType, entityId, maxSizeMB = 5, onUplo
 
         const storedName = meta.stored_name;
         const isImage = uploadType === "image";
-        const fileUrl = `/uploads/${storedName}`;
+        const apiUrl = (process.env.NEXT_PUBLIC_API_URL || "https://api.jmrtextile.com/api").replace(/\/+$/, "");
+        const fileUrl = `${apiUrl.replace(/\/api$/, "")}/uploads/${storedName}`;
 
         const registerForm = new FormData();
         registerForm.append("entity_type", entityType);
@@ -241,7 +242,7 @@ export function AttachmentUploader({ entityType, entityId, maxSizeMB = 5, onUplo
                   </p>
                 </div>
                 <a
-                  href={normalizeFileUrl(att.url)}
+                  href={att.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 text-[#163526]/60 hover:text-orange-500 transition-colors"

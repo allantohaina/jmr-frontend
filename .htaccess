@@ -3,12 +3,6 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Route API calls to the PHP reverse proxy (single-origin, no CORS).
-    RewriteRule ^api(/.*)?$ api-proxy.php [QSA,L]
-
-    # Route served uploads through the same proxy (single-origin).
-    RewriteRule ^uploads(/.*)?$ api-proxy.php [QSA,L]
-
     # Serve the static Next export generated in /out while keeping the
     # cPanel document root on /public_html/frontend.
     RewriteCond %{REQUEST_URI} !^/out/

@@ -1,23 +1,10 @@
 import { AUTH_COOKIE_NAME, TOKEN_STORAGE_KEY, readBrowserCookie } from "./auth";
 
-const DEFAULT_API_URL = "/api";
+const DEFAULT_API_URL = "https://api.jmrtextile.com/api";
 const API_REQUEST_TIMEOUT_MS = 15_000;
 
 function normalizeApiUrl(value: string) {
   return value.replace(/\/+$/, "");
-}
-
-export function normalizeFileUrl(value: string) {
-  if (!value) return value;
-  try {
-    const url = new URL(value, window.location.origin);
-    if (url.origin === "https://api.jmrtextile.com") {
-      return url.pathname + url.search;
-    }
-  } catch {
-    return value;
-  }
-  return value;
 }
 
 export function getBackendApiUrls() {

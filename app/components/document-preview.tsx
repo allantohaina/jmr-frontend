@@ -3,7 +3,6 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import Papa from "papaparse";
 import { FileSpreadsheet, FileText, Loader2 } from "lucide-react";
-import { normalizeFileUrl } from "../lib/api";
 
 type FileAttachment = { name: string; url: string; type: string };
 
@@ -14,7 +13,6 @@ export function DocumentPreview({ file }: { file: FileAttachment }) {
   const [pages, setPages] = useState<number>();
   const [error, setError] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const fileUrl = normalizeFileUrl(file.url);
   const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
 
   useEffect(() => { setMounted(true); }, []);
@@ -24,12 +22,12 @@ export function DocumentPreview({ file }: { file: FileAttachment }) {
   return (
     <div className="overflow-hidden rounded-xl border border-[#163526]/10 bg-[#faf9f4] p-2">
       {error ? (
-        <a className="flex items-center gap-2 p-3 text-xs font-semibold text-[#163526] underline" href={fileUrl} target="_blank" rel="noopener noreferrer">
+        <a className="flex items-center gap-2 p-3 text-xs font-semibold text-[#163526] underline" href={file.url} target="_blank" rel="noopener noreferrer">
           <FileText className="h-4 w-4" /> Ouvrir le PDF
         </a>
       ) : (
         <Suspense fallback={<Loader2 className="m-5 h-5 w-5 animate-spin text-[#e5ad46]" />}>
-          <PdfDocument file={fileUrl} loading={<Loader2 className="m-5 h-5 w-5 animate-spin text-[#e5ad46]" />} onLoadSuccess={({ numPages }) => setPages(numPages)} onLoadError={() => setError(true)}>
+          <PdfDocument file={file.url} loading={<Loader2 className="m-5 h-5 w-5 animate-spin text-[#e5ad46]" />} onLoadSuccess={({ numPages }) => setPages(numPages)} onLoadError={() => setError(true)}>
             <PdfPage pageNumber={1} width={220} renderTextLayer={false} renderAnnotationLayer={false} />
           </PdfDocument>
         </Suspense>
