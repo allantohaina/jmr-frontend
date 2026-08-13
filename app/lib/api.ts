@@ -1,4 +1,4 @@
-import { AUTH_COOKIE_NAME, readBrowserCookie } from "./auth";
+import { AUTH_COOKIE_NAME, TOKEN_STORAGE_KEY, readBrowserCookie } from "./auth";
 
 const DEFAULT_API_URL = "https://api.jmrtextile.com/api";
 const API_REQUEST_TIMEOUT_MS = 15_000;
@@ -251,7 +251,10 @@ export async function fetchWithAuth<T = unknown>(
   const headers = new Headers(options.headers);
   const isFormDataRequest = options.body instanceof FormData;
   const resolvedToken =
-    typeof token === "string" && token.length > 0 ? token : readBrowserCookie(AUTH_COOKIE_NAME);
+    typeof token === "string" && token.length > 0
+      ? token
+      : (typeof window !== "undefined" && window.localStorage.getItem(TOKEN_STORAGE_KEY)) ||
+        readBrowserCookie(AUTH_COOKIE_NAME);
 
   if (!isFormDataRequest && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");

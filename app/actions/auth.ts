@@ -13,7 +13,7 @@ import {
 import { getSessionToken, getRefreshToken } from "@/app/lib/auth-server";
 
 const AUTH_COOKIE_OPTIONS = {
-  httpOnly: true,
+  httpOnly: false,
   secure: process.env.NODE_ENV === "production",
   sameSite: "lax" as const,
   path: "/",
@@ -21,7 +21,7 @@ const AUTH_COOKIE_OPTIONS = {
 };
 
 const AUTH_ERROR_COOKIE_OPTIONS = {
-  httpOnly: true,
+  httpOnly: false,
   secure: process.env.NODE_ENV === "production",
   sameSite: "lax" as const,
   path: "/",

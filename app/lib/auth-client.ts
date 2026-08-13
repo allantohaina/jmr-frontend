@@ -2,22 +2,20 @@
 
 import { authAPI, type UserProfile } from "./api";
 import {
-  AUTH_COOKIE_NAME,
-  AUTH_ERROR_COOKIE_NAME,
-  REFRESH_TOKEN_COOKIE_NAME,
-  USER_COOKIE_NAME,
-  deleteBrowserCookie,
+  AUTH_ERROR_STORAGE_KEY,
+  REFRESH_TOKEN_STORAGE_KEY,
+  TOKEN_STORAGE_KEY,
+  USER_STORAGE_KEY,
+  deleteStorageValue,
+  getRefreshTokenFromStorage,
   getSafeRedirectPath,
   getToken,
   getUser,
-  readBrowserCookie,
-  writeBrowserCookie,
+  writeStorageValue,
 } from "./auth";
 
 export { getToken, getUser };
 export type { SessionUser } from "./auth";
-
-const AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
 type AuthSuccessPayload = {
   token: string;
@@ -47,24 +45,15 @@ function resolveAuthRedirect(intent: AuthIntent, nextPath: string) {
 }
 
 function persistAuthSession(payload: AuthSuccessPayload, rememberMe = false) {
-  const secure = typeof window !== "undefined" && window.location.protocol === "https:";
-  const cookieOptions = {
-    path: "/",
-    sameSite: "Lax" as const,
-    secure: true,
-    ...(rememberMe ? { maxAge: AUTH_COOKIE_MAX_AGE } : {}),
-  };
-
-  writeBrowserCookie(AUTH_COOKIE_NAME, payload.token, cookieOptions);
+  writeStorageValue(TOKEN_STORAGE_KEY, payload.token);
+  deleteStorageValue(REFRESH_TOKEN_STORAGE_KEY);
 
   if (payload.refresh_token) {
-    writeBrowserCookie(REFRESH_TOKEN_COOKIE_NAME, payload.refresh_token, cookieOptions);
-  } else {
-    deleteBrowserCookie(REFRESH_TOKEN_COOKIE_NAME);
+    writeStorageValue(REFRESH_TOKEN_STORAGE_KEY, payload.refresh_token);
   }
 
-  writeBrowserCookie(USER_COOKIE_NAME, JSON.stringify(payload.user), cookieOptions);
-  deleteBrowserCookie(AUTH_ERROR_COOKIE_NAME);
+  writeStorageValue(USER_STORAGE_KEY, JSON.stringify(payload.user));
+  deleteStorageValue(AUTH_ERROR_STORAGE_KEY);
 }
 
 export async function authenticateWithForm(formData: FormData) {
@@ -136,19 +125,19 @@ export async function authenticateWithForm(formData: FormData) {
 }
 
 export async function signOutClient() {
-  const token = readBrowserCookie(AUTH_COOKIE_NAME);
-  const refreshToken = readBrowserCookie(REFRESH_TOKEN_COOKIE_NAME);
+  const token = getToken();
+  const refreshToken = getRefreshTokenFromStorage();
 
   if (token) {
     try {
-      await authAPI.logout(refreshToken, token);
+      await authAPI.logout(refreshToken ?? undefined, token);
     } catch (error) {
       console.error("Logout failed:", error);
     }
   }
 
-  deleteBrowserCookie(AUTH_COOKIE_NAME);
-  deleteBrowserCookie(REFRESH_TOKEN_COOKIE_NAME);
-  deleteBrowserCookie(USER_COOKIE_NAME);
-  deleteBrowserCookie(AUTH_ERROR_COOKIE_NAME);
+  deleteStorageValue(TOKEN_STORAGE_KEY);
+  deleteStorageValue(REFRESH_TOKEN_STORAGE_KEY);
+  deleteStorageValue(USER_STORAGE_KEY);
+  deleteStorageValue(AUTH_ERROR_STORAGE_KEY);
 }

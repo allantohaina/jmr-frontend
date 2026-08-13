@@ -3,6 +3,11 @@ export const REFRESH_TOKEN_COOKIE_NAME = "jmr_refresh_token";
 export const USER_COOKIE_NAME = "jmr_user";
 export const AUTH_ERROR_COOKIE_NAME = "jmr_auth_error";
 
+export const TOKEN_STORAGE_KEY = "jmr_token";
+export const REFRESH_TOKEN_STORAGE_KEY = "jmr_refresh_token";
+export const USER_STORAGE_KEY = "jmr_user";
+export const AUTH_ERROR_STORAGE_KEY = "jmr_auth_error";
+
 export type SessionUser = {
   id?: number | string;
   first_name?: string;
@@ -11,18 +16,58 @@ export type SessionUser = {
   role?: "admin" | "worker" | "user" | string;
 };
 
-export function getUser(): SessionUser | null {
-  const userCookie = readBrowserCookie(USER_COOKIE_NAME);
-  if (!userCookie) return null;
+function readStorageValue(key: string): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
   try {
-    return JSON.parse(userCookie) as SessionUser;
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+export function writeStorageValue(key: string, value: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // ignore quota/private-mode errors
+  }
+}
+
+export function deleteStorageValue(key: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // ignore
+  }
+}
+
+export function getUser(): SessionUser | null {
+  const storedUser = readStorageValue(USER_STORAGE_KEY) || readBrowserCookie(USER_COOKIE_NAME);
+  if (!storedUser) return null;
+  try {
+    return JSON.parse(storedUser) as SessionUser;
   } catch {
     return null;
   }
 }
 
 export function getToken(): string | null {
-  return readBrowserCookie(AUTH_COOKIE_NAME) || null;
+  return readStorageValue(TOKEN_STORAGE_KEY) || readBrowserCookie(AUTH_COOKIE_NAME) || null;
+}
+
+export function getRefreshTokenFromStorage(): string | null {
+  return readStorageValue(REFRESH_TOKEN_STORAGE_KEY) || readBrowserCookie(REFRESH_TOKEN_COOKIE_NAME) || null;
 }
 
 type BrowserCookieOptions = {

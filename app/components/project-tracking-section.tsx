@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AUTH_COOKIE_NAME, readBrowserCookie } from "@/app/lib/auth";
+import { getToken } from "@/app/lib/auth";
 
 type StepStatus = "complete" | "active" | "pending";
 export type ProjectStepId = 1 | 2 | 3;
@@ -134,7 +134,7 @@ export function ProjectTrackingSection({
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
   useEffect(() => {
-    setIsSignedIn(Boolean(readBrowserCookie(AUTH_COOKIE_NAME)));
+    setIsSignedIn(Boolean(getToken()));
     setHasCheckedAuth(true);
   }, []);
 
