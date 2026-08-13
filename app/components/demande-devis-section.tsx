@@ -1,18 +1,20 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense, useState, useCallback, useEffect } from "react";
+import { Suspense, useState, useCallback, useEffect, useRef } from "react";
 import { authAPI, draftsAPI, type QuoteDraft, type QuoteRecord, getToken } from "@/app/lib";
 import { getErrorMessage } from "@/app/lib/errors";
 import { CsvPreview } from "@/app/components/document-preview";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { ArrowRight, Check, ChevronDown, FileImage, Loader2, ShieldCheck, UploadCloud, AlertTriangle, X } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, FileImage, Loader2, UploadCloud, AlertTriangle, X } from "lucide-react";
 
 const MAX_ATTACHMENTS = 20;
 const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024;
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+const PROGRESS_STEPS = ["Type de projet", "Spécifications", "Coordonnées", "Documents"];
 
 function formatBytes(bytes: number) {
   if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
@@ -27,7 +29,6 @@ function isImageFile(file: File) {
 function isCsvFile(file: File) {
   return file.type === "text/csv" || file.name.toLowerCase().endsWith(".csv");
 }
-
 
 // 1. DEFINIR LE SCHEMA DE VALIDATION ZOD
 const quoteRequestSchema = z.object({
@@ -79,6 +80,21 @@ function buildQuoteRequestPayload(data: QuoteRequestFormData) {
   return payload;
 }
 
+function HelpDot({ tip }: { tip: string }) {
+  return (
+    <span className="relative inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-[#eccc90]/40 text-[8px] font-semibold not-italic tracking-normal text-[#eccc90]/60 group-hover:text-[#e5ad46]">
+      ?
+      <span className="pointer-events-none absolute bottom-[calc(100%+6px)] left-1/2 z-10 hidden w-52 -translate-x-1/2 rounded-md border border-[#e5ad46]/10 bg-[#25303a] px-3 py-2 text-[11px] font-normal leading-relaxed normal-case tracking-normal text-[#eccc90]/80 shadow-xl group-hover:block">
+        {tip}
+      </span>
+    </span>
+  );
+}
+
+function typeCardA11y(selected: boolean) {
+  return selected ? "Carte sélectionnée" : "Carte non sélectionnée";
+}
+
 function QuoteFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -93,6 +109,13 @@ function QuoteFormContent() {
   const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
   const [pendingQuoteCount, setPendingQuoteCount] = useState(0);
   const [duplicateFormData, setDuplicateFormData] = useState<QuoteRequestFormData | null>(null);
+  const [projectType, setProjectType] = useState<"serie" | "mesure">("serie");
+  const [activeStep, setActiveStep] = useState(0);
+
+  const typePickerRef = useRef<HTMLDivElement>(null);
+  const specsRef = useRef<HTMLDivElement>(null);
+  const docsRef = useRef<HTMLDivElement>(null);
+  const coordsRef = useRef<HTMLDivElement>(null);
 
   const {
     control,
@@ -122,6 +145,23 @@ function QuoteFormContent() {
       modify_code: modifyCode || "",
     },
   });
+
+  useEffect(() => {
+    const sections = [typePickerRef, specsRef, docsRef, coordsRef];
+    const onScroll = () => {
+      let current = 0;
+      sections.forEach((ref, i) => {
+        if (ref.current) {
+          const rect = ref.current.getBoundingClientRect();
+          if (rect.top < 200) current = i;
+        }
+      });
+      setActiveStep(current);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const onCategoryChange = useCallback((value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -261,7 +301,7 @@ function QuoteFormContent() {
       const files = data.technical_files instanceof FileList ? Array.from(data.technical_files) : [];
       if (files.length > MAX_ATTACHMENTS) throw new Error(`Ajoutez au maximum ${MAX_ATTACHMENTS} fichiers de référence.`);
       if (files.some((file) => file.size > MAX_ATTACHMENT_SIZE_BYTES)) throw new Error("Chaque fichier doit faire moins de 10 Mo.");
-const payload = buildQuoteRequestPayload(data);
+      const payload = buildQuoteRequestPayload(data);
       await authAPI.post("/quotes", payload);
       if (draft?.id) {
         try { await draftsAPI.remove(draft.id); } catch { /* best effort */ }
@@ -285,117 +325,148 @@ const payload = buildQuoteRequestPayload(data);
     setDuplicateFormData(null);
   }
 
+  const inputClass = (hasError: boolean) =>
+    `w-full rounded-md border bg-[#1e2a38] px-4 py-3 text-[13.5px] text-[#eccc90] placeholder:text-[#eccc90]/25 focus:border-[#e5ad46] focus:outline-none transition-all ${
+      hasError ? "border-red-400/50" : "border-[#e5ad46]/10"
+    }`;
+
+  const fieldLabelClass = "flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/50 mb-2";
+
   return (
-    <div className="min-h-screen bg-[#1e2a38] pb-16 pt-24 md:pb-24 md:pt-32">
-      <section className="mx-auto max-w-7xl px-4 sm:px-6" id="demande-devis-form" aria-labelledby="demande-devis-form-title">
-        <header className="mb-10 text-center md:mb-16">
-          <span className="text-[#e5ad46] text-[10px] font-bold uppercase tracking-[0.3em] mb-4 block">Demande de devis</span>
-          <h2 className="mb-6 font-headline text-4xl font-bold text-[#e5ad46] sm:text-5xl md:text-6xl" id="demande-devis-form-title">
+    <div className="min-h-screen bg-[#1e2a38] pb-16 pt-20 md:pb-24 md:pt-24">
+      <div className="mx-auto w-full max-w-[920px] px-5" id="demande-devis-form">
+        {/* PROGRESS */}
+        <div className="sticky top-[88px] z-20 -mx-5 border-b border-[#e5ad46]/10 bg-[#1e2a38]/95 px-5 py-3.5 backdrop-blur-sm">
+          <div className="flex justify-center" aria-label="Progression du formulaire">
+            {PROGRESS_STEPS.map((label, i) => (
+              <div
+                key={label}
+                className={`relative flex items-center gap-2 px-3 text-[11px] sm:px-4 ${
+                  i === activeStep ? "text-[#eccc90]" : i < activeStep ? "text-[#eccc90]/70" : "text-[#eccc90]/35"
+                }`}
+              >
+                {i < PROGRESS_STEPS.length - 1 && (
+                  <span aria-hidden="true" className="absolute right-0 top-1/2 h-px w-4 -translate-y-1/2 bg-[#e5ad46]/15 sm:w-6" />
+                )}
+                <span
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border font-mono text-[10px] transition-colors ${
+                    i === activeStep
+                      ? "border-[#e5ad46] text-[#e5ad46]"
+                      : i < activeStep
+                        ? "border-[#e5ad46] bg-[#e5ad46] text-[#1e2a38]"
+                        : "border-[#e5ad46]/15 text-[#eccc90]/35"
+                  }`}
+                >
+                  {i + 1}
+                </span>
+                <span className="hidden md:inline">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* HERO */}
+        <header className="mb-10 text-center md:mb-14">
+          <span className="mb-4 block text-[10px] font-bold uppercase tracking-[0.3em] text-[#e5ad46]">Demande de devis</span>
+          <h2 className="mb-4 font-headline text-4xl font-semibold text-[#e5ad46] md:text-5xl">
             {modifyCode ? `Modification du devis ${modifyCode}` : "Parlons de votre prochain projet textile"}
           </h2>
-          <p className="mx-auto max-w-3xl text-base leading-relaxed text-[#eccc90]/60 md:text-lg">
+          <p className="mx-auto max-w-[560px] text-[14.5px] leading-relaxed text-[#eccc90]/60">
             {modifyCode
               ? "Precisez ici les modifications souhaitees. Choisissez edit pour une retouche ou add pour un ajout. La version precedente reste verrouillee et nous creerons une nouvelle demande signee."
-              : "Remplissez le formulaire pour nous faire part de votre projet. Nous revenons vers vous avec une estimation claire et un suivi adapte a votre besoin."}
+              : "Remplissez le formulaire pour nous faire part de votre projet. Nous revenons vers vous avec une estimation claire et un suivi adapté à votre besoin."}
           </p>
         </header>
 
-        <div className="grid items-start gap-8 lg:grid-cols-3 lg:gap-12">
-          <div className="lg:col-span-1 space-y-8">
-            <div className="relative overflow-hidden rounded-[2rem] border border-[#e5ad46]/10 bg-[#25303a] p-6 text-[#eccc90] shadow-xl md:rounded-[2.5rem] md:p-10">
-              {/* Decorative background logo */}
-              <div className="absolute right-[-20%] bottom-[-20%] opacity-[0.03] pointer-events-none">
-                <img src="/navbar/logo.svg" alt="" className="w-64 h-64 invert" />
+        {showDuplicateWarning && (
+          <div className="mb-8 rounded-lg border border-amber-400/30 bg-amber-400/10 p-6">
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-400/20">
+                <AlertTriangle className="h-5 w-5 text-amber-400" />
               </div>
-
-              <span className="text-[#e5ad46] text-[10px] font-bold uppercase tracking-[0.2em] mb-4 block">Preparation rapide</span>
-              <h3 className="font-headline text-3xl font-bold mb-6 text-[#e5ad46]">Ce qu&apos;il nous faut</h3>
-              <p className="text-[#eccc90]/70 mb-8 text-sm leading-relaxed">Quelques informations suffisent pour etablir un devis precis et vous repondre rapidement.</p>
-
-              <ul className="space-y-6 mb-8 relative z-10">
-                <li className="flex items-start gap-4">
-                  <div className="w-6 h-6 rounded-full bg-[#e5ad46]/10 flex items-center justify-center mt-0.5">
-                    <Check className="h-3.5 w-3.5 text-[#e5ad46]" />
-                  </div>
-                  <span className="text-sm font-medium">Type de produit, style et finitions souhaitees.</span>
-                </li>
-                <li className="flex items-start gap-4">
-                  <div className="w-6 h-6 rounded-full bg-[#e5ad46]/10 flex items-center justify-center mt-0.5">
-                    <Check className="h-3.5 w-3.5 text-[#e5ad46]" />
-                  </div>
-                  <span className="text-sm font-medium">Quantites estimees, tailles et informations techniques utiles.</span>
-                </li>
-                <li className="flex items-start gap-4">
-                  <div className="w-6 h-6 rounded-full bg-[#e5ad46]/10 flex items-center justify-center mt-0.5">
-                    <Check className="h-3.5 w-3.5 text-[#e5ad46]" />
-                  </div>
-                  <span className="text-sm font-medium">Delai souhaite, contraintes de production et niveau de finition attendu.</span>
-                </li>
-              </ul>
-
-              <div className="h-px bg-[#e5ad46]/10 my-8"></div>
-
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#e5ad46]/40 italic">
-                Plus les informations sont precises, plus le devis sera fiable.
-              </p>
-            </div>
-
-            <div className="bg-[#e5ad46]/5 border border-[#e5ad46]/10 rounded-[2rem] p-8">
-              <div className="flex items-center gap-4 mb-4 text-[#e5ad46]">
-                <ShieldCheck className="h-5 w-5" />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Confidentialité garantie</span>
-              </div>
-              <p className="text-[#eccc90]/50 text-xs leading-relaxed">
-                Vos documents techniques et vos idées sont protégés. JMR Textile s&apos;engage à ne jamais partager vos concepts sans votre accord.
-              </p>
-            </div>
-          </div>
-
-          <form className="rounded-[2rem] border border-[#e5ad46]/5 bg-[#25303a] p-5 shadow-2xl sm:p-6 md:rounded-[2.5rem] md:p-12 lg:col-span-2" onSubmit={handleSubmit(onSubmit)}>
-            {showDuplicateWarning && (
-              <div className="mb-8 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-400/20">
-                    <AlertTriangle className="h-5 w-5 text-amber-400" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="mb-2 text-sm font-bold text-amber-400">
-                      Devis en cours de traitement
-                    </h3>
-                    <p className="mb-4 text-sm text-[#eccc90]/70">
-                      Vous avez déjà <strong>{pendingQuoteCount} devis en attente</strong>. 
-                      Souhaitez-vous tout de même envoyer une nouvelle demande ?
-                    </p>
-                    <div className="flex gap-3">
-                      <button
-                        type="button"
-                        onClick={handleConfirmDuplicate}
-                        disabled={isSubmitting}
-                        className="rounded-lg bg-amber-400 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#1e2a38] transition-colors hover:bg-amber-300"
-                      >
-                        Oui, envoyer quand même
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleCancelDuplicate}
-                        className="rounded-lg border border-[#e5ad46]/20 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#eccc90]/60 transition-colors hover:bg-white/5"
-                      >
-                        Annuler
-                      </button>
-                    </div>
-                  </div>
+              <div className="flex-1">
+                <h3 className="mb-2 text-sm font-bold text-amber-400">Devis en cours de traitement</h3>
+                <p className="mb-4 text-sm text-[#eccc90]/70">
+                  Vous avez déjà <strong>{pendingQuoteCount} devis en attente</strong>.
+                  Souhaitez-vous tout de même envoyer une nouvelle demande ?
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={handleConfirmDuplicate}
+                    disabled={isSubmitting}
+                    className="rounded-lg bg-amber-400 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#1e2a38] transition-colors hover:bg-amber-300"
+                  >
+                    Oui, envoyer quand même
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelDuplicate}
+                    className="rounded-lg border border-[#e5ad46]/20 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#eccc90]/60 transition-colors hover:bg-white/5"
+                  >
+                    Annuler
+                  </button>
                 </div>
               </div>
-            )}
-            {submitError ? (
-              <div className="rounded-2xl border border-red-400/20 bg-red-400/10 px-5 py-4 text-sm text-red-100 mb-8" role="alert">
-                {submitError}
-              </div>
-            ) : null}
-            
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
-              <div className="md:col-span-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Type de produit (Categorie)</span>
+            </div>
+          </div>
+        )}
+        {submitError ? (
+          <div className="mb-8 rounded-lg border border-red-400/20 bg-red-400/10 px-5 py-4 text-sm text-red-100" role="alert">
+            {submitError}
+          </div>
+        ) : null}
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {/* STEP 0 : TYPE DE PROJET */}
+          <div ref={typePickerRef} className="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-2" role="radiogroup" aria-label="Type de projet">
+            {([
+              { type: "serie", icon: "▤", name: "Production en série", desc: "Fabrication en quantité pour une marque, une boutique ou un événement — du prototype à la série complète.", tags: ["B2B", "Dès 50 pièces", "Un seul modèle décliné"] },
+              { type: "mesure", icon: "✂", name: "Pièce sur-mesure", desc: "Une pièce unique confectionnée à vos mesures — pour vous-même ou une occasion précise.", tags: ["Particulier", "1 pièce", "Prise de mesures"] },
+            ] as const).map((card) => {
+              const selected = projectType === card.type;
+              return (
+                <button
+                  key={card.type}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  aria-label={typeCardA11y(selected)}
+                  onClick={() => setProjectType(card.type)}
+                  className={`rounded-md border-[1.5px] p-6 text-left transition-colors cursor-pointer ${
+                    selected ? "border-[#e5ad46] bg-[#25303a]" : "border-[#e5ad46]/10 bg-[#25303a] hover:border-[#e5ad46]/60"
+                  }`}
+                >
+                  <div className="mb-4 flex items-start justify-between">
+                    <span className={`flex h-9 w-9 items-center justify-center rounded-md border text-base ${selected ? "border-[#e5ad46] text-[#e5ad46]" : "border-[#e5ad46]/20 text-[#e5ad46]"}`}>
+                      {card.icon}
+                    </span>
+                    <span className={`relative h-4 w-4 shrink-0 rounded-full border-[1.5px] ${selected ? "border-[#e5ad46]" : "border-[#e5ad46]/25"}`}>
+                      {selected && <span className="absolute inset-[3px] rounded-full bg-[#e5ad46]" />}
+                    </span>
+                  </div>
+                  <span className="mb-1.5 block font-headline text-[17px] font-semibold text-[#eccc90]">{card.name}</span>
+                  <span className="mb-3 block text-[12.5px] leading-relaxed text-[#eccc90]/60">{card.desc}</span>
+                  <span className="flex flex-wrap gap-1.5">
+                    {card.tags.map((tag) => (
+                      <span key={tag} className="rounded-sm bg-[#1e2a38] px-2 py-1 text-[10px] text-[#eccc90]/45">{tag}</span>
+                    ))}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* SECTION 01 : SPECIFICATIONS */}
+          <section ref={specsRef} className="mb-5 overflow-hidden rounded-lg border border-[#e5ad46]/10 bg-[#25303a]">
+            <div className="flex items-baseline gap-3 border-b border-[#e5ad46]/10 px-6 py-5 md:px-7">
+              <span className="font-mono text-xs text-[#e5ad46]">01</span>
+              <span className="font-headline text-lg font-semibold text-[#eccc90]">Spécifications du produit</span>
+              <span className="ml-auto text-xs text-[#eccc90]/50">{projectType === "serie" ? "Production en série" : "Pièce sur-mesure"}</span>
+            </div>
+            <div className="p-6 md:p-7">
+              <div className="mb-6">
+                <label className={fieldLabelClass} htmlFor="quote-category">Type de produit (catégorie)</label>
                 <div className="relative">
                   <Controller
                     name="category"
@@ -403,15 +474,14 @@ const payload = buildQuoteRequestPayload(data);
                     render={({ field }) => (
                       <select
                         {...field}
+                        id="quote-category"
                         onChange={(e) => { field.onChange(e); onCategoryChange(e.target.value); }}
-                        className={`w-full h-14 rounded-2xl border bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all appearance-none cursor-pointer ${
-                          errors.category ? "border-red-400/50" : "border-[#e5ad46]/10"
-                        }`}
+                        className={`${inputClass(!!errors.category)} cursor-pointer appearance-none pr-10 ${errors.category ? "border-red-400/50" : ""}`}
                       >
-                        <option value="">Selectionnez une categorie</option>
+                        <option value="">Sélectionnez une catégorie</option>
                         <option value="pantalon">Pantalon</option>
                         <option value="jupe">Jupe</option>
-                        <option value="shirt">T-shirt / Debardeur</option>
+                        <option value="shirt">T-shirt / Débardeur</option>
                         <option value="polo">Polo</option>
                         <option value="chemise">Chemise / Chemisier</option>
                         <option value="veste">Veste / Blazer</option>
@@ -420,413 +490,290 @@ const payload = buildQuoteRequestPayload(data);
                         <option value="sweat">Sweat-shirt / Hoodie</option>
                         <option value="short">Short / Bermuda</option>
                         <option value="pull">Pull / Cardigan</option>
-                        <option value="sous-vetement">Sous-vetements / Lingerie</option>
-                        <option value="accessoire">Accessoires (Echarpes, Bonnets, etc.)</option>
+                        <option value="sous-vetement">Sous-vêtements / Lingerie</option>
+                        <option value="accessoire">Accessoires (Écharpes, Bonnets, etc.)</option>
                         <option value="uniforme">Uniforme / Workwear</option>
                         <option value="sport">Sportswear</option>
-                        <option value="enfant">Enfant / Bebe</option>
+                        <option value="enfant">Enfant / Bébé</option>
                         <option value="autre">Autre projet sur-mesure</option>
                       </select>
                     )}
                   />
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#e5ad46]" />
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#e5ad46]" />
                 </div>
-                {errors.category && (
-                  <p className="text-red-300 text-xs mt-2">{errors.category.message}</p>
-                )}
+                {errors.category && <p className="mt-2 text-xs text-red-300">{errors.category.message}</p>}
               </div>
 
-              <div className="md:col-span-2 rounded-2xl border border-dashed border-[#e5ad46]/25 bg-[#1e2a38]/60 p-5">
-                <Controller
-                  name="technical_files"
-                  control={control}
-                  render={({ field: { onChange, ref } }) => (
-                    <label className="block cursor-pointer" htmlFor="quote-technical-files">
-                      <span className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/55">
-                        <FileImage className="h-4 w-4 text-[#e5ad46]" /> Images et documents de référence
-                      </span>
-<span className="mb-4 block text-xs leading-relaxed text-[#eccc90]/50">
-                        Ajoutez vos croquis, photos d’inspiration ou documents techniques. JPG, PNG, WEBP, PDF et CSV — {MAX_ATTACHMENTS} fichiers maximum, 10 Mo par fichier.
-                      </span>
-                      <span className="inline-flex items-center gap-2 rounded-xl bg-[#e5ad46]/10 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] transition-colors hover:bg-[#e5ad46]/20">
-                        <UploadCloud className="h-4 w-4" /> Choisir des fichiers
-                      </span>
-<input
-                        id="quote-technical-files"
-                        ref={ref}
-                        className="sr-only"
-                        type="file"
-                        multiple
-                        accept="image/jpeg,image/png,image/webp,application/pdf,text/csv,.csv"
-                        onChange={(event) => {
-                          const picked = Array.from(event.target.files ?? []);
-                          const oversized = picked.filter((file) => file.size > MAX_ATTACHMENT_SIZE_BYTES);
-                          if (oversized.length > 0) {
-                            window.alert(`Chaque fichier doit faire moins de 10 Mo : ${oversized.map((file) => file.name).join(", ")}`);
-                          }
-                          const valid = picked.filter((file) => file.size <= MAX_ATTACHMENT_SIZE_BYTES).slice(0, MAX_ATTACHMENTS);
-                          if (picked.length - valid.length > 0) {
-                            window.alert(`Au maximum ${MAX_ATTACHMENTS} fichiers peuvent être sélectionnés. Les fichiers supplémentaires ont été ignorés.`);
-                          }
-                          const dt = new DataTransfer();
-                          valid.forEach((file) => dt.items.add(file));
-                          onChange(dt.files);
-                          setAttachments(valid);
-                          event.target.value = "";
-                        }}
-                      />
-                    </label>
-                  )}
-                />
-{attachments.length > 0 ? (
-                  <div className="mt-4 space-y-2">
-                    <p className="text-xs text-[#eccc90]/60">
-                      {attachments.length} fichier{attachments.length > 1 ? "s" : ""} sélectionné{attachments.length > 1 ? "s" : ""} sur {MAX_ATTACHMENTS} maximum
-                    </p>
-                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                      {attachments.map((file, index) => (
-                        <div key={`${file.name}-${file.lastModified}-${index}`} className="flex items-center gap-3 rounded-xl border border-[#e5ad46]/10 bg-[#1e2a38]/70 p-3">
-                          {isImageFile(file) ? (
-                            <img src={URL.createObjectURL(file)} alt={file.name} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
-                          ) : (
-                            <FileImage className="h-9 w-9 shrink-0 text-[#e5ad46]" />
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-xs font-medium text-[#eccc90]" title={file.name}>{file.name}</p>
-                            <p className="text-[10px] uppercase tracking-widest text-[#eccc90]/40">{formatBytes(file.size)}</p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => removeAttachment(index)}
-                            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[#eccc90]/50 transition-colors hover:bg-white/5 hover:text-red-300"
-                            title="Retirer ce fichier"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    {attachments.filter((file) => isCsvFile(file)).map((file) => <CsvPreview key={`csv-${file.name}-${file.lastModified}`} file={file} />)}
-                  </div>
-                ) : null}
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Nom complet</span>
-                <Controller
-                  name="name"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="text"
-                      placeholder="Votre nom et prenom"
-                      className={`w-full h-14 rounded-2xl border bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20 ${
-                        errors.name ? "border-red-400/50" : "border-[#e5ad46]/10"
-                      }`}
-                    />
-                  )}
-                />
-                {errors.name && (
-                  <p className="text-red-300 text-xs mt-2">{errors.name.message}</p>
-                )}
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Email</span>
-                <Controller
-                  name="email"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="email"
-                      placeholder="contact@entreprise.com"
-                      className={`w-full h-14 rounded-2xl border bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20 ${
-                        errors.email ? "border-red-400/50" : "border-[#e5ad46]/10"
-                      }`}
-                    />
-                  )}
-                />
-                {errors.email && (
-                  <p className="text-red-300 text-xs mt-2">{errors.email.message}</p>
-                )}
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Telephone</span>
-                <Controller
-                  name="phone"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="tel"
-                      placeholder="+261 34 00 000 00"
-                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
-                    />
-                  )}
-                />
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Tissu</span>
-                <Controller
-                  name="tissu"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="text"
-                      placeholder="Ex: coton, jersey, denim"
-                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
-                    />
-                  )}
-                />
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Coupe</span>
-                <Controller
-                  name="coupe"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="text"
-                      placeholder="Ex: droite, ajuste, oversize"
-                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
-                    />
-                  )}
-                />
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Gabarit</span>
-                <Controller
-                  name="gabarit"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="text"
-                      placeholder="Ex: standard, sur-mesure"
-                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
-                    />
-                  )}
-                />
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Style</span>
-                <Controller
-                  name="style"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="text"
-                      placeholder="Ex: casual, workwear, premium"
-                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
-                    />
-                  )}
-                />
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Grammage</span>
-                <Controller
-                  name="grammage"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="text"
-                      placeholder="Ex: 180 g/m2"
-                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
-                    />
-                  )}
-                />
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Tailles</span>
-                <Controller
-                  name="tailles"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="text"
-                      placeholder="Ex: XS-XL, 36-44"
-                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
-                    />
-                  )}
-                />
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Quantité</span>
-                <Controller
-                  name="quantite"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="text"
-                      placeholder="Ex: 50 pièces"
-                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
-                    />
-                  )}
-                />
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Finitions</span>
-                <Controller
-                  name="finitions"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="text"
-                      placeholder="Ex: broderie, impression, etiquette"
-                      className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20"
-                    />
-                  )}
-                />
-              </div>
-
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Delai souhaite</span>
-                <Controller
-                  name="delai_souhaite"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="date"
-                      min={new Date().toISOString().split("T")[0]}
-                      className={`w-full h-14 rounded-2xl border bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all ${
-                        errors.delai_souhaite ? "border-red-400/50" : "border-[#e5ad46]/10"
-                      }`}
-                    />
-                  )}
-                />
-                {errors.delai_souhaite && (
-                  <p className="text-red-300 text-xs mt-2">{errors.delai_souhaite.message}</p>
-                )}
-              </div>
-
-              <div className="md:col-span-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Genre de demande</span>
-                <div className="relative">
-                  <Controller
-                    name="request_type"
-                    control={control}
-                    render={({ field }) => (
-                      <select
-                        {...field}
-                        className="w-full h-14 rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] px-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all appearance-none cursor-pointer"
-                      >
-                        <option value="new">Nouveau projet</option>
-                        <option value="edit">Edit / modification</option>
-                        <option value="add">Ajout a un dossier</option>
-                      </select>
-                    )}
-                  />
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#e5ad46]" />
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+                <div>
+                  <label className={`${fieldLabelClass} group`} htmlFor="quote-tissu">
+                    Tissu <HelpDot tip="Matière principale souhaitée. Si vous hésitez, laissez-nous vous conseiller selon l'usage." />
+                  </label>
+                  <Controller name="tissu" control={control} render={({ field }) => (
+                    <input {...field} id="quote-tissu" type="text" placeholder="Ex : coton, jersey, denim" className={inputClass(false)} />
+                  )} />
                 </div>
-                {modifyCode ? (
-                  <p className="text-[10px] text-[#eccc90]/40 mt-2 uppercase tracking-widest">
-                    Edit = ce qu&apos;il faut modifier. Add = ce qu&apos;il faut ajouter.
+                <div>
+                  <label className={`${fieldLabelClass} group`} htmlFor="quote-grammage">
+                    Grammage <HelpDot tip="Poids du tissu au m², détermine son épaisseur. 140-180 g/m² pour un t-shirt léger, 280g/m² et + pour un sweat épais." />
+                  </label>
+                  <Controller name="grammage" control={control} render={({ field }) => (
+                    <input {...field} id="quote-grammage" type="text" placeholder="Ex : 180 g/m²" className={inputClass(false)} />
+                  )} />
+                  <p className="mt-1.5 text-[11px] text-[#eccc90]/40">Repère : léger 120-160 · standard 180-220 · épais 280+</p>
+                </div>
+                <div>
+                  <label className={fieldLabelClass} htmlFor="quote-coupe">Coupe</label>
+                  <Controller name="coupe" control={control} render={({ field }) => (
+                    <input {...field} id="quote-coupe" type="text" placeholder="Ex : droite, ajustée, oversize" className={inputClass(false)} />
+                  )} />
+                </div>
+                <div>
+                  <label className={fieldLabelClass} htmlFor="quote-gabarit">Gabarit</label>
+                  <Controller name="gabarit" control={control} render={({ field }) => (
+                    <input {...field} id="quote-gabarit" type="text" placeholder="Ex : standard, sur-mesure" className={inputClass(false)} />
+                  )} />
+                </div>
+                <div>
+                  <label className={fieldLabelClass} htmlFor="quote-style">Style</label>
+                  <Controller name="style" control={control} render={({ field }) => (
+                    <input {...field} id="quote-style" type="text" placeholder="Ex : casual, workwear, premium" className={inputClass(false)} />
+                  )} />
+                </div>
+                <div>
+                  <label className={fieldLabelClass} htmlFor="quote-tailles">Tailles</label>
+                  <Controller name="tailles" control={control} render={({ field }) => (
+                    <input {...field} id="quote-tailles" type="text" placeholder="Ex : XS-XL, 36-44" className={inputClass(false)} />
+                  )} />
+                </div>
+                <div>
+                  <label className={fieldLabelClass} htmlFor="quote-quantite">Quantité totale estimée</label>
+                  <Controller name="quantite" control={control} render={({ field }) => (
+                    <input {...field} id="quote-quantite" type="text" placeholder="Ex : 50 pièces" className={inputClass(false)} />
+                  )} />
+                </div>
+                <div>
+                  <label className={fieldLabelClass} htmlFor="quote-finitions">Finitions</label>
+                  <Controller name="finitions" control={control} render={({ field }) => (
+                    <input {...field} id="quote-finitions" type="text" placeholder="Ex : broderie, impression, étiquette" className={inputClass(false)} />
+                  )} />
+                </div>
+                <div>
+                  <label className={fieldLabelClass} htmlFor="quote-delai">Délai souhaité</label>
+                  <Controller name="delai_souhaite" control={control} render={({ field }) => (
+                    <input {...field} id="quote-delai" type="date" min={new Date().toISOString().split("T")[0]} className={`${inputClass(!!errors.delai_souhaite)} ${errors.delai_souhaite ? "border-red-400/50" : ""}`} />
+                  )} />
+                  {errors.delai_souhaite && <p className="mt-2 text-xs text-red-300">{errors.delai_souhaite.message}</p>}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* SECTION 02 : DOCUMENTS */}
+          <section ref={docsRef} className="mb-5 overflow-hidden rounded-lg border border-[#e5ad46]/10 bg-[#25303a]">
+            <div className="flex items-baseline gap-3 border-b border-[#e5ad46]/10 px-6 py-5 md:px-7">
+              <span className="font-mono text-xs text-[#e5ad46]">02</span>
+              <span className="font-headline text-lg font-semibold text-[#eccc90]">Documents de référence</span>
+              <span className="ml-auto text-xs text-[#eccc90]/50">Facultatif</span>
+            </div>
+            <div className="p-6 md:p-7">
+              <Controller
+                name="technical_files"
+                control={control}
+                render={({ field: { onChange, ref } }) => (
+                  <label className="block cursor-pointer rounded-md border border-dashed border-[#e5ad46]/25 p-6 text-center transition-colors hover:border-[#e5ad46]" htmlFor="quote-technical-files">
+                    <span className="mb-1 block text-[13px] font-medium text-[#eccc90]/80">Croquis, photos d&apos;inspiration ou fiche technique</span>
+                    <span className="mb-4 block text-[11px] text-[#eccc90]/45">JPG, PNG, WEBP, PDF — {MAX_ATTACHMENTS} fichiers max, 10 Mo par fichier</span>
+                    <span className="inline-flex items-center gap-2 rounded-md bg-[#e5ad46]/10 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] transition-colors hover:bg-[#e5ad46]/20">
+                      <UploadCloud className="h-4 w-4" /> Choisir des fichiers
+                    </span>
+                    <input
+                      id="quote-technical-files"
+                      ref={ref}
+                      className="sr-only"
+                      type="file"
+                      multiple
+                      accept="image/jpeg,image/png,image/webp,application/pdf,text/csv,.csv"
+                      onChange={(event) => {
+                        const picked = Array.from(event.target.files ?? []);
+                        const oversized = picked.filter((file) => file.size > MAX_ATTACHMENT_SIZE_BYTES);
+                        if (oversized.length > 0) {
+                          window.alert(`Chaque fichier doit faire moins de 10 Mo : ${oversized.map((file) => file.name).join(", ")}`);
+                        }
+                        const valid = picked.filter((file) => file.size <= MAX_ATTACHMENT_SIZE_BYTES).slice(0, MAX_ATTACHMENTS);
+                        if (picked.length - valid.length > 0) {
+                          window.alert(`Au maximum ${MAX_ATTACHMENTS} fichiers peuvent être sélectionnés. Les fichiers supplémentaires ont été ignorés.`);
+                        }
+                        const dt = new DataTransfer();
+                        valid.forEach((file) => dt.items.add(file));
+                        onChange(dt.files);
+                        setAttachments(valid);
+                        event.target.value = "";
+                      }}
+                    />
+                  </label>
+                )}
+              />
+              {attachments.length > 0 ? (
+                <div className="mt-4 space-y-2">
+                  <p className="text-xs text-[#eccc90]/60">
+                    {attachments.length} fichier{attachments.length > 1 ? "s" : ""} sélectionné{attachments.length > 1 ? "s" : ""} sur {MAX_ATTACHMENTS} maximum
                   </p>
-                ) : null}
-              </div>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {attachments.map((file, index) => (
+                      <div key={`${file.name}-${file.lastModified}-${index}`} className="flex items-center gap-3 rounded-md border border-[#e5ad46]/10 bg-[#1e2a38]/70 p-3">
+                        {isImageFile(file) ? (
+                          <img src={URL.createObjectURL(file)} alt={file.name} className="h-10 w-10 shrink-0 rounded object-cover" />
+                        ) : (
+                          <FileImage className="h-9 w-9 shrink-0 text-[#e5ad46]" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs font-medium text-[#eccc90]" title={file.name}>{file.name}</p>
+                          <p className="text-[10px] uppercase tracking-widest text-[#eccc90]/40">{formatBytes(file.size)}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeAttachment(index)}
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[#eccc90]/50 transition-colors hover:bg-white/5 hover:text-red-300"
+                          title="Retirer ce fichier"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  {attachments.filter((file) => isCsvFile(file)).map((file) => <CsvPreview key={`csv-${file.name}-${file.lastModified}`} file={file} />)}
+                </div>
+              ) : null}
+            </div>
+          </section>
 
-              <div className="md:col-span-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">
-                  {modifyCode ? "Quoi modifier ou ajouter ?" : "Message / Détails du projet"}
-                </span>
-                <Controller
-                  name="message"
-                  control={control}
-                  render={({ field }) => (
+          {/* SECTION 03 : COORDONNEES */}
+          <section ref={coordsRef} className="mb-5 overflow-hidden rounded-lg border border-[#e5ad46]/10 bg-[#25303a]">
+            <div className="flex items-baseline gap-3 border-b border-[#e5ad46]/10 px-6 py-5 md:px-7">
+              <span className="font-mono text-xs text-[#e5ad46]">03</span>
+              <span className="font-headline text-lg font-semibold text-[#eccc90]">Vos coordonnées</span>
+            </div>
+            <div className="p-6 md:p-7">
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+                <div>
+                  <label className={fieldLabelClass} htmlFor="quote-name">Nom complet</label>
+                  <Controller name="name" control={control} render={({ field }) => (
+                    <input {...field} id="quote-name" type="text" placeholder="Votre nom et prénom" className={inputClass(!!errors.name)} />
+                  )} />
+                  {errors.name && <p className="mt-2 text-xs text-red-300">{errors.name.message}</p>}
+                </div>
+                <div>
+                  <label className={fieldLabelClass} htmlFor="quote-email">Email</label>
+                  <Controller name="email" control={control} render={({ field }) => (
+                    <input {...field} id="quote-email" type="email" placeholder="contact@entreprise.com" className={inputClass(!!errors.email)} />
+                  )} />
+                  {errors.email && <p className="mt-2 text-xs text-red-300">{errors.email.message}</p>}
+                </div>
+                <div>
+                  <label className={fieldLabelClass} htmlFor="quote-phone">Téléphone</label>
+                  <Controller name="phone" control={control} render={({ field }) => (
+                    <input {...field} id="quote-phone" type="tel" placeholder="+261 34 00 000 00" className={inputClass(false)} />
+                  )} />
+                </div>
+                <div>
+                  <label className={fieldLabelClass} htmlFor="quote-request-type">Genre de demande</label>
+                  <div className="relative">
+                    <Controller
+                      name="request_type"
+                      control={control}
+                      render={({ field }) => (
+                        <select {...field} id="quote-request-type" className={`${inputClass(false)} cursor-pointer appearance-none pr-10`}>
+                          <option value="new">Nouveau projet</option>
+                          <option value="edit">Edit / modification</option>
+                          <option value="add">Ajout à un dossier</option>
+                        </select>
+                      )}
+                    />
+                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#e5ad46]" />
+                  </div>
+                  {modifyCode ? (
+                    <p className="mt-1.5 text-[10px] uppercase tracking-widest text-[#eccc90]/40">
+                      Edit = ce qu&apos;il faut modifier. Add = ce qu&apos;il faut ajouter.
+                    </p>
+                  ) : null}
+                </div>
+                <div className="md:col-span-2">
+                  <label className={fieldLabelClass} htmlFor="quote-message">
+                    {modifyCode ? "Quoi modifier ou ajouter ?" : "Message / détails du projet"}
+                  </label>
+                  <Controller name="message" control={control} render={({ field }) => (
                     <textarea
                       {...field}
-                      placeholder={
-                        modifyCode
-                          ? "Decrivez precisement ce qu'il faut changer, ajouter ou reprendre."
-                          : "Décrivez votre projet en quelques lignes..."
-                      }
-                      className={`w-full h-40 rounded-2xl border bg-[#1e2a38] p-6 text-[#eccc90] font-medium focus:border-[#e5ad46] outline-none transition-all placeholder:text-[#eccc90]/20 resize-none ${
-                        errors.message ? "border-red-400/50" : "border-[#e5ad46]/10"
-                      }`}
-                      rows={7}
+                      id="quote-message"
+                      placeholder={modifyCode ? "Decrivez precisement ce qu'il faut changer, ajouter ou reprendre." : "Décrivez votre projet en quelques lignes..."}
+                      rows={5}
+                      className={`${inputClass(!!errors.message)} min-h-[100px] resize-y ${errors.message ? "border-red-400/50" : ""}`}
                     />
-                  )}
-                />
-                {errors.message && (
-                  <p className="text-red-300 text-xs mt-2">{errors.message.message}</p>
-                )}
+                  )} />
+                  {errors.message && <p className="mt-2 text-xs text-red-300">{errors.message.message}</p>}
+                </div>
               </div>
-
-              
             </div>
+          </section>
 
-<div className="mt-12 gap-4 grid grid-cols-1 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={(event) => void saveDraft(event)}
-                disabled={isSavingDraft || isSubmitting}
-                className="w-full py-5 border border-[#e5ad46]/25 text-[#e5ad46] text-xs font-bold uppercase tracking-[0.3em] rounded-2xl hover:bg-[#e5ad46]/10 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSavingDraft ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Enregistrement...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined text-base">save</span>
-                    Enregistrer le brouillon
-                  </>
-                )}
-              </button>
-
-              <button
-                className="w-full py-5 bg-[#e5ad46] text-[#1e2a38] text-xs font-bold uppercase tracking-[0.3em] rounded-2xl shadow-xl shadow-[#e5ad46]/10 hover:bg-[#eccc90] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                type="submit"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Envoi en cours...
-                  </>
-                ) : (
-                  <>
-                    Envoyer ma demande
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                )}
-              </button>
-              {draft && (
-                <p className="sm:col-span-2 text-center text-[10px] uppercase tracking-widest text-[#eccc90]/50">
-                  Vous modifiez un brouillon. Cliquez sur Envoyer pour l&apos;envoyer à notre équipe.
-                </p>
+          {/* ACTIONS */}
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={(event) => void saveDraft(event)}
+              disabled={isSavingDraft || isSubmitting}
+              className="flex w-full items-center justify-center gap-3 rounded-md border border-[#e5ad46]/25 py-4 text-xs font-bold uppercase tracking-[0.3em] text-[#e5ad46] transition-all hover:bg-[#e5ad46]/10 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isSavingDraft ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Enregistrement...
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-base">save</span>
+                  Enregistrer le brouillon
+                </>
               )}
-            </div>
-          </form>
-        </div>
-      </section>
+            </button>
+            <button
+              className="flex w-full items-center justify-center gap-3 rounded-md bg-[#e5ad46] py-4 text-xs font-bold uppercase tracking-[0.3em] text-[#1e2a38] shadow-xl shadow-[#e5ad46]/10 transition-all hover:bg-[#eccc90] disabled:cursor-not-allowed disabled:opacity-50"
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Envoi en cours...
+                </>
+              ) : (
+                <>
+                  Envoyer ma demande
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </button>
+            {draft && (
+              <p className="sm:col-span-2 text-center text-[10px] uppercase tracking-widest text-[#eccc90]/50">
+                Vous modifiez un brouillon. Cliquez sur Envoyer pour l&apos;envoyer à notre équipe.
+              </p>
+            )}
+          </div>
+
+          <div className="mt-8 flex items-center justify-center gap-3 text-[#eccc90]/40">
+            <Check className="h-4 w-4 text-[#e5ad46]" />
+            <span className="text-[11px] uppercase tracking-widest">Confidentialité garantie — vos documents et idées ne sont jamais partagés sans votre accord.</span>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
 
 export function DemandeDevisSection() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Chargement...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-[#eccc90]">Chargement...</div>}>
       <QuoteFormContent />
     </Suspense>
   );

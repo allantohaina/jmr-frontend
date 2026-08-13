@@ -6358,3 +6358,44 @@ html[data-theme="light"] .site-footer-modern .bg-\[\#e5ad46\]\/10 {
     font-size: clamp(22px, 7.5vw, 32px);
   }
 }
+
+/* ===== Editeurs de documents admin (devis, fiche de mesures) ===== */
+[contenteditable="true"] {
+  outline: none;
+  border-radius: 3px;
+  transition: background 0.1s ease;
+}
+[contenteditable="true"]:hover {
+  background: #f2f5f9;
+}
+[contenteditable="true"]:focus {
+  background: #f2f5f9;
+  box-shadow: 0 0 0 1px #172d42;
+}
+[contenteditable="true"]:empty::before {
+  content: attr(data-placeholder);
+  color: #8993a1;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .doc-print-root,
+  .doc-print-root * {
+    visibility: visible;
+  }
+  .doc-print-root {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    background: #ffffff;
+    padding: 0;
+  }
+  .doc-print-toolbar {
+    display: none !important;
+  }
+  .hint {
+    display: none !important;
+  }
+}
