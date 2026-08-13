@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useCallback, useEffect, useRef } from "react";
-import { authAPI, type QuoteDraft, type QuoteRecord, getToken } from "@/app/lib";
+import { authAPI, type QuoteRecord, getToken } from "@/app/lib";
 import { getErrorMessage } from "@/app/lib/errors";
 import { CsvPreview } from "@/app/components/document-preview";
 import { useForm, Controller } from "react-hook-form";
@@ -31,6 +31,12 @@ function isImageFile(file: File) {
 function isCsvFile(file: File) {
   return file.type === "text/csv" || file.name.toLowerCase().endsWith(".csv");
 }
+
+type DraftRecord = {
+  id: string;
+  created_at?: string;
+  updated_at?: string;
+};
 
 // 1. DEFINIR LE SCHEMA DE VALIDATION ZOD
 const quoteRequestSchema = z.object({
@@ -183,14 +189,14 @@ function QuoteFormContent() {
     setValue("technical_files", dt.files);
   }
 
-  const [draft, setDraft] = useState<QuoteDraft | null>(null);
+  const [draft, setDraft] = useState<DraftRecord | null>(null);
 
   const loadDraft = useCallback(async (id: string) => {
     try {
       const qRes = await authAPI.get<QuoteRecord>(`/quotes/${id}`);
       const q = (qRes as any).data ?? qRes;
       if (q && q.status === "draft") {
-        setDraft({ id: String(q.id), payload: q as unknown as Record<string, unknown>, created_at: q.created_at, updated_at: q.updated_at } as QuoteDraft);
+        setDraft({ id: String(q.id), created_at: q.created_at, updated_at: q.updated_at });
         reset({
           category: (q.category as string) || categoryParam || "",
           name: (q.name as string) || "",
@@ -244,7 +250,7 @@ function QuoteFormContent() {
         savedId = String(((res as any).data?.id ?? (res as any).id) ?? "");
       }
       if (savedId) {
-        setDraft((prev) => ({ id: savedId, ...(prev ?? {}) }) as QuoteDraft);
+        setDraft((prev) => ({ id: savedId, ...(prev ?? {}) }));
       }
       router.push("/mon-profil");
     } catch (error) {
