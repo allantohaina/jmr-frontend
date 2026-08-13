@@ -8,7 +8,9 @@ import { CsvPreview } from "@/app/components/document-preview";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { ArrowRight, Check, ChevronDown, FileImage, Loader2, UploadCloud, AlertTriangle, X } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, FileImage, Loader2, UploadCloud, AlertTriangle, X, Trash2 } from "lucide-react";
+import { ConfirmDialog } from "@/app/components/confirm-dialog";
+import { useToast } from "@/app/components/toast-provider";
 
 const MAX_ATTACHMENTS = 20;
 const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024;
@@ -111,6 +113,9 @@ function QuoteFormContent() {
   const [duplicateFormData, setDuplicateFormData] = useState<QuoteRequestFormData | null>(null);
   const [projectType, setProjectType] = useState<"serie" | "mesure">("serie");
   const [activeStep, setActiveStep] = useState(0);
+  const [confirmDeleteDraft, setConfirmDeleteDraft] = useState(false);
+  const [deletingDraft, setDeletingDraft] = useState(false);
+  const { showToast } = useToast();
 
   const typePickerRef = useRef<HTMLDivElement>(null);
   const specsRef = useRef<HTMLDivElement>(null);
@@ -246,6 +251,22 @@ function QuoteFormContent() {
       setSubmitError(getErrorMessage(error));
     } finally {
       setIsSavingDraft(false);
+    }
+  }
+
+  async function deleteDraft() {
+    if (!draft?.id) return;
+    setDeletingDraft(true);
+    setSubmitError("");
+    try {
+      await authAPI.delete(`/quotes/${draft.id}`);
+      showToast("Brouillon supprimé.");
+      router.push("/mon-profil");
+    } catch (error) {
+      setSubmitError(getErrorMessage(error));
+      setConfirmDeleteDraft(false);
+    } finally {
+      setDeletingDraft(false);
     }
   }
 
@@ -733,11 +754,22 @@ function QuoteFormContent() {
               )}
             </button>
             {draft && (
-              <p className="sm:col-span-2 text-center text-[10px] uppercase tracking-widest text-[#eccc90]/50">
-                Vous modifiez un brouillon. Cliquez sur Envoyer pour l&apos;envoyer à notre équipe.
-              </p>
-            )}
-          </div>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDeleteDraft(true)}
+                  disabled={deletingDraft || isSubmitting}
+                  className="sm:col-span-2 flex w-full items-center justify-center gap-3 rounded-md border border-red-400/30 py-3.5 text-xs font-bold uppercase tracking-[0.3em] text-red-300 transition-all hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Supprimer le brouillon
+                </button>
+              )}
+              {draft && (
+                <p className="sm:col-span-2 text-center text-[10px] uppercase tracking-widest text-[#eccc90]/50">
+                  Vous modifiez un brouillon. Cliquez sur Envoyer pour l&apos;envoyer à notre équipe.
+                </p>
+              )}
+            </div>
 
           <div className="mt-8 flex items-center justify-center gap-3 text-[#eccc90]/40">
             <Check className="h-4 w-4 text-[#e5ad46]" />
@@ -745,6 +777,17 @@ function QuoteFormContent() {
           </div>
         </form>
       </div>
+
+      <ConfirmDialog
+        open={confirmDeleteDraft}
+        title="Supprimer ce brouillon ?"
+        message="Cette action est irréversible. Le brouillon sera supprimé de votre espace."
+        confirmLabel="Supprimer"
+        tone="danger"
+        loading={deletingDraft}
+        onCancel={() => setConfirmDeleteDraft(false)}
+        onConfirm={() => void deleteDraft()}
+      />
     </div>
   );
 }
