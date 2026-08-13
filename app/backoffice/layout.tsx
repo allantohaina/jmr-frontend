@@ -28,6 +28,7 @@ import {
 
 const clientItems = [
   { href: "/backoffice/client/devis", label: "Devis", icon: FileText },
+  { href: "/backoffice/client/brouillons", label: "Brouillons", icon: FileText },
   { href: "/backoffice/client/orders", label: "Commandes", icon: Package },
   { href: "/backoffice/client/payments", label: "Paiements", icon: CreditCard },
   { href: "/backoffice/client/complaints", label: "Plaintes", icon: MessageSquare },
@@ -164,6 +165,12 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-2">
               <Package className="h-4 w-4 text-[#e5ad46]" />
               <span className="text-[8px] font-bold uppercase tracking-widest">Commandes</span>
+            </div>
+          </Link>
+          <Link href="/backoffice/client/brouillons" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-[#e5ad46]" />
+              <span className="text-[8px] font-bold uppercase tracking-widest">Brouillons</span>
             </div>
           </Link>
           <Link href="/backoffice/employee/tickets" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
