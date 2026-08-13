@@ -39,6 +39,21 @@ function formatDate(d: string) {
   catch { return d; }
 }
 
+function timeAgo(d?: string) {
+  if (!d) return "";
+  const diff = Date.now() - new Date(d).getTime();
+  if (Number.isNaN(diff)) return "";
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "à l'instant";
+  if (min < 60) return `il y a ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `il y a ${h} h`;
+  const days = Math.floor(h / 24);
+  if (days === 1) return "hier";
+  if (days < 7) return `il y a ${days} jours`;
+  return formatDate(d);
+}
+
 function quoteStatusLabel(s?: string | null) {
   switch (s) {
     case "pending": return "En attente";
@@ -150,6 +165,12 @@ body{background:var(--bg);color:var(--text-cream);font-family:var(--font-body);-
 .db-quote-status{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:100px;}
 .db-quote-status .dot{width:6px;height:6px;border-radius:50%;}
 .db-quote-msg{font-size:12px;color:var(--text-muted);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.db-quote-date{font-family:var(--font-mono);font-size:9.5px;color:var(--text-faint);letter-spacing:0.04em;}
+.db-draft-title{font-size:13px;font-weight:700;color:var(--text-cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:8px;min-height:17px;}
+.db-draft-progress{display:flex;align-items:center;gap:10px;max-width:220px;}
+.db-draft-progress-track{flex:1;height:5px;border-radius:100px;background:rgba(229,173,70,0.1);overflow:hidden;}
+.db-draft-progress-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--gold),var(--gold-light));transition:width .3s;}
+.db-draft-progress span{font-family:var(--font-mono);font-size:9.5px;color:var(--text-faint);}
 .db-quote-deadline{font-family:var(--font-mono);font-size:10px;margin-top:6px;font-weight:600;}
 .db-quote-deadline.urgent{color:var(--warn);}
 .db-quote-deadline.expired{color:#e05252;}
@@ -270,7 +291,12 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   const submittedQuotes = quotes;
   const allDrafts = submittedQuotes
     .filter((q) => q.status === "draft")
-    .map((q) => ({ id: String(q.id), name: q.name ?? "", message: q.message ?? "", created_at: q.created_at ?? "", status: "draft" }));
+    .map((q) => ({
+      id: String(q.id),
+      titre: q.titre ?? "",
+      progression: q.progression ?? 0,
+      updated_at: q.updated_at ?? q.created_at ?? "",
+    }));
   const draftCount = allDrafts.length;
   const pendingQuotes = submittedQuotes.filter((q) => q.status === "pending" || q.status === "needs_info");
   const latestPendingQuote = [...pendingQuotes].sort(
@@ -401,9 +427,16 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                                   <span className="dot" style={{ background: STATUS_DOT.draft }} />
                                   Brouillon
                                 </span>
+                                <span className="db-quote-date">Modifié {timeAgo(d.updated_at)}</span>
                               </div>
-                              <div className="db-quote-msg">
-                                {d.name || "Brouillon de devis"}{d.message ? ` — ${String(d.message).slice(0, 90)}` : ""}
+                              <div className="db-draft-title" title={d.titre || "Sans objet"}>
+                                {d.titre || "(sans objet)"}
+                              </div>
+                              <div className="db-draft-progress">
+                                <div className="db-draft-progress-track">
+                                  <div className="db-draft-progress-fill" style={{ width: `${Math.max(0, Math.min(100, d.progression))}%` }} />
+                                </div>
+                                <span>{d.progression}% complété</span>
                               </div>
                             </div>
                             <div className="db-quote-action">

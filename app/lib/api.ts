@@ -70,6 +70,8 @@ export type PaymentRecord = {
 
 export type QuoteRecord = {
   id: number | string;
+  titre?: string;
+  progression?: number;
   name?: string;
   email?: string;
   phone?: string;
