@@ -6,7 +6,7 @@ type HrApiResponse<T = unknown> = {
 
 type RequestBody = Record<string, unknown> | FormData;
 
-const DEFAULT_BACKEND_API_URL = "https://api.jmrtextile.com/api";
+const DEFAULT_BACKEND_API_URL = "/api";
 
 function getBackendApiUrl() {
   return (process.env.NEXT_PUBLIC_API_URL || DEFAULT_BACKEND_API_URL).replace(/\/+$/, "");

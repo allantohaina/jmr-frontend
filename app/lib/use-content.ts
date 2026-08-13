@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { authAPI } from "./api";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.jmrtextile.com/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export function useContent() {
   const [content, setContent] = useState<Record<string, string>>({});

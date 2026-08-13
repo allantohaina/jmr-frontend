@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getUser, getToken } from "@/app/lib/auth";
 import { authAPI, draftsAPI } from "@/app/lib/api";
+import { normalizeFileUrl } from "@/app/lib/api";
 import { checkpointsAPI, addonsAPI, paymentsAPI } from "@/app/lib/api";
 import type { QuoteRecord, CommandeRecord, QuoteCheckpoint, QuoteAddon, PaymentRecord } from "@/app/lib/api";
 import { STATUTS_PRODUCTION } from "@/app/lib/api";
@@ -38,16 +39,17 @@ type QuoteFile = { name?: string; url: string; type?: string };
 
 function parseQuoteFiles(quote: QuoteRecord | null): QuoteFile[] {
   const raw = quote?.files;
-  if (Array.isArray(raw)) return raw as QuoteFile[];
-  if (typeof raw === "string") {
+  let files: QuoteFile[] = [];
+  if (Array.isArray(raw)) files = raw as QuoteFile[];
+  else if (typeof raw === "string") {
     try {
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? (parsed as QuoteFile[]) : [];
+      files = Array.isArray(parsed) ? (parsed as QuoteFile[]) : [];
     } catch {
       return [];
     }
   }
-  return [];
+  return files.map((file) => (file.url ? { ...file, url: normalizeFileUrl(file.url) } : file));
 }
 
 function isImageType(file: QuoteFile): boolean {

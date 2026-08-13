@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle, Clock, AlertTriangle } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.jmrtextile.com/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 type SharedQuote = {
   id: string;
