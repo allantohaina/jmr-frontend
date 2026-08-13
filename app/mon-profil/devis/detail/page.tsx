@@ -7,6 +7,8 @@ import { authAPI, draftsAPI } from "@/app/lib/api";
 import { checkpointsAPI, addonsAPI, paymentsAPI } from "@/app/lib/api";
 import type { QuoteRecord, CommandeRecord, QuoteCheckpoint, QuoteAddon, PaymentRecord } from "@/app/lib/api";
 import { STATUTS_PRODUCTION } from "@/app/lib/api";
+import { ConfirmDialog } from "@/app/components/confirm-dialog";
+import { useToast } from "@/app/components/toast-provider";
 
 function formatDate(d: string | null | undefined): string {
   if (!d) return "—";
@@ -162,6 +164,9 @@ function DevisDetailContent() {
   const [reportMessage, setReportMessage] = useState<string | null>(null);
   const [validatingCp, setValidatingCp] = useState<string | null>(null);
   const [sendingQuote, setSendingQuote] = useState(false);
+  const [confirmSendOpen, setConfirmSendOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const { showToast } = useToast();
 
   const loadQuote = useCallback(async (token: string) => {
     let quoteData: QuoteRecord | null = null;
@@ -265,7 +270,6 @@ function DevisDetailContent() {
 
   const sendQuote = async () => {
     if (!quote) return;
-    if (!confirm("Envoyer ce devis à l'atelier ? Cette action est irréversible.")) return;
     setSendingQuote(true);
     try {
       if (quoteSource === "draft") {
@@ -285,9 +289,10 @@ function DevisDetailContent() {
       const token = getToken();
       if (token) await loadQuote(token);
     } catch {
-      alert("Erreur lors de l'envoi. Réessayez.");
+      showToast("Erreur lors de l'envoi. Réessayez.", "error");
     } finally {
       setSendingQuote(false);
+      setConfirmSendOpen(false);
     }
   };
 
@@ -478,21 +483,11 @@ function DevisDetailContent() {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 4H6A2 2 0 004 6V18A2 2 0 006 20H18A2 2 0 0020 18V13"/><path d="M18.5 2.5A2.1 2.1 0 0121.5 5.5L12 15L8 16L9 12L18.5 2.5Z"/></svg>
                   Modifier le brouillon
                 </Link>
-                <button className="btn-gold" onClick={sendQuote} disabled={sendingQuote}>
+                <button className="btn-gold" onClick={() => setConfirmSendOpen(true)} disabled={sendingQuote}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
                   {sendingQuote ? "Envoi…" : "Envoyer le devis"}
                 </button>
-                <button className="btn-outline" style={{ color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={async () => {
-                  if (!confirm("Supprimer ce brouillon ?")) return;
-                  try {
-                    if (quoteSource === "draft") {
-                      await draftsAPI.remove(String(quote.id));
-                    } else {
-                      await authAPI.delete(`/quotes/${quote.id}`);
-                    }
-                    router.push("/mon-profil/devis");
-                  } catch { alert("Erreur lors de la suppression."); }
-                }}>
+                <button className="btn-outline" style={{ color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={() => setConfirmDeleteOpen(true)}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
                   Supprimer
                 </button>
@@ -996,6 +991,41 @@ function DevisDetailContent() {
 
         <footer className="site-footer">JMR Textile © 2026 — Suivi mis à jour automatiquement par l&apos;atelier</footer>
       </div>
+
+      <ConfirmDialog
+        open={confirmSendOpen}
+        title="Envoyer ce devis à l'atelier ?"
+        message="Cette action est irréversible. Vous ne pourrez plus le modifier après l'envoi."
+        confirmLabel="Envoyer"
+        tone="primary"
+        loading={sendingQuote}
+        onCancel={() => setConfirmSendOpen(false)}
+        onConfirm={sendQuote}
+      />
+
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        title="Supprimer ce brouillon ?"
+        message="Cette action est définitive. Le brouillon sera supprimé de votre espace."
+        confirmLabel="Supprimer"
+        tone="danger"
+        loading={false}
+        onCancel={() => setConfirmDeleteOpen(false)}
+        onConfirm={async () => {
+          if (!quote) return;
+          try {
+            if (quoteSource === "draft") {
+              await draftsAPI.remove(String(quote.id));
+            } else {
+              await authAPI.delete(`/quotes/${quote.id}`);
+            }
+            router.push("/mon-profil/devis");
+          } catch {
+            showToast("Erreur lors de la suppression.", "error");
+            setConfirmDeleteOpen(false);
+          }
+        }}
+      />
     </>
   );
 }

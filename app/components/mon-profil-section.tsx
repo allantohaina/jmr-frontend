@@ -6,6 +6,8 @@ import Link from "next/link";
 import type { UserProfile } from "@/app/lib";
 import { authAPI, draftsAPI, type QuoteRecord, type CommandeRecord, type QuoteDraft } from "@/app/lib";
 import { getErrorMessage } from "@/app/lib/errors";
+import { ConfirmDialog } from "@/app/components/confirm-dialog";
+import { useToast } from "@/app/components/toast-provider";
 
 type ProfileCard = {
   title: string;
@@ -256,9 +258,13 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   const [showAllQuotes, setShowAllQuotes] = useState(false);
   const [showAllDrafts, setShowAllDrafts] = useState(false);
   const [draftFilter, setDraftFilter] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; source: "draft-api" | "quote" } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmingQuote, setConfirmingQuote] = useState(false);
+  const { showToast } = useToast();
 
   const deleteDraft = useCallback(async (draftId: string, source: "draft-api" | "quote") => {
-    if (!confirm("Supprimer ce brouillon ?")) return;
+    setDeleting(true);
     try {
       if (source === "draft-api") {
         await draftsAPI.remove(draftId);
@@ -267,8 +273,14 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
       }
       setDrafts((prev) => prev.filter((d) => d.id !== draftId));
       setQuotes((prev) => prev.filter((q) => String(q.id) !== draftId));
-    } catch { /* ignored */ }
-  }, []);
+      showToast("Brouillon supprimé.");
+    } catch (e) {
+      showToast(getErrorMessage(e), "error");
+    } finally {
+      setDeleting(false);
+      setPendingDelete(null);
+    }
+  }, [showToast]);
 
   useEffect(() => {
     let active = true;
@@ -439,7 +451,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                                 Reprendre
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                               </Link>
-                              <button className="db-btn-sm" style={{ marginLeft: 8, color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={() => deleteDraft(String(d.id), d.source)} title="Supprimer">
+                              <button className="db-btn-sm" style={{ marginLeft: 8, color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={() => setPendingDelete({ id: String(d.id), source: d.source })} title="Supprimer">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
                               </button>
                             </div>
@@ -468,7 +480,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                               </Link>
                               {q.status === "draft" && (
-                                <button className="db-btn-sm" style={{ marginLeft: 8, color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={() => deleteDraft(String(q.id), drafts.some((d) => d.id === String(q.id)) ? "draft-api" : "quote")} title="Supprimer">
+                                <button className="db-btn-sm" style={{ marginLeft: 8, color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={() => setPendingDelete({ id: String(q.id), source: drafts.some((d) => d.id === String(q.id)) ? "draft-api" : "quote" })} title="Supprimer">
                                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
                                 </button>
                               )}
@@ -595,10 +607,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                       </p>
                     )}
                     {!isExpired && (
-                      <button className="db-modal-btn" onClick={async () => {
-                        if (!confirm("Confirmer ce devis ? Cette action est irréversible.")) return;
-                        try { await authAPI.post(`/quotes/${selectedQuote.id}/confirm`, {}); window.location.reload(); } catch { alert("Erreur lors de la confirmation."); }
-                      }}>
+                      <button className="db-modal-btn" onClick={() => setConfirmingQuote(true)}>
                         Confirmer le devis
                       </button>
                     )}
@@ -608,6 +617,32 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
             </div>
           </div>
         )}
+
+        <ConfirmDialog
+          open={!!pendingDelete}
+          title="Supprimer ce brouillon ?"
+          message="Cette action est définitive. Le brouillon sera supprimé de votre espace."
+          confirmLabel="Supprimer"
+          tone="danger"
+          loading={deleting}
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={() => pendingDelete && deleteDraft(pendingDelete.id, pendingDelete.source)}
+        />
+
+        <ConfirmDialog
+          open={confirmingQuote}
+          title="Confirmer ce devis ?"
+          message="Cette action est irréversible. Vous validez le devis et lancez la production."
+          confirmLabel="Confirmer le devis"
+          tone="primary"
+          loading={false}
+          onCancel={() => setConfirmingQuote(false)}
+          onConfirm={async () => {
+            if (!selectedQuote) return;
+            try { await authAPI.post(`/quotes/${selectedQuote.id}/confirm`, {}); window.location.reload(); }
+            catch { showToast("Erreur lors de la confirmation.", "error"); setConfirmingQuote(false); }
+          }}
+        />
       </section>
     );
   }
