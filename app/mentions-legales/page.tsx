@@ -56,7 +56,8 @@ export default function MentionsLegales() {
           <section className="bg-[#25303a] p-10 rounded-[2.5rem] border border-[#e5ad46]/5 shadow-xl">
             <h2 className="font-headline text-3xl text-[#e5ad46] mb-6">4. Hébergement</h2>
             <p className="text-lg">
-              Le site est hébergé par <strong className="text-[#e5ad46]">[Nom de l&apos;hébergeur]</strong>, situé à [Adresse de l&apos;hébergeur].
+              Le site est hébergé par <strong className="text-[#e5ad46]">Tranokala</strong>, une solution d&apos;hébergement basée sur cPanel, disponible sur{" "}
+              <a href="https://tranokala.pro" target="_blank" rel="noopener noreferrer" className="text-[#e5ad46] hover:text-[#eccc90] underline underline-offset-4">tranokala.pro</a>.
             </p>
           </section>
 
