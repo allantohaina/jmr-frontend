@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useLocale } from "@/app/components/locale-provider";
 import {
   CONSENT_COOKIE_MAX_AGE,
@@ -127,6 +128,12 @@ export function ConsentBanner() {
             {messages.consent.bannerTitle}
           </h2>
           <p className="mt-2 text-sm text-white/70">{messages.consent.bannerText}</p>
+          <Link
+            href="/confidentialite"
+            className="mt-2 inline-block text-sm text-[#e5ad46] underline underline-offset-4 hover:text-[#eccc90]"
+          >
+            {messages.consent.privacyLinkText}
+          </Link>
 
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-2 text-sm text-white/80">

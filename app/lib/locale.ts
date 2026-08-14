@@ -131,6 +131,7 @@ const messages = {
       bannerTitle: "Votre vie privee",
       bannerText:
         "Nous utilisons des cookies pour ameliorer votre navigation et vous proposer des notifications (pop-ups) pour vous tenir informe, meme en dehors du site. Vous pouvez accepter ou refuser.",
+      privacyLinkText: "Consulter la politique de confidentialite",
       cookiesLabel: "J'accepte les cookies",
       notificationsLabel: "J'accepte les notifications (pop-ups)",
       accept: "Tout accepter",
@@ -268,6 +269,7 @@ const messages = {
       bannerTitle: "Your privacy",
       bannerText:
         "We use cookies to improve your browsing and to offer you notifications (pop-ups) so you can stay informed even away from the site. You may accept or decline.",
+      privacyLinkText: "View the privacy policy",
       cookiesLabel: "I accept cookies",
       notificationsLabel: "I accept notifications (pop-ups)",
       accept: "Accept all",
