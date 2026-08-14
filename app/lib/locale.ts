@@ -127,6 +127,26 @@ const messages = {
       copyright: "© 2026 JMR Textile Atelier • Fabrication Madagascar",
       values: "Fiabilite • Transparence • Qualite",
     },
+    consent: {
+      bannerTitle: "Votre vie privee",
+      bannerText:
+        "Nous utilisons des cookies pour ameliorer votre navigation et vous proposer des notifications (pop-ups) pour vous tenir informe, meme en dehors du site. Vous pouvez accepter ou refuser.",
+      cookiesLabel: "J'accepte les cookies",
+      notificationsLabel: "J'accepte les notifications (pop-ups)",
+      accept: "Tout accepter",
+      refuse: "Tout refuser",
+      close: "Fermer",
+    },
+    notifications: {
+      bellTitle: "Notifications",
+      empty: "Aucune notification pour le moment.",
+      enablePush: "Activer les notifications",
+      enablePushHint: "Recevez les alertes meme hors du site.",
+      pushEnabled: "Notifications activees",
+      pushDisabled: "Notifications desactivees",
+      pushTest: "Envoyer une notification de test",
+      pushTestSent: "Notification de test envoyee",
+    },
   },
   en: {
     common: {
@@ -243,6 +263,26 @@ const messages = {
       directContact: "Direct Contact",
       copyright: "© 2026 JMR Textile Workshop • Made in Madagascar",
       values: "Reliability • Transparency • Quality",
+    },
+    consent: {
+      bannerTitle: "Your privacy",
+      bannerText:
+        "We use cookies to improve your browsing and to offer you notifications (pop-ups) so you can stay informed even away from the site. You may accept or decline.",
+      cookiesLabel: "I accept cookies",
+      notificationsLabel: "I accept notifications (pop-ups)",
+      accept: "Accept all",
+      refuse: "Decline all",
+      close: "Close",
+    },
+    notifications: {
+      bellTitle: "Notifications",
+      empty: "No notifications yet.",
+      enablePush: "Enable notifications",
+      enablePushHint: "Get alerts even away from the site.",
+      pushEnabled: "Notifications enabled",
+      pushDisabled: "Notifications disabled",
+      pushTest: "Send a test notification",
+      pushTestSent: "Test notification sent",
     },
   },
 } as const;

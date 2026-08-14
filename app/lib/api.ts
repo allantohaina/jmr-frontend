@@ -459,6 +459,36 @@ export const notificationsAPI = {
     fetchWithAuth<{ message: string }>("/notifications/read-all", { method: "PUT" }),
 };
 
+export type PushSubscriptionRecord = {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  keys_p256dh: string;
+  keys_auth: string;
+};
+
+export const VAPID_PUBLIC_KEY =
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ||
+  "BNsDxfgA7RWVBdMWdlsXI6G56Z7emrvP2bACxNd8378UnrCVgF3iA2nQFqBvgeZ9sCL2BY4vJ0f53WLElP-nUR8";
+
+export const pushAPI = {
+  list: async () =>
+    fetchWithAuth<PushSubscriptionRecord[]>("/push-subscriptions", { method: "GET" }),
+  subscribe: async (subscription: PushSubscription) => {
+    const subscriptionJson = subscription.toJSON();
+    return fetchWithAuth<PushSubscriptionRecord>("/push-subscriptions", {
+      method: "POST",
+      body: JSON.stringify({
+        endpoint: subscriptionJson.endpoint,
+        keys: subscriptionJson.keys,
+      }),
+    });
+  },
+  unsubscribe: async (id: string) =>
+    fetchWithAuth<{ message: string }>(`/push-subscriptions/${id}`, { method: "DELETE" }),
+  test: async () => fetchWithAuth<{ message: string }>("/push-subscriptions/test", { method: "POST" }),
+};
+
 export type QuoteCheckpoint = {
   id: string;
   quote_id: string;

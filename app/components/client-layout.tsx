@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { type ReactNode } from "react";
 import { Navbar } from "./navbar";
 import { Footer } from "./footer";
+import { ConsentBanner } from "./consent-banner";
 import type { ThemeName } from "@/app/lib/theme";
 
 const AUTH_PATHS = ["/admin-login", "/worker-login", "/login", "/login/staff"];
@@ -31,6 +32,7 @@ export function ClientLayout({
         {children}
       </main>
       <Footer />
+      <ConsentBanner />
     </>
   );
 }

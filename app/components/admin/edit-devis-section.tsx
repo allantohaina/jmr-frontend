@@ -9,6 +9,7 @@ import { TextileDocument, AdminSignaturePanel } from "@/app/components/documents
 import type { DocumentSignature, DocumentLineItem, TextileDocumentProps } from "@/app/components/documents/types";
 import { Loader, Printer, ShoppingCart } from "lucide-react";
 import { AttachmentUploader } from "./attachment-uploader";
+import { useToast } from "@/app/components/toast-provider";
 
 type QuoteRecord = {
   id: string | number;
@@ -122,6 +123,7 @@ function getInitials(value?: string | number | null) {
 }
 
 export function EditDevisSection({ id }: { id: string }) {
+  const { showToast } = useToast();
   const [quote, setQuote] = useState<QuoteRecord | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -250,6 +252,18 @@ export function EditDevisSection({ id }: { id: string }) {
       });
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function notifyClient(alertType: string) {
+    if (!alertType) return;
+
+    setNotice(null);
+    try {
+      await authAPI.post(`/quotes/${id}/notify`, { type: alertType });
+      showToast("Notification envoyée au client. Il sera prévenu même hors du site.", "success");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Impossible d'envoyer la notification.", "error");
     }
   }
 
@@ -541,8 +555,13 @@ export function EditDevisSection({ id }: { id: string }) {
               </p>
               <select 
                 className="w-full bg-white border-none p-3 rounded-lg text-[11px] font-bold text-orange-900 outline-none"
+                defaultValue=""
                 onChange={(e) => {
-                  if (e.target.value) alert(`Notification "${e.target.value}" envoyée au client.`);
+                  const value = e.target.value;
+                  if (value) {
+                    void notifyClient(value);
+                    e.target.value = "";
+                  }
                 }}
               >
                 <option value="">S&eacute;lectionner un type d&apos;alerte...</option>

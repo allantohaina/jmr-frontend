@@ -4,6 +4,7 @@ export * from './auth-access-section';
 export * from './auth-bar';
 export * from './brand-motto';
 export * from './client-layout';
+export * from './consent-banner';
 export * from './demande-devis-section';
 export * from './deposit-payment-selector';
 export * from './editable-text';

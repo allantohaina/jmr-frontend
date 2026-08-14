@@ -12,7 +12,14 @@ import { ThemeToggle } from "@/app/components/theme-toggle";
 import MobileMenu from "@/app/components/MobileMenu";
 import { getUser, writeBrowserCookie, getToken } from "@/app/lib/auth";
 import { signOutClient } from "@/app/lib/auth-client";
-import { authAPI, notificationsAPI, type NotificationRecord, type UserProfile } from "@/app/lib/api";
+import { authAPI, notificationsAPI, pushAPI, VAPID_PUBLIC_KEY, type NotificationRecord, type UserProfile } from "@/app/lib/api";
+import {
+  NOTIFICATIONS_ENABLED_COOKIE_NAME,
+  isPushSupported,
+  registerServiceWorker,
+  requestNotificationPermission,
+  subscribeToPush,
+} from "@/app/lib/push";
 import { LOCALE_COOKIE_NAME, type Locale } from "@/app/lib/locale";
 import type { ThemeName } from "@/app/lib/theme";
 
@@ -64,6 +71,8 @@ export function Navbar({
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [isPushEnabled, setIsPushEnabled] = useState(false);
+  const [isPushBusy, setIsPushBusy] = useState(false);
   const effectiveUserFirstName = sessionUser?.first_name ?? userFirstName;
   const effectiveUserRole = sessionUser?.role ?? userRole;
   const effectiveIsSignedIn = isSignedIn || !!sessionUser;
@@ -216,6 +225,68 @@ export function Navbar({
     const intervalId = window.setInterval(loadNotifications, 60_000);
     return () => { active = false; window.clearInterval(intervalId); };
   }, [effectiveIsSignedIn]);
+
+  useEffect(() => {
+    if (!effectiveIsSignedIn || !isPushSupported()) {
+      setIsPushEnabled(false);
+      return;
+    }
+
+    let active = true;
+    const syncPushState = async () => {
+      const registration = await registerServiceWorker();
+      if (!active) return;
+      const subscription = registration ? await registration.pushManager.getSubscription() : null;
+      if (!active) return;
+      setIsPushEnabled(!!subscription);
+    };
+    void syncPushState();
+    return () => { active = false; };
+  }, [effectiveIsSignedIn]);
+
+  async function handleTogglePush() {
+    if (isPushBusy) return;
+    setIsPushBusy(true);
+
+    try {
+      if (isPushEnabled) {
+        const registration = await registerServiceWorker();
+        const subscription = registration ? await registration.pushManager.getSubscription() : null;
+        if (subscription) {
+          const endpoint = subscription.endpoint;
+          await subscription.unsubscribe();
+          const listRes = await pushAPI.list().catch(() => null);
+          const list = listRes?.data ?? [];
+          const match = Array.isArray(list) ? list.find((s) => s.endpoint === endpoint) : null;
+          if (match?.id) await pushAPI.unsubscribe(match.id).catch(() => {});
+        }
+        writeBrowserCookie(NOTIFICATIONS_ENABLED_COOKIE_NAME, "0", { maxAge: 60 * 60 * 24 * 365, path: "/", sameSite: "Lax" });
+        setIsPushEnabled(false);
+        return;
+      }
+
+      const permission = await requestNotificationPermission();
+      if (permission !== "granted") return;
+
+      const subscription = await subscribeToPush(VAPID_PUBLIC_KEY);
+      if (!subscription) return;
+
+      const saved = await pushAPI.subscribe(subscription);
+      localStorage.setItem("jmr_push_sub_id", saved.data.id);
+      writeBrowserCookie(NOTIFICATIONS_ENABLED_COOKIE_NAME, "1", { maxAge: 60 * 60 * 24 * 365, path: "/", sameSite: "Lax" });
+      setIsPushEnabled(true);
+    } finally {
+      setIsPushBusy(false);
+    }
+  }
+
+  async function handleTestPush() {
+    try {
+      await pushAPI.test();
+    } catch {
+      // The dropdown must keep working even if the test fails.
+    }
+  }
 
   useEffect(() => {
     if (!isMenuOpen) {
@@ -508,10 +579,43 @@ export function Navbar({
 
               {isNotifOpen && (
                 <div className="absolute top-full right-0 mt-2 w-80 bg-[#25303a] border border-[#e5ad46]/20 rounded-xl shadow-xl py-4 px-4 z-[110] animate-in fade-in zoom-in-95 duration-200">
-                  <h3 className="text-sm font-semibold text-[#e5ad46] mb-3">Notifications</h3>
+                  <h3 className="text-sm font-semibold text-[#e5ad46] mb-3">{messages.notifications.bellTitle}</h3>
+
+                  {isPushSupported() && (
+                    <div className="mb-3 rounded-lg bg-[#1e2a38] p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-white">{messages.notifications.enablePush}</p>
+                          <p className="text-xs text-white/60 mt-0.5">{messages.notifications.enablePushHint}</p>
+                        </div>
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={isPushEnabled}
+                          disabled={isPushBusy}
+                          onClick={() => void handleTogglePush()}
+                          className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-60 ${isPushEnabled ? "bg-[#e5ad46]" : "bg-white/20"}`}
+                        >
+                          <span
+                            className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform ${isPushEnabled ? "translate-x-5" : ""}`}
+                          />
+                        </button>
+                      </div>
+                      {isPushEnabled && (
+                        <button
+                          type="button"
+                          onClick={() => void handleTestPush()}
+                          className="mt-2 w-full rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-white/75 transition-colors hover:bg-white/10"
+                        >
+                          {messages.notifications.pushTest}
+                        </button>
+                      )}
+                    </div>
+                  )}
+
                   <div className="space-y-2 max-h-64 overflow-y-auto">
                     {notifications.length === 0 ? (
-                      <p className="p-3 text-sm text-white/60">Aucune notification pour le moment.</p>
+                      <p className="p-3 text-sm text-white/60">{messages.notifications.empty}</p>
                     ) : notifications.map((notification) => (
                       <Link
                         key={notification.id}
