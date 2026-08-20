@@ -84,7 +84,7 @@ function statutToStepIndex(statut: string | null | undefined): number {
   if (!statut) return 0;
   if (statut === "Livrée") return 4; // Terminé
   if (statut === "Prête") return 3; // Livraison
-  const idx = STATUTS_PRODUCTION.indexOf(statut as any);
+  const idx = STATUTS_PRODUCTION.indexOf(statut as (typeof STATUTS_PRODUCTION)[number]);
   if (idx >= 0 && idx < 4) return 2; // Production
   return 0;
 }
@@ -171,14 +171,14 @@ function DevisDetailContent() {
     let quoteData: QuoteRecord | null = null;
     try {
       const quoteRes = await authAPI.get<QuoteRecord>(`/quotes/${id}`);
-      quoteData = (quoteRes as any).data ?? quoteRes;
+      quoteData = quoteRes.data;
     } catch {
       throw new Error("NOT_FOUND");
     }
     setQuote(quoteData);
 
     const commandesRes = await authAPI.get<CommandeRecord[]>("/commandes/").catch(() => ({ data: [] as CommandeRecord[] }));
-    const allCommandes: CommandeRecord[] = (commandesRes as any).data ?? commandesRes;
+    const allCommandes: CommandeRecord[] = commandesRes.data;
     const filtered = allCommandes.filter((c) => c.cotation_id === id);
     setCommandes(filtered);
     if (filtered.length > 0) {
@@ -188,12 +188,12 @@ function DevisDetailContent() {
     if (quoteData?.status !== "draft") {
       const [cpRes, addonRes, payRes] = await Promise.all([
         checkpointsAPI.list(id as string).catch(() => ({ data: [] })),
-        addonsAPI.list(id as string).catch(() => ({ data: [], total_validated: 0 })),
-        paymentsAPI.list(id as string).catch(() => ({ data: [], total_verified: 0 })),
+        addonsAPI.list(id as string).catch(() => ({ data: [] as QuoteAddon[] })),
+        paymentsAPI.list(id as string).catch(() => ({ data: [] as PaymentRecord[] })),
       ]);
-      setCheckpoints((cpRes as any).data ?? []);
-      setAddons(((addonRes as any).data ?? []) as QuoteAddon[]);
-      setPayments(((payRes as any).data ?? []) as PaymentRecord[]);
+      setCheckpoints(cpRes.data ?? []);
+      setAddons(addonRes.data ?? []);
+      setPayments(payRes.data ?? []);
     }
   }, [id]);
 
@@ -374,8 +374,8 @@ function DevisDetailContent() {
 
   const quoteFiles = parseQuoteFiles(quote);
   const quoteNotifications = Array.isArray(quote.notifications) ? quote.notifications : [];
-  const warnItems = quoteNotifications.filter((n: any) => n.type === "delay" || n.type === "error");
-  const goodItems = quoteNotifications.filter((n: any) => n.type === "info");
+  const warnItems = quoteNotifications.filter((n) => n.type === "delay" || n.type === "error");
+  const goodItems = quoteNotifications.filter((n) => n.type === "info");
   const allMessages = [...goodItems, ...warnItems];
 
   const pendingAddonCount = displayAddons.filter((a) => a.status === "pending").length;
@@ -385,7 +385,7 @@ function DevisDetailContent() {
 
   const buildAlerts = (cmd: CommandeRecord): Alert[] => {
     const list: Alert[] = [];
-    if ((cmd as any).en_retard) list.push({ type: "warn", text: "Retard sur la date de livraison prévue" });
+    if (cmd.en_retard) list.push({ type: "warn", text: "Retard sur la date de livraison prévue" });
     if (pendingAddonCount > 0) list.push({ type: "warn", text: `${pendingAddonCount} ajout${pendingAddonCount > 1 ? "s" : ""} en attente de chiffrage` });
     if (cmd.notes) list.push({ type: "warn", text: cmd.notes });
     return list;
@@ -739,7 +739,7 @@ function DevisDetailContent() {
                           <div className="hl-empty">Aucun point d&apos;attention</div>
                         ) : (
                           <>
-                            {warnItems.slice(0, warnExtraOpen ? warnItems.length : 3).map((a: any, i: number) => (
+                            {warnItems.slice(0, warnExtraOpen ? warnItems.length : 3).map((a, i: number) => (
                               <div key={i} className="hl-item">
                                 <span className="num">{String(i + 1).padStart(2, "0")}</span>
                                 <div className="hl-item-body">
@@ -769,7 +769,7 @@ function DevisDetailContent() {
                           <div className="hl-empty">Aucune avancée signalée</div>
                         ) : (
                           <>
-                            {goodItems.slice(0, goodExtraOpen ? goodItems.length : 3).map((a: any, i: number) => (
+                            {goodItems.slice(0, goodExtraOpen ? goodItems.length : 3).map((a, i: number) => (
                               <div key={i} className="hl-item">
                                 <span className="num">{String(i + 1).padStart(2, "0")}</span>
                                 <div className="hl-item-body">
@@ -841,7 +841,7 @@ function DevisDetailContent() {
                       {allMessages.length === 0 ? (
                         <div className="hl-empty" style={{ padding: "20px 0" }}>Aucun message de l&apos;atelier pour le moment.</div>
                       ) : (
-                        allMessages.map((msg: any, i: number) => (
+                        allMessages.map((msg, i: number) => (
                           <div key={i} className="feedback-item">
                             <div className="fb-avatar">A</div>
                             <div className="fb-body">

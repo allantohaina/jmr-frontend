@@ -5,6 +5,35 @@ import { Printer } from "lucide-react";
 
 type PayField = { price: string; advance: string };
 
+type MeasureGridProps = {
+  labels: string[];
+  measures: Record<string, string>;
+  inputCls: string;
+  onChange: (label: string, value: string) => void;
+};
+
+function MeasureGrid({ labels, measures, inputCls, onChange }: MeasureGridProps) {
+  return (
+    <div className="grid grid-cols-1 gap-px border border-[#172d42]/15 bg-[#172d42]/15 sm:grid-cols-2 lg:grid-cols-3">
+      {labels.map((label) => (
+        <div key={label} className="flex items-center justify-between gap-2.5 bg-[#fffdf8] px-4 py-3">
+          <label className="flex-1 text-[12.5px] text-[#40566a]">{label}</label>
+          <div className="flex items-baseline gap-1">
+            <input
+              type="number"
+              step="0.5"
+              value={measures[label] ?? ""}
+              onChange={(e) => onChange(label, e.target.value)}
+              className={inputCls}
+            />
+            <span className="text-[10.5px] text-[#6f8292]">cm</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function MeasurementSheet() {
   const [idDate, setIdDate] = useState("");
   const [idReceipt, setIdReceipt] = useState("");
@@ -48,28 +77,6 @@ export function MeasurementSheet() {
   const haut = ["Dos", "Épaule", "Poitrine", "Longueur manche", "Tour manche", "Poignet", "Longueur taille", "Col", "Pinces"];
   const bas = ["Tour de taille", "Bassin", "Cuisse", "Genoux", "Longueur pantalon", "Bas", "Longueur jupe", "Ceinture"];
   const specifiques = ["Longueur camisole", "Longueur robe", "Longueur chemise"];
-
-  function MeasureGrid({ labels }: { labels: string[] }) {
-    return (
-      <div className="grid grid-cols-1 gap-px border border-[#172d42]/15 bg-[#172d42]/15 sm:grid-cols-2 lg:grid-cols-3">
-        {labels.map((label) => (
-          <div key={label} className="flex items-center justify-between gap-2.5 bg-[#fffdf8] px-4 py-3">
-            <label className="flex-1 text-[12.5px] text-[#40566a]">{label}</label>
-            <div className="flex items-baseline gap-1">
-              <input
-                type="number"
-                step="0.5"
-                value={measures[label] ?? ""}
-                onChange={(e) => setMeasure(label, e.target.value)}
-                className={measureInputCls}
-              />
-              <span className="text-[10.5px] text-[#6f8292]">cm</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
 
   return (
     <div className="doc-print-root bg-[#eef0f3] px-4 py-8 md:px-8">
@@ -126,7 +133,7 @@ export function MeasurementSheet() {
             Haut du corps
             <span className="h-px flex-1 bg-[#172d42]/15" />
           </div>
-          <MeasureGrid labels={haut} />
+          <MeasureGrid labels={haut} measures={measures} inputCls={measureInputCls} onChange={setMeasure} />
         </div>
 
         {/* BAS DU CORPS */}
@@ -135,7 +142,7 @@ export function MeasurementSheet() {
             Bas du corps
             <span className="h-px flex-1 bg-[#172d42]/15" />
           </div>
-          <MeasureGrid labels={bas} />
+          <MeasureGrid labels={bas} measures={measures} inputCls={measureInputCls} onChange={setMeasure} />
         </div>
 
         {/* PIECES SPECIFIQUES */}
@@ -144,7 +151,7 @@ export function MeasurementSheet() {
             Pièces spécifiques
             <span className="h-px flex-1 bg-[#172d42]/15" />
           </div>
-          <MeasureGrid labels={specifiques} />
+          <MeasureGrid labels={specifiques} measures={measures} inputCls={measureInputCls} onChange={setMeasure} />
           <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f8292]">Modèle souhaité</label>

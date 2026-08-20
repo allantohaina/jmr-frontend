@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.jmrtextile.com/api";
+
 type ExchangeRateData = {
   base: string;
   rates: Record<string, number>;
@@ -26,7 +28,7 @@ export function useExchangeRate(base = "USD", symbols = "MGA,EUR"): UseExchangeR
     setError(null);
     try {
       const res = await fetch(
-        `/api/exchange-rates?base=${encodeURIComponent(base)}&symbols=${encodeURIComponent(symbols)}`
+        `${API_BASE}/exchange-rates?base=${encodeURIComponent(base)}&symbols=${encodeURIComponent(symbols)}`
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data: ExchangeRateData = await res.json();

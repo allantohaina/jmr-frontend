@@ -3,11 +3,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { authAPI, CommandeRecord, STATUTS_PRODUCTION, type UserProfile } from "@/app/lib/api";
+import { commandesExtrasAPI, type LienPaiementRecord } from "@/app/lib/api";
 import { TextileDocument, AdminSignaturePanel } from "@/app/components/documents";
 import type { DocumentSignature, DocumentLineItem, TextileDocumentProps } from "@/app/components/documents/types";
 import { PrivilegeBadge } from "@/app/components/admin/privilege-badge";
-import { Loader, X, Printer } from "lucide-react";
+import { Loader, X, Printer, CreditCard, QrCode, Receipt, Copy, Check } from "lucide-react";
 import { AttachmentUploader } from "@/app/components/admin/attachment-uploader";
+import { QRCodeSVG } from "qrcode.react";
 
 function commandeToDoc(c: CommandeRecord): Omit<TextileDocumentProps, "kind"> {
   const lines: DocumentLineItem[] = [
@@ -55,6 +57,12 @@ export default function AdminCommandesPage() {
   const [selectedId, setSelectedId] = useState<string | null>(searchParams.get("id"));
   const [showDoc, setShowDoc] = useState(false);
   const [savingSignature, setSavingSignature] = useState(false);
+  const [actionsCommande, setActionsCommande] = useState<CommandeRecord | null>(null);
+  const [montant, setMontant] = useState("");
+  const [lienGenere, setLienGenere] = useState<LienPaiementRecord | null>(null);
+  const [qrUrl, setQrUrl] = useState("");
+  const [busyAction, setBusyAction] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const fetchCommandes = useCallback(async () => {
     setIsLoading(true);
@@ -113,6 +121,50 @@ export default function AdminCommandesPage() {
     c.statut_production !== "Livrée" &&
     c.date_livraison_prevue &&
     c.date_livraison_prevue < new Date().toISOString().slice(0, 10);
+
+  const openActions = (c: CommandeRecord) => {
+    setActionsCommande(c);
+    setMontant(String(Number(c.total) - (Number(c.total) > 0 ? 0 : 0)));
+    setLienGenere(null);
+    setQrUrl("");
+    setCopied(false);
+  };
+
+  const generateLien = async () => {
+    if (!actionsCommande) return;
+    setBusyAction(true);
+    try {
+      const res = await commandesExtrasAPI.lienPaiement(actionsCommande.id, { montant: Number(montant) || 0 });
+      setLienGenere(res.data.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setBusyAction(false);
+    }
+  };
+
+  const showQr = async () => {
+    if (!actionsCommande) return;
+    setBusyAction(true);
+    try {
+      const res = await commandesExtrasAPI.qrData(actionsCommande.id);
+      setQrUrl(res.data.data.url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setBusyAction(false);
+    }
+  };
+
+  const copyLien = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setError("Impossible de copier le lien.");
+    }
+  };
 
   const commandesEnCours = commandes.filter((c) => c.statut_production !== "Livrée");
   const selectedCommande = commandes.find((c) => c.id === selectedId) || null;
@@ -227,6 +279,12 @@ export default function AdminCommandesPage() {
                     >
                       Bon de commande
                     </button>
+                    <button
+                      onClick={() => openActions(c)}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#163526] px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-[#e5ad46] hover:bg-[#1e4234] transition-colors"
+                    >
+                      <CreditCard className="h-3 w-3" /> Paiement
+                    </button>
                   </div>
                 </div>
 
@@ -334,6 +392,102 @@ export default function AdminCommandesPage() {
           </div>
         </div>
       )}
+
+      {actionsCommande && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0b1320]/70 p-4 backdrop-blur-sm"
+          role="presentation"
+          onMouseDown={(e) => { if (e.target === e.currentTarget) setActionsCommande(null); }}
+        >
+          <div className="relative w-full max-w-lg bg-white rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40">Actions commande</p>
+                <h3 className="font-headline text-lg text-[#163526]">{actionsCommande.numero}</h3>
+                <p className="text-xs text-[#163526]/50 mt-1">{actionsCommande.designation || "—"} · {Number(actionsCommande.total).toLocaleString("fr-FR")} Ar</p>
+              </div>
+              <button onClick={() => setActionsCommande(null)} className="text-[#163526]/40 hover:text-[#163526]">✕</button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-xl bg-[#faf9f4] border border-[#163526]/5 p-4">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40 mb-2">Lien de paiement client</p>
+                {!lienGenere ? (
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      value={montant}
+                      onChange={(e) => setMontant(e.target.value)}
+                      placeholder="Montant (Ar)"
+                      className="flex-1 rounded-lg border border-[#163526]/15 px-3 py-2 text-sm text-[#163526]"
+                    />
+                    <button onClick={generateLien} disabled={busyAction} className="inline-flex items-center gap-1 rounded-lg bg-[#163526] px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-[#e5ad46] disabled:opacity-50">
+                      {busyAction ? <Loader className="h-3 w-3 animate-spin" /> : <CreditCard className="h-3 w-3" />} Générer
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-xs text-[#163526]/70">Lien créé · {Number(lienGenere.montant).toLocaleString("fr-FR")} Ar</p>
+                    <div className="flex items-center gap-2">
+                      <input readOnly value={lienGenere.url || ""} className="flex-1 rounded-lg border border-[#163526]/15 px-3 py-2 text-xs text-[#163526]/70 bg-white" />
+                      <button onClick={() => copyLien(lienGenere.url || "")} className="rounded-lg border border-[#163526]/15 px-3 py-2 text-[#163526] hover:border-[#e5ad46]">
+                        {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    <LinkComponent to={lienGenere.url || ""} label="Ouvrir la page de paiement" />
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-xl bg-[#faf9f4] border border-[#163526]/5 p-4">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40 mb-2">Reçu de paiement (PDF)</p>
+                <div className="flex flex-wrap gap-2">
+                  <a
+                    href={commandesExtrasAPI.recuPdfUrl(actionsCommande.id)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#163526]/15 px-3 py-2 text-[9px] font-bold uppercase tracking-widest text-[#163526] hover:border-[#e5ad46] hover:text-[#e5ad46]"
+                  >
+                    <Receipt className="h-3 w-3" /> Télécharger / voir le reçu
+                  </a>
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-[#faf9f4] border border-[#163526]/5 p-4">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40 mb-2">QR code de suivi</p>
+                {!qrUrl ? (
+                  <button onClick={showQr} disabled={busyAction} className="inline-flex items-center gap-1 rounded-lg bg-[#163526] px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-[#e5ad46] disabled:opacity-50">
+                    {busyAction ? <Loader className="h-3 w-3 animate-spin" /> : <QrCode className="h-3 w-3" />} Afficher le QR
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-4">
+                    <QRCodeSVG value={qrUrl} size={96} fgColor="#163526" />
+                    <div>
+                      <p className="text-xs text-[#163526]/70 mb-2">Scannez pour suivre la commande</p>
+                      <a
+                        href={qrUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[9px] font-bold uppercase tracking-widest text-[#e5ad46] hover:underline"
+                      >
+                        Ouvrir la page de suivi →
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+function LinkComponent({ to, label }: { to: string; label: string }) {
+  return (
+    <a href={to} target="_blank" rel="noopener noreferrer" className="inline-block text-[9px] font-bold uppercase tracking-widest text-[#e5ad46] hover:underline">
+      {label} →
+    </a>
   );
 }

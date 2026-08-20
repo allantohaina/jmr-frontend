@@ -235,6 +235,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   const [draftCount, setDraftCount] = useState(0);
   const [confirmingQuote, setConfirmingQuote] = useState(false);
   const { showToast } = useToast();
+  const [pointsSolde, setPointsSolde] = useState<number | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -247,6 +248,10 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
         if (!active) return;
         if (qRes) setQuotes(Array.isArray(qRes.data) ? qRes.data : (qRes.data?.data ?? []));
         if (cRes) setCommandes(Array.isArray(cRes.data) ? cRes.data : (cRes.data?.data ?? []));
+        try {
+          const pRes = await authAPI.get<{ solde: number }>("/moi/points");
+          if (active && pRes) setPointsSolde(Number(pRes.data?.solde ?? pRes.data ?? 0));
+        } catch {}
       } catch (e) {
         if (active) setError(getErrorMessage(e));
       } finally {
@@ -339,6 +344,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                   { label: "Commandes en cours", value: String(activeCommandes.length).padStart(2, "0"), detail: activeCommandes.length > 0 ? `${activeCommandes[0].numero} — ${activeCommandes[0].statut_production}` : "Aucune commande active", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01M17 12h.01M7 12h.01"/></svg> },
                   { label: "Brouillons", value: String(draftCount).padStart(2, "0"), detail: draftCount > 0 ? `${draftCount} devis non envoyé${draftCount > 1 ? "s" : ""} à finaliser` : "Aucun brouillon", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> },
                   { label: "Notifications", value: String(alertCount).padStart(2, "0"), detail: alertCount > 0 ? `${alertCount} devis nécessitant votre attention` : "Aucune notification", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg> },
+                  { label: "Points fidélité", value: pointsSolde === null ? ".." : pointsSolde.toLocaleString("fr-FR"), detail: pointsSolde === null ? "Programme fidélité" : "1 FCFA dépensé = 1 point", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> },
                 ].map((m, i) => (
                   <div className="db-metric" key={i}>
                     <div className="db-metric-icon">{m.icon}</div>

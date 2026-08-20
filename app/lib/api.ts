@@ -70,6 +70,7 @@ export type PaymentRecord = {
 
 export type QuoteRecord = {
   id: number | string;
+  client_id?: string | null;
   titre?: string;
   progression?: number;
   name?: string;
@@ -95,7 +96,15 @@ export type QuoteRecord = {
   deposit_paid?: boolean;
   balance_paid?: boolean;
   files?: Array<{ name: string; url: string; type: string }>;
-  notifications?: Array<{ id: string; type: "delay" | "error" | "info"; message: string; date: string }>;
+  notifications?: Array<{
+    id: string;
+    type: "delay" | "error" | "info";
+    message: string;
+    date?: string;
+    created_at?: string;
+    detail?: string;
+    impact?: string;
+  }>;
   created_at?: string;
   updated_at?: string;
   admin_signature_name?: string | null;
@@ -120,6 +129,7 @@ export type CommandeRecord = {
   statut_production: StatutProduction;
   pieces_produites: number;
   date_commande: string;
+  en_retard?: boolean;
   date_livraison_prevue?: string | null;
   date_livraison_reelle?: string | null;
   notes?: string | null;
@@ -533,7 +543,7 @@ export type QuoteAddon = {
 
 export const addonsAPI = {
   list: async (quoteId: string) =>
-    fetchWithAuth<{ data: QuoteAddon[]; total_validated: number }>(`/quote-addons?quote_id=${quoteId}`, { method: "GET" }),
+    fetchWithAuth<QuoteAddon[]>(`/quote-addons?quote_id=${quoteId}`, { method: "GET" }),
   get: async (id: string) =>
     fetchWithAuth<QuoteAddon>(`/quote-addons/${id}`, { method: "GET" }),
   create: async (data: { quote_id: string; title: string; description?: string; price?: number }) =>
@@ -552,7 +562,7 @@ export const addonsAPI = {
 
 export const paymentsAPI = {
   list: async (quoteId: string) =>
-    fetchWithAuth<{ data: PaymentRecord[]; total_verified: number }>(`/payments?quote_id=${quoteId}`, { method: "GET" }),
+    fetchWithAuth<PaymentRecord[]>(`/payments?quote_id=${quoteId}`, { method: "GET" }),
   get: async (id: string) =>
     fetchWithAuth<PaymentRecord>(`/payments/${id}`, { method: "GET" }),
   updateStatus: async (id: string, status: string, reviewNote?: string) =>
@@ -560,4 +570,202 @@ export const paymentsAPI = {
       method: "PUT",
       body: JSON.stringify({ status, review_note: reviewNote }),
     }),
+};
+
+export type MatiereRecord = {
+  id: string;
+  nom: string;
+  unite: string;
+  stock_actuel: number | string;
+  stock_seuil: number | string;
+  prix_unite: number | string;
+  fournisseur?: string | null;
+  description?: string | null;
+  alerte?: boolean;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type MouvementStockRecord = {
+  id: string;
+  matiere_id: string;
+  type: "entree" | "sortie" | "ajustement";
+  quantite: number | string;
+  motif?: string | null;
+  reference_type?: string | null;
+  reference_id?: string | null;
+  created_at?: string;
+};
+
+export const matieresAPI = {
+  list: async () => authAPI.get<{ data: MatiereRecord[]; alertes: MatiereRecord[]; nb_alertes: number }>("/matieres"),
+  alertes: async () => authAPI.get<{ data: MatiereRecord[]; total: number }>("/matieres/alertes"),
+  get: async (id: string) => authAPI.get<{ data: MatiereRecord; mouvements: MouvementStockRecord[] }>(`/matieres/${id}`),
+  create: async (data: Partial<MatiereRecord>) =>
+    authAPI.post<{ data: MatiereRecord }>("/matieres", data),
+  update: async (id: string, data: Partial<MatiereRecord>) =>
+    authAPI.put<{ data: MatiereRecord }>(`/matieres/${id}`, data),
+  remove: async (id: string) => authAPI.delete<{ message: string }>(`/matieres/${id}`),
+  mouvement: async (data: { matiere_id: string; type: string; quantite: number | string; motif?: string }) =>
+    authAPI.post<{ data: MatiereRecord; mouvement: MouvementStockRecord }>("/matieres/mouvements", data),
+};
+
+export type AvisRecord = {
+  id: string;
+  produit_id: string;
+  user_id?: string | null;
+  note: number;
+  commentaire?: string | null;
+  statut: "pending" | "approved" | "rejected";
+  auteur?: string;
+  produit_nom?: string;
+  created_at?: string;
+};
+
+export const avisAPI = {
+  publicList: async (produitId: string) =>
+    fetchWithAuth<{ data: AvisRecord[]; note_moyenne: number; nb_avis: number }>(`/produits/${produitId}/avis`, { method: "GET" }),
+  submit: async (produitId: string, data: { note: number; commentaire?: string; pseudo?: string }) =>
+    authAPI.post<{ data: AvisRecord; message: string }>(`/produits/${produitId}/avis`, data),
+  moderationList: async (statut?: string) =>
+    authAPI.get<{ data: AvisRecord[] }>(`/avis${statut ? `?statut=${statut}` : ""}`),
+  updateStatut: async (id: string, statut: string) =>
+    authAPI.put<{ data: AvisRecord }>(`/avis/${id}/statut`, { statut }),
+};
+
+export type LienPaiementRecord = {
+  id: string;
+  commande_id?: string;
+  token: string;
+  montant: number | string;
+  statut: "pending" | "paid";
+  expire_at?: string | null;
+  paid_at?: string | null;
+  url?: string;
+  etat?: string;
+  commande_numero?: string;
+  commande_designation?: string;
+  client_nom?: string;
+  created_at?: string;
+};
+
+export type RecuData = {
+  numero: string;
+  designation: string;
+  client_nom: string;
+  client_email: string;
+  client_telephone: string;
+  date_commande: string;
+  quantite: number;
+  prix_unitaire: number | string;
+  total: number | string;
+  total_paye: number | string;
+  restant: number | string;
+  paiements: Array<{ phase: string; status: string; amount: number | string; created_at?: string; reviewed_at?: string }>;
+};
+
+export const commandesExtrasAPI = {
+  recuData: async (id: string) => authAPI.get<{ data: RecuData }>(`/commandes/${id}/recu`),
+  recuPdfUrl: (id: string) => `${getBackendApiUrls()[0]}/commandes/${id}/recu.pdf`,
+  lienPaiement: async (id: string, data: { montant: number | string; phase?: string; expire_at?: string }) =>
+    authAPI.post<{ data: LienPaiementRecord }>(`/commandes/${id}/lien-paiement`, data),
+  qrData: async (id: string) => authAPI.get<{ data: { url: string; numero: string } }>(`/commandes/${id}/qr-data`),
+};
+
+export const publicAPI = {
+  suiviCommande: async (numero: string, email: string) =>
+    fetchWithAuth<{ data: SuiviCommandeRecord }>("/public/suivi-commande", {
+      method: "POST",
+      body: JSON.stringify({ numero, email }),
+    }),
+  lienInfo: async (token: string) => fetchWithAuth<{ data: LienPaiementRecord }>(`/public/lien-paiement/${token}`, { method: "GET" }),
+  lienPayer: async (token: string) =>
+    fetchWithAuth<{ data: LienPaiementRecord; paiement_id: string; message: string }>(`/public/lien-paiement/${token}/payer`, {
+      method: "POST",
+      body: JSON.stringify({}),
+    }),
+};
+
+export type SuiviCommandeRecord = {
+  numero: string;
+  designation: string;
+  quantite: number;
+  statut_production: string;
+  pieces_produites: number;
+  date_commande?: string | null;
+  date_livraison_prevue?: string | null;
+  date_livraison_reelle?: string | null;
+  en_retard: boolean;
+};
+
+export type DashboardStats = {
+  devis: Record<string, number>;
+  finance: Record<string, number | string>;
+  commandes: Record<string, number>;
+  stock: Record<string, number>;
+  satisfaction: Record<string, number>;
+  relationnel: Record<string, number>;
+};
+
+export const statsAPI = {
+  dashboard: async () => authAPI.get<DashboardStats>("/stats/dashboard"),
+};
+
+export function downloadBackendFile(endpoint: string, token?: string) {
+  const apiUrl = getBackendApiUrls()[0];
+  const resolvedToken =
+    (typeof token === "string" && token.length > 0
+      ? token
+      : (typeof window !== "undefined" && window.localStorage.getItem(TOKEN_STORAGE_KEY)) ||
+        readBrowserCookie(AUTH_COOKIE_NAME)) || "";
+  return fetch(`${apiUrl}${endpoint}`, {
+    method: "GET",
+    headers: { Accept: "text/csv, application/json", ...(resolvedToken ? { Authorization: `Bearer ${resolvedToken}` } : {}) },
+  });
+}
+
+export const exportsAPI = {
+  devis: (token?: string) => downloadBackendFile("/exports/devis", token),
+  commandes: (token?: string) => downloadBackendFile("/exports/commandes", token),
+  paiements: (token?: string) => downloadBackendFile("/exports/paiements", token),
+};
+
+export type PointFideliteRecord = {
+  id: string;
+  user_id: string;
+  points: number | string;
+  motif: string;
+  reference_type?: string | null;
+  reference_id?: string | null;
+  created_at?: string;
+};
+
+export const pointsAPI = {
+  mine: async () => authAPI.get<{ data: PointFideliteRecord[]; solde: number }>("/moi/points"),
+};
+
+export const kanbanAPI = {
+  board: async () => authAPI.get<KanbanBoard>("/workflows/kanban"),
+};
+
+export type KanbanBoard = {
+  data: Record<string, KanbanCard[]>;
+  counts: Record<string, number>;
+  status_labels: Record<string, string>;
+};
+
+export type KanbanCard = {
+  id: string;
+  name?: string;
+  client_name?: string;
+  workflow_type?: string;
+  delivery_date?: string | null;
+  launch_date?: string | null;
+  current_step?: string | null;
+  updated_at?: string | null;
+  created_at?: string | null;
+};
+
+export const workflowsAPI = {
+  board: async () => authAPI.get<KanbanBoard>("/workflows/kanban"),
 };

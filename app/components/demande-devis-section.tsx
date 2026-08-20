@@ -194,7 +194,7 @@ function QuoteFormContent() {
   const loadDraft = useCallback(async (id: string) => {
     try {
       const qRes = await authAPI.get<QuoteRecord>(`/quotes/${id}`);
-      const q = (qRes as any).data ?? qRes;
+      const q = qRes.data;
       if (q && q.status === "draft") {
         setDraft({ id: String(q.id), created_at: q.created_at, updated_at: q.updated_at });
         reset({
@@ -247,7 +247,7 @@ function QuoteFormContent() {
         savedId = String(draft.id);
       } else {
         const res = await authAPI.post<{ id?: string | number }>("/quotes", payload);
-        savedId = String(((res as any).data?.id ?? (res as any).id) ?? "");
+        savedId = String(res.data?.id ?? "");
       }
       if (savedId) {
         setDraft((prev) => ({ id: savedId, ...(prev ?? {}) }));

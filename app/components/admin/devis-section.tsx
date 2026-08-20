@@ -26,6 +26,25 @@ export function DevisSection() {
   const [quotes, setQuotes] = useState<QuoteRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [convertingId, setConvertingId] = useState<string | number | null>(null);
+  const [convertMsg, setConvertMsg] = useState<string | null>(null);
+
+  const convertToCommande = async (quote: QuoteRecord) => {
+    setConvertingId(quote.id);
+    setError("");
+    setConvertMsg(null);
+    try {
+const res = await authAPI.post<{ data: { id: string; numero: string } }>(
+        `/quotes/${quote.id}/convert-to-commande`,
+        { client_id: quote.client_id ?? undefined }
+      );
+      setConvertMsg(`Commande créée : ${res.data?.data?.numero || "OK"}.`);
+    } catch (convertError) {
+      setError(convertError instanceof Error && convertError.message ? convertError.message : "Impossible de convertir ce devis.");
+    } finally {
+      setConvertingId(null);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -80,6 +99,12 @@ export function DevisSection() {
         </div>
       ) : null}
 
+      {convertMsg ? (
+        <div className="flex items-center gap-3 rounded-2xl border border-green-100 bg-green-50 px-5 py-4 text-sm text-green-700">
+          {convertMsg}
+        </div>
+      ) : null}
+
       {isLoading ? (
         <div className="flex items-center justify-center rounded-[2rem] border border-[#163526]/5 bg-white py-10 md:py-16 text-[#163526]/50">
           <Loader2 className="mr-3 h-5 w-5 animate-spin" />
@@ -102,12 +127,24 @@ export function DevisSection() {
                     </span>
                   </div>
                   <p className="line-clamp-2 text-xs leading-6 text-[#163526]/60">{quote.message ?? "-"}</p>
-                  <Link
-                    href={`/backoffice/devis/edit?id=${quote.id}`}
-                    className="mt-5 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-orange-500"
-                  >
-                    Gerer <ChevronRight className="h-4 w-4" />
-                  </Link>
+                  <div className="mt-5 flex flex-wrap items-center gap-3">
+                    <Link
+                      href={`/backoffice/devis/edit?id=${quote.id}`}
+                      className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-orange-500"
+                    >
+                      Gerer <ChevronRight className="h-4 w-4" />
+                    </Link>
+                    {quote.status === "accepted" && (
+                      <button
+                        onClick={() => convertToCommande(quote)}
+                        disabled={convertingId === quote.id}
+                        className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#163526] hover:text-[#e5ad46] disabled:opacity-50"
+                      >
+                        {convertingId === quote.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "➜"}
+                        Convertir en commande
+                      </button>
+                    )}
+                  </div>
                 </article>
               ))
             ) : (
@@ -160,13 +197,25 @@ export function DevisSection() {
                           </span>
                         </td>
                         <td className="px-8 py-6 text-right">
-                          <Link
-                            href={`/backoffice/devis/edit?id=${quote.id}`}
-                            className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-orange-500 hover:text-orange-600"
-                          >
-                            Gerer
-                            <ChevronRight className="h-3.5 w-3.5" />
-                          </Link>
+                          <div className="flex items-center justify-end gap-4">
+                            {quote.status === "accepted" && (
+                              <button
+                                onClick={() => convertToCommande(quote)}
+                                disabled={convertingId === quote.id}
+                                className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-[#163526] hover:text-[#e5ad46] disabled:opacity-50"
+                              >
+                                {convertingId === quote.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                                Convertir en commande
+                              </button>
+                            )}
+                            <Link
+                              href={`/backoffice/devis/edit?id=${quote.id}`}
+                              className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-orange-500 hover:text-orange-600"
+                            >
+                              Gerer
+                              <ChevronRight className="h-3.5 w-3.5" />
+                            </Link>
+                          </div>
                         </td>
                       </tr>
                     ))

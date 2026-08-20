@@ -8,14 +8,30 @@ import ExchangeRateWidget from "@/app/components/exchange-rate-widget";
 import { PrivilegeBadge } from "@/app/components/admin/privilege-badge";
 import type { ApiResponse, UserProfile } from "@/app/lib/api";
 
-import { 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  LayoutDashboard,
+  FileText,
+  Package,
+  CircleDollarSign,
+  AlertTriangle,
+  Wallet,
+  Users,
+  ClipboardList,
+  ArrowRight,
+  ShieldCheck,
+  ArrowUpRight,
+  Star,
+  type LucideIcon,
+} from "lucide-react";
+
+import {
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   AreaChart,
-  Area
+  Area,
 } from "recharts";
 
 interface Visitor {
@@ -60,10 +76,55 @@ type AchatRow = {
   montant?: number | string;
 };
 
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  hint,
+  tone,
+  progress,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  hint: string;
+  tone: "gold" | "success" | "destructive" | "muted";
+  progress?: number;
+}) {
+  const toneMap: Record<string, string> = {
+    gold: "text-[#e5ad46] bg-[#e5ad46]/10 border-[#e5ad46]/20",
+    success: "text-[#1f8457] bg-[#1f8457]/10 border-[#1f8457]/20",
+    destructive: "text-[#b14255] bg-[#b14255]/10 border-[#b14255]/20",
+    muted: "text-[#9aa7b4] bg-[#26313d] border-[#e5ad46]/10",
+  };
+  return (
+    <div className="rounded-xl border border-[#e5ad46]/10 bg-[#25303a] p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">
+          {label}
+        </span>
+        <span className={`flex size-8 items-center justify-center rounded-lg border ${toneMap[tone]}`}>
+          <Icon className="size-4" />
+        </span>
+      </div>
+      <p className="font-headline text-3xl font-semibold tabular-nums text-[#f3e9d6]">{value}</p>
+      <p className="mt-1 text-xs text-[#9aa7b4]">{hint}</p>
+      {typeof progress === "number" && (
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#26313d]">
+          <div
+            className="h-full rounded-full bg-[#e5ad46] transition-all"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminDashboardPage() {
   const router = useRouter();
   const [filterActive, setFilterActive] = useState(false);
-  const [visitors, setVisitors] = useState<Visitor[]>([]);
+  const [visitors] = useState<Visitor[]>([]);
   const [commandes, setCommandes] = useState<CommandeRow[]>([]);
   const [dashboardData, setDashboardData] = useState({
     demandesEnAttente: 0,
@@ -77,6 +138,7 @@ export default function AdminDashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [chartData, setChartData] = useState<Array<{ name: string; ventes: number; depenses: number }>>([]);
   const [clientsMap, setClientsMap] = useState<Record<string, UserProfile>>({});
+  const [extraStats, setExtraStats] = useState<Record<string, Record<string, number>> | null>(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -119,7 +181,7 @@ export default function AdminDashboardPage() {
         const monthlyData: Record<string, { ventes: number; depenses: number }> = {};
         const monthNames = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
         const now = new Date();
-        
+
         // Initialiser les 6 derniers mois
         for (let i = 5; i >= 0; i--) {
           const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -166,6 +228,12 @@ export default function AdminDashboardPage() {
           clientsData.forEach((u: UserProfile) => { map[u.id] = u; });
           setClientsMap(map);
         } catch {}
+
+        // KPI supplémentaires (stock, satisfaction, relationnel)
+        try {
+          const statsRes = await authAPI.get<Record<string, Record<string, number>>>("/stats/dashboard");
+          setExtraStats(statsRes.data);
+        } catch {}
       } catch (error) {
         console.error("Erreur chargement dashboard:", error);
       } finally {
@@ -176,301 +244,487 @@ export default function AdminDashboardPage() {
     fetchDashboardData();
   }, []);
 
+  const tauxLivraison = commandes.length > 0
+    ? Math.round((commandes.filter((c) => c.statut_production === "Livrée").length / commandes.length) * 100)
+    : 0;
+
   return (
-    <div className="px-4 md:px-12 py-6 md:py-10 space-y-8 md:space-y-12">
-      {/* Financial Overview with Chart */}
-      <section className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-[#163526]/5 shadow-sm space-y-6 md:space-y-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div>
-            <h2 className="font-headline text-3xl text-[#163526] mb-2">Bilan Financier Mensuel</h2>
-            <p className="text-[10px] uppercase tracking-widest text-[#163526]/40 font-bold">Ventes vs Dépenses (Derniers 6 mois)</p>
+    <div className="mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-8">
+      {/* Page heading */}
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex size-10 items-center justify-center rounded-xl border border-[#e5ad46]/20 bg-[#e5ad46]/10 text-[#e5ad46]">
+            <LayoutDashboard className="size-5" />
           </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[#163526]"></div>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/60">Ventes</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-orange-400"></div>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/60">Dépenses</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/40">
-                {dashboardData.commandesEnCours} en cours
-              </span>
-            </div>
+          <div>
+            <h2 className="font-headline text-2xl font-semibold tracking-tight text-[#f3e9d6]">
+              Tableau de Bord
+            </h2>
+            <p className="text-sm text-[#9aa7b4]">
+              Contrôle de production ·{" "}
+              {new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
+            </p>
           </div>
         </div>
 
-        <div className="h-[250px] sm:h-[300px] md:h-[400px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData}>
-              <defs>
-                <linearGradient id="colorVentes" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#163526" stopOpacity={0.1}/>
-                  <stop offset="95%" stopColor="#163526" stopOpacity={0}/>
-                </linearGradient>
-                <linearGradient id="colorDepenses" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f97316" stopOpacity={0.1}/>
-                  <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#16352610" />
-              <XAxis 
-                dataKey="name" 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fill: '#16352640', fontSize: 10, fontWeight: 700 }}
-                dy={10}
-              />
-              <YAxis 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fill: '#16352640', fontSize: 10, fontWeight: 700 }}
-                tickFormatter={(value) => `${value / 1000}k€`}
-              />
-              <Tooltip 
-                contentStyle={{ borderRadius: '1.5rem', border: 'none', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', padding: '1.5rem' }}
-                labelStyle={{ fontWeight: 800, marginBottom: '0.5rem', color: '#163526' }}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="ventes" 
-                stroke="#163526" 
-                strokeWidth={3}
-                fillOpacity={1} 
-                fill="url(#colorVentes)" 
-              />
-              <Area 
-                type="monotone" 
-                dataKey="depenses" 
-                stroke="#f97316" 
-                strokeWidth={3}
-                fillOpacity={1} 
-                fill="url(#colorDepenses)" 
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+        <div className="flex items-center gap-3">
+          <span className="rounded-md border border-[#e5ad46]/15 bg-[#25303a] px-2.5 py-1.5 font-mono text-[11px] text-[#9aa7b4]">
+            v2.4
+          </span>
+          <Link
+            href="/backoffice/orders"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#e5ad46]/25 bg-[#e5ad46]/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-widest text-[#e5ad46] transition-colors hover:bg-[#e5ad46]/20"
+          >
+            Gérer les Commandes
+            <ArrowRight className="size-3.5" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard
+          icon={FileText}
+          tone="gold"
+          label="Devis en attente"
+          value={String(dashboardData.cotationsEnAttente)}
+          hint={`${dashboardData.demandesEnAttente} demandes à étudier`}
+        />
+        <StatCard
+          icon={Package}
+          tone="muted"
+          label="Commandes en cours"
+          value={String(dashboardData.commandesEnCours)}
+          hint="En production"
+        />
+        <StatCard
+          icon={AlertTriangle}
+          tone="destructive"
+          label="En retard"
+          value={String(dashboardData.commandesEnRetard)}
+          hint="À relancer"
+        />
+        <StatCard
+          icon={CircleDollarSign}
+          tone="success"
+          label="CA du mois"
+          value={dashboardData.caMois.toLocaleString("fr-FR")}
+          hint="Ariary · Taux livraison"
+          progress={tauxLivraison}
+        />
+      </div>
+
+      {/* KPI supplémentaires : stock, satisfaction, relationnel */}
+      {extraStats && (
+        <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="rounded-xl border border-[#e5ad46]/10 bg-[#25303a] p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">Stock atelier</span>
+              <span className="flex size-8 items-center justify-center rounded-lg border border-[#e5ad46]/20 bg-[#e5ad46]/10 text-[#e5ad46]">
+                <Package className="size-4" />
+              </span>
+            </div>
+            <p className="font-headline text-2xl font-semibold tabular-nums text-[#f3e9d6]">
+              {Number(extraStats.stock?.matieres ?? 0)}
+            </p>
+            <p className="mt-1 text-xs text-[#9aa7b4]">
+              {Number(extraStats.stock?.alertes ?? 0)} matière(s) sous seuil
+            </p>
+          </div>
+          <div className="rounded-xl border border-[#e5ad46]/10 bg-[#25303a] p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">Satisfaction</span>
+              <span className="flex size-8 items-center justify-center rounded-lg border border-[#1f8457]/20 bg-[#1f8457]/10 text-[#1f8457]">
+                <Star className="size-4" />
+              </span>
+            </div>
+            <p className="font-headline text-2xl font-semibold tabular-nums text-[#f3e9d6]">
+              {Number(extraStats.satisfaction?.note_moyenne ?? 0).toFixed(1)} / 5
+            </p>
+            <p className="mt-1 text-xs text-[#9aa7b4]">
+              {Number(extraStats.satisfaction?.nb_avis ?? 0)} avis publiés
+            </p>
+          </div>
+          <div className="rounded-xl border border-[#e5ad46]/10 bg-[#25303a] p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">Paiements en attente</span>
+              <span className="flex size-8 items-center justify-center rounded-lg border border-[#b14255]/20 bg-[#b14255]/10 text-[#b14255]">
+                <Wallet className="size-4" />
+              </span>
+            </div>
+            <p className="font-headline text-2xl font-semibold tabular-nums text-[#f3e9d6]">
+              {Number(extraStats.finance?.paiements_attente ?? 0)}
+            </p>
+            <p className="mt-1 text-xs text-[#9aa7b4]">
+              {Number(extraStats.finance?.liens_paiement ?? 0)} lien(s) généré(s)
+            </p>
+          </div>
+          <div className="rounded-xl border border-[#e5ad46]/10 bg-[#25303a] p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">Clients fidélisés</span>
+              <span className="flex size-8 items-center justify-center rounded-lg border border-[#e5ad46]/20 bg-[#e5ad46]/10 text-[#e5ad46]">
+                <Users className="size-4" />
+              </span>
+            </div>
+            <p className="font-headline text-2xl font-semibold tabular-nums text-[#f3e9d6]">
+              {Number(extraStats.relationnel?.clients_points ?? 0)}
+            </p>
+            <p className="mt-1 text-xs text-[#9aa7b4]">
+              {Number(extraStats.relationnel?.total_points ?? 0).toLocaleString("fr-FR")} points actifs
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Financial overview + treasury */}
+      <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="rounded-xl border border-[#e5ad46]/10 bg-[#25303a] p-5 md:p-6 lg:col-span-2">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h3 className="font-headline text-lg font-semibold tracking-tight text-[#f3e9d6]">
+                Bilan Financier Mensuel
+              </h3>
+              <p className="text-xs text-[#9aa7b4]">
+                Ventes vs Dépenses · Derniers 6 mois
+              </p>
+            </div>
+            <div className="flex items-center gap-5">
+              <div className="flex items-center gap-2">
+                <span className="size-2.5 rounded-full bg-[#e5ad46]" />
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]">Ventes</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="size-2.5 rounded-full bg-[#d8903c]" />
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]">Dépenses</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="h-[260px] w-full sm:h-[320px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="colorVentes" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#e5ad46" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#e5ad46" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorDepenses" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#d8903c" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#d8903c" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(236,204,144,0.08)" />
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#9aa7b4", fontSize: 11, fontWeight: 600 }}
+                  dy={10}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#9aa7b4", fontSize: 11, fontWeight: 600 }}
+                  tickFormatter={(value) => `${(value / 1000).toLocaleString("fr-FR")}k€`}
+                  width={60}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "0.75rem",
+                    border: "1px solid rgba(236,204,144,0.15)",
+                    background: "#26313d",
+                    boxShadow: "0 20px 50px rgba(0,0,0,0.4)",
+                    padding: "0.75rem 1rem",
+                  }}
+                  labelStyle={{ fontWeight: 700, marginBottom: "0.5rem", color: "#f3e9d6" }}
+                  itemStyle={{ color: "#eccc90", fontSize: 12 }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="ventes"
+                  stroke="#e5ad46"
+                  strokeWidth={2.5}
+                  fillOpacity={1}
+                  fill="url(#colorVentes)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="depenses"
+                  stroke="#d8903c"
+                  strokeWidth={2.5}
+                  fillOpacity={1}
+                  fill="url(#colorDepenses)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-[#e5ad46]/15 bg-gradient-to-b from-[#2b3744] to-[#25303a] p-5 md:p-6">
+          <div className="absolute right-0 top-0 h-full w-1 bg-[#e5ad46]" />
+          <div>
+            <p className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">
+              <Wallet className="size-4 text-[#e5ad46]" />
+              Trésorerie
+            </p>
+            <div className="space-y-4">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]">Acomptes</span>
+                <span className="font-headline text-2xl font-semibold tabular-nums text-[#f3e9d6]">
+                  {dashboardData.acomptes.toLocaleString("fr-FR")}
+                  <span className="ml-1 font-headline text-sm text-[#9aa7b4]">Ar</span>
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-2 border-t border-[#e5ad46]/10 pt-4">
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]">Soldes</span>
+                <span className="font-headline text-2xl font-semibold tabular-nums text-[#e5ad46]">
+                  {dashboardData.soldes.toLocaleString("fr-FR")}
+                  <span className="ml-1 font-headline text-sm text-[#9aa7b4]">Ar</span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="mt-6 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-[#e5ad46]/80">
+            <ShieldCheck className="size-3.5" />
+            Paiement en 2 tranches actif
+          </div>
         </div>
       </section>
 
-      {/* Visitors & Security Section */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-white p-8 rounded-[2rem] border border-[#163526]/5 shadow-sm space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="font-headline text-xl text-[#163526]">Visiteurs Anonymes</h3>
-            <span className="px-3 py-1 bg-green-500/10 text-green-600 text-[9px] font-bold uppercase rounded-full animate-pulse">Live</span>
+      {/* Visitors & exchange */}
+      <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="rounded-xl border border-[#e5ad46]/10 bg-[#25303a] p-5 md:p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="flex items-center gap-2 font-headline text-lg font-semibold tracking-tight text-[#f3e9d6]">
+              <Users className="size-4 text-[#e5ad46]" />
+              Visiteurs Anonymes
+            </h3>
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-[#1f8457]/25 bg-[#1f8457]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-[#1f8457]">
+              <span className="relative flex size-1.5">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-current opacity-60" />
+                <span className="relative inline-flex size-1.5 rounded-full bg-current" />
+              </span>
+              Live
+            </span>
           </div>
-          <div className="space-y-4">
-            {visitors.map(v => (
-              <div key={v.id} className="flex items-center justify-between p-4 bg-[#faf9f4] rounded-xl border border-[#163526]/5">
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${v.status === 'online' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-gray-300'}`}></div>
-                  <span className="text-xs font-bold text-[#163526]">{v.pseudonym}</span>
+          {visitors.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-2 px-4 py-12 text-center">
+              <Users className="size-8 text-[#9aa7b4]/40" />
+              <p className="text-sm text-[#9aa7b4]">Aucun visiteur enregistré pour le moment.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {visitors.map((v) => (
+                <div
+                  key={v.id}
+                  className="flex items-center justify-between rounded-lg border border-[#e5ad46]/5 bg-[#26313d] p-3.5"
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`size-2 rounded-full ${
+                        v.status === "online"
+                          ? "bg-[#1f8457] shadow-[0_0_8px_rgba(31,132,87,0.5)]"
+                          : "bg-[#9aa7b4]/40"
+                      }`}
+                    />
+                    <span className="text-sm font-medium text-[#f3e9d6]">{v.pseudonym}</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]">{v.page}</p>
+                    <p className="text-[9px] font-semibold uppercase text-[#9aa7b4]/50">{v.duration}</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-[9px] font-bold text-[#163526]/40 uppercase tracking-widest">{v.page}</p>
-                  <p className="text-[8px] text-[#163526]/20 font-bold uppercase">{v.duration}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <ExchangeRateWidget />
       </section>
 
-      {/* Financial Hero Section */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <Link href="/backoffice/devis" className="bg-white p-8 rounded-2xl relative overflow-hidden group border border-[#163526]/5 shadow-sm hover:shadow-md transition-all">
-          <div className="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
-            <span className="material-symbols-outlined text-[120px] text-[#163526]">request_quote</span>
-          </div>
-          <p className="font-label font-bold uppercase text-[10px] tracking-[0.2em] text-[#1b1c19]/40 mb-4">Devis en attente</p>
-          <div className="flex items-baseline gap-2">
-            <span className="font-headline text-4xl font-bold text-[#163526]">{dashboardData.cotationsEnAttente}</span>
-            <span className="font-headline text-xl text-[#1b1c19]/60">devis</span>
-          </div>
-          <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-orange-500">
-            <span className="material-symbols-outlined text-sm">trending_up</span>
-            <span>À traiter</span>
-          </div>
-        </Link>
-
-        <div className="bg-[#163526] p-8 rounded-2xl text-white relative shadow-xl overflow-hidden">
-          <div className="absolute right-0 top-0 h-full w-2 bg-orange-500"></div>
-          <p className="font-label font-bold uppercase text-[10px] tracking-[0.2em] text-white/40 mb-4">Trésorerie (Acomptes & Soldes)</p>
-          <div className="space-y-4">
-            <div className="flex items-baseline gap-2">
-              <span className="text-[10px] text-white/40 font-bold uppercase">Acomptes:</span>
-              <span className="font-headline text-3xl font-bold">{dashboardData.acomptes.toLocaleString()}</span>
-              <span className="font-headline text-lg opacity-40">Ar</span>
-            </div>
-            <div className="flex items-baseline gap-2 border-t border-white/10 pt-4">
-              <span className="text-[10px] text-white/40 font-bold uppercase">Soldes:</span>
-              <span className="font-headline text-2xl font-bold text-orange-400">{dashboardData.soldes.toLocaleString()}</span>
-              <span className="font-headline text-lg opacity-40">Ar</span>
-            </div>
-          </div>
-          <div className="mt-6 flex items-center gap-2 text-[10px] font-bold text-orange-400">
-            <span className="material-symbols-outlined text-sm">payments</span>
-            <span>PAIEMENT EN 2 TRANCHES ACTIF</span>
-          </div>
-        </div>
-
-        <Link href="/backoffice/orders" className="bg-white p-8 rounded-2xl border border-[#163526]/5 shadow-sm hover:shadow-md transition-all group">
-          <p className="font-label font-bold uppercase text-[10px] tracking-[0.2em] text-[#1b1c19]/40 mb-4">CA du mois</p>
-          <div className="flex items-baseline gap-2">
-            <span className="font-headline text-4xl font-bold text-[#163526]">{dashboardData.caMois.toLocaleString()}</span>
-            <span className="font-headline text-xl text-[#1b1c19]/60">Ar</span>
-          </div>
-          <div className="mt-6 h-1.5 w-full bg-[#163526]/5 rounded-full overflow-hidden">
-            <div className="h-full bg-orange-500 w-[68%] rounded-full shadow-[0_0_10px_rgba(249,115,22,0.3)] transition-all group-hover:w-[72%]"></div>
-          </div>
-        </Link>
-      </section>
-
-      {/* Orders Table Section */}
-      <section className="space-y-4 md:space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 px-2">
+      {/* Orders table */}
+      <section className="mb-6 space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="font-headline text-3xl text-[#163526]">Commandes Actives</h2>
-            <p className="text-[#1b1c19]/40 text-xs font-bold uppercase tracking-widest mt-1">Flux de production en temps réel</p>
+            <h3 className="font-headline text-xl font-semibold tracking-tight text-[#f3e9d6]">
+              Commandes Actives
+            </h3>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-[#9aa7b4]">
+              Flux de production en temps réel
+            </p>
           </div>
-          <div className="flex gap-2 sm:gap-3 flex-wrap">
-            <button 
+          <div className="flex flex-wrap gap-2.5">
+            <button
               onClick={() => setFilterActive(!filterActive)}
-              className={`px-6 py-3 font-bold text-[10px] uppercase tracking-widest rounded-xl flex items-center gap-2 border transition-all shadow-sm ${
-                filterActive ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-[#163526] border-[#163526]/10 hover:bg-[#163526]/5'
+              className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-[11px] font-semibold uppercase tracking-widest transition-all ${
+                filterActive
+                  ? "border-[#d8903c]/40 bg-[#d8903c]/15 text-[#d8903c]"
+                  : "border-[#e5ad46]/15 bg-[#25303a] text-[#9aa7b4] hover:bg-[#e5ad46]/10 hover:text-[#f3e9d6]"
               }`}
             >
-              <span className="material-symbols-outlined text-sm">{filterActive ? 'filter_alt_off' : 'filter_list'}</span>
-              {filterActive ? 'Filtres actifs' : 'Filtrer'}
+              {filterActive ? "Filtres actifs" : "Filtrer"}
             </button>
-            <Link href="/backoffice/orders" className="px-6 py-3 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl flex items-center gap-2 shadow-lg hover:bg-[#163526]/90 transition-all">
-              <span className="material-symbols-outlined text-sm text-orange-400">add_circle</span>
+            <Link
+              href="/backoffice/orders"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#e5ad46] px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-[#171b22] transition-all hover:bg-[#e5ad46]/90"
+            >
+              <Package className="size-3.5" />
               Gérer les Commandes
             </Link>
           </div>
         </div>
 
-        <div className="bg-white rounded-[2rem] shadow-sm border border-[#163526]/5 overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-[#163526]/5 border-b border-[#163526]/5">
-                <th className="px-8 py-6 font-label font-bold text-[10px] uppercase tracking-[0.2em] text-[#1b1c19]/40">Client & Modèle</th>
-                <th className="px-8 py-6 font-label font-bold text-[10px] uppercase tracking-[0.2em] text-[#1b1c19]/40">Statut</th>
-                <th className="px-8 py-6 font-label font-bold text-[10px] uppercase tracking-[0.2em] text-[#1b1c19]/40">Progression</th>
-                <th className="px-8 py-6 font-label font-bold text-[10px] uppercase tracking-[0.2em] text-[#1b1c19]/40 text-right">Alertes</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#163526]/5">
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={4} className="px-8 py-12 text-center">
-                      <span className="text-sm text-[#1b1c19]/40">Chargement...</span>
-                    </td>
-                  </tr>
-                ) : commandes.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="px-8 py-12 text-center">
-                      <span className="text-sm italic text-[#1b1c19]/40">Aucune commande pour le moment.</span>
-                    </td>
-                  </tr>
-                ) : (
-                  commandes.slice(0, 8).map((c: CommandeRow) => {
-                    const enRetard = c.en_retard;
-                    const pct = c.quantite && c.quantite > 0 ? Math.min(100, Math.round(((c.pieces_produites || 0) / c.quantite) * 100)) : 0;
-                    return (
-                      <tr key={c.id} className="hover:bg-[#163526]/[0.02] transition-colors group cursor-pointer" onClick={() => router.push(`/backoffice/orders?id=${c.id}`)}>
-                        <td className="px-8 py-6">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-[#faf9f4] rounded-xl flex items-center justify-center border border-[#163526]/10 group-hover:scale-110 transition-transform">
-                              <span className="material-symbols-outlined text-[#163526]">checkroom</span>
-                            </div>
-                            <div>
-                              <p className="font-bold text-sm text-[#163526]">
-                                {c.client_first_name || c.client_email || "Client"}
-                                {c.client_id && clientsMap[c.client_id] && (
-                                  <PrivilegeBadge
-                                    isPrivileged={clientsMap[c.client_id].is_privileged}
-                                    cumulativeRevenue={clientsMap[c.client_id].cumulative_revenue}
-                                    className="ml-2"
-                                  />
-                                )}
-                              </p>
-                              <p className="text-[10px] text-[#1b1c19]/40 uppercase font-bold tracking-widest italic">{c.designation || "Sans désignation"}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-8 py-6">
-                          <span className={`px-4 py-1.5 text-[10px] font-bold uppercase rounded-full tracking-widest border ${
-                            c.statut_production === "Livrée" ? "bg-green-50 text-green-700 border-green-100" :
-                            enRetard ? "bg-red-50 text-red-600 border-red-100" :
-                            "bg-[#163526]/10 text-[#163526] border-[#163526]/5"
-                          }`}>{c.statut_production}</span>
-                        </td>
-                        <td className="px-8 py-6 w-1/3">
-                          <div className="flex flex-col gap-2">
-                            <div className="flex justify-between text-[9px] font-bold uppercase text-[#1b1c19]/30 tracking-tighter">
-                              <span>{c.pieces_produites} / {c.quantite} pièces</span>
-                              <span>{pct}%</span>
-                            </div>
-                            <div className="h-2 w-full bg-[#163526]/5 rounded-full flex overflow-hidden p-0.5">
-                              <div className="h-full bg-[#163526] rounded-full transition-all" style={{ width: `${pct}%` }}></div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-8 py-6 text-right">
-                          {enRetard ? (
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl text-[10px] font-bold uppercase tracking-widest animate-pulse border border-red-100 shadow-sm">
-                              <span className="material-symbols-outlined text-xs">warning</span>
-                              En retard
-                            </div>
-                          ) : (
-                            <span className="text-[#1b1c19]/30 text-[10px] font-bold uppercase tracking-widest">RAS</span>
+        <div className="overflow-hidden rounded-xl border border-[#e5ad46]/10 bg-[#25303a]">
+          <div className="hidden grid-cols-[1fr_auto_auto_auto] items-center gap-4 border-b border-[#e5ad46]/10 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#9aa7b4] md:grid">
+            <span>Client & Modèle</span>
+            <span className="w-36">Statut</span>
+            <span className="w-48">Progression</span>
+            <span className="w-28 text-right">Alertes</span>
+          </div>
+
+          <div className="divide-y divide-[#e5ad46]/10">
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-3 px-6 py-16 text-sm text-[#9aa7b4]">
+                <span className="size-4 animate-spin rounded-full border-2 border-[#e5ad46]/30 border-t-[#e5ad46]" />
+                Chargement…
+              </div>
+            ) : commandes.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
+                <ClipboardList className="size-8 text-[#9aa7b4]/40" />
+                <p className="text-sm italic text-[#9aa7b4]">Aucune commande pour le moment.</p>
+              </div>
+            ) : (
+              commandes.slice(0, 8).map((c: CommandeRow) => {
+                const enRetard = c.en_retard;
+                const pct = c.quantite && c.quantite > 0 ? Math.min(100, Math.round(((c.pieces_produites || 0) / c.quantite) * 100)) : 0;
+                return (
+                  <div
+                    key={c.id}
+                    onClick={() => router.push(`/backoffice/orders?id=${c.id}`)}
+                    className="grid cursor-pointer grid-cols-1 items-center gap-4 px-5 py-4 transition-colors hover:bg-[#26313d] md:grid-cols-[1fr_auto_auto_auto]"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#e5ad46]/10 bg-[#26313d] text-[#e5ad46]">
+                        <ClipboardList className="size-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-[#f3e9d6]">
+                          {c.client_first_name || c.client_email || "Client"}
+                          {c.client_id && clientsMap[c.client_id] && (
+                            <PrivilegeBadge
+                              isPrivileged={clientsMap[c.client_id].is_privileged}
+                              cumulativeRevenue={clientsMap[c.client_id].cumulative_revenue}
+                              className="ml-2"
+                            />
                           )}
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-          </table>
+                        </p>
+                        <p className="truncate text-[11px] uppercase tracking-wider text-[#9aa7b4]">
+                          {c.designation || "Sans désignation"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="md:w-36">
+                      <span
+                        className={`inline-flex rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-widest ${
+                          c.statut_production === "Livrée"
+                            ? "border-[#1f8457]/25 bg-[#1f8457]/10 text-[#1f8457]"
+                            : enRetard
+                              ? "border-[#b14255]/25 bg-[#b14255]/10 text-[#b14255]"
+                              : "border-[#e5ad46]/20 bg-[#e5ad46]/10 text-[#e5ad46]"
+                        }`}
+                      >
+                        {c.statut_production}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5 md:w-48">
+                      <div className="flex justify-between text-[10px] font-semibold uppercase tracking-wide text-[#9aa7b4]">
+                        <span>{c.pieces_produites} / {c.quantite} pièces</span>
+                        <span className="text-[#e5ad46]">{pct}%</span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#26313d]">
+                        <div
+                          className="h-full rounded-full bg-[#e5ad46] transition-all"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="md:w-28 md:text-right">
+                      {enRetard ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-md border border-[#b14255]/25 bg-[#b14255]/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-[#b14255]">
+                          <AlertTriangle className="size-3.5" />
+                          En retard
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]/40">
+                          RAS
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
         </div>
       </section>
 
-      {/* Bento Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-8 pb-10 md:pb-20">
-        <div className="md:col-span-2 bg-[#163526] rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-10 text-white flex justify-between items-center group overflow-hidden relative shadow-xl">
+      {/* Bento grid */}
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-5">
+        <Link
+          href="/backoffice/production"
+          className="group relative flex flex-col justify-between overflow-hidden rounded-xl bg-gradient-to-br from-[#2b3744] to-[#1a2530] p-6 md:col-span-2 md:p-8"
+        >
           <div className="relative z-10">
-            <h3 className="font-headline text-3xl italic mb-4">Excellence Technique</h3>
-            <p className="text-white/60 text-sm max-w-xs leading-relaxed">98.4% des commandes passent le contrôle qualité au premier essai ce mois-ci.</p>
-            <Link href="/backoffice/production" className="mt-8 text-[10px] font-bold uppercase tracking-[0.3em] text-orange-400 hover:text-white transition-all flex items-center gap-2">
-              Suivi de Production <span className="material-symbols-outlined text-sm">arrow_forward</span>
-            </Link>
+            <h4 className="font-headline text-2xl font-semibold italic text-[#f3e9d6]">
+              Excellence Technique
+            </h4>
+            <p className="mt-3 max-w-xs text-sm leading-relaxed text-[#9aa7b4]">
+              98.4% des commandes passent le contrôle qualité au premier essai ce mois-ci.
+            </p>
+            <span className="mt-6 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#e5ad46] transition-colors group-hover:text-[#f3e9d6]">
+              Suivi de Production
+              <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </span>
           </div>
-          <div className="absolute -right-10 -bottom-10 opacity-10 transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-700">
-            <span className="material-symbols-outlined text-[240px]">workspace_premium</span>
+          <div className="absolute -bottom-8 -right-8 text-[120px] leading-none text-[#e5ad46]/5 transition-transform duration-700 group-hover:rotate-12 group-hover:scale-110">
+            <ShieldCheck className="size-full" />
           </div>
-        </div>
-        <div className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-10 flex flex-col justify-between border border-[#163526]/5 shadow-sm group">
-          <span className="material-symbols-outlined text-orange-500 text-4xl group-hover:scale-110 transition-transform">notifications_active</span>
+        </Link>
+
+        <div className="flex flex-col justify-between rounded-xl border border-[#e5ad46]/10 bg-[#25303a] p-6">
+          <AlertTriangle className="size-8 text-[#d8903c]" />
           <div>
-            <p className="text-5xl font-headline font-bold text-[#163526]">03</p>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1b1c19]/40 mt-2">Alertes de production</p>
+            <p className="font-headline text-4xl font-bold tabular-nums text-[#f3e9d6]">
+              {String(dashboardData.commandesEnRetard).padStart(2, "0")}
+            </p>
+            <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9aa7b4]">
+              Alertes de production
+            </p>
           </div>
         </div>
-        <div className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-10 flex flex-col justify-between border border-[#163526]/5 shadow-sm">
-          <div className="flex -space-x-3 mb-6">
-            {[1,2,3,4].map(i => (
-              <div key={i} className="w-10 h-10 rounded-full border-4 border-white bg-[#163526]/10 flex items-center justify-center text-[10px] font-bold text-[#163526]">OP</div>
+
+        <div className="flex flex-col justify-between rounded-xl border border-[#e5ad46]/10 bg-[#25303a] p-6">
+          <div className="mb-6 flex -space-x-2.5">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="flex size-9 items-center justify-center rounded-full border-2 border-[#25303a] bg-[#26313d] text-[10px] font-bold text-[#eccc90]"
+              >
+                OP
+              </div>
             ))}
-            <div className="w-10 h-10 rounded-full border-4 border-white bg-orange-500 flex items-center justify-center text-[10px] text-white font-bold shadow-md">+8</div>
+            <div className="flex size-9 items-center justify-center rounded-full border-2 border-[#25303a] bg-[#e5ad46] text-[10px] font-bold text-[#171b22]">
+              +8
+            </div>
           </div>
           <div>
-            <p className="text-2xl font-headline font-bold text-[#163526]">Atelier Actif</p>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1b1c19]/40 mt-1">12 Opérateurs connectés</p>
+            <p className="font-headline text-xl font-semibold text-[#f3e9d6]">Atelier Actif</p>
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9aa7b4]">
+              12 Opérateurs connectés
+            </p>
           </div>
         </div>
       </section>
