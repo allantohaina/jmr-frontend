@@ -95,7 +95,7 @@ export type QuoteRecord = {
   balance_amount?: string | number | null;
   deposit_paid?: boolean;
   balance_paid?: boolean;
-  files?: Array<{ name: string; url: string; type: string }>;
+  files?: Array<{ name: string; url: string; type: string }> | string | null;
   notifications?: Array<{
     id: string;
     type: "delay" | "error" | "info";

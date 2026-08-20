@@ -41,8 +41,8 @@ export default function KanbanPage() {
     <div className="px-6 md:px-12 py-10 space-y-8">
       <div className="flex justify-between items-end px-2">
         <div>
-          <h2 className="font-headline text-3xl text-[#163526]">Kanban Production</h2>
-          <p className="text-[#1b1c19]/40 text-xs font-bold uppercase tracking-widest mt-1">Suivi des workflows · Atelier JMR</p>
+          <h2 className="font-headline text-3xl text-[#163526]">Suivi Production</h2>
+          <p className="text-[#1b1c19]/40 text-xs font-bold uppercase tracking-widest mt-1">Tableau de bord des workflows · Atelier JMR</p>
         </div>
         <span className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/40">{totalCards} workflows</span>
       </div>

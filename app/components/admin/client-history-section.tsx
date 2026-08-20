@@ -17,6 +17,7 @@ type Client = {
 type Demande = {
   id: string;
   nom_client: string;
+  email?: string;
   description: string;
   statut: string;
   date_reception: string;
@@ -59,37 +60,58 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
     setIsLoading(true);
     setError("");
     try {
-      // Récupérer les infos client
       const clientRes = await authAPI.get<Client>(`/users/${clientId}`);
-      setClient(clientRes.data || null);
+      const clientData = clientRes.data || null;
+      setClient(clientData);
 
-      // Récupérer les demandes du client
-      const demandesRes = await authAPI.get<Demande[] | { data: Demande[] }>("/demandes-client");
-      const clientDemandes = (Array.isArray(demandesRes.data) ? demandesRes.data : ((demandesRes.data as { data?: Demande[] }).data || [])).filter((d: Demande) => 
-        d.nom_client.toLowerCase().includes(clientRes.data?.first_name?.toLowerCase() || "")
-      );
+      const clientEmail = (clientData?.email || "").toLowerCase().trim();
+      const clientFirstName = (clientData?.first_name || "").toLowerCase().trim();
+      const clientLastName = (clientData?.last_name || "").toLowerCase().trim();
+      const clientFullName = `${clientFirstName} ${clientLastName}`.trim();
+
+      const [demandesRes, quotesRes, commandesRes] = await Promise.all([
+        authAPI.get<Demande[] | { data: Demande[] }>("/demandes-client"),
+        authAPI.get<Quote[] | { data: Quote[] }>("/quotes"),
+        authAPI.get<Commande[] | { data: Commande[] }>("/commandes"),
+      ]);
+
+      const allDemandes = Array.isArray(demandesRes.data)
+        ? demandesRes.data
+        : ((demandesRes.data as { data?: Demande[] }).data || []);
+      const clientDemandes = allDemandes.filter((d: Demande) => {
+        const dEmail = (d.email || "").toLowerCase().trim();
+        const dNom = (d.nom_client || "").toLowerCase().trim();
+        if (clientEmail && dEmail && dEmail === clientEmail) return true;
+        if (clientFullName && dNom && dNom.includes(clientFirstName) && dNom.includes(clientLastName)) return true;
+        if (clientFullName && dNom && dNom === clientFullName) return true;
+        return false;
+      });
       setDemandes(clientDemandes);
 
-      // Récupérer les quotes du client
-      const quotesRes = await authAPI.get<Quote[] | { data: Quote[] }>("/quotes");
-      const clientQuotes = (Array.isArray(quotesRes.data) ? quotesRes.data : ((quotesRes.data as { data?: Quote[] }).data || [])).filter((q: Quote) => 
-        q.name?.toLowerCase().includes(clientRes.data?.first_name?.toLowerCase() || "")
-      );
-      setQuotes(clientQuotes);
+      const allQuotes = Array.isArray(quotesRes.data)
+        ? quotesRes.data
+        : ((quotesRes.data as { data?: Quote[] }).data || []);
+      const clientQuotes = allQuotes.filter((q: any) => {
+        const qClientId = (q.client_id || "") as string;
+        const qEmail = ((q.email || "") as string).toLowerCase().trim();
+        if (qClientId && qClientId === clientId) return true;
+        if (clientEmail && qEmail && qEmail === clientEmail) return true;
+        return false;
+      });
+      setQuotes(clientQuotes as Quote[]);
 
-      // Récupérer les commandes du client
-      const commandesRes = await authAPI.get<Commande[] | { data: Commande[] }>("/commandes");
-      const clientCommandes = (Array.isArray(commandesRes.data) ? commandesRes.data : ((commandesRes.data as { data?: Commande[] }).data || [])).filter((c: Commande) => 
+      const allCommandes = Array.isArray(commandesRes.data)
+        ? commandesRes.data
+        : ((commandesRes.data as { data?: Commande[] }).data || []);
+      const clientCommandes = allCommandes.filter((c: Commande) =>
         c.client_id === clientId
       );
       setCommandes(clientCommandes);
 
-      // Calculer le CA cumulé (commandes livrées)
       const ca = clientCommandes
-        .filter(c => c.statut_production === "Livrée")
+        .filter((c) => c.statut_production === "Livrée")
         .reduce((sum, c) => sum + (c.total || 0), 0);
       setCaCumule(ca);
-
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur de chargement");
     } finally {

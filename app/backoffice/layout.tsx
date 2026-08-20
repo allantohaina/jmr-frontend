@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -45,14 +45,14 @@ const atelierItems = [
   { href: "/backoffice/produits", label: "Fiches produits", icon: Wrench },
   { href: "/backoffice/clients", label: "Historique client", icon: Users },
   { href: "/backoffice/production", label: "Production", icon: ClipboardList },
-  { href: "/backoffice/kanban", label: "Kanban production", icon: Kanban },
+  { href: "/backoffice/kanban", label: "Suivi Production", icon: Kanban },
   { href: "/backoffice/avis", label: "Avis clients", icon: Star },
 ];
 
 const productionItems = [
   { href: "/backoffice/orders", label: "Commandes", icon: Package },
   { href: "/backoffice/delivery-notes", label: "Bons de livraison", icon: Truck },
-  { href: "/backoffice/kanban", label: "Kanban production", icon: Kanban },
+  { href: "/backoffice/kanban", label: "Suivi Production", icon: Kanban },
 ];
 
 const employeeItems = [

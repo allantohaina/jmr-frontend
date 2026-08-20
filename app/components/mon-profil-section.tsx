@@ -79,6 +79,28 @@ function quoteReference(quote: QuoteRecord) {
   return `Demande #${String(quote.id).padStart(5, "0")}`;
 }
 
+type ClientDocument = {
+  id: string;
+  label: string;
+  detail: string;
+  date?: string;
+  href?: string;
+  kind: "pdf" | "devis" | "commande";
+};
+
+function quoteFiles(quote: QuoteRecord): Array<{ name: string; url: string; type: string }> {
+  if (Array.isArray(quote.files)) return quote.files;
+  if (typeof quote.files !== "string") return [];
+  try {
+    const parsed: unknown = JSON.parse(quote.files);
+    return Array.isArray(parsed) ? parsed.filter((file): file is { name: string; url: string; type: string } =>
+      typeof file === "object" && file !== null && typeof file.name === "string" && typeof file.url === "string",
+    ) : [];
+  } catch {
+    return [];
+  }
+}
+
 const globalStyles = `
 :root{
   --bg:#1e2a38;
@@ -191,6 +213,17 @@ body{background:var(--bg);color:var(--text-cream);font-family:var(--font-body);-
 .db-docs h2{font-family:var(--font-serif);font-weight:500;font-size:18px;color:var(--gold-light);margin-bottom:14px;}
 .db-docs p{font-size:12px;color:var(--text-faint);margin-bottom:18px;}
 .db-docs-btn{width:100%;padding:12px;border-radius:8px;border:1px dashed var(--card-border);background:transparent;color:var(--text-faint);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:not-allowed;transition:all .2s;}
+.db-doc-summary{display:grid;gap:9px;margin:16px 0 18px;}
+.db-doc-summary-item{display:flex;align-items:center;gap:10px;padding:11px;border:1px solid rgba(229,173,70,.1);border-radius:8px;background:rgba(27,38,60,.45);}
+.db-doc-summary-count{font-family:var(--font-mono);font-size:18px;font-weight:700;color:var(--gold-light);min-width:24px;}
+.db-doc-summary-label{font-size:10px;line-height:1.35;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;}
+.db-doc-list{display:grid;gap:8px;margin-top:14px;max-height:264px;overflow-y:auto;padding-right:2px;}
+.db-doc-row{display:flex;gap:10px;align-items:center;padding:10px;border-radius:8px;background:rgba(229,173,70,.035);text-decoration:none;color:inherit;}
+.db-doc-row[href]:hover{background:rgba(229,173,70,.09);}
+.db-doc-icon{width:28px;height:32px;display:grid;place-items:center;flex:none;border-radius:6px;background:rgba(229,173,70,.1);color:var(--gold);font-family:var(--font-mono);font-size:8px;font-weight:800;}
+.db-doc-name{font-size:11px;font-weight:700;color:var(--text-cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.db-doc-meta{font-size:9px;color:var(--text-faint);margin-top:3px;}
+.db-doc-empty{font-size:11px;color:var(--text-faint);padding:12px 0;}
 
 .db-alerts-empty{text-align:center;padding:32px 26px;color:var(--text-faint);font-size:12px;}
 
@@ -269,6 +302,36 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
     (a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
   )[0];
   const alertCount = submittedQuotes.filter((q) => q.status === "sent" || q.status === "production" || q.status === "needs_info").length;
+  const sentQuotes = submittedQuotes.filter((q) => q.status === "sent");
+  const underReviewQuotes = submittedQuotes.filter((q) => q.status === "pending" || q.status === "needs_info");
+  const approvedQuotes = submittedQuotes.filter((q) => q.status === "accepted" || q.status === "production");
+  const documents: ClientDocument[] = [
+    ...submittedQuotes.flatMap((quote) => quoteFiles(quote)
+      .filter((file) => file.type === "application/pdf" || /\.pdf$/i.test(file.name))
+      .map((file, index) => ({
+        id: `attachment-${quote.id}-${index}`,
+        label: file.name,
+        detail: `PDF reçu avec ${quoteReference(quote)}`,
+        date: quote.created_at,
+        href: file.url,
+        kind: "pdf" as const,
+      }))),
+    ...approvedQuotes.map((quote) => ({
+      id: `quote-${quote.id}`,
+      label: `Devis validé — ${quoteReference(quote)}`,
+      detail: quote.amount ? `${Number(quote.amount).toLocaleString("fr-FR")} Ar` : "Devis étudié et validé",
+      date: quote.validated_at ?? quote.updated_at ?? quote.created_at,
+      href: `/mon-profil/devis/detail?id=${quote.id}`,
+      kind: "devis" as const,
+    })),
+    ...commandes.map((commande) => ({
+      id: `order-${commande.id}`,
+      label: `Bon de commande — ${commande.numero}`,
+      detail: commande.designation ?? `${commande.quantite} pièces`,
+      date: commande.date_commande ?? commande.created_at,
+      kind: "commande" as const,
+    })),
+  ].sort((a, b) => new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime());
 
   const recentItems = [
     ...submittedQuotes.map((q) => ({ type: "quote" as const, date: q.created_at ?? "", label: "Nouveau devis", detail: `${q.name} - ${q.message?.slice(0, 80)}` })),
@@ -470,8 +533,37 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
 
                   <div className="db-docs">
                     <h2>Documents</h2>
-                    <p>Aucun document pour le moment</p>
-                    <button className="db-docs-btn" disabled>Accéder aux archives</button>
+                    <p>Suivez vos documents reçus et les décisions de l&apos;atelier.</p>
+                    <div className="db-doc-summary">
+                      <div className="db-doc-summary-item">
+                        <span className="db-doc-summary-count">{String(sentQuotes.length).padStart(2, "0")}</span>
+                        <span className="db-doc-summary-label">Devis envoyés<br />en attente</span>
+                      </div>
+                      <div className="db-doc-summary-item">
+                        <span className="db-doc-summary-count">{String(underReviewQuotes.length).padStart(2, "0")}</span>
+                        <span className="db-doc-summary-label">Demandes reçues<br />en cours d&apos;étude</span>
+                      </div>
+                      <div className="db-doc-summary-item">
+                        <span className="db-doc-summary-count">{String(approvedQuotes.length).padStart(2, "0")}</span>
+                        <span className="db-doc-summary-label">Devis validés<br />et étudiés</span>
+                      </div>
+                    </div>
+                    <div className="db-doc-list" aria-label="Archives des documents">
+                      {documents.length === 0 ? (
+                        <div className="db-doc-empty">Les bons de commande, devis validés et PDF reçus apparaîtront ici.</div>
+                      ) : documents.slice(0, 12).map((document) => {
+                        const content = <>
+                          <span className="db-doc-icon">{document.kind === "pdf" ? "PDF" : document.kind === "devis" ? "DEV" : "BC"}</span>
+                          <span style={{ minWidth: 0 }}>
+                            <span className="db-doc-name">{document.label}</span>
+                            <span className="db-doc-meta">{document.detail}{document.date ? ` · ${formatDate(document.date)}` : ""}</span>
+                          </span>
+                        </>;
+                        return document.href ? (
+                          <a className="db-doc-row" href={document.href} key={document.id} target={document.href.startsWith("http") ? "_blank" : undefined} rel={document.href.startsWith("http") ? "noreferrer" : undefined}>{content}</a>
+                        ) : <div className="db-doc-row" key={document.id}>{content}</div>;
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
