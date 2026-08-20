@@ -41,7 +41,7 @@ const atelierItems = [
   { href: "/backoffice/demandes", label: "Demandes client", icon: MessageSquare },
   { href: "/backoffice/devis", label: "Cotations / Devis", icon: FileText },
   { href: "/backoffice/orders", label: "Commandes", icon: Package },
-  { href: "/backoffice/matieres", label: "MatiÃ¨res premiÃ¨res", icon: Boxes },
+  { href: "/backoffice/matieres", label: "Matières premières", icon: Boxes },
   { href: "/backoffice/produits", label: "Fiches produits", icon: Wrench },
   { href: "/backoffice/clients", label: "Historique client", icon: Users },
   { href: "/backoffice/production", label: "Production", icon: ClipboardList },
@@ -56,14 +56,14 @@ const productionItems = [
 ];
 
 const employeeItems = [
-  { href: "/backoffice/employee/manage", label: "Gestion employÃ©s", icon: Users },
-  { href: "/backoffice/employee/tickets", label: "Tickets rÃ©paration", icon: Wrench },
-  { href: "/backoffice/employee/tasks", label: "Suivi Ã©tapes", icon: ClipboardList },
+  { href: "/backoffice/employee/manage", label: "Gestion employés", icon: Users },
+  { href: "/backoffice/employee/tickets", label: "Tickets réparation", icon: Wrench },
+  { href: "/backoffice/employee/tasks", label: "Suivi étapes", icon: ClipboardList },
 ];
 
 const financeItems = [
   { href: "/backoffice/purchases", label: "Achats", icon: ShoppingCart },
-  { href: "/backoffice/finance/expenses", label: "DÃ©penses", icon: TrendingDown },
+  { href: "/backoffice/finance/expenses", label: "Dépenses", icon: TrendingDown },
   { href: "/backoffice/finance/invoices", label: "Factures", icon: Receipt },
   { href: "/backoffice/finance/payroll", label: "Paie", icon: DollarSign },
   { href: "/backoffice/exports", label: "Exports CSV", icon: FileDown },
@@ -144,14 +144,14 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           <NavGroup title="Clients" items={clientItems} />
           <NavGroup title="Atelier JMR" items={atelierItems} />
           <NavGroup title="Production" items={productionItems} />
-          <NavGroup title="EmployÃ©s" items={employeeItems} />
+          <NavGroup title="Employés" items={employeeItems} />
           <NavGroup title="Finance" items={financeItems} />
           <NavGroup title="Administration" items={adminItems} />
 
           <div className="mt-8 border-t border-[#e5ad46]/10 pt-8">
             <Link href="/backoffice/settings" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
               <Settings className="h-5 w-5 text-[#e5ad46] transition-transform group-hover:scale-110" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">ParamÃ¨tres</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest">Paramètres</span>
             </Link>
           </div>
         </nav>
@@ -184,7 +184,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           <Link href="/backoffice/employee/tasks" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
             <div className="flex items-center gap-2">
               <ClipboardList className="h-4 w-4 text-[#e5ad46]" />
-              <span className="text-[8px] font-bold uppercase tracking-widest">TÃ¢ches</span>
+              <span className="text-[8px] font-bold uppercase tracking-widest">Tâches</span>
             </div>
           </Link>
           <Link href="/backoffice/orders" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
@@ -231,7 +231,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           <div>
             <h1 className="font-headline text-xl text-[#e5ad46] md:text-2xl">Espace de Gestion</h1>
             <p className="mt-1 text-[8px] font-bold uppercase tracking-widest text-[#eccc90]/40 md:text-[10px]">
-              Controle de production â€¢ Temps reel
+              Contrôle de production • Temps réel
             </p>
           </div>
 
