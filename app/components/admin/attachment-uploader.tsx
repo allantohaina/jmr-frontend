@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Upload, X, FileText, Image, Loader2 } from "lucide-react";
 import { authAPI } from "@/app/lib";
+import { safeUrl } from "@/app/lib/utils";
 
 type Attachment = {
   id: string;
@@ -242,7 +243,7 @@ export function AttachmentUploader({ entityType, entityId, maxSizeMB = 5, onUplo
                   </p>
                 </div>
                 <a
-                  href={att.url}
+                  href={safeUrl(att.url)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 text-[#163526]/60 hover:text-orange-500 transition-colors"

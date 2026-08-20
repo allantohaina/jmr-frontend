@@ -13,6 +13,20 @@ export function debounce<TArgs extends unknown[], TResult>(
   };
 }
 
+const SAFE_URL_SCHEME = /^(https?:|mailto:|tel:|data:image\/)/i;
+
+export function safeUrl(raw: unknown): string | undefined {
+  if (typeof raw !== "string") return undefined;
+  const trimmed = raw.trim();
+  if (trimmed.length === 0) return undefined;
+  if (trimmed.startsWith("/")) {
+    if (trimmed.startsWith("//") || trimmed.startsWith("/\\")) return undefined;
+    return trimmed;
+  }
+  if (SAFE_URL_SCHEME.test(trimmed)) return trimmed;
+  return undefined;
+}
+
 // Throttle utility
 export function throttle<TArgs extends unknown[], TResult>(
   func: (...args: TArgs) => TResult,

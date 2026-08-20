@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { scrollToSection } from "@/app/lib/scroll";
+import { safeUrl } from "@/app/lib/utils";
 
 import { useLocale } from "@/app/components/locale-provider";
 import { ThemeToggle } from "@/app/components/theme-toggle";
@@ -619,7 +620,7 @@ export function Navbar({
                     ) : notifications.map((notification) => (
                       <Link
                         key={notification.id}
-                        href={notification.action_url || "/mon-profil"}
+                        href={safeUrl(notification.action_url) || "/mon-profil"}
                         onClick={() => {
                           setIsNotifOpen(false);
                           if (!notification.read_at) {

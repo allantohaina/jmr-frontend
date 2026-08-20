@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getUser, getToken } from "@/app/lib/auth";
+import { safeUrl } from "@/app/lib/utils";
 import { authAPI } from "@/app/lib/api";
 import { checkpointsAPI, addonsAPI, paymentsAPI } from "@/app/lib/api";
 import type { QuoteRecord, CommandeRecord, QuoteCheckpoint, QuoteAddon, PaymentRecord } from "@/app/lib/api";
@@ -487,33 +488,36 @@ function DevisDetailContent() {
                 <span className="hint">{quoteFiles.length} fichier{quoteFiles.length > 1 ? "s" : ""}</span>
               </div>
               <div className="file-grid">
-                {quoteFiles.map((file, index) => (
-                  <div key={`${file.url}-${index}`} className="file-card">
-                    {isImageType(file) ? (
-                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="file-thumb">
-                        <img
-                          src={file.url}
-                          alt={file.name || "Pièce jointe"}
-                          loading="lazy"
-                          onError={(e) => {
-                            const img = e.currentTarget as HTMLImageElement;
-                            img.style.display = "none";
-                            img.parentElement?.classList.add("fallback");
-                          }}
-                        />
+                {quoteFiles.map((file, index) => {
+                  const fileUrl = safeUrl(file.url);
+                  return (
+                    <div key={`${file.url}-${index}`} className="file-card">
+                      {isImageType(file) ? (
+                        <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="file-thumb">
+                          <img
+                            src={fileUrl}
+                            alt={file.name || "Pièce jointe"}
+                            loading="lazy"
+                            onError={(e) => {
+                              const img = e.currentTarget as HTMLImageElement;
+                              img.style.display = "none";
+                              img.parentElement?.classList.add("fallback");
+                            }}
+                          />
+                        </a>
+                      ) : (
+                        <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="file-thumb">
+                          <div className="f-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3"/></svg>
+                          </div>
+                        </a>
+                      )}
+                      <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="file-name" title={file.name || "Fichier"}>
+                        {file.name || "Fichier joint"}
                       </a>
-                    ) : (
-                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="file-thumb">
-                        <div className="f-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3"/></svg>
-                        </div>
-                      </a>
-                    )}
-                    <a href={file.url} target="_blank" rel="noopener noreferrer" className="file-name" title={file.name || "Fichier"}>
-                      {file.name || "Fichier joint"}
-                    </a>
-                  </div>
-                ))}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

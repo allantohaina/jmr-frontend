@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { authAPI, CommandeRecord, STATUTS_PRODUCTION, type UserProfile } from "@/app/lib/api";
 import { commandesExtrasAPI, type LienPaiementRecord } from "@/app/lib/api";
+import { safeUrl } from "@/app/lib/utils";
 import { TextileDocument, AdminSignaturePanel } from "@/app/components/documents";
 import type { DocumentSignature, DocumentLineItem, TextileDocumentProps } from "@/app/components/documents/types";
 import { PrivilegeBadge } from "@/app/components/admin/privilege-badge";
@@ -434,7 +435,7 @@ export default function AdminCommandesPage() {
                         {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
                       </button>
                     </div>
-                    <LinkComponent to={lienGenere.url || ""} label="Ouvrir la page de paiement" />
+                    <LinkComponent to={safeUrl(lienGenere.url) || ""} label="Ouvrir la page de paiement" />
                   </div>
                 )}
               </div>
@@ -465,7 +466,7 @@ export default function AdminCommandesPage() {
                     <div>
                       <p className="text-xs text-[#163526]/70 mb-2">Scannez pour suivre la commande</p>
                       <a
-                        href={qrUrl}
+                        href={safeUrl(qrUrl) || undefined}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[9px] font-bold uppercase tracking-widest text-[#e5ad46] hover:underline"
@@ -485,8 +486,9 @@ export default function AdminCommandesPage() {
 }
 
 function LinkComponent({ to, label }: { to: string; label: string }) {
+  const href = safeUrl(to);
   return (
-    <a href={to} target="_blank" rel="noopener noreferrer" className="inline-block text-[9px] font-bold uppercase tracking-widest text-[#e5ad46] hover:underline">
+    <a href={href} target="_blank" rel="noopener noreferrer" className="inline-block text-[9px] font-bold uppercase tracking-widest text-[#e5ad46] hover:underline">
       {label} →
     </a>
   );
