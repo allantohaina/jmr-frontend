@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { authAPI, getBackendApiUrls } from "./api";
 
 export type SiteContent = Record<string, string>;
+export const SITE_CONTENT_PREVIEW_KEY = "jmr_site_content_preview";
 
 export async function fetchSiteContent(): Promise<SiteContent> {
   const response = await fetch(`${getBackendApiUrls()[0]}/content`, {
@@ -20,10 +21,25 @@ export function useContent() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    const preview = new URLSearchParams(window.location.search).has("contentPreview");
+    const readPreview = () => {
+      try {
+        const raw = window.localStorage.getItem(SITE_CONTENT_PREVIEW_KEY);
+        return raw ? JSON.parse(raw) as SiteContent : {};
+      } catch { return {}; }
+    };
+    const apply = (saved: SiteContent) => setContent(preview ? { ...saved, ...readPreview() } : saved);
     fetchSiteContent()
-      .then(setContent)
+      .then(apply)
       .catch(() => {})
       .finally(() => setLoaded(true));
+    if (preview) {
+      const onStorage = (event: StorageEvent) => {
+        if (event.key === SITE_CONTENT_PREVIEW_KEY) setContent((saved) => ({ ...saved, ...readPreview() }));
+      };
+      window.addEventListener("storage", onStorage);
+      return () => window.removeEventListener("storage", onStorage);
+    }
   }, []);
 
   const save = useCallback(async (key: string, value: string) => {
