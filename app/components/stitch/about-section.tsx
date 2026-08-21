@@ -33,7 +33,7 @@ export function AboutSection({ isAdmin = false }: { isAdmin?: boolean }) {
             <div className="relative w-full aspect-[3/4] shadow-xl overflow-hidden rounded-2xl md:rounded-3xl">
               <Image
                 className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-                src="/human_images/05_equipe_tracage_patron.jpg"
+                src={val("about_image", "/human_images/05_equipe_tracage_patron.jpg")}
                 alt="Outils d'atelier réels et fournitures de couture quotidiennes"
                 fill
               />
@@ -71,18 +71,18 @@ export function AboutSection({ isAdmin = false }: { isAdmin?: boolean }) {
           />
           <div className="grid grid-cols-3 gap-4 sm:flex sm:items-center sm:gap-6 md:gap-8">
             <div className="group/stat text-center sm:text-left">
-              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors">{messages.about.stat1}</p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1">{messages.about.stat1Label}</p>
+              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors">{val("about_stat_1", messages.about.stat1)}</p>
+              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1">{val("about_stat_1_label", messages.about.stat1Label)}</p>
             </div>
             <div className="hidden sm:block w-[1px] h-12 bg-outline-variant/30 shrink-0"></div>
             <div className="group/stat text-center sm:text-left">
-              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors">{messages.about.stat2}</p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1">{messages.about.stat2Label}</p>
+              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors">{val("about_stat_2", messages.about.stat2)}</p>
+              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1">{val("about_stat_2_label", messages.about.stat2Label)}</p>
             </div>
             <div className="hidden sm:block w-[1px] h-12 bg-outline-variant/30 shrink-0"></div>
             <div className="group/stat text-center sm:text-left">
-              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors">{messages.about.stat3}</p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1">{messages.about.stat3Label}</p>
+              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors">{val("about_stat_3", messages.about.stat3)}</p>
+              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1">{val("about_stat_3_label", messages.about.stat3Label)}</p>
             </div>
           </div>
         </div>

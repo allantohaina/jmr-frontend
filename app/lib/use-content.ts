@@ -1,32 +1,48 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { authAPI } from "./api";
+import { authAPI, getBackendApiUrls } from "./api";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.jmrtextile.com/api";
+export type SiteContent = Record<string, string>;
+
+export async function fetchSiteContent(): Promise<SiteContent> {
+  const response = await fetch(`${getBackendApiUrls()[0]}/content`, {
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error("Impossible de charger le contenu du site.");
+  const data: unknown = await response.json();
+  return data && typeof data === "object" ? data as SiteContent : {};
+}
 
 export function useContent() {
-  const [content, setContent] = useState<Record<string, string>>({});
+  const [content, setContent] = useState<SiteContent>({});
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_BASE}/content`, { headers: { Accept: "application/json" } })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data && typeof data === "object") setContent(data);
-      })
+    fetchSiteContent()
+      .then(setContent)
       .catch(() => {})
       .finally(() => setLoaded(true));
   }, []);
 
   const save = useCallback(async (key: string, value: string) => {
+    const previousValue = content[key];
     setContent((prev) => ({ ...prev, [key]: value }));
     try {
       await authAPI.put(`/content/${encodeURIComponent(key)}`, { value });
     } catch (e) {
+      setContent((prev) => {
+        if (previousValue === undefined) {
+          const { [key]: _discarded, ...rest } = prev;
+          return rest;
+        }
+        return { ...prev, [key]: previousValue };
+      });
       console.error("Failed to save content:", e);
+      throw e;
     }
-  }, []);
+  }, [content]);
 
-  return { content, save, loaded };
+  return { content, save, loaded, refresh: () => fetchSiteContent().then(setContent) };
 }

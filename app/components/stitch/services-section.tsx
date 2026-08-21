@@ -45,7 +45,7 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
           <div className="md:col-span-2 group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-surface min-h-[320px] sm:min-h-[400px] md:min-h-[480px] lg:min-h-[500px] shadow-lg">
             <Image
               className="absolute inset-0 w-full h-full object-cover transition-all duration-1000 group-hover:scale-105"
-              src="/human_images/04_decoupe_machine_electrique.jpg"
+              src={val("services_image_1", "/human_images/04_decoupe_machine_electrique.jpg")}
               alt="Travail de couture pratique en cours à l'atelier"
               fill
             />
@@ -98,9 +98,9 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
             </div>
             <div className="pt-8 md:pt-10 border-t border-on-primary/10 relative z-10">
               <ul className="space-y-3 md:space-y-4">
-                <li className="flex items-center gap-3 text-[10px] md:text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-on-primary shrink-0"></span> {messages.services.bullet1}</li>
-                <li className="flex items-center gap-3 text-[10px] md:text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-on-primary shrink-0"></span> {messages.services.bullet2}</li>
-                <li className="flex items-center gap-3 text-[10px] md:text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-on-primary shrink-0"></span> {messages.services.bullet3}</li>
+                <li className="flex items-center gap-3 text-[10px] md:text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-on-primary shrink-0"></span> {val("services_bullet_1", messages.services.bullet1)}</li>
+                <li className="flex items-center gap-3 text-[10px] md:text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-on-primary shrink-0"></span> {val("services_bullet_2", messages.services.bullet2)}</li>
+                <li className="flex items-center gap-3 text-[10px] md:text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-on-primary shrink-0"></span> {val("services_bullet_3", messages.services.bullet3)}</li>
               </ul>
             </div>
           </div>
@@ -108,15 +108,15 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
           <div className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-surface min-h-[280px] sm:min-h-[340px] md:min-h-[400px] shadow-md">
             <Image
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-              src="/human_images/09_decoupe_pieces_denim.jpg"
+              src={val("services_image_3", "/human_images/09_decoupe_pieces_denim.jpg")}
               alt="Stock de matières textiles professionnelles à l'atelier"
               fill
             />
             <div className="absolute inset-0 bg-background/40 group-hover:bg-background/20 transition-all duration-500"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 md:p-8 text-center z-10">
               <div className="bg-surface/90 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-primary/20 shadow-xl group-hover:scale-105 transition-transform duration-500">
-                <h3 className="font-headline text-xl md:text-2xl text-primary mb-2">{messages.services.service3Title}</h3>
-                <p className="font-body text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">{messages.services.service3Eyebrow}</p>
+                <h3 className="font-headline text-xl md:text-2xl text-primary mb-2">{val("services_s3_title", messages.services.service3Title)}</h3>
+                <p className="font-body text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">{val("services_s3_eyebrow", messages.services.service3Eyebrow)}</p>
               </div>
             </div>
           </div>
@@ -125,7 +125,7 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
             <div className="relative w-full md:w-1/2 h-48 sm:h-56 md:h-full md:absolute md:right-0 md:top-0 md:bottom-0 overflow-hidden order-first md:order-none">
               <Image
                 className="w-full h-full object-cover opacity-70 md:opacity-60 group-hover:opacity-80 transition-all duration-1000"
-                src="/human_images/01_patronage_terrasse.jpg"
+                src={val("services_image_4", "/human_images/01_patronage_terrasse.jpg")}
                 alt="Gros plan d'une construction de vêtement professionnel sur un cintre"
                 fill
               />
@@ -148,7 +148,7 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
                 className="font-body text-on-surface-variant text-base md:text-lg mb-6 md:mb-10 leading-relaxed"
               />
               <Link href="/" onClick={(e) => { e.preventDefault(); scrollToSection("acces-client"); }} className="inline-flex items-center justify-center min-h-[44px] bg-primary text-on-primary px-8 md:px-10 py-4 md:py-5 rounded-xl font-body text-xs uppercase tracking-[0.2em] font-bold hover:bg-secondary transition-all shadow-lg shadow-primary/20">
-                {messages.services.service4Cta}
+                {val("services_s4_cta_label", messages.services.service4Cta)}
               </Link>
             </div>
           </div>

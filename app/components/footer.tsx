@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale } from "@/app/components/locale-provider";
 import { scrollToSection } from "@/app/lib/scroll";
+import { useContent } from "@/app/lib/use-content";
 
 type SocialItem = {
   key: string;
@@ -34,19 +35,21 @@ const SOCIAL_ITEMS: SocialItem[] = [
 export function Footer() {
   const pathname = usePathname();
   const { messages } = useLocale();
+  const { content, loaded } = useContent();
+  const val = (key: string, fallback: string) => loaded && content[key] ? content[key] : fallback;
 
   const footerLinks = [
-    { label: messages.footer.home, sectionId: "accueil" },
-    { label: messages.footer.services, sectionId: "nos-services" },
-    { label: messages.footer.about, sectionId: "a-propos" },
-    { label: messages.footer.clientSpace, sectionId: "acces-client" },
+    { label: val("footer_link_home_label", messages.footer.home), sectionId: "accueil" },
+    { label: val("footer_link_services_label", messages.footer.services), sectionId: "nos-services" },
+    { label: val("footer_link_about_label", messages.footer.about), sectionId: "a-propos" },
+    { label: val("footer_link_client_label", messages.footer.clientSpace), sectionId: "acces-client" },
   ];
 
   const legalLinks = [
-    { label: messages.footer.legalNotice, href: "/mentions-legales" },
-    { label: messages.footer.terms, href: "/conditions-utilisation" },
-    { label: messages.footer.privacy, href: "/confidentialite" },
-    { label: messages.footer.directContact, href: "mailto:contact@jmrtextile.com" },
+    { label: val("footer_legal_notice_label", messages.footer.legalNotice), href: val("footer_legal_notice_url", "/mentions-legales") },
+    { label: val("footer_terms_label", messages.footer.terms), href: val("footer_terms_url", "/conditions-utilisation") },
+    { label: val("footer_privacy_label", messages.footer.privacy), href: val("footer_privacy_url", "/confidentialite") },
+    { label: val("footer_contact_label", messages.footer.directContact), href: val("footer_contact_url", "mailto:contact@jmrtextile.com") },
   ];
 
   if (pathname?.startsWith("/backoffice")) {
@@ -65,24 +68,20 @@ export function Footer() {
               href="/"
               aria-label="Accueil JMR Textile"
             >
-              <Image
+              <img
                 className="w-full max-w-[280px] h-auto block"
-                src="/navbar/logo-dark.svg"
+                src={val("footer_logo", "/navbar/logo-dark.svg")}
                 alt="JMR Textile"
-                width={413}
-                height={92}
-                priority
-                unoptimized
               />
             </Link>
             <p className="font-body text-sm text-[#eccc90]/70 leading-relaxed max-w-sm">
-              {messages.footer.description}
+              {val("footer_description", messages.footer.description)}
             </p>
           </div>
 
           {/* Navigation Column */}
           <div className="lg:col-span-2">
-            <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">{messages.footer.navigation}</h3>
+            <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">{val("footer_navigation_title", messages.footer.navigation)}</h3>
             <ul className="space-y-4">
               {footerLinks.map((link) => (
                 <li key={link.label}>
@@ -103,7 +102,7 @@ export function Footer() {
 
           {/* Legal Column */}
           <div className="lg:col-span-2">
-            <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">{messages.footer.legal}</h3>
+            <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">{val("footer_legal_title", messages.footer.legal)}</h3>
             <ul className="space-y-4">
               {legalLinks.map((link) => (
                 <li key={link.label}>
@@ -120,12 +119,12 @@ export function Footer() {
 
           {/* Social Column */}
           <div className="lg:col-span-4">
-            <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">{messages.footer.social}</h3>
+            <h3 className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">{val("footer_social_title", messages.footer.social)}</h3>
             <div className="flex gap-4 mb-12">
               {SOCIAL_ITEMS.map((item) => (
                 <a
                   key={item.key}
-                  href="#"
+                  href={val(`footer_social_${item.key}_url`, "#")}
                   className="w-14 h-14 rounded-2xl border border-[#e5ad46]/30 flex items-center justify-center hover:border-[#e5ad46] hover:bg-[#e5ad46]/10 transition-all group"
                   aria-label={item.label}
                 >
@@ -145,12 +144,12 @@ export function Footer() {
         {/* Bottom Line */}
         <div className="mt-20 pt-10 border-t border-[#e5ad46]/10 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="font-body text-[10px] text-[#eccc90]/40 uppercase tracking-[0.3em]">
-            {messages.footer.copyright}
+            {val("footer_copyright", messages.footer.copyright)}
           </p>
           <div className="flex items-center gap-8">
             <span className="w-12 h-[1px] bg-[#e5ad46]/10"></span>
             <p className="font-body text-[10px] text-[#eccc90]/40 uppercase tracking-[0.3em]">
-              {messages.footer.values}
+              {val("footer_values", messages.footer.values)}
             </p>
           </div>
         </div>

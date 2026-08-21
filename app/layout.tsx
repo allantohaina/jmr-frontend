@@ -42,6 +42,8 @@ export default async function RootLayout({
   const initialLocale = "fr";
   const initialTheme = "dark";
   const messages = getMessages(initialLocale);
+  const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.jmrtextile.com/api";
+  const apiOrigin = new URL(configuredApiUrl).origin;
 
   return (
     <html
@@ -51,7 +53,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <meta httpEquiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://api.jmrtextile.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; frame-src 'none'; object-src 'none'; base-uri 'self'" />
+        <meta httpEquiv="Content-Security-Policy" content={`default-src 'self'; connect-src 'self' ${apiOrigin}; img-src 'self' data: ${apiOrigin}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; frame-src 'none'; object-src 'none'; base-uri 'self'`} />
         <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
         <meta httpEquiv="X-Frame-Options" content="DENY" />
         <meta httpEquiv="Referrer-Policy" content="strict-origin-when-cross-origin" />

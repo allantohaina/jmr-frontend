@@ -28,6 +28,7 @@ import {
   Kanban,
   Star,
   FileDown,
+  Pencil,
 } from "lucide-react";
 
 const clientItems = [
@@ -148,6 +149,16 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           <NavGroup title="Finance" items={financeItems} />
           <NavGroup title="Administration" items={adminItems} />
 
+          <Link
+            href="/backoffice/site-content"
+            className={`group flex items-center gap-4 rounded-xl px-4 py-3 transition-all ${
+              pathname?.startsWith("/backoffice/site-content") ? "bg-[#e5ad46]/10 text-[#e5ad46]" : "hover:bg-[#e5ad46]/10"
+            }`}
+          >
+            <Pencil className="h-5 w-5 text-[#e5ad46] transition-transform group-hover:scale-110" />
+            <span className="text-[10px] font-bold uppercase tracking-widest">Édition du site</span>
+          </Link>
+
           <div className="mt-8 border-t border-[#e5ad46]/10 pt-8">
             <Link href="/backoffice/settings" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
               <Settings className="h-5 w-5 text-[#e5ad46] transition-transform group-hover:scale-110" />
@@ -262,4 +273,3 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </ClientAuthGate>
   );
 }
-
