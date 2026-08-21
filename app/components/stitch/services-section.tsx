@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { EditableText } from "../editable-text";
+import { EditableImage } from "../editable-image";
 import { useLocale } from "@/app/components/locale-provider";
 import { useContent } from "@/app/lib/use-content";
 import { scrollToSection } from "@/app/lib/scroll";
@@ -43,11 +43,14 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           <div className="md:col-span-2 group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-surface min-h-[320px] sm:min-h-[400px] md:min-h-[480px] lg:min-h-[500px] shadow-lg">
-            <Image
+            <EditableImage
               className="absolute inset-0 w-full h-full object-cover transition-all duration-1000 group-hover:scale-105"
               src={val("services_image_1", "/human_images/04_decoupe_machine_electrique.jpg")}
               alt="Travail de couture pratique en cours à l'atelier"
               fill
+              contentKey="services_image_1"
+              isAdmin={isAdmin}
+              onSave={handleSave("services_image_1")}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
             <div className="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 md:right-auto text-on-primary z-10">
@@ -106,11 +109,14 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
           </div>
 
           <div className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-surface min-h-[280px] sm:min-h-[340px] md:min-h-[400px] shadow-md">
-            <Image
+            <EditableImage
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
               src={val("services_image_3", "/human_images/09_decoupe_pieces_denim.jpg")}
               alt="Stock de matières textiles professionnelles à l'atelier"
               fill
+              contentKey="services_image_3"
+              isAdmin={isAdmin}
+              onSave={handleSave("services_image_3")}
             />
             <div className="absolute inset-0 bg-background/40 group-hover:bg-background/20 transition-all duration-500"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 md:p-8 text-center z-10">
@@ -123,11 +129,14 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
 
           <div className="md:col-span-2 relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-background min-h-[480px] md:min-h-[400px] flex flex-col md:flex-row md:items-center shadow-xl">
             <div className="relative w-full md:w-1/2 h-48 sm:h-56 md:h-full md:absolute md:right-0 md:top-0 md:bottom-0 overflow-hidden order-first md:order-none">
-              <Image
+              <EditableImage
                 className="w-full h-full object-cover opacity-70 md:opacity-60 group-hover:opacity-80 transition-all duration-1000"
                 src={val("services_image_4", "/human_images/01_patronage_terrasse.jpg")}
                 alt="Gros plan d'une construction de vêtement professionnel sur un cintre"
                 fill
+                contentKey="services_image_4"
+                isAdmin={isAdmin}
+                onSave={handleSave("services_image_4")}
               />
               <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-transparent via-background/50 to-background"></div>
             </div>

@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import React from "react";
 import { EditableText } from "../editable-text";
+import { EditableImage } from "../editable-image";
 import { useLocale } from "@/app/components/locale-provider";
 import { useContent } from "@/app/lib/use-content";
 
@@ -31,11 +31,14 @@ export function AboutSection({ isAdmin = false }: { isAdmin?: boolean }) {
               <div className="absolute inset-0 bg-primary/10 z-10 mix-blend-multiply opacity-20"></div>
             </div>
             <div className="relative w-full aspect-[3/4] shadow-xl overflow-hidden rounded-2xl md:rounded-3xl">
-              <Image
+              <EditableImage
                 className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
                 src={val("about_image", "/human_images/05_equipe_tracage_patron.jpg")}
                 alt="Outils d'atelier réels et fournitures de couture quotidiennes"
                 fill
+                contentKey="about_image"
+                isAdmin={isAdmin}
+                onSave={handleSave("about_image")}
               />
             </div>
           </div>
