@@ -2,6 +2,7 @@ import { AUTH_COOKIE_NAME, TOKEN_STORAGE_KEY, readBrowserCookie } from "./auth";
 
 const DEFAULT_API_URL = "https://api.jmrtextile.com/api";
 const API_REQUEST_TIMEOUT_MS = 15_000;
+const API_UPLOAD_TIMEOUT_MS = 45_000;
 
 function normalizeApiUrl(value: string) {
   return value.replace(/\/+$/, "");
@@ -286,8 +287,16 @@ export async function fetchWithAuth<T = unknown>(
     const apiUrl = apiUrls[index];
 
     try {
+      const isUpload = options.body instanceof FormData;
+      const timeoutMs = isUpload ? API_UPLOAD_TIMEOUT_MS : API_REQUEST_TIMEOUT_MS;
       const timeoutController = new AbortController();
-      const timeoutId = setTimeout(() => timeoutController.abort(), API_REQUEST_TIMEOUT_MS);
+      const timeoutId = setTimeout(() => timeoutController.abort(), timeoutMs);
+      // Merge external signal if provided
+      const externalSignal = options.signal;
+      if (externalSignal) {
+        if (externalSignal.aborted) timeoutController.abort();
+        else externalSignal.addEventListener("abort", () => timeoutController.abort(), { once: true });
+      }
       let response: Response;
 
       try {
@@ -295,7 +304,7 @@ export async function fetchWithAuth<T = unknown>(
           ...options,
           headers,
           credentials: options.credentials ?? "omit",
-          signal: options.signal ?? timeoutController.signal,
+          signal: timeoutController.signal,
         });
       } finally {
         clearTimeout(timeoutId);
@@ -321,7 +330,9 @@ export async function fetchWithAuth<T = unknown>(
       return data as ApiResponse<T>;
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
-        throw new Error("L'API ne répond pas après 15 secondes. Vérifiez la connexion entre le frontend et le backend, puis réessayez.");
+        const isUpload = options.body instanceof FormData;
+        const secs = isUpload ? Math.round(API_UPLOAD_TIMEOUT_MS / 1000) : Math.round(API_REQUEST_TIMEOUT_MS / 1000);
+        throw new Error(`L'API ne répond pas après ${secs} secondes. Vérifiez votre connexion, la taille du fichier (max 5 Mo pour les images) et que vous êtes connecté en admin, puis réessayez.`);
       }
 
       if (index < apiUrls.length - 1 && isRetryableBackendError(error)) {

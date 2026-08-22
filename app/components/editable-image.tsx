@@ -21,6 +21,17 @@ export function EditableImage({ src, alt, contentKey, isAdmin, onSave, className
   async function upload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
+    // Vérif côté client avant envoi (5 Mo max côté backend Config/Upload.php:9)
+    if (file.size > 5 * 1024 * 1024) {
+      window.alert("Image trop volumineuse : 5 Mo max. Compressez l'image avant.");
+      event.target.value = "";
+      return;
+    }
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) && !/\.(jpe?g|png|webp)$/i.test(file.name)) {
+      window.alert("Format non supporté : utilisez JPG, PNG ou WEBP.");
+      event.target.value = "";
+      return;
+    }
     setUploading(true);
     try {
       const form = new FormData();
@@ -31,7 +42,9 @@ export function EditableImage({ src, alt, contentKey, isAdmin, onSave, className
       await onSave(`${getBackendApiUrls()[0].replace(/\/api$/, "")}/uploads/${name}`);
     } catch (error) {
       console.error("Impossible d’enregistrer l’image", error);
-      window.alert(error instanceof Error ? error.message : "Import de l’image impossible.");
+      const msg = error instanceof Error ? error.message : "Import de l’image impossible.";
+      // Message plus actionnable pour le timeout / CORS / session
+      window.alert(msg + "\n\nVérifiez : 1) vous êtes connecté en admin, 2) image <5 Mo, 3) backend https://api.jmrtextile.com joignable.");
     } finally {
       setUploading(false);
       event.target.value = "";
