@@ -35,15 +35,20 @@ export function EditableImage({ src, alt, contentKey, isAdmin, onSave, className
       } catch { /* fallback canvas */ }
     }
     try {
-      const url = URL.createObjectURL(file);
+      // Utilise data: URL pour éviter CSP blob: bloqué sur admin.jmrtextile.com
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
       const img = await new Promise<HTMLImageElement>((resolve, reject) => {
         const i = new window.Image();
         i.onload = () => resolve(i);
         i.onerror = reject;
-        i.src = url;
+        i.src = dataUrl;
       });
       let { width, height } = img;
-      URL.revokeObjectURL(url);
       const scale = Math.min(1, MAX_DIM / Math.max(width, height));
       width = Math.round(width * scale);
       height = Math.round(height * scale);
