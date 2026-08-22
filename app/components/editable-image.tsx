@@ -58,12 +58,12 @@ export function EditableImage({ src, alt, contentKey, isAdmin, onSave, className
       const ctx = canvas.getContext("2d");
       if (!ctx) return file;
       ctx.drawImage(img, 0, 0, width, height);
-      const blob: Blob | null = await new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/webp", 0.80));
+      // JPEG plus compatible que WEBP pour is_image/GD côté serveur
+      const blob: Blob | null = await new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/jpeg", 0.82));
       if (!blob) return file;
-      // Si le webp est plus lourd que l'original petit, garde l'original
       if (blob.size >= file.size && file.size <= MAX_BYTES) return file;
-      const name = file.name.replace(/\.[^.]+$/, "") + ".webp";
-      return new File([blob], name, { type: "image/webp" });
+      const name = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+      return new File([blob], name, { type: "image/jpeg" });
     } catch {
       return file;
     }
@@ -73,13 +73,16 @@ export function EditableImage({ src, alt, contentKey, isAdmin, onSave, className
     const file = event.target.files?.[0];
     if (!file) return;
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) && !/\.(jpe?g|png|webp)$/i.test(file.name)) {
-      window.alert("Format non supporté : utilisez JPG, PNG ou WEBP.");
+      window.alert("Format non supporté : utilisez JPG, PNG ou WEBP. (HEIC/AVIF non supporté par le serveur)");
       event.target.value = "";
       return;
     }
+    // Debug visible dans console pour le 422
+    console.log(`[upload] original ${file.name} ${file.type} ${(file.size/1024).toFixed(0)}ko`);
     setUploading(true);
     try {
       const toUpload = await compressIfNeeded(file);
+      console.log(`[upload] compressé ${toUpload.name} ${toUpload.type} ${(toUpload.size/1024).toFixed(0)}ko`);
       if (toUpload.size > 5 * 1024 * 1024) {
         window.alert("Image encore trop volumineuse après compression (5 Mo max). Réduisez la résolution.");
         return;
