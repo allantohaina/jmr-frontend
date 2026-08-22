@@ -87,12 +87,44 @@ export function EditableImage({ src, alt, contentKey, isAdmin, onSave, className
         window.alert("Image encore trop volumineuse après compression (5 Mo max). Réduisez la résolution.");
         return;
       }
-      const form = new FormData();
-      form.append("file", toUpload);
-      const response = await authAPI.post<{ file: { stored_name: string } }>("/uploads/image", form);
-      const name = response.data?.file?.stored_name;
-      if (!name) throw new Error("Image non reçue par le serveur.");
-      await onSave(`${getBackendApiUrls()[0].replace(/\/api$/, "")}/uploads/${name}`);
+      const doSave = async (storedName: string) => {
+        await onSave(`${getBackendApiUrls()[0].replace(/\/api$/, "")}/uploads/${storedName}`);
+      };
+      try {
+        const form = new FormData();
+        form.append("file", toUpload);
+        const response = await authAPI.post<{ file: { stored_name: string } }>("/uploads/image", form);
+        const name = response.data?.file?.stored_name;
+        if (!name) throw new Error("Image non reçue par le serveur.");
+        await doSave(name);
+        return;
+      } catch (multipartError) {
+        const msg = multipartError instanceof Error ? multipartError.message : "";
+        // Fallback base64 si multipart échoue avec "Image requise." (422) - contourne php.ini / is_image / CSP multipart
+        const isUploadValidationError = msg.includes("Image requise") || msg.includes("422") || msg.includes("Unprocessable");
+        if (!isUploadValidationError) throw multipartError;
+        console.warn("[upload] multipart échoué, tentative base64", multipartError);
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(toUpload);
+        });
+        const response2 = await authAPI.post<{ file: { stored_name: string } }>("/uploads/image-base64", { image: dataUrl } as unknown as FormData);
+        const name2 = (response2.data as unknown as { file?: { stored_name?: string } })?.file?.stored_name ?? (response2 as unknown as { stored_name?: string })?.stored_name;
+        // authAPI.post wraps en ApiResponse, mais image-base64 renvoie pareil
+        const stored = name2 ?? (response2.data as unknown as { stored_name?: string })?.stored_name;
+        if (!stored) {
+          // tente lecture alternative du payload
+          const alt = response2 as unknown as { data?: { file?: { stored_name: string } } };
+          const altName = alt.data?.file?.stored_name;
+          if (!altName) throw multipartError;
+          await doSave(altName);
+          return;
+        }
+        await doSave(stored);
+        return;
+      }
     } catch (error) {
       console.error("Impossible d’enregistrer l’image", error);
       const msg = error instanceof Error ? error.message : "Import de l’image impossible.";
