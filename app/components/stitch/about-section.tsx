@@ -74,18 +74,18 @@ export function AboutSection({ isAdmin = false }: { isAdmin?: boolean }) {
           />
           <div className="grid grid-cols-3 gap-4 sm:flex sm:items-center sm:gap-6 md:gap-8">
             <div className="group/stat text-center sm:text-left">
-              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors">{val("about_stat_1", messages.about.stat1)}</p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1">{val("about_stat_1_label", messages.about.stat1Label)}</p>
+              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors"><EditableText isAdmin={isAdmin} content={val("about_stat_1", messages.about.stat1)} onSave={handleSave("about_stat_1")} tag="span" /></p>
+              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1"><EditableText isAdmin={isAdmin} content={val("about_stat_1_label", messages.about.stat1Label)} onSave={handleSave("about_stat_1_label")} tag="span" /></p>
             </div>
             <div className="hidden sm:block w-[1px] h-12 bg-outline-variant/30 shrink-0"></div>
             <div className="group/stat text-center sm:text-left">
-              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors">{val("about_stat_2", messages.about.stat2)}</p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1">{val("about_stat_2_label", messages.about.stat2Label)}</p>
+              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors"><EditableText isAdmin={isAdmin} content={val("about_stat_2", messages.about.stat2)} onSave={handleSave("about_stat_2")} tag="span" /></p>
+              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1"><EditableText isAdmin={isAdmin} content={val("about_stat_2_label", messages.about.stat2Label)} onSave={handleSave("about_stat_2_label")} tag="span" /></p>
             </div>
             <div className="hidden sm:block w-[1px] h-12 bg-outline-variant/30 shrink-0"></div>
             <div className="group/stat text-center sm:text-left">
-              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors">{val("about_stat_3", messages.about.stat3)}</p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1">{val("about_stat_3_label", messages.about.stat3Label)}</p>
+              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors"><EditableText isAdmin={isAdmin} content={val("about_stat_3", messages.about.stat3)} onSave={handleSave("about_stat_3")} tag="span" /></p>
+              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1"><EditableText isAdmin={isAdmin} content={val("about_stat_3_label", messages.about.stat3Label)} onSave={handleSave("about_stat_3_label")} tag="span" /></p>
             </div>
           </div>
         </div>

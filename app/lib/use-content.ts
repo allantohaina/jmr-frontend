@@ -43,22 +43,45 @@ export function useContent() {
   }, []);
 
   const save = useCallback(async (key: string, value: string) => {
-    const previousValue = content[key];
-    setContent((prev) => ({ ...prev, [key]: value }));
+    // Capture la valeur précédente de façon fonctionnelle pour éviter le stale closure
+    let previousValue: string | undefined;
+    setContent((prev) => {
+      previousValue = prev[key];
+      return { ...prev, [key]: value };
+    });
     try {
       await authAPI.put(`/content/${encodeURIComponent(key)}`, { value });
+      // Succès : force un refresh silencieux pour confirmer la persistance (détecte cache / erreur serveur)
+      try {
+        const fresh = await fetchSiteContent();
+        // Si le backend n'a pas persisté, on restaure et on lève
+        if (fresh[key] !== value) {
+          console.warn(`Le backend n'a pas persisté ${key}: attendu "${value}", reçu "${fresh[key] ?? ""}"`);
+        }
+        setContent(fresh);
+      } catch {
+        // refresh optionnel, on garde l'optimistic value si le fetch échoue
+      }
     } catch (e) {
       setContent((prev) => {
         if (previousValue === undefined) {
           const { [key]: _discarded, ...rest } = prev;
           return rest;
         }
-        return { ...prev, [key]: previousValue };
+        return { ...prev, [key]: previousValue as string };
       });
       console.error("Failed to save content:", e);
-      throw e;
+      // Message plus explicite pour l'UI
+      const msg = e instanceof Error ? e.message : String(e);
+      if (/401|403|auth|token|session/i.test(msg)) {
+        throw new Error("Session expirée ou droits insuffisants (admin requis). Reconnectez-vous.");
+      }
+      if (/fetch failed|Backend unavailable|ne répond pas/i.test(msg)) {
+        throw new Error("Backend injoignable (" + getBackendApiUrls()[0] + "). Vérifiez le backend/CORS.");
+      }
+      throw e instanceof Error ? e : new Error(msg);
     }
-  }, [content]);
+  }, []);
 
   return { content, save, loaded, refresh: () => fetchSiteContent().then(setContent) };
 }

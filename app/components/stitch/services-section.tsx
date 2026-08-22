@@ -101,9 +101,9 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
             </div>
             <div className="pt-8 md:pt-10 border-t border-on-primary/10 relative z-10">
               <ul className="space-y-3 md:space-y-4">
-                <li className="flex items-center gap-3 text-[10px] md:text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-on-primary shrink-0"></span> {val("services_bullet_1", messages.services.bullet1)}</li>
-                <li className="flex items-center gap-3 text-[10px] md:text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-on-primary shrink-0"></span> {val("services_bullet_2", messages.services.bullet2)}</li>
-                <li className="flex items-center gap-3 text-[10px] md:text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-on-primary shrink-0"></span> {val("services_bullet_3", messages.services.bullet3)}</li>
+                <li className="flex items-center gap-3 text-[10px] md:text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-on-primary shrink-0"></span> <EditableText isAdmin={isAdmin} content={val("services_bullet_1", messages.services.bullet1)} onSave={handleSave("services_bullet_1")} tag="span" /></li>
+                <li className="flex items-center gap-3 text-[10px] md:text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-on-primary shrink-0"></span> <EditableText isAdmin={isAdmin} content={val("services_bullet_2", messages.services.bullet2)} onSave={handleSave("services_bullet_2")} tag="span" /></li>
+                <li className="flex items-center gap-3 text-[10px] md:text-xs uppercase tracking-widest font-body font-bold"><span className="w-2 h-2 rounded-full bg-on-primary shrink-0"></span> <EditableText isAdmin={isAdmin} content={val("services_bullet_3", messages.services.bullet3)} onSave={handleSave("services_bullet_3")} tag="span" /></li>
               </ul>
             </div>
           </div>
@@ -121,8 +121,8 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
             <div className="absolute inset-0 bg-background/40 group-hover:bg-background/20 transition-all duration-500"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 md:p-8 text-center z-10">
               <div className="bg-surface/90 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-primary/20 shadow-xl group-hover:scale-105 transition-transform duration-500">
-                <h3 className="font-headline text-xl md:text-2xl text-primary mb-2">{val("services_s3_title", messages.services.service3Title)}</h3>
-                <p className="font-body text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">{val("services_s3_eyebrow", messages.services.service3Eyebrow)}</p>
+                <h3 className="font-headline text-xl md:text-2xl text-primary mb-2"><EditableText isAdmin={isAdmin} content={val("services_s3_title", messages.services.service3Title)} onSave={handleSave("services_s3_title")} tag="span" /></h3>
+                <p className="font-body text-[10px] uppercase tracking-[0.2em] text-secondary font-bold"><EditableText isAdmin={isAdmin} content={val("services_s3_eyebrow", messages.services.service3Eyebrow)} onSave={handleSave("services_s3_eyebrow")} tag="span" /></p>
               </div>
             </div>
           </div>
@@ -156,9 +156,12 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
                 tag="p"
                 className="font-body text-on-surface-variant text-base md:text-lg mb-6 md:mb-10 leading-relaxed"
               />
-              <Link href="/" onClick={(e) => { e.preventDefault(); scrollToSection("acces-client"); }} className="inline-flex items-center justify-center min-h-[44px] bg-primary text-on-primary px-8 md:px-10 py-4 md:py-5 rounded-xl font-body text-xs uppercase tracking-[0.2em] font-bold hover:bg-secondary transition-all shadow-lg shadow-primary/20">
-                {val("services_s4_cta_label", messages.services.service4Cta)}
-              </Link>
+              <div className="inline-flex flex-col gap-2">
+                <Link href="/" onClick={(e) => { e.preventDefault(); scrollToSection("acces-client"); }} className="inline-flex items-center justify-center min-h-[44px] bg-primary text-on-primary px-8 md:px-10 py-4 md:py-5 rounded-xl font-body text-xs uppercase tracking-[0.2em] font-bold hover:bg-secondary transition-all shadow-lg shadow-primary/20">
+                  {val("services_s4_cta_label", messages.services.service4Cta)}
+                </Link>
+                {isAdmin && <EditableText isAdmin={isAdmin} content={val("services_s4_cta_label", messages.services.service4Cta)} onSave={handleSave("services_s4_cta_label")} tag="span" className="text-xs text-primary/60" />}
+              </div>
             </div>
           </div>
         </div>

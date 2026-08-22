@@ -71,7 +71,7 @@ export function HeroSection({ isAdmin = false }: { isAdmin?: boolean }) {
               onSave={handleSave("hero_image")}
             />
           </div>
-          <div className="absolute -bottom-10 -left-10 w-64 aspect-square rounded-2xl overflow-hidden border-4 border-primary/30 shadow-2xl hidden md:block z-30">
+          <div className={`absolute -bottom-10 -left-10 w-64 aspect-square rounded-2xl overflow-hidden border-4 border-primary/30 shadow-2xl z-30 ${isAdmin ? "block" : "hidden md:block"}`}>
             <EditableImage
               className="w-full h-full object-cover"
               src={val("hero_secondary_image", "/human_images/07_coupe_machine_denim.jpg")}

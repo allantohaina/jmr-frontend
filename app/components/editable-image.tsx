@@ -39,8 +39,8 @@ export function EditableImage({ src, alt, contentKey, isAdmin, onSave, className
   }
 
   return <div className="absolute inset-0 group/edit-image">
-    <Image className={className} src={src} alt={alt} fill={fill} />
-    {isAdmin && <label className="absolute right-3 top-3 z-30 inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-on-primary opacity-0 shadow-lg transition group-hover/edit-image:opacity-100 focus-within:opacity-100">
+    <Image className={className} src={src} alt={alt} fill={fill} unoptimized />
+    {isAdmin && <label className="absolute right-3 top-3 z-30 inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-on-primary shadow-lg transition opacity-100 md:opacity-0 md:group-hover/edit-image:opacity-100 focus-within:opacity-100 border border-white/20 min-h-[36px]">
       {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
       {uploading ? "Import…" : "Changer l’image"}
       <input type="file" accept="image/jpeg,image/png,image/webp" onChange={upload} disabled={uploading} className="sr-only" aria-label={`Changer ${contentKey}`} />
