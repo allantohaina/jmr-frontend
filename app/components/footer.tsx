@@ -8,7 +8,6 @@ import { useLocale } from "@/app/components/locale-provider";
 import { scrollToSection } from "@/app/lib/scroll";
 import { useContent } from "@/app/lib/use-content";
 import { EditableText } from "@/app/components/editable-text";
-import { EditableImage } from "@/app/components/editable-image";
 import { getUser } from "@/app/lib/auth";
 
 type SocialItem = {
@@ -68,32 +67,26 @@ export function Footer() {
 
           {/* Brand Column */}
           <div className="lg:col-span-4">
-            <div className="inline-flex flex-col gap-4 p-8 bg-[#1e2a38] rounded-2xl shadow-2xl mb-8 border border-[#e5ad46]/20 relative overflow-hidden min-w-[280px]">
-              <Link href="/" aria-label="Accueil JMR Textile" className="block">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="w-full max-w-[280px] h-auto block" src={val("footer_logo", "/navbar/logo-dark.svg")} alt="JMR Textile" />
-              </Link>
-              {isAdmin && (
-                <div className="absolute inset-0 pointer-events-none">
-                  <div className="absolute inset-0 pointer-events-auto">
-                    {/* Overlay éditable pour le logo */}
-                    <div className="absolute inset-0">
-                      <EditableImage
-                        src={val("footer_logo", "/navbar/logo-dark.svg")}
-                        alt="JMR Textile"
-                        contentKey="footer_logo"
-                        isAdmin={isAdmin}
-                        onSave={handleSave("footer_logo")}
-                        className="w-full h-full object-contain opacity-0"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+            <Link
+              className="inline-flex flex-col gap-4 p-8 bg-[#1e2a38] rounded-2xl shadow-2xl mb-8 group transition-transform hover:-translate-y-1 border border-[#e5ad46]/20"
+              href="/"
+              aria-label="Accueil JMR Textile"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className="w-full max-w-[280px] h-auto block"
+                src={val("footer_logo", "/navbar/logo-dark.svg")}
+                alt="JMR Textile"
+              />
+            </Link>
             <div className="font-body text-sm text-[#eccc90]/70 leading-relaxed max-w-sm">
               <EditableText isAdmin={isAdmin} content={val("footer_description", messages.footer.description)} onSave={handleSave("footer_description")} tag="p" />
             </div>
+            {isAdmin && (
+              <div className="mt-3">
+                <span className="text-[10px] uppercase tracking-widest text-[#e5ad46]/50">Logo URL (éditable dans /backoffice/site-content)</span>
+              </div>
+            )}
           </div>
 
           {/* Navigation Column */}
@@ -103,19 +96,21 @@ export function Footer() {
             </div>
             <ul className="space-y-4">
               {footerLinks.map((link) => (
-                <li key={link.key} className="font-body text-xs uppercase tracking-widest text-[#eccc90]/70 hover:text-[#e5ad46] transition-all">
-                  {isAdmin ? (
-                    <EditableText isAdmin={isAdmin} content={val(link.key, link.fallback)} onSave={handleSave(link.key)} tag="span" className="inline-block" />
-                  ) : (
-                    <Link
-                      href="/"
-                      onClick={(e) => { e.preventDefault(); scrollToSection(link.sectionId); }}
-                      className="inline-block hover:translate-x-1 transition-transform"
-                    >
-                      {val(link.key, link.fallback)}
-                    </Link>
-                  )}
-                  {isAdmin && <span className="ml-2 text-[9px] opacity-50">→ {link.sectionId}</span>}
+                <li key={link.key}>
+                  <Link
+                    href="/"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToSection(link.sectionId);
+                    }}
+                    className="font-body text-xs uppercase tracking-widest text-[#eccc90]/70 hover:text-[#e5ad46] hover:translate-x-1 transition-all inline-block"
+                  >
+                    {isAdmin ? (
+                      <EditableText isAdmin={isAdmin} content={val(link.key, link.fallback)} onSave={handleSave(link.key)} tag="span" />
+                    ) : (
+                      val(link.key, link.fallback)
+                    )}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -128,18 +123,17 @@ export function Footer() {
             </div>
             <ul className="space-y-4">
               {legalLinks.map((link) => (
-                <li key={link.labelKey} className="font-body text-xs uppercase tracking-widest">
-                  <div className="flex flex-col gap-1">
-                    <EditableText isAdmin={isAdmin} content={val(link.labelKey, link.fallbackLabel)} onSave={handleSave(link.labelKey)} tag="span" className="text-[#eccc90]/70" />
-                    {isAdmin && (
-                      <EditableText isAdmin={isAdmin} content={val(link.urlKey, link.fallbackUrl)} onSave={handleSave(link.urlKey)} tag="span" className="text-[10px] normal-case tracking-normal text-[#e5ad46]/60 break-all" />
+                <li key={link.labelKey}>
+                  <Link
+                    href={val(link.urlKey, link.fallbackUrl)}
+                    className="font-body text-xs uppercase tracking-widest text-[#eccc90]/70 hover:text-[#e5ad46] hover:translate-x-1 transition-all inline-block"
+                  >
+                    {isAdmin ? (
+                      <EditableText isAdmin={isAdmin} content={val(link.labelKey, link.fallbackLabel)} onSave={handleSave(link.labelKey)} tag="span" />
+                    ) : (
+                      val(link.labelKey, link.fallbackLabel)
                     )}
-                    {!isAdmin && (
-                      <Link href={val(link.urlKey, link.fallbackUrl)} className="text-[#eccc90]/70 hover:text-[#e5ad46] transition-colors">
-                        {val(link.labelKey, link.fallbackLabel)}
-                      </Link>
-                    )}
-                  </div>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -150,29 +144,28 @@ export function Footer() {
             <div className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">
               <EditableText isAdmin={isAdmin} content={val("footer_social_title", messages.footer.social)} onSave={handleSave("footer_social_title")} tag="span" />
             </div>
-            <div className="flex gap-4 mb-6 flex-wrap">
+            <div className="flex gap-4 mb-12">
               {SOCIAL_ITEMS.map((item) => (
                 <a
                   key={item.key}
-                  href={isAdmin ? undefined : val(`footer_social_${item.key}_url`, "#")}
-                  onClick={isAdmin ? (e) => e.preventDefault() : undefined}
-                  className="w-14 h-14 rounded-2xl border border-[#e5ad46]/30 flex items-center justify-center hover:border-[#e5ad46] hover:bg-[#e5ad46]/10 transition-all group relative"
+                  href={val(`footer_social_${item.key}_url`, "#")}
+                  className="w-14 h-14 rounded-2xl border border-[#e5ad46]/30 flex items-center justify-center hover:border-[#e5ad46] hover:bg-[#e5ad46]/10 transition-all group"
                   aria-label={item.label}
+                  target={val(`footer_social_${item.key}_url`, "#").startsWith("http") ? "_blank" : undefined}
+                  rel={val(`footer_social_${item.key}_url`, "#").startsWith("http") ? "noopener noreferrer" : undefined}
                 >
-                  <Image src={item.icon} alt={item.label} width={28} height={28} className="social-icon-gold drop-shadow-[0_0_8px_rgba(229,173,70,0.3)]" />
+                  <Image
+                    src={item.icon}
+                    alt={item.label}
+                    width={28}
+                    height={28}
+                    className="social-icon-gold drop-shadow-[0_0_8px_rgba(229,173,70,0.3)]"
+                  />
                 </a>
               ))}
             </div>
             {isAdmin && (
-              <div className="space-y-2 mt-4 p-3 rounded-xl bg-white/5 border border-[#e5ad46]/10">
-                <p className="text-[10px] uppercase tracking-widest text-[#e5ad46]/70 font-bold">Liens réseaux (éditable)</p>
-                {SOCIAL_ITEMS.map((item) => (
-                  <div key={item.key} className="flex flex-col gap-1">
-                    <span className="text-xs text-[#eccc90]/70">{item.label}</span>
-                    <EditableText isAdmin={isAdmin} content={val(`footer_social_${item.key}_url`, "#")} onSave={handleSave(`footer_social_${item.key}_url`)} tag="span" className="text-xs break-all text-[#e5ad46]" />
-                  </div>
-                ))}
-              </div>
+              <p className="text-[10px] leading-relaxed text-[#eccc90]/30">Liens sociaux éditables dans <Link href="/backoffice/site-content" className="underline hover:text-[#e5ad46]">/backoffice/site-content</Link></p>
             )}
           </div>
         </div>
