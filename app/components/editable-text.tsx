@@ -110,8 +110,10 @@ export function EditableText({
     );
   }
 
+  const isInline = Tag !== "p" && Tag !== "div";
+  const Wrapper: React.ElementType = isInline ? "span" : "div";
   return (
-    <div className="relative group/editable inline-block w-full">
+    <Wrapper className={`relative group/editable ${isInline ? "inline-block" : "block w-full"}`}>
       <Tag className={className}>{content}</Tag>
       <button
         onClick={() => setIsEditing(true)}
@@ -122,6 +124,6 @@ export function EditableText({
       >
         <span className="material-symbols-outlined text-[14px]">edit</span>
       </button>
-    </div>
+    </Wrapper>
   );
 }

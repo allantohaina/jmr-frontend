@@ -21,14 +21,13 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
       <div className="px-6 md:px-12">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-20 gap-6 md:gap-8">
           <div className="max-w-2xl">
-            <h2 className="font-headline text-3xl md:text-4xl lg:text-5xl text-primary mb-4 md:mb-6">
-              <EditableText 
-                isAdmin={isAdmin} 
-                content={val("services_title", messages.services.title)} 
-                onSave={handleSave("services_title")}
-                tag="span"
-              />
-            </h2>
+            <EditableText 
+              isAdmin={isAdmin} 
+              content={val("services_title", messages.services.title)} 
+              onSave={handleSave("services_title")}
+              tag="h2"
+              className="font-headline text-3xl md:text-4xl lg:text-5xl text-primary mb-4 md:mb-6"
+            />
             <EditableText 
               isAdmin={isAdmin} 
               content={val("services_description", messages.services.description)} 
@@ -60,14 +59,13 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
                 onSave={handleSave("services_s1_eyebrow")}
                 className="font-body text-[10px] uppercase tracking-[0.3em] text-secondary mb-2 block font-bold"
               />
-              <h3 className="font-headline text-2xl sm:text-3xl md:text-4xl mb-3 md:mb-4">
-                <EditableText 
-                  isAdmin={isAdmin} 
-                  content={val("services_s1_title", messages.services.service1Title)} 
-                  onSave={handleSave("services_s1_title")}
-                  tag="span"
-                />
-              </h3>
+              <EditableText 
+                isAdmin={isAdmin} 
+                content={val("services_s1_title", messages.services.service1Title)} 
+                onSave={handleSave("services_s1_title")}
+                tag="h3"
+                className="font-headline text-2xl sm:text-3xl md:text-4xl mb-3 md:mb-4"
+              />
               <EditableText 
                 isAdmin={isAdmin} 
                 content={val("services_s1_desc", messages.services.service1Desc)} 
@@ -83,14 +81,13 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
             <div className="absolute top-0 right-0 w-32 h-32 bg-on-primary/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-on-primary/10 transition-colors"></div>
             <div className="relative z-10">
               <span className="material-symbols-outlined text-secondary text-4xl md:text-5xl mb-6 md:mb-8">engineering</span>
-              <h3 className="font-headline text-2xl md:text-3xl mb-4 md:mb-6">
-                <EditableText 
-                  isAdmin={isAdmin} 
-                  content={val("services_s2_title", messages.services.service2Title)} 
-                  onSave={handleSave("services_s2_title")}
-                  tag="span"
-                />
-              </h3>
+              <EditableText 
+                isAdmin={isAdmin} 
+                content={val("services_s2_title", messages.services.service2Title)} 
+                onSave={handleSave("services_s2_title")}
+                tag="h3"
+                className="font-headline text-2xl md:text-3xl mb-4 md:mb-6"
+              />
               <EditableText 
                 isAdmin={isAdmin} 
                 content={val("services_s2_desc", messages.services.service2Desc)} 
@@ -121,8 +118,8 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
             <div className="absolute inset-0 bg-background/40 group-hover:bg-background/20 transition-all duration-500"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 md:p-8 text-center z-10">
               <div className="bg-surface/90 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-primary/20 shadow-xl group-hover:scale-105 transition-transform duration-500">
-                <h3 className="font-headline text-xl md:text-2xl text-primary mb-2"><EditableText isAdmin={isAdmin} content={val("services_s3_title", messages.services.service3Title)} onSave={handleSave("services_s3_title")} tag="span" /></h3>
-                <p className="font-body text-[10px] uppercase tracking-[0.2em] text-secondary font-bold"><EditableText isAdmin={isAdmin} content={val("services_s3_eyebrow", messages.services.service3Eyebrow)} onSave={handleSave("services_s3_eyebrow")} tag="span" /></p>
+                <EditableText isAdmin={isAdmin} content={val("services_s3_title", messages.services.service3Title)} onSave={handleSave("services_s3_title")} tag="h3" className="font-headline text-xl md:text-2xl text-primary mb-2" />
+                <EditableText isAdmin={isAdmin} content={val("services_s3_eyebrow", messages.services.service3Eyebrow)} onSave={handleSave("services_s3_eyebrow")} tag="p" className="font-body text-[10px] uppercase tracking-[0.2em] text-secondary font-bold" />
               </div>
             </div>
           </div>
@@ -141,14 +138,13 @@ export function ServicesSection({ isAdmin = false }: { isAdmin?: boolean }) {
               <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-transparent via-background/50 to-background"></div>
             </div>
             <div className="relative z-10 p-6 sm:p-8 md:px-12 md:py-10 max-w-md">
-              <h3 className="font-headline text-2xl sm:text-3xl md:text-4xl text-on-surface mb-4 md:mb-6">
-                <EditableText 
-                  isAdmin={isAdmin} 
-                  content={val("services_s4_title", messages.services.service4Title)} 
-                  onSave={handleSave("services_s4_title")}
-                  tag="span"
-                />
-              </h3>
+              <EditableText 
+                isAdmin={isAdmin} 
+                content={val("services_s4_title", messages.services.service4Title)} 
+                onSave={handleSave("services_s4_title")}
+                tag="h3"
+                className="font-headline text-2xl sm:text-3xl md:text-4xl text-on-surface mb-4 md:mb-6"
+              />
               <EditableText 
                 isAdmin={isAdmin} 
                 content={val("services_s4_desc", messages.services.service4Desc)} 

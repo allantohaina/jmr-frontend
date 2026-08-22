@@ -35,14 +35,13 @@ export function HeroSection({ isAdmin = false }: { isAdmin?: boolean }) {
               className="font-label text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-primary font-bold"
             />
           </div>
-          <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-light tracking-tight md:tracking-tight text-primary leading-[1.1] mb-6 md:mb-8">
-            <EditableText 
-              isAdmin={isAdmin} 
-              content={title} 
-              onSave={handleSave("hero_title")}
-              tag="span"
-            />
-          </h1>
+          <EditableText 
+            isAdmin={isAdmin} 
+            content={title} 
+            onSave={handleSave("hero_title")}
+            tag="h1"
+            className="font-headline text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-light tracking-tight md:tracking-tight text-primary leading-[1.1] mb-6 md:mb-8"
+          />
           <EditableText 
             isAdmin={isAdmin} 
             content={description} 

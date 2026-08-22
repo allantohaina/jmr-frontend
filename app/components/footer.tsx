@@ -96,21 +96,21 @@ export function Footer() {
             </div>
             <ul className="space-y-4">
               {footerLinks.map((link) => (
-                <li key={link.key}>
-                  <Link
-                    href="/"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      scrollToSection(link.sectionId);
-                    }}
-                    className="font-body text-xs uppercase tracking-widest text-[#eccc90]/70 hover:text-[#e5ad46] hover:translate-x-1 transition-all inline-block"
-                  >
-                    {isAdmin ? (
-                      <EditableText isAdmin={isAdmin} content={val(link.key, link.fallback)} onSave={handleSave(link.key)} tag="span" />
-                    ) : (
-                      val(link.key, link.fallback)
-                    )}
-                  </Link>
+                <li key={link.key} className="font-body text-xs uppercase tracking-widest text-[#eccc90]/70">
+                  {isAdmin ? (
+                    <EditableText isAdmin={isAdmin} content={val(link.key, link.fallback)} onSave={handleSave(link.key)} tag="span" className="hover:text-[#e5ad46]" />
+                  ) : (
+                    <Link
+                      href="/"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        scrollToSection(link.sectionId);
+                      }}
+                      className="hover:text-[#e5ad46] hover:translate-x-1 transition-all inline-block"
+                    >
+                      {val(link.key, link.fallback)}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -123,17 +123,17 @@ export function Footer() {
             </div>
             <ul className="space-y-4">
               {legalLinks.map((link) => (
-                <li key={link.labelKey}>
-                  <Link
-                    href={val(link.urlKey, link.fallbackUrl)}
-                    className="font-body text-xs uppercase tracking-widest text-[#eccc90]/70 hover:text-[#e5ad46] hover:translate-x-1 transition-all inline-block"
-                  >
-                    {isAdmin ? (
-                      <EditableText isAdmin={isAdmin} content={val(link.labelKey, link.fallbackLabel)} onSave={handleSave(link.labelKey)} tag="span" />
-                    ) : (
-                      val(link.labelKey, link.fallbackLabel)
-                    )}
-                  </Link>
+                <li key={link.labelKey} className="font-body text-xs uppercase tracking-widest text-[#eccc90]/70">
+                  {isAdmin ? (
+                    <EditableText isAdmin={isAdmin} content={val(link.labelKey, link.fallbackLabel)} onSave={handleSave(link.labelKey)} tag="span" className="hover:text-[#e5ad46]" />
+                  ) : (
+                    <Link
+                      href={val(link.urlKey, link.fallbackUrl)}
+                      className="hover:text-[#e5ad46] hover:translate-x-1 transition-all inline-block"
+                    >
+                      {val(link.labelKey, link.fallbackLabel)}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

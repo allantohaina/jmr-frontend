@@ -50,14 +50,13 @@ export function AboutSection({ isAdmin = false }: { isAdmin?: boolean }) {
             onSave={handleSave("about_eyebrow")}
             className="font-body text-[10px] md:text-[11px] uppercase tracking-[0.3em] text-primary/60 mb-3 md:mb-4 block font-bold"
           />
-          <h2 className="font-headline text-3xl md:text-4xl lg:text-5xl text-primary mb-6 md:mb-8 leading-tight">
-            <EditableText 
-              isAdmin={isAdmin} 
-              content={val("about_title", messages.about.title)} 
-              onSave={handleSave("about_title")}
-              tag="span"
-            />
-          </h2>
+          <EditableText 
+            isAdmin={isAdmin} 
+            content={val("about_title", messages.about.title)} 
+            onSave={handleSave("about_title")}
+            tag="h2"
+            className="font-headline text-3xl md:text-4xl lg:text-5xl text-primary mb-6 md:mb-8 leading-tight"
+          />
           <EditableText 
             isAdmin={isAdmin} 
             content={val("about_p1", messages.about.p1)} 
@@ -74,18 +73,18 @@ export function AboutSection({ isAdmin = false }: { isAdmin?: boolean }) {
           />
           <div className="grid grid-cols-3 gap-4 sm:flex sm:items-center sm:gap-6 md:gap-8">
             <div className="group/stat text-center sm:text-left">
-              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors"><EditableText isAdmin={isAdmin} content={val("about_stat_1", messages.about.stat1)} onSave={handleSave("about_stat_1")} tag="span" /></p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1"><EditableText isAdmin={isAdmin} content={val("about_stat_1_label", messages.about.stat1Label)} onSave={handleSave("about_stat_1_label")} tag="span" /></p>
+              <EditableText isAdmin={isAdmin} content={val("about_stat_1", messages.about.stat1)} onSave={handleSave("about_stat_1")} tag="p" className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors" />
+              <EditableText isAdmin={isAdmin} content={val("about_stat_1_label", messages.about.stat1Label)} onSave={handleSave("about_stat_1_label")} tag="p" className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1" />
             </div>
             <div className="hidden sm:block w-[1px] h-12 bg-outline-variant/30 shrink-0"></div>
             <div className="group/stat text-center sm:text-left">
-              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors"><EditableText isAdmin={isAdmin} content={val("about_stat_2", messages.about.stat2)} onSave={handleSave("about_stat_2")} tag="span" /></p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1"><EditableText isAdmin={isAdmin} content={val("about_stat_2_label", messages.about.stat2Label)} onSave={handleSave("about_stat_2_label")} tag="span" /></p>
+              <EditableText isAdmin={isAdmin} content={val("about_stat_2", messages.about.stat2)} onSave={handleSave("about_stat_2")} tag="p" className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors" />
+              <EditableText isAdmin={isAdmin} content={val("about_stat_2_label", messages.about.stat2Label)} onSave={handleSave("about_stat_2_label")} tag="p" className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1" />
             </div>
             <div className="hidden sm:block w-[1px] h-12 bg-outline-variant/30 shrink-0"></div>
             <div className="group/stat text-center sm:text-left">
-              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors"><EditableText isAdmin={isAdmin} content={val("about_stat_3", messages.about.stat3)} onSave={handleSave("about_stat_3")} tag="span" /></p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1"><EditableText isAdmin={isAdmin} content={val("about_stat_3_label", messages.about.stat3Label)} onSave={handleSave("about_stat_3_label")} tag="span" /></p>
+              <EditableText isAdmin={isAdmin} content={val("about_stat_3", messages.about.stat3)} onSave={handleSave("about_stat_3")} tag="p" className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors" />
+              <EditableText isAdmin={isAdmin} content={val("about_stat_3_label", messages.about.stat3Label)} onSave={handleSave("about_stat_3_label")} tag="p" className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1" />
             </div>
           </div>
         </div>
