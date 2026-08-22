@@ -18,15 +18,55 @@ type EditableImageProps = {
 export function EditableImage({ src, alt, contentKey, isAdmin, onSave, className = "", fill = true }: EditableImageProps) {
   const [uploading, setUploading] = useState(false);
 
+  async function compressIfNeeded(file: File): Promise<File> {
+    const MAX_BYTES = 1.8 * 1024 * 1024; // cible <2M pour passer le 2M php par défaut + perf
+    const MAX_DIM = 1920;
+    const isSupported = ["image/jpeg", "image/png", "image/webp"].includes(file.type) || /\.(jpe?g|png|webp)$/i.test(file.name);
+    if (!isSupported) return file;
+    // Si déjà petit et dimensions OK, on laisse tel quel
+    if (file.size <= MAX_BYTES) {
+      try {
+        const bmp = await createImageBitmap(file).catch(() => null);
+        if (bmp && bmp.width <= MAX_DIM && bmp.height <= MAX_DIM) {
+          bmp.close?.();
+          return file;
+        }
+        bmp?.close?.();
+      } catch { /* fallback canvas */ }
+    }
+    try {
+      const url = URL.createObjectURL(file);
+      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const i = new window.Image();
+        i.onload = () => resolve(i);
+        i.onerror = reject;
+        i.src = url;
+      });
+      let { width, height } = img;
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, MAX_DIM / Math.max(width, height));
+      width = Math.round(width * scale);
+      height = Math.round(height * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return file;
+      ctx.drawImage(img, 0, 0, width, height);
+      const blob: Blob | null = await new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/webp", 0.80));
+      if (!blob) return file;
+      // Si le webp est plus lourd que l'original petit, garde l'original
+      if (blob.size >= file.size && file.size <= MAX_BYTES) return file;
+      const name = file.name.replace(/\.[^.]+$/, "") + ".webp";
+      return new File([blob], name, { type: "image/webp" });
+    } catch {
+      return file;
+    }
+  }
+
   async function upload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    // Vérif côté client avant envoi (5 Mo max côté backend Config/Upload.php:9)
-    if (file.size > 5 * 1024 * 1024) {
-      window.alert("Image trop volumineuse : 5 Mo max. Compressez l'image avant.");
-      event.target.value = "";
-      return;
-    }
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) && !/\.(jpe?g|png|webp)$/i.test(file.name)) {
       window.alert("Format non supporté : utilisez JPG, PNG ou WEBP.");
       event.target.value = "";
@@ -34,8 +74,13 @@ export function EditableImage({ src, alt, contentKey, isAdmin, onSave, className
     }
     setUploading(true);
     try {
+      const toUpload = await compressIfNeeded(file);
+      if (toUpload.size > 5 * 1024 * 1024) {
+        window.alert("Image encore trop volumineuse après compression (5 Mo max). Réduisez la résolution.");
+        return;
+      }
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", toUpload);
       const response = await authAPI.post<{ file: { stored_name: string } }>("/uploads/image", form);
       const name = response.data?.file?.stored_name;
       if (!name) throw new Error("Image non reçue par le serveur.");
@@ -43,7 +88,6 @@ export function EditableImage({ src, alt, contentKey, isAdmin, onSave, className
     } catch (error) {
       console.error("Impossible d’enregistrer l’image", error);
       const msg = error instanceof Error ? error.message : "Import de l’image impossible.";
-      // Message plus actionnable pour le timeout / CORS / session
       window.alert(msg + "\n\nVérifiez : 1) vous êtes connecté en admin, 2) image <5 Mo, 3) backend https://api.jmrtextile.com joignable.");
     } finally {
       setUploading(false);
