@@ -11,6 +11,48 @@ type Section = { title: string; description: string; fields: Field[] };
 
 const imageUrl = (storedName: string) => `${getBackendApiUrls()[0].replace(/\/api$/, "")}/uploads/${storedName}`;
 
+async function compressIfNeeded(file: File): Promise<File> {
+  const MAX_BYTES = 1.8 * 1024 * 1024;
+  const MAX_DIM = 1920;
+  const isSupported = ["image/jpeg", "image/png", "image/webp"].includes(file.type) || /\.(jpe?g|png|webp)$/i.test(file.name);
+  if (!isSupported) return file;
+  if (file.size <= MAX_BYTES) {
+    try {
+      const bmp = await createImageBitmap(file).catch(() => null);
+      if (bmp && bmp.width <= MAX_DIM && bmp.height <= MAX_DIM) { bmp.close?.(); return file; }
+      bmp?.close?.();
+    } catch {}
+  }
+  try {
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const i = new window.Image();
+      i.onload = () => resolve(i);
+      i.onerror = reject;
+      i.src = dataUrl;
+    });
+    let { width, height } = img;
+    const scale = Math.min(1, MAX_DIM / Math.max(width, height));
+    width = Math.round(width * scale);
+    height = Math.round(height * scale);
+    const canvas = document.createElement("canvas");
+    canvas.width = width; canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(img, 0, 0, width, height);
+    const blob: Blob | null = await new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/webp", 0.80));
+    if (!blob) return file;
+    if (blob.size >= file.size && file.size <= MAX_BYTES) return file;
+    const name = file.name.replace(/\.[^.]+$/, "") + ".webp";
+    return new File([blob], name, { type: "image/webp" });
+  } catch { return file; }
+}
+
 export default function SiteContentPage() {
   const { messages } = useLocale();
   const sections = useMemo<Section[]>(() => [
@@ -110,9 +152,19 @@ export default function SiteContentPage() {
 
   async function upload(field: Field, event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]; if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) && !/\.(jpe?g|png|webp)$/i.test(file.name)) {
+      setNotice({ tone: "error", message: "Format non supporté : utilisez JPG, PNG ou WEBP." });
+      event.target.value = "";
+      return;
+    }
     setUploading(field.key); setNotice(null);
     try {
-      const form = new FormData(); form.append("file", file);
+      const toUpload = await compressIfNeeded(file);
+      if (toUpload.size > 5 * 1024 * 1024) {
+        setNotice({ tone: "error", message: "Image encore trop volumineuse après compression (5 Mo max)." });
+        return;
+      }
+      const form = new FormData(); form.append("file", toUpload);
       const response = await authAPI.post<{ file: { stored_name: string } }>("/uploads/image", form);
       const storedName = response.data?.file?.stored_name;
       if (!storedName) throw new Error("L’API n’a pas retourné le fichier importé.");
