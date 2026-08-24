@@ -17,6 +17,7 @@ type EditableImageProps = {
 
 export function EditableImage({ src, alt, contentKey, isAdmin, onSave, className = "", fill = true }: EditableImageProps) {
   const [uploading, setUploading] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState(src);
 
   async function compressIfNeeded(file: File): Promise<File> {
     const MAX_BYTES = 1.8 * 1024 * 1024; // cible <2M pour passer le 2M php par défaut + perf
@@ -89,7 +90,17 @@ export function EditableImage({ src, alt, contentKey, isAdmin, onSave, className
       const response = await authAPI.post<{ file: { stored_name: string } }>("/uploads/image", form);
       const name = response.data?.file?.stored_name;
       if (!name) throw new Error("Image non reçue par le serveur.");
-      await onSave(`${getBackendApiUrls()[0].replace(/\/api$/, "")}/uploads/${name}`);
+
+      // Construction de la nouvelle URL avec cache-busting
+      const newUrl = `${getBackendApiUrls()[0].replace(/\/api$/, "")}/uploads/${name}?t=${Date.now()}`;
+
+      // Mise à jour immédiate de l'image affichée
+      setCurrentSrc(newUrl);
+
+      // Mise à jour du backend (optionnel pour aujourd'hui)
+      if (onSave) {
+        await onSave(newUrl);
+      }
     } catch (error) {
       console.error("Impossible d’enregistrer l’image", error);
       const msg = error instanceof Error ? error.message : "Import de l’image impossible.";
@@ -101,7 +112,7 @@ export function EditableImage({ src, alt, contentKey, isAdmin, onSave, className
   }
 
   return <div className="absolute inset-0 group/edit-image">
-    <Image className={className} src={src} alt={alt} fill={fill} unoptimized />
+    <Image className={className} src={currentSrc} alt={alt} fill={fill} unoptimized />
     {isAdmin && <label className="absolute right-3 top-3 z-30 inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-on-primary shadow-lg transition opacity-100 md:opacity-0 md:group-hover/edit-image:opacity-100 focus-within:opacity-100 border border-white/20 min-h-[36px]">
       {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
       {uploading ? "Import…" : "Changer l’image"}
