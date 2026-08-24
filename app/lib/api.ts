@@ -272,6 +272,9 @@ export async function fetchWithAuth<T = unknown>(
   if (!isFormDataRequest && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
+  if (isFormDataRequest && headers.has("Content-Type")) {
+    headers.delete("Content-Type");
+  }
 
   if (!headers.has("Accept")) {
     headers.set("Accept", "application/json");
