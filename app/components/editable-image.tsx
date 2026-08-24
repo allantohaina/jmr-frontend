@@ -86,6 +86,9 @@ export function EditableImage({ src, alt, contentKey, isAdmin, onSave, className
       }
       const form = new FormData();
       form.append("file", toUpload);
+      // DIAG temporaire — où disparaît file ?
+      console.log("[diag] editable-image FormData entries:", [...form.entries()].map(([k, v]) => [k, v instanceof File ? { name: (v as File).name, size: (v as File).size, type: (v as File).type } : v]));
+      console.log("[diag] form.has(file):", form.has("file"), "form.get(file):", form.get("file"));
       const response = await authAPI.post<{ file: { stored_name: string } }>("/uploads/image", form);
       const name = response.data?.file?.stored_name;
       if (!name) throw new Error("Image non reçue par le serveur.");
