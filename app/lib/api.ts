@@ -280,6 +280,9 @@ export async function fetchWithAuth<T = unknown>(
   if (resolvedToken && !headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${resolvedToken}`);
   }
+  if (resolvedToken && !headers.has("X-Authorization")) {
+    headers.set("X-Authorization", `Bearer ${resolvedToken}`);
+  }
 
   const apiUrls = getBackendApiUrls();
 
