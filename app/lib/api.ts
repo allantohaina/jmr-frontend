@@ -263,14 +263,6 @@ export async function fetchWithAuth<T = unknown>(
 ): Promise<ApiResponse<T>> {
   const headers = new Headers(options.headers);
   const isFormDataRequest = options.body instanceof FormData;
-  // DIAG temporaire — vérifie transport FormData
-  console.log("[diag] fetchWithAuth endpoint:", endpoint, "isFormDataRequest:", isFormDataRequest, "body:", options.body, "instanceof FormData:", options.body instanceof FormData);
-  if (isFormDataRequest) {
-    const fd = options.body as FormData;
-    console.log("[diag] FormData entries:", [...fd.entries()].map(([k, v]) => [k, v instanceof File ? { name: (v as File).name, size: (v as File).size, type: (v as File).type } : v]));
-  } else if (options.body) {
-    console.log("[diag] body type:", typeof options.body, "body preview:", String(options.body).slice(0, 200));
-  }
   const resolvedToken =
     typeof token === "string" && token.length > 0
       ? token
@@ -283,7 +275,6 @@ export async function fetchWithAuth<T = unknown>(
   if (isFormDataRequest && headers.has("Content-Type")) {
     headers.delete("Content-Type");
   }
-  console.log("[diag] headers avant fetch:", [...headers.entries()], "isFormDataRequest:", isFormDataRequest);
 
   if (!headers.has("Accept")) {
     headers.set("Accept", "application/json");
