@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
+import { signOutClient } from "@/app/lib/auth-client";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.jmrtextile.com/api";
 
@@ -15,6 +18,7 @@ type User = {
 };
 
 export default function AdminResetPage() {
+  const router = useRouter();
   const [secret, setSecret] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
@@ -22,6 +26,16 @@ export default function AdminResetPage() {
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    try {
+      await signOutClient();
+      router.replace("/admin-login");
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   async function handleAuth(e: React.FormEvent) {
     e.preventDefault();
@@ -107,7 +121,10 @@ export default function AdminResetPage() {
   return (
     <div className="min-h-screen bg-[#1a2332] px-4 py-12">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold text-white mb-8">Réinitialiser un mot de passe</h1>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-white">Réinitialiser un mot de passe</h1>
+          <button type="button" onClick={handleSignOut} disabled={isSigningOut} className="inline-flex items-center gap-2 rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-red-400 hover:bg-red-500/20 disabled:opacity-60"><LogOut className="h-4 w-4" />{isSigningOut ? "Déconnexion…" : "Déconnexion"}</button>
+        </div>
 
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8">
           <h2 className="text-sm font-bold text-white/60 uppercase tracking-widest mb-4">Utilisateurs</h2>
