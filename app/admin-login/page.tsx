@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { authenticateWithForm, getToken } from "@/app/lib";
+import { authenticateWithForm, getToken, getSafeRedirectPath } from "@/app/lib";
 import { loginRateLimiter } from "@/app/lib/rate-limit";
 import { AuthBar } from "@/app/components/auth-bar";
 
@@ -13,11 +13,17 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
+  function getNextPath(): string | null {
+    if (typeof window === "undefined") return null;
+    const params = new URLSearchParams(window.location.search);
+    return getSafeRedirectPath(params.get("next")) ?? null;
+  }
+
   useEffect(() => {
     setIsMounted(true);
     const token = getToken();
     if (token) {
-      window.location.href = "/backoffice";
+      window.location.href = getNextPath() || "/backoffice";
     }
   }, []);
 
@@ -39,10 +45,13 @@ export default function AdminLoginPage() {
       formData.append("email", email);
       formData.append("password", password);
 
+      // transmettre ?next si présent
+      const nextPath = getNextPath();
+      if (nextPath) formData.append("next", nextPath);
       const result = await authenticateWithForm(formData);
 
       if (result && result.user && result.user.role === "admin") {
-        window.location.href = "/backoffice";
+        window.location.href = nextPath || "/backoffice";
       } else {
         setError("Accès refusé. Vous n'avez pas les droits d'administration.");
       }

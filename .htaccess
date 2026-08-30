@@ -3,6 +3,13 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Subdomain redirects -> pages login dediees (doit etre AVANT le rewrite vers out)
+    RewriteCond %{HTTP_HOST} ^worker\.jmrtextile\.com$ [NC]
+    RewriteRule ^$ /worker-login/ [R=302,L]
+
+    RewriteCond %{HTTP_HOST} ^admin\.jmrtextile\.com$ [NC]
+    RewriteRule ^$ /admin-login/ [R=302,L]
+
     # Serve the static Next export generated in /out while keeping the
     # cPanel document root on /public_html/frontend.
     RewriteCond %{REQUEST_URI} !^/out/

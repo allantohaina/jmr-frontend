@@ -39,12 +39,14 @@ function loadFromStorage() {
 function saveToStorage(token: string, user: UserProfile) {
   localStorage.setItem(AUTH_STORAGE_KEYS.token, token);
   localStorage.setItem(AUTH_STORAGE_KEYS.user, JSON.stringify(user));
+  localStorage.setItem("jmr_last_activity", String(Date.now()));
 }
 
 function clearStorage() {
   localStorage.removeItem(AUTH_STORAGE_KEYS.token);
   localStorage.removeItem(AUTH_STORAGE_KEYS.refreshToken);
   localStorage.removeItem(AUTH_STORAGE_KEYS.user);
+  localStorage.removeItem("jmr_last_activity");
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

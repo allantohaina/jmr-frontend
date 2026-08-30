@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { authAPI, type UserProfile } from "@/app/lib/api";
-import { getToken, getUser } from "@/app/lib/auth";
+import { getToken, getUser, isInactivityExpired, clearLastActivity, updateLastActivity } from "@/app/lib/auth";
+import { signOutClient } from "@/app/lib/auth-client";
 
 type ClientAuthGateProps = {
   allowedRoles?: string[];
@@ -24,12 +25,25 @@ export function ClientAuthGate({
     function getLoginRedirect(): string {
       if (typeof window === "undefined") return redirectTo;
       const host = window.location.hostname;
-      if (host.startsWith("worker.")) return "/worker-login/";
-      if (host.startsWith("admin.")) return "/admin-login/";
-      return redirectTo;
+      const currentPath = window.location.pathname + window.location.search;
+      const nextParam = encodeURIComponent(currentPath);
+      if (host.startsWith("worker.")) return `/worker-login?next=${nextParam}`;
+      if (host.startsWith("admin.")) return `/admin-login?next=${nextParam}`;
+      // Redirection intelligente selon rôle attendu
+      if (allowedRoles?.includes("admin")) return `/admin-login?next=${nextParam}`;
+      if (allowedRoles?.includes("worker")) return `/worker-login?next=${nextParam}`;
+      return `${redirectTo}?next=${nextParam}`;
     }
 
     async function verifySession() {
+      // 7 jours d'inactivité => déconnexion auto
+      if (isInactivityExpired()) {
+        clearLastActivity();
+        await signOutClient();
+        window.location.replace(getLoginRedirect());
+        return;
+      }
+
       const storedUser = getUser();
       const token = getToken();
 
@@ -37,6 +51,9 @@ export function ClientAuthGate({
         window.location.replace(getLoginRedirect());
         return;
       }
+
+      // activité valide => prolonge
+      updateLastActivity();
 
       try {
         const response = await authAPI.getProfile(token);
@@ -58,6 +75,8 @@ export function ClientAuthGate({
           setIsChecking(false);
         }
       } catch (error) {
+        clearLastActivity();
+        await signOutClient().catch(() => {});
         window.location.replace(getLoginRedirect());
       }
     }

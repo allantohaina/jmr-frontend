@@ -2,12 +2,15 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AtelierCheckIn } from "./AtelierCheckIn";
 import { DailyReportForm } from "./DailyReportForm";
 import { AtelierStock } from "./AtelierStock";
 import { AtelierTechnicalSheets } from "./AtelierTechnicalSheets";
 import { AtelierQC } from "./AtelierQC";
 import { useToast } from "@/app/components";
+import { signOutClient } from "@/app/lib/auth-client";
+import { useInactivityLogout } from "@/app/lib/use-inactivity-logout";
 import { 
   Factory, 
   Clock, 
@@ -36,7 +39,20 @@ type ProductionLine = {
 
 export default function AtelierClient() {
   const { showToast } = useToast();
+  const router = useRouter();
   const [currentView, setCurrentView] = useState<View>("dashboard");
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  useInactivityLogout({ redirectTo: "/worker-login" });
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    try {
+      await signOutClient();
+      router.replace("/worker-login");
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
   const [productionLines, setProductionLines] = useState<ProductionLine[]>([
     { id: 1, name: "Ligne A - Polos", status: "en_cours", order: "#CMD-104", progress: 65, issues: [] },
     { id: 2, name: "Ligne B - Chemises", status: "probleme", order: "#CMD-105", progress: 30, issues: ["Machine #4 en panne"] },
@@ -142,12 +158,14 @@ export default function AtelierClient() {
                 <p className="text-[9px] uppercase tracking-widest text-[#eccc90]/40">Atelier Principal</p>
               </div>
             </div>
-            <Link 
-              href="/" 
-              className="w-full flex items-center gap-3 p-4 hover:bg-red-500/10 hover:text-red-400 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all"
+            <button
+              type="button"
+              onClick={handleSignOut}
+              disabled={isSigningOut}
+              className="w-full flex items-center gap-3 p-4 hover:bg-red-500/10 hover:text-red-400 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all disabled:opacity-60"
             >
-              <LogOut className="w-4 h-4" /> Déconnexion
-            </Link>
+              <LogOut className="w-4 h-4" /> {isSigningOut ? "Déconnexion..." : "Déconnexion"}
+            </button>
           </div>
         </aside>
 

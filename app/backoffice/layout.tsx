@@ -2,9 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ClientAuthGate } from "@/app/components/client-auth-gate";
 import { AdminHeaderAlerts } from "./AdminHeaderAlerts";
+import { signOutClient } from "@/app/lib/auth-client";
+import { useInactivityLogout } from "@/app/lib/use-inactivity-logout";
 import {
   LayoutDashboard,
   FileText,
@@ -29,6 +31,7 @@ import {
   Star,
   FileDown,
   Pencil,
+  LogOut,
 } from "lucide-react";
 
 const clientItems = [
@@ -116,6 +119,21 @@ function NavGroup({ title, items }: { title: string; items: { href: string; labe
 
 function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isSigningOut, setIsSigningOut] = React.useState(false);
+
+  // Déconnexion auto après 7 jours d'inactivité
+  useInactivityLogout({ redirectTo: "/admin-login" });
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    try {
+      await signOutClient();
+      router.replace("/admin-login");
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#1e2a38] font-body text-[#eccc90] md:flex">
@@ -159,11 +177,22 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             <span className="text-[10px] font-bold uppercase tracking-widest">Édition du site</span>
           </Link>
 
-          <div className="mt-8 border-t border-[#e5ad46]/10 pt-8">
+          <div className="mt-8 border-t border-[#e5ad46]/10 pt-8 space-y-2">
             <Link href="/backoffice/settings" className="group flex items-center gap-4 rounded-xl px-4 py-3 transition-all hover:bg-[#e5ad46]/10">
               <Settings className="h-5 w-5 text-[#e5ad46] transition-transform group-hover:scale-110" />
               <span className="text-[10px] font-bold uppercase tracking-widest">Paramètres</span>
             </Link>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              disabled={isSigningOut}
+              className="group flex w-full items-center gap-4 rounded-xl px-4 py-3 text-left transition-all hover:bg-red-500/10 disabled:opacity-60"
+            >
+              <LogOut className="h-5 w-5 text-red-400 transition-transform group-hover:scale-110" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-red-400">
+                {isSigningOut ? "Déconnexion..." : "Déconnexion"}
+              </span>
+            </button>
           </div>
         </nav>
 
@@ -234,6 +263,15 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               <span className="text-sm font-semibold text-[#eccc90]">Atelier JMR</span>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-red-400 transition-all hover:bg-red-500/20 disabled:opacity-60"
+          >
+            <LogOut className="h-4 w-4" />
+            {isSigningOut ? "Déconnexion..." : "Déconnexion"}
+          </button>
         </div>
       </aside>
 
@@ -256,6 +294,16 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               <Link href="/" className="text-[#eccc90]/60 transition-colors hover:text-[#e5ad46]" aria-label="Retour au site">
                 <Home className="h-5 w-5" />
               </Link>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                disabled={isSigningOut}
+                className="inline-flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-red-400 transition-all hover:bg-red-500/20 disabled:opacity-60"
+                title="Déconnexion"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden md:inline">{isSigningOut ? "..." : "Déconnexion"}</span>
+              </button>
             </div>
           </div>
         </header>

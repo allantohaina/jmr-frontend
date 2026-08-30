@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { authenticateWithForm, getToken } from "@/app/lib";
+import { authenticateWithForm, getToken, getSafeRedirectPath } from "@/app/lib";
 import { loginRateLimiter } from "@/app/lib/rate-limit";
 import { AuthBar } from "@/app/components/auth-bar";
 
@@ -13,11 +13,17 @@ export default function WorkerLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
+  function getNextPath(): string | null {
+    if (typeof window === "undefined") return null;
+    const params = new URLSearchParams(window.location.search);
+    return getSafeRedirectPath(params.get("next")) ?? null;
+  }
+
   useEffect(() => {
     setIsMounted(true);
     const token = getToken();
     if (token) {
-      window.location.href = "/atelier";
+      window.location.href = getNextPath() || "/atelier";
     }
   }, []);
 
@@ -38,10 +44,15 @@ export default function WorkerLoginPage() {
       formData.append("email", email);
       formData.append("password", password);
 
+      const nextPath = getNextPath();
+      if (nextPath) formData.append("next", nextPath);
       const result = await authenticateWithForm(formData);
 
       if (result?.user?.role === "worker") {
-        window.location.href = "/atelier";
+        window.location.href = nextPath || "/atelier";
+      } else if (result?.user?.role === "admin") {
+        // admin peut aussi accéder à l'atelier
+        window.location.href = nextPath || "/atelier";
       } else {
         setError("Accès non autorisé. Vous devez être opérateur.");
       }

@@ -7,6 +7,9 @@ export const TOKEN_STORAGE_KEY = "jmr_token";
 export const REFRESH_TOKEN_STORAGE_KEY = "jmr_refresh_token";
 export const USER_STORAGE_KEY = "jmr_user";
 export const AUTH_ERROR_STORAGE_KEY = "jmr_auth_error";
+export const LAST_ACTIVITY_STORAGE_KEY = "jmr_last_activity";
+export const INACTIVITY_LIMIT_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours
+export const AUTH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 jours en secondes
 
 export type SessionUser = {
   id?: number | string;
@@ -155,4 +158,32 @@ export function deleteBrowserCookie(name: string, path: string = "/") {
     maxAge: 0,
     path,
   });
+}
+
+export function getLastActivity(): number | null {
+  const raw = readStorageValue(LAST_ACTIVITY_STORAGE_KEY) || readBrowserCookie(LAST_ACTIVITY_STORAGE_KEY);
+  if (!raw) return null;
+  const ts = Number(raw);
+  return Number.isFinite(ts) ? ts : null;
+}
+
+export function updateLastActivity(): void {
+  writeStorageValue(LAST_ACTIVITY_STORAGE_KEY, String(Date.now()));
+  // aussi en cookie pour cohérence SSR (7 jours)
+  writeBrowserCookie(LAST_ACTIVITY_STORAGE_KEY, String(Date.now()), {
+    maxAge: AUTH_COOKIE_MAX_AGE,
+    path: "/",
+    sameSite: "Lax",
+  });
+}
+
+export function clearLastActivity(): void {
+  deleteStorageValue(LAST_ACTIVITY_STORAGE_KEY);
+  deleteBrowserCookie(LAST_ACTIVITY_STORAGE_KEY, "/");
+}
+
+export function isInactivityExpired(now: number = Date.now()): boolean {
+  const last = getLastActivity();
+  if (last === null) return false;
+  return now - last > INACTIVITY_LIMIT_MS;
 }

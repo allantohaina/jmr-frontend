@@ -5,6 +5,7 @@ import { type ReactNode } from "react";
 import { Navbar } from "./navbar";
 import { Footer } from "./footer";
 import { ConsentBanner } from "./consent-banner";
+import { InactivityGuard } from "./inactivity-guard";
 import type { ThemeName } from "@/app/lib/theme";
 
 const AUTH_PATHS = ["/admin-login", "/worker-login", "/login", "/login/staff"];
@@ -25,6 +26,7 @@ export function ClientLayout({
 
   return (
     <>
+      <InactivityGuard />
       <header className="site-header">
         <Navbar initialTheme={initialTheme} />
       </header>

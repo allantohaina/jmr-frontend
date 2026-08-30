@@ -3,6 +3,7 @@
 import { authAPI, type UserProfile } from "./api";
 import {
   AUTH_ERROR_STORAGE_KEY,
+  LAST_ACTIVITY_STORAGE_KEY,
   REFRESH_TOKEN_STORAGE_KEY,
   TOKEN_STORAGE_KEY,
   USER_STORAGE_KEY,
@@ -54,6 +55,18 @@ function persistAuthSession(payload: AuthSuccessPayload, rememberMe = false) {
 
   writeStorageValue(USER_STORAGE_KEY, JSON.stringify(payload.user));
   deleteStorageValue(AUTH_ERROR_STORAGE_KEY);
+  // 7 jours d'inactivité : on mémorise la dernière activité à la connexion
+  const now = String(Date.now());
+  writeStorageValue(LAST_ACTIVITY_STORAGE_KEY, now);
+  // aussi en cookie pour middleware
+  if (typeof document !== "undefined") {
+    document.cookie = `${encodeURIComponent(LAST_ACTIVITY_STORAGE_KEY)}=${encodeURIComponent(now)}; Path=/; Max-Age=${7*24*60*60}; SameSite=Lax`;
+    document.cookie = `${encodeURIComponent(TOKEN_STORAGE_KEY)}=${encodeURIComponent(payload.token)}; Path=/; Max-Age=${7*24*60*60}; SameSite=Lax`;
+    if (payload.refresh_token) {
+      document.cookie = `${encodeURIComponent(REFRESH_TOKEN_STORAGE_KEY)}=${encodeURIComponent(payload.refresh_token)}; Path=/; Max-Age=${7*24*60*60}; SameSite=Lax`;
+    }
+    document.cookie = `${encodeURIComponent(USER_STORAGE_KEY)}=${encodeURIComponent(JSON.stringify(payload.user))}; Path=/; Max-Age=${7*24*60*60}; SameSite=Lax`;
+  }
 }
 
 export async function authenticateWithForm(formData: FormData) {
@@ -111,10 +124,16 @@ export async function authenticateWithForm(formData: FormData) {
   let redirectTo = resolveAuthRedirect(intent, nextPath);
 
   if (intent === "login") {
-    if (role === "admin") {
-      redirectTo = "/backoffice";
-    } else if (role === "worker") {
-      redirectTo = "/atelier";
+    const hasCustomNext = !!getSafeRedirectPath(nextPath);
+    if (!hasCustomNext) {
+      if (role === "admin") {
+        redirectTo = "/backoffice";
+      } else if (role === "worker") {
+        redirectTo = "/atelier";
+      }
+    } else {
+      // respecter ?next même pour admin/worker si safe
+      redirectTo = getSafeRedirectPath(nextPath)!;
     }
   }
 
@@ -140,4 +159,16 @@ export async function signOutClient() {
   deleteStorageValue(REFRESH_TOKEN_STORAGE_KEY);
   deleteStorageValue(USER_STORAGE_KEY);
   deleteStorageValue(AUTH_ERROR_STORAGE_KEY);
+  deleteStorageValue(LAST_ACTIVITY_STORAGE_KEY);
+  if (typeof document !== "undefined") {
+    const expire = "Max-Age=0; Path=/; SameSite=Lax";
+    document.cookie = `${encodeURIComponent(TOKEN_STORAGE_KEY)}=; ${expire}`;
+    document.cookie = `${encodeURIComponent(REFRESH_TOKEN_STORAGE_KEY)}=; ${expire}`;
+    document.cookie = `${encodeURIComponent(USER_STORAGE_KEY)}=; ${expire}`;
+    document.cookie = `${encodeURIComponent(LAST_ACTIVITY_STORAGE_KEY)}=; ${expire}`;
+    document.cookie = `jmr_token=; ${expire}`;
+    document.cookie = `jmr_refresh_token=; ${expire}`;
+    document.cookie = `jmr_user=; ${expire}`;
+    document.cookie = `jmr_last_activity=; ${expire}`;
+  }
 }
