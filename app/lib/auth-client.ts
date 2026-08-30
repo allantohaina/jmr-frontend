@@ -91,6 +91,8 @@ export async function authenticateWithForm(formData: FormData) {
     const firstName = readTextField(formData, "first_name") || "User";
     const lastName = readTextField(formData, "last_name") || "New";
     const birthDate = readTextField(formData, "birth_date");
+    const ageRaw = readTextField(formData, "age");
+    const age = ageRaw ? Number(ageRaw) : undefined;
     const phone = readTextField(formData, "phone");
     const country = readTextField(formData, "country");
     const address = readTextField(formData, "address");
@@ -102,6 +104,7 @@ export async function authenticateWithForm(formData: FormData) {
         first_name: firstName,
         last_name: lastName,
         birth_date: birthDate || undefined,
+        age: Number.isFinite(age) ? age : undefined,
         phone: phone || undefined,
         country: country || undefined,
         address: address || undefined,

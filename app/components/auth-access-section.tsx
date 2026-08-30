@@ -36,14 +36,12 @@ const signupSchema = z.object({
     .min(2, "Nom trop court (minimum 2 caractères)")
     .max(100, "Nom trop long (maximum 100 caractères)"), // Le nom de famille peut être plus long
   email: z.string().email("Adresse email invalide"),
-  birth_date: z.string().refine(
-    (dateStr) => {
-      const date = new Date(dateStr);
-      const today = new Date();
-      return date < today;
-    },
-    { message: "Date de naissance invalide (ne peut pas être dans le futur)" }
-  ),
+  age: z
+    .string()
+    .min(1, "Âge requis")
+    .refine((v) => !isNaN(Number(v)) && Number.isInteger(Number(v)), { message: "Âge doit être un nombre entier" })
+    .refine((v) => Number(v) >= 1, { message: "Âge invalide (minimum 1 an)" })
+    .refine((v) => Number(v) <= 120, { message: "Âge invalide (maximum 120 ans)" }),
   phone: z.string(),
   country: z.string().min(1, "Veuillez sélectionner un pays"),
   address: z.string().min(5, "Adresse trop courte (minimum 5 caractères)").max(255, "Adresse trop longue"),
@@ -100,7 +98,7 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
       first_name: "",
       last_name: "",
       email: "",
-      birth_date: "",
+      age: "",
       phone: "",
       country: "",
       address: "",
@@ -402,22 +400,25 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
                         {messages.auth.birthDate}
                       </label>
                       <Controller
-                        name="birth_date"
+                        name="age"
                         control={signupControl}
                         render={({ field }) => (
                           <input
                             {...field}
                             className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
-                              signupErrors.birth_date
+                              signupErrors.age
                                 ? "border-red-400/50 bg-red-50"
                                 : "border-outline-variant/40 bg-white/50"
                             }`}
-                            type="date"
+                            type="number"
+                            min={1}
+                            max={120}
+                            placeholder="30"
                           />
                         )}
                       />
-                      {signupErrors.birth_date && (
-                        <p className="text-xs text-red-600 mt-1">{signupErrors.birth_date.message}</p>
+                      {signupErrors.age && (
+                        <p className="text-xs text-red-600 mt-1">{signupErrors.age.message}</p>
                       )}
                     </div>
                     <div className="relative">
