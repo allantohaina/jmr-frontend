@@ -92,8 +92,8 @@ const TABS: TabDef[] = [
     label: "Brouillons",
     subtitle: "Non envoyés",
     icon: FilePenLine,
-    color: "text-slate-600",
-    bg: "bg-slate-50 border-slate-200",
+    color: "text-[#eccc90]/60",
+    bg: "bg-[#25303a] border-[#e5ad46]/10",
     match: (q) => q.status === "draft",
   },
   {
@@ -133,7 +133,7 @@ function formatQuoteStatusLabel(status?: string | null) {
 function statusBadgeClass(status?: string | null): string {
   switch (status) {
     case "draft":
-      return "bg-slate-50 text-slate-700 border-slate-200 border";
+      return "bg-[#25303a] text-[#eccc90]/70 border-[#e5ad46]/10 border";
     case "sent":
       return "bg-amber-50 text-amber-700 border-amber-200 border";
     case "accepted":
@@ -147,7 +147,7 @@ function statusBadgeClass(status?: string | null): string {
     case "expired":
       return "bg-orange-50 text-orange-700 border-orange-200 border";
     default:
-      return "bg-[#163526]/10 text-[#163526] border-[#163526]/5 border";
+      return "bg-[#e5ad46]/10 text-[#eccc90] border-[#e5ad46]/10 border";
   }
 }
 
@@ -400,7 +400,7 @@ export function DevisSection() {
                       <button
                         onClick={() => convertToCommande(quote)}
                         disabled={convertingId === quote.id}
-                        className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#163526] hover:text-[#e5ad46] disabled:opacity-50"
+                        className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#eccc90] hover:text-[#e5ad46] disabled:opacity-50"
                       >
                         {convertingId === quote.id ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />

@@ -49,12 +49,12 @@ export default function AvisModerationPage() {
     <div className="px-6 md:px-12 py-10 space-y-8">
       <div className="flex justify-between items-end px-2">
         <div>
-          <h2 className="font-headline text-3xl text-[#163526]">Avis clients</h2>
-          <p className="text-[#1b1c19]/40 text-xs font-bold uppercase tracking-widest mt-1">Modération · JMR Atelier</p>
+          <h2 className="font-headline text-3xl text-[#eccc90]">Avis clients</h2>
+          <p className="text-[#eccc90]/40 text-xs font-bold uppercase tracking-widest mt-1">Modération · JMR Atelier</p>
         </div>
         <div className="flex gap-2">
           {FILTERS.map((f) => (
-            <button key={f.key} onClick={() => setFilter(f.key)} className={`rounded-lg px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest transition-colors ${filter === f.key ? "bg-[#163526] text-[#e5ad46]" : "border border-[#163526]/15 text-[#163526] hover:border-[#e5ad46]"}`}>
+            <button key={f.key} onClick={() => setFilter(f.key)} className={`rounded-lg px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest transition-colors ${filter === f.key ? "bg-[#163526] text-[#e5ad46]" : "border border-[#e5ad46]/15 text-[#eccc90] hover:border-[#e5ad46]"}`}>
               {f.label}
             </button>
           ))}
@@ -63,19 +63,19 @@ export default function AvisModerationPage() {
 
       {error && <div className="bg-red-50 border border-red-200 p-4 rounded-2xl text-xs text-red-700 font-medium">{error}</div>}
 
-      <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm border border-[#163526]/5">
+      <div className="bg-[#25303a] rounded-[2rem] overflow-hidden shadow-sm border border-[#e5ad46]/10">
         {isLoading ? (
-          <div className="p-12 text-center text-sm text-[#1b1c19]/40">Chargement...</div>
+          <div className="p-12 text-center text-sm text-[#eccc90]/40">Chargement...</div>
         ) : avis.length === 0 ? (
-          <div className="p-12 text-center text-sm text-[#1b1c19]/40 italic">Aucun avis pour ce filtre.</div>
+          <div className="p-12 text-center text-sm text-[#eccc90]/40 italic">Aucun avis pour ce filtre.</div>
         ) : (
-          <div className="divide-y divide-[#163526]/5">
+          <div className="divide-y divide-[#e5ad46]/10">
             {avis.map((a) => (
               <div key={a.id} className="px-6 py-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-1">
-                      <span className="text-sm font-bold text-[#163526]">{a.auteur || "Anonyme"}</span>
+                      <span className="text-sm font-bold text-[#eccc90]">{a.auteur || "Anonyme"}</span>
                       <span className="text-[#e5ad46] text-sm tracking-widest">{stars(a.note)}</span>
                       <span className={`px-2 py-0.5 text-[9px] font-bold uppercase rounded-full border ${
                         a.statut === "approved" ? "bg-green-50 text-green-700 border-green-100" :
@@ -83,8 +83,8 @@ export default function AvisModerationPage() {
                         "bg-orange-50 text-orange-600 border-orange-100"
                       }`}>{a.statut}</span>
                     </div>
-                    <p className="text-xs text-[#163526]/70">{a.commentaire || "—"}</p>
-                    <p className="text-[10px] text-[#163526]/40 mt-1">
+                    <p className="text-xs text-[#eccc90]/70">{a.commentaire || "—"}</p>
+                    <p className="text-[10px] text-[#eccc90]/40 mt-1">
                       {a.produit_nom || "Produit"} · {(a.created_at || "").slice(0, 10)}
                     </p>
                   </div>
@@ -100,7 +100,7 @@ export default function AvisModerationPage() {
                       </>
                     )}
                     {a.statut !== "pending" && (
-                      <button onClick={() => setStatut(a.id, "pending")} className="rounded-lg border border-[#163526]/15 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-[#163526] hover:border-[#e5ad46]">
+                      <button onClick={() => setStatut(a.id, "pending")} className="rounded-lg border border-[#e5ad46]/15 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-[#eccc90] hover:border-[#e5ad46]">
                         Revenir en attente
                       </button>
                     )}

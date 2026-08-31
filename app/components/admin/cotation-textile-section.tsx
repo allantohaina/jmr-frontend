@@ -266,8 +266,8 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
     <div className="px-4 md:px-12 py-8 md:py-10 space-y-8">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="font-headline text-2xl md:text-3xl text-[#163526]">Cotation Textile</h2>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#1b1c19]/40 mt-1">Calcul automatique des prix</p>
+          <h2 className="font-headline text-2xl md:text-3xl text-[#eccc90]">Cotation Textile</h2>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#eccc90]/40 mt-1">Calcul automatique des prix</p>
         </div>
       </div>
 
@@ -284,52 +284,52 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Colonne gauche : Paramètres */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-2xl p-6 md:p-8 border border-[#163526]/5 shadow-sm space-y-6">
-              <h3 className="font-headline text-xl text-[#163526] flex items-center gap-2">
+            <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#e5ad46]/10 shadow-sm space-y-6">
+              <h3 className="font-headline text-xl text-[#eccc90] flex items-center gap-2">
                 <Calculator className="h-5 w-5 text-orange-500" />
                 Paramètres de calcul
               </h3>
 
-              <div className="rounded-2xl border border-[#163526]/10 bg-[#faf9f4] p-4 space-y-3">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Client</p>
+              <div className="rounded-2xl border border-[#e5ad46]/10 bg-[#1e2a38] p-4 space-y-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Client</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Nom *</label>
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#eccc90]/40">Nom *</label>
                     <input
                       required
                       value={clientName}
                       onChange={(e) => setClientName(e.target.value)}
-                      className="w-full bg-white border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                      className="w-full bg-[#25303a] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                       placeholder="Nom du client"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Email *</label>
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#eccc90]/40">Email *</label>
                     <input
                       required
                       type="email"
                       value={clientEmail}
                       onChange={(e) => setClientEmail(e.target.value)}
-                      className="w-full bg-white border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                      className="w-full bg-[#25303a] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                       placeholder="email@exemple.com"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Téléphone</label>
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#eccc90]/40">Téléphone</label>
                     <input
                       value={clientPhone}
                       onChange={(e) => setClientPhone(e.target.value)}
-                      className="w-full bg-white border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                      className="w-full bg-[#25303a] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                       placeholder="+261 XX XXX XX"
                     />
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Description du besoin</label>
+                  <label className="text-[9px] font-bold uppercase tracking-widest text-[#eccc90]/40">Description du besoin</label>
                   <textarea
                     value={clientMessage}
                     onChange={(e) => setClientMessage(e.target.value)}
-                    className="w-full bg-white border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10 h-16"
+                    className="w-full bg-[#25303a] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10 h-16"
                     placeholder="Description du projet..."
                   />
                 </div>
@@ -337,12 +337,12 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Fiche produit</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Fiche produit</label>
                   <select
                     value={formData.produit_id || ""}
                     onChange={(e) => handleProduitChange(e.target.value)}
                     disabled={isLoadingProduits}
-                    className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                    className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                   >
                     <option value="">Sélectionner un produit...</option>
                     {produits.map(p => (
@@ -352,11 +352,11 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Matière fournie par</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Matière fournie par</label>
                   <select
                     value={formData.matiere_fournie_par}
                     onChange={(e) => handleChange("matiere_fournie_par", e.target.value)}
-                    className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                    className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                   >
                     <option value="atelier">Atelier</option>
                     <option value="client">Client (CMT)</option>
@@ -364,79 +364,79 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Conso tissu unitaire (m)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Conso tissu unitaire (m)</label>
                   <input
                     type="number"
                     step="0.001"
                     value={formData.conso_tissu_unitaire || ""}
                     onChange={(e) => handleChange("conso_tissu_unitaire", parseFloat(e.target.value) || 0)}
-                    className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                    className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Taux de chute (%)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Taux de chute (%)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={formData.taux_chute_pct}
                     onChange={(e) => handleChange("taux_chute_pct", parseFloat(e.target.value) || 0)}
-                    className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                    className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Niveau difficulté</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Niveau difficulté</label>
                   <input
                     type="number"
                     step="0.1"
                     value={formData.niveau_difficulte}
                     onChange={(e) => handleChange("niveau_difficulte", parseFloat(e.target.value) || 1)}
-                    className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                    className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Prix matière par mètre (Ar)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Prix matière par mètre (Ar)</label>
                   <input
                     type="number"
                     step="0.01"
                     value={formData.prix_matiere_par_metre}
                     onChange={(e) => handleChange("prix_matiere_par_metre", parseFloat(e.target.value) || 0)}
                     disabled={formData.matiere_fournie_par === "client"}
-                    className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10 disabled:opacity-50"
+                    className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10 disabled:opacity-50"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Coût MO par pièce (Ar)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Coût MO par pièce (Ar)</label>
                   <input
                     type="number"
                     step="0.01"
                     value={formData.cout_mo_par_piece}
                     onChange={(e) => handleChange("cout_mo_par_piece", parseFloat(e.target.value) || 0)}
-                    className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                    className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Frais généraux (%)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Frais généraux (%)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={formData.frais_generaux_pct}
                     onChange={(e) => handleChange("frais_generaux_pct", parseFloat(e.target.value) || 0)}
-                    className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                    className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Quantité commandée</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Quantité commandée</label>
                   <input
                     type="number"
                     value={formData.quantite_commandee}
                     onChange={(e) => handleChange("quantite_commandee", parseInt(e.target.value) || 0)}
-                    className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                    className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                   />
                   {moqAlert && (
                     <p className="text-[9px] text-red-600 font-bold uppercase tracking-widest mt-1">
@@ -446,11 +446,11 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Statut</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Statut</label>
                   <select
                     value={formData.statut}
                     onChange={(e) => handleChange("statut", e.target.value)}
-                    className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                    className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                   >
                     {STATUS_OPTIONS.map(opt => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>

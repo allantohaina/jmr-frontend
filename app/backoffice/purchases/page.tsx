@@ -95,18 +95,18 @@ export default function AdminPurchasesPage() {
     <div className="px-6 md:px-12 py-10 space-y-10 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h1 className="font-headline text-3xl text-[#163526] mb-2">Gestion des Achats</h1>
-          <p className="text-xs uppercase tracking-widest text-[#163526]/40 font-bold">Suivi des dépenses et fournisseurs</p>
+          <h1 className="font-headline text-3xl text-[#eccc90] mb-2">Gestion des Achats</h1>
+          <p className="text-xs uppercase tracking-widest text-[#eccc90]/40 font-bold">Suivi des dépenses et fournisseurs</p>
         </div>
         <div className="flex gap-4 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#163526]/40" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#eccc90]/40" />
             <input
               type="text"
               placeholder="Fournisseur, article..."
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); handleSearchChange(e.target.value); }}
-              className="w-full pl-12 pr-4 py-3 bg-white border border-[#163526]/10 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              className="w-full pl-12 pr-4 py-3 bg-[#25303a] border border-[#e5ad46]/10 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
             />
           </div>
           <button 
@@ -123,22 +123,22 @@ export default function AdminPurchasesPage() {
       )}
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-[2rem] border border-[#163526]/5 shadow-sm space-y-4">
+        <form onSubmit={handleSubmit} className="bg-[#25303a] p-6 rounded-[2rem] border border-[#e5ad46]/10 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-headline text-lg text-[#163526]">Nouvel achat</h3>
-            <button type="button" onClick={() => setShowForm(false)} className="text-[#163526]/40 hover:text-[#163526]"><X className="w-4 h-4" /></button>
+            <h3 className="font-headline text-lg text-[#eccc90]">Nouvel achat</h3>
+            <button type="button" onClick={() => setShowForm(false)} className="text-[#eccc90]/40 hover:text-[#eccc90]"><X className="w-4 h-4" /></button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input required placeholder="Fournisseur" value={formData.fournisseur} onChange={(e) => setFormData({...formData, fournisseur: e.target.value})} className="w-full px-4 py-3 bg-[#faf9f4] border border-[#163526]/10 rounded-xl text-sm" />
-            <select value={formData.categorie} onChange={(e) => setFormData({...formData, categorie: e.target.value})} className="w-full px-4 py-3 bg-[#faf9f4] border border-[#163526]/10 rounded-xl text-sm">
+            <input required placeholder="Fournisseur" value={formData.fournisseur} onChange={(e) => setFormData({...formData, fournisseur: e.target.value})} className="w-full px-4 py-3 bg-[#1e2a38] border border-[#e5ad46]/10 rounded-xl text-sm" />
+            <select value={formData.categorie} onChange={(e) => setFormData({...formData, categorie: e.target.value})} className="w-full px-4 py-3 bg-[#1e2a38] border border-[#e5ad46]/10 rounded-xl text-sm">
               {CATEGORIES_ACHAT.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
-            <input type="number" step="0.01" required placeholder="Montant" value={formData.montant} onChange={(e) => setFormData({...formData, montant: Number(e.target.value)})} className="w-full px-4 py-3 bg-[#faf9f4] border border-[#163526]/10 rounded-xl text-sm" />
-            <input type="date" required value={formData.date_achat} onChange={(e) => setFormData({...formData, date_achat: e.target.value})} className="w-full px-4 py-3 bg-[#faf9f4] border border-[#163526]/10 rounded-xl text-sm" />
-            <select value={formData.statut} onChange={(e) => setFormData({...formData, statut: e.target.value})} className="w-full px-4 py-3 bg-[#faf9f4] border border-[#163526]/10 rounded-xl text-sm">
+            <input type="number" step="0.01" required placeholder="Montant" value={formData.montant} onChange={(e) => setFormData({...formData, montant: Number(e.target.value)})} className="w-full px-4 py-3 bg-[#1e2a38] border border-[#e5ad46]/10 rounded-xl text-sm" />
+            <input type="date" required value={formData.date_achat} onChange={(e) => setFormData({...formData, date_achat: e.target.value})} className="w-full px-4 py-3 bg-[#1e2a38] border border-[#e5ad46]/10 rounded-xl text-sm" />
+            <select value={formData.statut} onChange={(e) => setFormData({...formData, statut: e.target.value})} className="w-full px-4 py-3 bg-[#1e2a38] border border-[#e5ad46]/10 rounded-xl text-sm">
               {STATUTS_ACHAT.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
-            <textarea placeholder="Description (optionnelle)" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="w-full px-4 py-3 bg-[#faf9f4] border border-[#163526]/10 rounded-xl text-sm" rows={1} />
+            <textarea placeholder="Description (optionnelle)" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="w-full px-4 py-3 bg-[#1e2a38] border border-[#e5ad46]/10 rounded-xl text-sm" rows={1} />
           </div>
           <button type="submit" disabled={saving} className="px-6 py-3 bg-[#163526] text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-[#163526]/90 disabled:opacity-50">
             {saving ? "Enregistrement..." : "Enregistrer"}
@@ -147,21 +147,21 @@ export default function AdminPurchasesPage() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-[2rem] border border-[#163526]/5 shadow-sm relative overflow-hidden">
+        <div className="bg-[#25303a] p-6 rounded-[2rem] border border-[#e5ad46]/10 shadow-sm relative overflow-hidden">
           <div className="absolute -right-4 -top-4 opacity-5"><TrendingDown className="w-24 h-24 text-red-500" /></div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/40 mb-3">Total Dépenses</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3">Total Dépenses</p>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-headline font-bold text-[#163526]">{totalSpent.toLocaleString()}</span>
-            <span className="text-lg font-headline text-[#163526]/40">Ar</span>
+            <span className="text-3xl font-headline font-bold text-[#eccc90]">{totalSpent.toLocaleString()}</span>
+            <span className="text-lg font-headline text-[#eccc90]/40">Ar</span>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-[2rem] border border-[#163526]/5 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/40 mb-3">En attente</p>
+        <div className="bg-[#25303a] p-6 rounded-[2rem] border border-[#e5ad46]/10 shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3">En attente</p>
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center"><Package className="w-5 h-5 text-orange-500" /></div>
-            <span className="text-3xl font-headline font-bold text-[#163526]">{enAttente.length}</span>
+            <span className="text-3xl font-headline font-bold text-[#eccc90]">{enAttente.length}</span>
           </div>
-          <p className="mt-2 text-[9px] font-bold text-[#163526]/40 uppercase tracking-widest">Valeur: {totalEnAttente.toLocaleString()} Ar</p>
+          <p className="mt-2 text-[9px] font-bold text-[#eccc90]/40 uppercase tracking-widest">Valeur: {totalEnAttente.toLocaleString()} Ar</p>
         </div>
         <div className="bg-[#163526] p-6 rounded-[2rem] text-white relative shadow-xl overflow-hidden">
           <div className="absolute right-0 top-0 h-full w-2 bg-orange-500"></div>
@@ -171,42 +171,42 @@ export default function AdminPurchasesPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] border border-[#163526]/5 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-[#163526]/5 flex justify-between items-center bg-[#faf9f4]/50">
-          <h3 className="font-headline text-lg text-[#163526]">Historique des Achats</h3>
-          <span className="text-[10px] font-bold text-[#163526]/40">{filteredPurchases.length} résultat(s)</span>
+      <div className="bg-[#25303a] rounded-[2.5rem] border border-[#e5ad46]/10 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-[#e5ad46]/10 flex justify-between items-center bg-[#1e2a38]/50">
+          <h3 className="font-headline text-lg text-[#eccc90]">Historique des Achats</h3>
+          <span className="text-[10px] font-bold text-[#eccc90]/40">{filteredPurchases.length} résultat(s)</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-[#163526]/5">
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#163526]/40">Date</th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#163526]/40">Fournisseur</th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#163526]/40">Catégorie</th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#163526]/40">Montant</th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#163526]/40">Statut</th>
+              <tr className="border-b border-[#e5ad46]/10">
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Date</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Fournisseur</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Catégorie</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Montant</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Statut</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={5} className="px-6 py-12 text-center text-sm text-[#1b1c19]/40">Chargement...</td></tr>
+                <tr><td colSpan={5} className="px-6 py-12 text-center text-sm text-[#eccc90]/40">Chargement...</td></tr>
               ) : filteredPurchases.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-12 text-center text-sm text-[#1b1c19]/40 italic">Aucun achat enregistré.</td></tr>
+                <tr><td colSpan={5} className="px-6 py-12 text-center text-sm text-[#eccc90]/40 italic">Aucun achat enregistré.</td></tr>
               ) : (
                 filteredPurchases.map((p) => (
-                  <tr key={p.id} className="border-b border-[#163526]/5 hover:bg-[#faf9f4]/50 transition-colors">
+                  <tr key={p.id} className="border-b border-[#e5ad46]/10 hover:bg-[#1e2a38]/50 transition-colors">
                     <td className="px-6 py-4">
-                      <span className="text-xs text-[#163526]/60 font-mono">{p.date_achat}</span>
+                      <span className="text-xs text-[#eccc90]/60 font-mono">{p.date_achat}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm font-bold text-[#163526]">{p.fournisseur}</p>
-                      {p.description && <p className="text-[10px] text-[#163526]/40 italic">{p.description}</p>}
+                      <p className="text-sm font-bold text-[#eccc90]">{p.fournisseur}</p>
+                      {p.description && <p className="text-[10px] text-[#eccc90]/40 italic">{p.description}</p>}
                     </td>
                     <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-[#163526]/5 text-[#163526]/60 text-[9px] font-bold uppercase rounded-full">{p.categorie}</span>
+                      <span className="px-2 py-1 bg-[#e5ad46]/10 text-[#eccc90]/60 text-[9px] font-bold uppercase rounded-full">{p.categorie}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm font-bold text-[#163526]">{p.montant.toLocaleString()} Ar</p>
+                      <p className="text-sm font-bold text-[#eccc90]">{p.montant.toLocaleString()} Ar</p>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-[9px] font-bold uppercase rounded-full ${

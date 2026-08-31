@@ -409,11 +409,11 @@ export function EditDevisSection({ id }: { id: string }) {
   if (isLoading) {
     return (
       <div className="px-6 md:px-12 py-10 animate-pulse">
-        <div className="h-8 w-64 bg-[#163526]/10 rounded mb-4"></div>
-        <div className="h-4 w-96 bg-[#163526]/5 rounded mb-12"></div>
+        <div className="h-8 w-64 bg-[#e5ad46]/10 rounded mb-4"></div>
+        <div className="h-4 w-96 bg-[#e5ad46]/10 rounded mb-12"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="h-64 bg-white rounded-[2rem] border border-[#163526]/5"></div>
-          <div className="h-64 bg-white rounded-[2rem] border border-[#163526]/5"></div>
+          <div className="h-64 bg-[#25303a] rounded-[2rem] border border-[#e5ad46]/10"></div>
+          <div className="h-64 bg-[#25303a] rounded-[2rem] border border-[#e5ad46]/10"></div>
         </div>
       </div>
     );
@@ -423,7 +423,7 @@ export function EditDevisSection({ id }: { id: string }) {
     return (
       <div className="px-6 md:px-12 py-10 text-center">
         <span className="material-symbols-outlined text-red-500 text-6xl mb-4">error</span>
-        <h2 className="font-headline text-2xl text-[#163526] mb-2">{loadError}</h2>
+        <h2 className="font-headline text-2xl text-[#eccc90] mb-2">{loadError}</h2>
         <button 
           onClick={() => setReloadIndex(i => i + 1)}
           className="mt-6 px-8 py-3 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl"
@@ -444,15 +444,15 @@ export function EditDevisSection({ id }: { id: string }) {
   return (
     <div className="px-6 md:px-12 py-10 space-y-10 max-w-5xl">
       {/* Breadcrumb / Back */}
-      <Link href="/backoffice/devis" className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#163526]/40 hover:text-orange-500 transition-colors group">
+      <Link href="/backoffice/devis" className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 hover:text-orange-500 transition-colors group">
         <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back</span>
         Retour aux devis
       </Link>
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <h2 className="font-headline text-3xl text-[#163526]">Modifier le devis</h2>
-          <p className="text-[#1b1c19]/40 text-xs font-bold uppercase tracking-widest mt-1">Référence: #{quote.id}</p>
+          <h2 className="font-headline text-3xl text-[#eccc90]">Modifier le devis</h2>
+          <p className="text-[#eccc90]/40 text-xs font-bold uppercase tracking-widest mt-1">Référence: #{quote.id}</p>
         </div>
         <div className="flex gap-4">
           <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
@@ -483,35 +483,35 @@ export function EditDevisSection({ id }: { id: string }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Client Info Card */}
-        <div className="bg-white rounded-[2rem] p-8 border border-[#163526]/5 shadow-sm space-y-8">
+        <div className="bg-[#25303a] rounded-[2rem] p-8 border border-[#e5ad46]/10 shadow-sm space-y-8">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-[#163526] rounded-2xl flex items-center justify-center text-white font-headline text-2xl">
               {initials}
             </div>
             <div>
-              <h3 className="font-headline text-xl text-[#163526]">{quote.name || "Client sans nom"}</h3>
-              <p className="text-xs text-[#163526]/60">{quote.email || "Pas d'email"}</p>
+              <h3 className="font-headline text-xl text-[#eccc90]">{quote.name || "Client sans nom"}</h3>
+              <p className="text-xs text-[#eccc90]/60">{quote.email || "Pas d'email"}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-1">Téléphone</p>
-              <p className="text-sm font-bold text-[#163526]">{quote.phone || "-"}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-1">Téléphone</p>
+              <p className="text-sm font-bold text-[#eccc90]">{quote.phone || "-"}</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-1">Montant Total</p>
-              <p className="text-sm font-bold text-[#163526]">{formatAmount(quote.amount)}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-1">Montant Total</p>
+              <p className="text-sm font-bold text-[#eccc90]">{formatAmount(quote.amount)}</p>
             </div>
           </div>
 
-          <div className="pt-6 border-t border-[#163526]/5 space-y-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Suivi des Tranches</p>
+          <div className="pt-6 border-t border-[#e5ad46]/10 space-y-4">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Suivi des Tranches</p>
             <div className="grid grid-cols-1 gap-3">
               <div className={`p-4 rounded-xl flex justify-between items-center ${quote.deposit_paid ? "bg-green-50 border border-green-100" : "bg-orange-50 border border-orange-100"}`}>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/60">Acompte (Avant livraison)</p>
-                  <p className="text-sm font-bold text-[#163526]">{formatAmount(quote.deposit_amount)}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/60">Acompte (Avant livraison)</p>
+                  <p className="text-sm font-bold text-[#eccc90]">{formatAmount(quote.deposit_amount)}</p>
                 </div>
                 <span className={`material-symbols-outlined ${quote.deposit_paid ? "text-green-600" : "text-orange-400"}`}>
                   {quote.deposit_paid ? "check_circle" : "pending"}
@@ -519,8 +519,8 @@ export function EditDevisSection({ id }: { id: string }) {
               </div>
               <div className={`p-4 rounded-xl flex justify-between items-center ${quote.balance_paid ? "bg-green-50 border border-green-100" : "bg-gray-50 border border-gray-100"}`}>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/60">Solde (Après livraison)</p>
-                  <p className="text-sm font-bold text-[#163526]">{formatAmount(quote.balance_amount)}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/60">Solde (Après livraison)</p>
+                  <p className="text-sm font-bold text-[#eccc90]">{formatAmount(quote.balance_amount)}</p>
                 </div>
                 <span className={`material-symbols-outlined ${quote.balance_paid ? "text-green-600" : "text-gray-300"}`}>
                   {quote.balance_paid ? "check_circle" : "schedule"}
@@ -529,22 +529,22 @@ export function EditDevisSection({ id }: { id: string }) {
             </div>
           </div>
 
-          <div className="pt-6 border-t border-[#163526]/5 space-y-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Documents & Pièces jointes</p>
+          <div className="pt-6 border-t border-[#e5ad46]/10 space-y-4">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Documents & Pièces jointes</p>
             <AttachmentUploader entityType="cotation" entityId={id} />
           </div>
 
-          <div className="pt-6 border-t border-[#163526]/5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40 mb-3">Message du client</p>
-            <div className="bg-[#faf9f4] p-4 rounded-xl text-xs text-[#163526]/80 leading-relaxed italic">
+          <div className="pt-6 border-t border-[#e5ad46]/10">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3">Message du client</p>
+            <div className="bg-[#1e2a38] p-4 rounded-xl text-xs text-[#eccc90]/80 leading-relaxed italic">
               &quot;{quote.message || "Aucun message fourni"}&quot;
             </div>
           </div>
         </div>
 
         {/* Action Form Card */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-[2rem] p-8 border border-[#163526]/5 shadow-sm space-y-8">
-          <h3 className="font-headline text-xl text-[#163526]">Gestion & Mise à jour</h3>
+        <form onSubmit={handleSubmit} className="bg-[#25303a] rounded-[2rem] p-8 border border-[#e5ad46]/10 shadow-sm space-y-8">
+          <h3 className="font-headline text-xl text-[#eccc90]">Gestion & Mise à jour</h3>
           
           <div className="space-y-6">
             {/* Notification / Alert Section */}
@@ -554,7 +554,7 @@ export function EditDevisSection({ id }: { id: string }) {
                 Envoyer une notification au client
               </p>
               <select 
-                className="w-full bg-white border-none p-3 rounded-lg text-[11px] font-bold text-orange-900 outline-none"
+                className="w-full bg-[#25303a] border-none p-3 rounded-lg text-[11px] font-bold text-orange-900 outline-none"
                 defaultValue=""
                 onChange={(e) => {
                   const value = e.target.value;
@@ -591,12 +591,12 @@ export function EditDevisSection({ id }: { id: string }) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Statut du dossier</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Statut du dossier</label>
                 <select
                   name="status"
                   value={formStatus}
                   onChange={(e) => setFormStatus(e.target.value)}
-                  className="w-full bg-[#faf9f4] border-none p-4 rounded-xl text-xs font-bold text-[#163526] focus:ring-2 focus:ring-[#163526]/10 outline-none appearance-none cursor-pointer"
+                  className="w-full bg-[#1e2a38] border-none p-4 rounded-xl text-xs font-bold text-[#eccc90] focus:ring-2 focus:ring-[#163526]/10 outline-none appearance-none cursor-pointer"
                   disabled={isSaving}
                 >
                   <option value="">Choisir un statut</option>
@@ -607,33 +607,33 @@ export function EditDevisSection({ id }: { id: string }) {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Montant Total (€)</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Montant Total (€)</label>
                 <input
                   name="amount"
                   type="number"
                   step="0.01"
                   value={formAmount}
                   onChange={(e) => setFormAmount(e.target.value)}
-                  className="w-full bg-[#faf9f4] border-none p-4 rounded-xl text-xs font-bold text-[#163526] focus:ring-2 focus:ring-[#163526]/10 outline-none"
+                  className="w-full bg-[#1e2a38] border-none p-4 rounded-xl text-xs font-bold text-[#eccc90] focus:ring-2 focus:ring-[#163526]/10 outline-none"
                   placeholder="Ex: 1500.00"
                   disabled={isSaving}
                 />
               </div>
             </div>
 
-            <div className="pt-4 border-t border-[#163526]/5 space-y-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Gestion des Tranches de Paiement</p>
+            <div className="pt-4 border-t border-[#e5ad46]/10 space-y-4">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Gestion des Tranches de Paiement</p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-3 p-4 bg-[#faf9f4] rounded-2xl">
-                  <label className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40">Acompte (€)</label>
+                <div className="space-y-3 p-4 bg-[#1e2a38] rounded-2xl">
+                  <label className="text-[9px] font-bold uppercase tracking-widest text-[#eccc90]/40">Acompte (€)</label>
                   <input
                     name="deposit_amount"
                     type="number"
                     step="0.01"
                     value={formDeposit}
                     onChange={(e) => setFormDeposit(e.target.value)}
-                    className="w-full bg-white border-none p-3 rounded-lg text-xs font-bold text-[#163526] outline-none"
+                    className="w-full bg-[#25303a] border-none p-3 rounded-lg text-xs font-bold text-[#eccc90] outline-none"
                     placeholder="Montant acompte"
                     disabled={isSaving}
                   />
@@ -642,21 +642,21 @@ export function EditDevisSection({ id }: { id: string }) {
                       type="checkbox"
                       checked={depositPaid}
                       onChange={(e) => setDepositPaid(e.target.checked)}
-                      className="w-4 h-4 rounded border-[#163526]/10 text-[#163526] focus:ring-0"
+                      className="w-4 h-4 rounded border-[#e5ad46]/10 text-[#eccc90] focus:ring-0"
                     />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/60 group-hover:text-[#163526] transition-colors">Payé (Acompte)</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/60 group-hover:text-[#eccc90] transition-colors">Payé (Acompte)</span>
                   </label>
                 </div>
 
-                <div className="space-y-3 p-4 bg-[#faf9f4] rounded-2xl">
-                  <label className="text-[9px] font-bold uppercase tracking-widest text-[#163526]/40">Solde (€)</label>
+                <div className="space-y-3 p-4 bg-[#1e2a38] rounded-2xl">
+                  <label className="text-[9px] font-bold uppercase tracking-widest text-[#eccc90]/40">Solde (€)</label>
                   <input
                     name="balance_amount"
                     type="number"
                     step="0.01"
                     value={formBalance}
                     onChange={(e) => setFormBalance(e.target.value)}
-                    className="w-full bg-white border-none p-3 rounded-lg text-xs font-bold text-[#163526] outline-none"
+                    className="w-full bg-[#25303a] border-none p-3 rounded-lg text-xs font-bold text-[#eccc90] outline-none"
                     placeholder="Montant solde"
                     disabled={isSaving}
                   />
@@ -665,9 +665,9 @@ export function EditDevisSection({ id }: { id: string }) {
                       type="checkbox"
                       checked={balancePaid}
                       onChange={(e) => setBalancePaid(e.target.checked)}
-                      className="w-4 h-4 rounded border-[#163526]/10 text-[#163526] focus:ring-0"
+                      className="w-4 h-4 rounded border-[#e5ad46]/10 text-[#eccc90] focus:ring-0"
                     />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/60 group-hover:text-[#163526] transition-colors">Payé (Solde)</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/60 group-hover:text-[#eccc90] transition-colors">Payé (Solde)</span>
                   </label>
                 </div>
               </div>
@@ -723,7 +723,7 @@ export function EditDevisSection({ id }: { id: string }) {
               type="button"
               onClick={sendQuote}
               disabled={isSaving || quote.status === "sent" || quote.status === "production"}
-              className="w-full py-4 bg-white border border-[#163526]/10 text-[#163526] font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#163526]/5 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-4 bg-[#25303a] border border-[#e5ad46]/10 text-[#eccc90] font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#e5ad46]/10 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined text-sm text-orange-500">send</span>
               {quote.status === "production"
@@ -735,11 +735,11 @@ export function EditDevisSection({ id }: { id: string }) {
             {quote.status !== "sent" && quote.status !== "production" && (
               <div className="space-y-3 mt-2">
                 <div className="flex items-center gap-3">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/50 whitespace-nowrap">Délai de confirmation</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/50 whitespace-nowrap">Délai de confirmation</label>
                   <select
                     value={confirmationDays}
                     onChange={(e) => setConfirmationDays(Number(e.target.value))}
-                    className="flex-1 border border-[#163526]/10 rounded-lg px-3 py-2 text-sm text-[#163526] bg-white"
+                    className="flex-1 border border-[#e5ad46]/10 rounded-lg px-3 py-2 text-sm text-[#eccc90] bg-[#25303a]"
                   >
                     <option value={3}>3 jours</option>
                     <option value={5}>5 jours</option>
@@ -749,13 +749,13 @@ export function EditDevisSection({ id }: { id: string }) {
                   </select>
                 </div>
                 <div className="flex items-center gap-3">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#163526]/50 whitespace-nowrap">Date de livraison prévue</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/50 whitespace-nowrap">Date de livraison prévue</label>
                   <input
                     type="date"
                     value={formDeliveryDate}
                     onChange={(e) => setFormDeliveryDate(e.target.value)}
                     min={new Date().toISOString().split("T")[0]}
-                    className="flex-1 border border-[#163526]/10 rounded-lg px-3 py-2 text-sm text-[#163526] bg-white"
+                    className="flex-1 border border-[#e5ad46]/10 rounded-lg px-3 py-2 text-sm text-[#eccc90] bg-[#25303a]"
                   />
                 </div>
               </div>
@@ -768,12 +768,12 @@ export function EditDevisSection({ id }: { id: string }) {
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 print:hidden">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[.22em] text-[#a67428]">Document A4 · Imprimable</p>
-            <h3 className="font-headline text-2xl text-[#163526] mt-1">Aperçu du devis</h3>
+            <h3 className="font-headline text-2xl text-[#eccc90] mt-1">Aperçu du devis</h3>
           </div>
           <button
             type="button"
             onClick={() => window.print()}
-            className="inline-flex items-center gap-2 rounded-2xl border border-[#163526]/15 bg-white px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#163526] hover:border-[#e5ad46] hover:text-[#e5ad46] transition-colors"
+            className="inline-flex items-center gap-2 rounded-2xl border border-[#e5ad46]/15 bg-[#25303a] px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#eccc90] hover:border-[#e5ad46] hover:text-[#e5ad46] transition-colors"
           >
             <Printer className="h-4 w-4" /> Imprimer
           </button>

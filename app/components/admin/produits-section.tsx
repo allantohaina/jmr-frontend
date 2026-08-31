@@ -184,8 +184,8 @@ export function ProduitsSection() {
     <div className="px-4 md:px-12 py-8 md:py-10 space-y-8">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="font-headline text-2xl md:text-3xl text-[#163526]">Fiches Produits</h2>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#1b1c19]/40 mt-1">Référentiel des produits de l&apos;atelier</p>
+          <h2 className="font-headline text-2xl md:text-3xl text-[#eccc90]">Fiches Produits</h2>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#eccc90]/40 mt-1">Référentiel des produits de l&apos;atelier</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
@@ -205,133 +205,133 @@ export function ProduitsSection() {
       )}
 
       {showForm && (
-        <div className="bg-white rounded-2xl p-6 md:p-8 border border-[#163526]/5 shadow-sm">
-          <h3 className="font-headline text-xl text-[#163526] mb-6">{editingId ? "Modifier" : "Créer"} un produit</h3>
+        <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#e5ad46]/10 shadow-sm">
+          <h3 className="font-headline text-xl text-[#eccc90] mb-6">{editingId ? "Modifier" : "Créer"} un produit</h3>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Nom du produit *</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Nom du produit *</label>
               <input
                 required
                 value={formData.nom}
                 onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
-                className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                 placeholder="Ex: Chemise homme manches longues"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Catégorie</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Catégorie</label>
               <input
                 value={formData.categorie}
                 onChange={(e) => setFormData({ ...formData, categorie: e.target.value })}
-                className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                 placeholder="Ex: Chemise / Pantalon / Robe"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Conso tissu unitaire (m) *</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Conso tissu unitaire (m) *</label>
               <input
                 required
                 type="number"
                 step="0.001"
                 value={formData.conso_tissu_unitaire}
                 onChange={(e) => setFormData({ ...formData, conso_tissu_unitaire: e.target.value })}
-                className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                 placeholder="Ex: 1.5"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Conso par taille (JSON)</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Conso par taille (JSON)</label>
               <input
                 value={formData.conso_tissu_par_taille}
                 onChange={(e) => setFormData({ ...formData, conso_tissu_par_taille: e.target.value })}
-                className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                 placeholder='Ex: {"S": 1.2, "M": 1.5, "L": 1.8}'
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Niveau difficulté défaut *</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Niveau difficulté défaut *</label>
               <input
                 required
                 type="number"
                 step="0.1"
                 value={formData.niveau_difficulte_defaut}
                 onChange={(e) => setFormData({ ...formData, niveau_difficulte_defaut: e.target.value })}
-                className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                 placeholder="Ex: 1.0"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">MOQ *</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">MOQ *</label>
               <input
                 required
                 type="number"
                 value={formData.moq}
                 onChange={(e) => setFormData({ ...formData, moq: e.target.value })}
-                className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                 placeholder="Ex: 10"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Coût matière défaut (Ar/m) *</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Coût matière défaut (Ar/m) *</label>
               <input
                 required
                 type="number"
                 step="0.01"
                 value={formData.cout_matiere_defaut}
                 onChange={(e) => setFormData({ ...formData, cout_matiere_defaut: e.target.value })}
-                className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                 placeholder="Ex: 5000"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Coût MO par pièce (Ar) *</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Coût MO par pièce (Ar) *</label>
               <input
                 required
                 type="number"
                 step="0.01"
                 value={formData.cout_mo_par_piece}
                 onChange={(e) => setFormData({ ...formData, cout_mo_par_piece: e.target.value })}
-                className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                 placeholder="Ex: 2000"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Frais généraux (%) *</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Frais généraux (%) *</label>
               <input
                 required
                 type="number"
                 step="0.1"
                 value={formData.frais_generaux_pct}
                 onChange={(e) => setFormData({ ...formData, frais_generaux_pct: e.target.value })}
-                className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                 placeholder="Ex: 20"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Photo URL</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Photo URL</label>
               <input
                 value={formData.photo_url}
                 onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
-                className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
                 placeholder="URL de l'image"
               />
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Description</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full bg-[#faf9f4] border-none p-3 rounded-xl text-xs font-bold text-[#163526] outline-none focus:ring-2 focus:ring-[#163526]/10 h-24"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10 h-24"
                 placeholder="Description du produit..."
               />
             </div>
@@ -347,7 +347,7 @@ export function ProduitsSection() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-6 py-3 border border-[#163526]/10 text-[#163526] font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#163526]/5 transition-all"
+                className="px-6 py-3 border border-[#e5ad46]/10 text-[#eccc90] font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#e5ad46]/10 transition-all"
               >
                 Annuler
               </button>
@@ -364,28 +364,28 @@ export function ProduitsSection() {
       ) : null}
 
       {isLoading ? (
-        <div className="flex items-center justify-center rounded-2xl border border-[#163526]/5 bg-white py-16">
-          <Loader2 className="mr-3 h-5 w-5 animate-spin text-[#163526]/50" />
+        <div className="flex items-center justify-center rounded-2xl border border-[#e5ad46]/10 bg-[#25303a] py-16">
+          <Loader2 className="mr-3 h-5 w-5 animate-spin text-[#eccc90]/50" />
           Chargement...
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-[#163526]/5 shadow-sm overflow-hidden">
+        <div className="bg-[#25303a] rounded-2xl border border-[#e5ad46]/10 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left">
               <thead>
-                <tr className="border-b border-[#163526]/5 bg-[#163526]/5">
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Nom</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Catégorie</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Conso tissu</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Difficulté</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">MOQ</th>
-                  <th className="px-6 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-[#1b1c19]/40">Actions</th>
+                <tr className="border-b border-[#e5ad46]/10 bg-[#e5ad46]/10">
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Nom</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Catégorie</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Conso tissu</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Difficulté</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">MOQ</th>
+                  <th className="px-6 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#163526]/5">
+              <tbody className="divide-y divide-[#e5ad46]/10">
                 {produits.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-sm italic text-[#1b1c19]/40">
+                    <td colSpan={6} className="px-6 py-12 text-center text-sm italic text-[#eccc90]/40">
                       Aucun produit pour le moment.
                     </td>
                   </tr>
@@ -394,32 +394,32 @@ produits.map((p) => (
                       <tr
                         key={p.id}
                         className={`hover:bg-[#163526]/[0.02] transition-colors cursor-pointer ${
-                          selectedProduitId === p.id ? "bg-[#faf9f4]" : ""
+                          selectedProduitId === p.id ? "bg-[#1e2a38]" : ""
                         }`}
                         onClick={() =>
                           setSelectedProduitId(selectedProduitId === p.id ? null : p.id)
                         }
                       >
                       <td className="px-6 py-4">
-                        <p className="text-sm font-bold text-[#163526]">{p.nom}</p>
+                        <p className="text-sm font-bold text-[#eccc90]">{p.nom}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-xs text-[#163526]/60">{p.categorie || "—"}</span>
+                        <span className="text-xs text-[#eccc90]/60">{p.categorie || "—"}</span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-xs font-mono text-[#163526]">{p.conso_tissu_unitaire} m</span>
+                        <span className="text-xs font-mono text-[#eccc90]">{p.conso_tissu_unitaire} m</span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-xs font-mono text-[#163526]">x{p.niveau_difficulte_defaut}</span>
+                        <span className="text-xs font-mono text-[#eccc90]">x{p.niveau_difficulte_defaut}</span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-xs font-mono text-[#163526]">{p.moq}</span>
+                        <span className="text-xs font-mono text-[#eccc90]">{p.moq}</span>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           <button
                             onClick={() => handleEdit(p)}
-                            className="p-2 rounded-lg border border-[#163526]/10 text-[#163526] hover:border-orange-500 hover:text-orange-500 transition-colors"
+                            className="p-2 rounded-lg border border-[#e5ad46]/10 text-[#eccc90] hover:border-orange-500 hover:text-orange-500 transition-colors"
                             title="Modifier"
                           >
                             <Pencil className="h-4 w-4" />
@@ -443,17 +443,17 @@ produits.map((p) => (
        )}
 
        {selectedProduitId && (
-         <div className="bg-white rounded-2xl border border-[#163526]/5 shadow-sm overflow-hidden mt-6">
-           <div className="p-6 border-b border-[#163526]/5 flex justify-between items-center">
+         <div className="bg-[#25303a] rounded-2xl border border-[#e5ad46]/10 shadow-sm overflow-hidden mt-6">
+           <div className="p-6 border-b border-[#e5ad46]/10 flex justify-between items-center">
              <div>
-               <h3 className="font-headline text-xl text-[#163526]">Détails du produit</h3>
-               <p className="text-xs text-[#1b1c19]/40 uppercase tracking-widest mt-1">
+               <h3 className="font-headline text-xl text-[#eccc90]">Détails du produit</h3>
+               <p className="text-xs text-[#eccc90]/40 uppercase tracking-widest mt-1">
                  {produits.find((p) => p.id === selectedProduitId)?.nom}
                </p>
              </div>
              <button
                onClick={() => setSelectedProduitId(null)}
-               className="p-2 rounded-lg border border-[#163526]/10 text-[#163526] hover:border-orange-500 hover:text-orange-500 transition-colors"
+               className="p-2 rounded-lg border border-[#e5ad46]/10 text-[#eccc90] hover:border-orange-500 hover:text-orange-500 transition-colors"
              >
                <XCircle className="h-4 w-4" />
              </button>
