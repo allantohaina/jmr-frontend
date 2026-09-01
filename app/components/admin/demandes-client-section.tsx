@@ -374,7 +374,7 @@ demandes.map((d) => (
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           <button
-                            onClick={() => handleEdit(d)}
+                            onClick={(e) => { e.stopPropagation(); handleEdit(d); }}
                             className="p-2 rounded-lg border border-[#e5ad46]/10 text-[#eccc90] hover:border-orange-500 hover:text-orange-500 transition-colors"
                             title="Modifier"
                           >
@@ -382,8 +382,8 @@ demandes.map((d) => (
                           </button>
                           {d.statut !== "Refusée" && d.statut !== "Convertie en cotation" && (
                             <button
-                              onClick={() => handleConvertToQuote(d)}
-                              className="p-2 rounded-lg border border-green-100 text-green-600 hover:bg-green-50 transition-colors"
+                              onClick={(e) => { e.stopPropagation(); handleConvertToQuote(d); }}
+                              className="p-2 rounded-lg border border-green-500/20 bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors"
                               title="Convertir en cotation"
                             >
                               <span className="material-symbols-outlined text-sm">transform</span>
@@ -391,8 +391,8 @@ demandes.map((d) => (
                           )}
                           {d.statut !== "Refusée" && (
                             <button
-                              onClick={() => handleRefuse(d.id)}
-                              className="p-2 rounded-lg border border-red-100 text-red-600 hover:bg-red-50 transition-colors"
+                              onClick={(e) => { e.stopPropagation(); handleRefuse(d.id); }}
+                              className="p-2 rounded-lg border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
                               title="Refuser"
                             >
                               <XCircle className="h-4 w-4" />

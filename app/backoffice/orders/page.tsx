@@ -443,14 +443,36 @@ export default function AdminCommandesPage() {
               <div className="rounded-xl bg-[#1e2a38] border border-[#e5ad46]/10 p-4">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-2">Reçu de paiement (PDF)</p>
                 <div className="flex flex-wrap gap-2">
-                  <a
-                    href={commandesExtrasAPI.recuPdfUrl(actionsCommande.id)}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const res = await commandesExtrasAPI.recuPdf(actionsCommande.id);
+                        if (!res.ok) {
+                          if (res.status === 401) window.location.assign(`/admin-login?next=${encodeURIComponent(window.location.pathname)}`);
+                          const data = await res.json().catch(() => null);
+                          throw new Error(data?.message || data?.error || `PDF impossible (${res.status})`);
+                        }
+                        const cd = res.headers.get("Content-Disposition") || "";
+                        const m = /filename="?([^"]+)"?/.exec(cd);
+                        const filename = m ? m[1] : `recu-${actionsCommande.numero || actionsCommande.id}.pdf`;
+                        const blob = await res.blob();
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        URL.revokeObjectURL(url);
+                      } catch (e) {
+                        alert(e instanceof Error ? e.message : "Erreur PDF");
+                      }
+                    }}
                     className="inline-flex items-center gap-1 rounded-lg border border-[#e5ad46]/15 px-3 py-2 text-[9px] font-bold uppercase tracking-widest text-[#eccc90] hover:border-[#e5ad46] hover:text-[#e5ad46]"
                   >
                     <Receipt className="h-3 w-3" /> Télécharger / voir le reçu
-                  </a>
+                  </button>
                 </div>
               </div>
 

@@ -684,7 +684,8 @@ export type RecuData = {
 
 export const commandesExtrasAPI = {
   recuData: async (id: string) => authAPI.get<{ data: RecuData }>(`/commandes/${id}/recu`),
-  recuPdfUrl: (id: string) => `${getBackendApiUrls()[0]}/commandes/${id}/recu.pdf`,
+  recuPdfUrl: (id: string) => `${getBackendApiUrls()[0]}/commandes/${encodeURIComponent(id)}/recu.pdf`,
+  recuPdf: (id: string, token?: string) => downloadBackendFile(`/commandes/${encodeURIComponent(id)}/recu.pdf`, token),
   lienPaiement: async (id: string, data: { montant: number | string; phase?: string; expire_at?: string }) =>
     authAPI.post<{ data: LienPaiementRecord }>(`/commandes/${id}/lien-paiement`, data),
   qrData: async (id: string) => authAPI.get<{ data: { url: string; numero: string } }>(`/commandes/${id}/qr-data`),
@@ -736,10 +737,18 @@ export function downloadBackendFile(endpoint: string, token?: string) {
       ? token
       : (typeof window !== "undefined" && window.localStorage.getItem(TOKEN_STORAGE_KEY)) ||
         readBrowserCookie(AUTH_COOKIE_NAME)) || "";
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15_000);
+  const headers: Record<string, string> = { Accept: "text/csv, application/pdf, application/json" };
+  if (resolvedToken) {
+    headers["Authorization"] = `Bearer ${resolvedToken}`;
+    headers["X-Authorization"] = `Bearer ${resolvedToken}`;
+  }
   return fetch(`${apiUrl}${endpoint}`, {
     method: "GET",
-    headers: { Accept: "text/csv, application/json", ...(resolvedToken ? { Authorization: `Bearer ${resolvedToken}` } : {}) },
-  });
+    headers,
+    signal: controller.signal,
+  }).finally(() => clearTimeout(timeoutId));
 }
 
 export const exportsAPI = {

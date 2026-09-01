@@ -28,7 +28,7 @@ type CotationData = {
   cout_mo_par_piece: number;
   frais_generaux_pct: number;
   quantite_commandee: number;
-  statut: string;
+  status: string;
 };
 
 type QuoteRecord = {
@@ -95,7 +95,7 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
     cout_mo_par_piece: 0,
     frais_generaux_pct: 20,
     quantite_commandee: 0,
-    statut: "draft",
+    status: "draft",
   });
   const [clientName, setClientName] = useState(initialName || "");
   const [clientEmail, setClientEmail] = useState(initialEmail || "");
@@ -150,7 +150,7 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
           cout_mo_par_piece: Number(q.cout_mo_par_piece) || prev.cout_mo_par_piece,
           frais_generaux_pct: Number(q.frais_generaux_pct) || prev.frais_generaux_pct,
           quantite_commandee: Number(q.quantite_commandee) || prev.quantite_commandee,
-          statut: mappedStatus,
+          status: mappedStatus,
         }));
         const p = produits.find(p => p.id === q.produit_id);
         if (p) setSelectedProduit(p);
@@ -448,9 +448,9 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Statut</label>
                   <select
-                    value={formData.statut}
-                    onChange={(e) => handleChange("statut", e.target.value)}
-                    className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                    value={formData.status}
+                    onChange={(e) => handleChange("status", e.target.value)}
+                    className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#e5ad46]/10"
                   >
                     {STATUS_OPTIONS.map(opt => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>

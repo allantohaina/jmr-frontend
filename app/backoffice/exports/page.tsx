@@ -20,20 +20,40 @@ export default function ExportsPage() {
     try {
       const res = await exportsAPI[key]();
       if (!res.ok) {
+        if (res.status === 401) {
+          window.location.assign(`/admin-login?next=${encodeURIComponent(window.location.pathname)}`);
+          return;
+        }
         const data = await res.json().catch(() => null);
-        throw new Error(data?.message || data?.error || "Export impossible");
+        throw new Error(data?.message || data?.error || `Export impossible (${res.status})`);
       }
+      const cd = res.headers.get("Content-Disposition") || "";
+      const m = /filename="?([^"]+)"?/.exec(cd);
+      const serverFilename = m ? m[1] : `export-${key}-${new Date().toISOString().slice(0, 10)}.csv`;
+      const safeLabel = serverFilename.includes("/") || serverFilename.includes("\\") ? `export-${key}-${new Date().toISOString().slice(0, 10)}.csv` : serverFilename;
       const blob = await res.blob();
+      // si blob est JSON d'erreur déguisé en 200
+      if (blob.type.includes("json")) {
+        const txt = await blob.text();
+        try {
+          const j = JSON.parse(txt);
+          throw new Error(j.message || j.error || "Export impossible");
+        } catch {}
+      }
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${label}-jmr-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = safeLabel;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur");
+      if (err instanceof DOMException && err.name === "AbortError") {
+        setError("Délai dépassé (15s). Réessayez.");
+      } else {
+        setError(err instanceof Error ? err.message : "Erreur");
+      }
     } finally {
       setBusy(null);
     }

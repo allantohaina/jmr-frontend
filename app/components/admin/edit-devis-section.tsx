@@ -40,11 +40,13 @@ type Notice = {
 
 const STATUS_OPTIONS = [
   { value: "draft", label: "Brouillon" },
+  { value: "pending", label: "Reçu" },
   { value: "needs_info", label: "À préciser" },
-  { value: "sent", label: "Envoye" },
-  { value: "accepted", label: "Accepte" },
+  { value: "sent", label: "Envoyé" },
+  { value: "accepted", label: "Accepté" },
   { value: "production", label: "Production" },
-  { value: "rejected", label: "Refuse" },
+  { value: "rejected", label: "Refusé" },
+  { value: "expired", label: "Expiré" },
 ];
 
 function normalizeText(value?: string | number | null) {
@@ -64,14 +66,20 @@ function formatStatusLabel(status?: string | null) {
   switch (normalizeText(status)) {
     case "draft":
       return "Brouillon";
+    case "pending":
+      return "Reçu";
+    case "needs_info":
+      return "À préciser";
     case "sent":
-      return "Envoye";
+      return "Envoyé";
     case "accepted":
-      return "Accepte";
+      return "Accepté";
     case "production":
       return "En production";
     case "rejected":
-      return "Refuse";
+      return "Refusé";
+    case "expired":
+      return "Expiré";
     default:
       return formatDisplayValue(status, "Inconnu");
   }
