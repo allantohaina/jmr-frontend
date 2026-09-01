@@ -82,7 +82,7 @@ const STATUS_ALIASES: Record<string, string> = {
   "Expiré": "expired",
 };
 
-export function CotationTextileSection({ quoteId, clientId, initialName, initialEmail, initialPhone }: { quoteId?: string; clientId?: string; initialName?: string; initialEmail?: string; initialPhone?: string }) {
+export function CotationTextileSection({ quoteId, clientId, initialName, initialEmail, initialPhone, demandeId }: { quoteId?: string; clientId?: string; initialName?: string; initialEmail?: string; initialPhone?: string; demandeId?: string }) {
   const [produits, setProduits] = useState<Produit[]>([]);
   const [isLoadingProduits, setIsLoadingProduits] = useState(true);
   const [formData, setFormData] = useState<CotationData>({
@@ -229,7 +229,7 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
       return;
     }
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       ...formData,
       ...calculs,
       client_id: formData.client_id || null,
@@ -237,6 +237,7 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
       email: clientEmail.trim(),
       phone: clientPhone.trim() || null,
       message: clientMessage.trim() || "Demande de cotation textile",
+      demande_id: demandeId || undefined,
     };
 
     try {

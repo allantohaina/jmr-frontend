@@ -683,21 +683,27 @@ export function EditDevisSection({ id }: { id: string }) {
           </div>
 
           <div className="pt-6 flex flex-col gap-4">
-            {quote.status === "accepted" && quote.deposit_paid ? (
+            {quote.status === "accepted" && (
               <button
                 type="button"
-                onClick={() => {
-                  alert("Lancement de la production ! Les opérateurs ont été notifiés.");
-                  setFormStatus("production");
+                onClick={async () => {
+                  try {
+                    await authAPI.put(`/quotes/${id}`, { status: "production" });
+                    setQuote((c) => c ? { ...c, status: "production" } : c);
+                    setFormStatus("production");
+                    setNotice({ tone: "success", message: "Production lancée — statut mis à jour." });
+                  } catch {
+                    setNotice({ tone: "danger", message: "Impossible de lancer la production." });
+                  }
                 }}
                 className="w-full py-4 bg-orange-500 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-sm">precision_manufacturing</span>
                 Lancer la Production
               </button>
-            ) : null}
+            )}
             
-            {quote.status === "accepted" && !quote.deposit_paid ? (
+            {quote.status === "accepted" && (
               <button
                 type="button"
                 onClick={handleCreateOrder}
@@ -706,18 +712,7 @@ export function EditDevisSection({ id }: { id: string }) {
                 <ShoppingCart className="h-4 w-4" />
                 Créer la Commande
               </button>
-            ) : null}
-            
-            {quote.status === "accepted" && quote.deposit_paid ? (
-              <button
-                type="button"
-                onClick={handleCreateOrder}
-                className="w-full py-4 bg-green-600 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
-              >
-                <ShoppingCart className="h-4 w-4" />
-                Créer la Commande
-              </button>
-            ) : null}
+            )}
             
             <button
               type="submit"

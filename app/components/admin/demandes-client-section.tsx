@@ -118,7 +118,7 @@ export function DemandesClientSection() {
   const handleConvertToQuote = async (d: DemandeClient) => {
     if (!confirm("Convertir cette demande en cotation ?")) return;
     try {
-      // Create a new quote from the demande
+      // Create a new quote from the demande (emboîtement)
       const quoteRes = await authAPI.post<{ id: string }>("/quotes", {
         name: d.nom_client,
         email: d.email,
@@ -126,6 +126,7 @@ export function DemandesClientSection() {
         message: d.description,
         status: "draft",
         request_type: "new",
+        demande_id: d.id,
       });
       const quoteId = quoteRes.data?.id;
       if (quoteId) {
