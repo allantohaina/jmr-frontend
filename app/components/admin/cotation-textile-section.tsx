@@ -223,6 +223,14 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
     if (formData.cout_mo_par_piece < 0) errors.push("Le coût main d'oeuvre ne peut pas être négatif.");
     if (formData.frais_generaux_pct < 0 || formData.frais_generaux_pct > 100) errors.push("Le pourcentage de frais généraux doit être entre 0 et 100.");
 
+    // Cohérence : cotation avant devis — si statut = sent, vérifier essentiels cotation
+    if (formData.status === "sent") {
+      if (!formData.quantite_commandee || formData.quantite_commandee < 1) errors.push("Quantité commandée requise pour envoyer le devis.");
+      if (!formData.conso_tissu_unitaire || formData.conso_tissu_unitaire <= 0) errors.push("Conso tissu requise pour cotation.");
+      if (!formData.prix_matiere_par_metre || formData.prix_matiere_par_metre <= 0) errors.push("Prix matière requis pour cotation.");
+      if (!calculs.prix_total_calcule || calculs.prix_total_calcule <= 0) errors.push("Calcul total invalide — vérifier quantités et prix.");
+    }
+
     if (errors.length > 0) {
       setNotice({ tone: "danger", message: errors.join(" ") });
       setIsSaving(false);
@@ -336,9 +344,14 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
                 </div>
               </div>
 
+              <div className="rounded-xl border border-[#e5ad46]/20 bg-[#e5ad46]/10 p-4">
+                <p className="text-xs font-bold text-[#e5ad46]">Flux cohérent : Demande → Cotation (calcul interne) → Devis (envoyé au client) → Commande</p>
+                <p className="text-[11px] text-[#eccc90]/60 mt-1">Essentiels impératifs : <span className="text-[#e5ad46]">Produit, Conso, Prix matière, Quantité</span> pour cotation ; <span className="text-[#e5ad46]">Montant, Acompte 30%, Solde 70%, Délai</span> pour devis.</p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Fiche produit</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Fiche produit *</label>
                   <select
                     value={formData.produit_id || ""}
                     onChange={(e) => handleProduitChange(e.target.value)}
