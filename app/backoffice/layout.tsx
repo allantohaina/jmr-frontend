@@ -92,13 +92,13 @@ function NavGroup({ title, items }: { title: string; items: { href: string; labe
     <div>
       <button
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-[9px] font-bold uppercase tracking-[0.25em] text-[#eccc90]/40 transition-colors hover:text-[#e5ad46]"
+        className="flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-[9px] font-bold uppercase tracking-[0.3em] text-[#e5ad46] transition-colors hover:text-[#eccc90]"
       >
         {title}
-        <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`h-3 w-3 transition-transform text-[#e5ad46] ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div className="ml-2 mt-1 space-y-1 border-l border-[#e5ad46]/10 pl-3">
+        <div className="ml-2 mt-1 space-y-1 border-l border-[#e5ad46]/20 pl-3">
           {items.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || (href !== "/backoffice/client/devis" && pathname?.startsWith(href));
             return (
@@ -107,11 +107,11 @@ function NavGroup({ title, items }: { title: string; items: { href: string; labe
                 href={href}
                 className={`group flex items-center gap-3 rounded-lg px-3 py-2 transition-all text-[10px] font-bold uppercase tracking-widest ${
                   active
-                    ? "bg-[#e5ad46]/10 text-[#e5ad46]"
-                    : "text-[#eccc90]/60 hover:bg-[#e5ad46]/5 hover:text-[#eccc90]"
+                    ? "bg-[#e5ad46] text-[#1e2a38]"
+                    : "text-[#eccc90] hover:bg-[#e5ad46]/10 hover:text-[#e5ad46]"
                 }`}
               >
-                <Icon className={`h-4 w-4 ${active ? "text-[#e5ad46]" : "text-[#eccc90]/40"} transition-transform group-hover:scale-110`} />
+                <Icon className={`h-4 w-4 ${active ? "text-[#1e2a38]" : "text-[#e5ad46]/70"} transition-transform group-hover:scale-110`} />
                 {label}
               </Link>
             );
@@ -321,7 +321,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           </Link>
         </div>
 
-        <div className="mt-auto hidden bg-black/20 p-6 md:block">
+        <div className="mt-auto hidden bg-[#1e2a38] border-t border-[#e5ad46]/10 p-6 md:block">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e5ad46] font-bold text-[#1e2a38] shadow-lg">
               AD
