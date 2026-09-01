@@ -32,6 +32,11 @@ import {
   FileDown,
   Pencil,
   LogOut,
+  Zap,
+  Plus,
+  Search,
+  ArrowRight,
+  Activity,
 } from "lucide-react";
 
 const clientItems = [
@@ -117,6 +122,76 @@ function NavGroup({ title, items }: { title: string; items: { href: string; labe
   );
 }
 
+function AtelierHub() {
+  const [q, setQ] = React.useState("");
+  const router = useRouter();
+  const pathname = usePathname();
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const term = q.trim();
+    if (!term) return;
+    // recherche unifiée : redirige vers la section la plus pertinente avec filtre
+    if (/^CMD-/i.test(term) || /^\d+$/.test(term)) router.push(`/backoffice/orders?search=${encodeURIComponent(term)}`);
+    else if (/@/.test(term)) router.push(`/backoffice/clients?search=${encodeURIComponent(term)}`);
+    else router.push(`/backoffice/devis?search=${encodeURIComponent(term)}`);
+  }
+  return (
+    <div className="mx-4 mb-2 rounded-2xl border border-[#e5ad46]/15 bg-gradient-to-br from-[#1e2a38] to-[#25303a] p-4 shadow-lg">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#e5ad46]">
+          <Zap className="h-3.5 w-3.5" /> Hub Atelier
+        </span>
+        <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-green-400">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-400" /> Live
+        </span>
+      </div>
+      <div className="mb-3 grid grid-cols-2 gap-2">
+        <Link href="/backoffice/demandes" className={`rounded-xl border px-3 py-2.5 transition ${pathname?.startsWith("/backoffice/demandes") ? "border-[#e5ad46]/30 bg-[#e5ad46]/10" : "border-[#e5ad46]/10 bg-[#1e2a38] hover:border-[#e5ad46]/20"}`}>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-[#eccc90]/40">Demandes</p>
+          <p className="text-xs font-bold text-[#eccc90]">→ Cotation</p>
+        </Link>
+        <Link href="/backoffice/devis" className={`rounded-xl border px-3 py-2.5 transition ${pathname?.startsWith("/backoffice/devis") ? "border-[#e5ad46]/30 bg-[#e5ad46]/10" : "border-[#e5ad46]/10 bg-[#1e2a38] hover:border-[#e5ad46]/20"}`}>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-[#eccc90]/40">Devis</p>
+          <p className="text-xs font-bold text-[#e5ad46]">↗ Commande</p>
+        </Link>
+      </div>
+      {/* Flux cohérent visuel */}
+      <div className="mb-3 flex items-center justify-between rounded-full bg-[#1e2a38] px-3 py-1.5 border border-[#e5ad46]/10">
+        <span className="text-[8px] font-bold uppercase tracking-widest text-[#eccc90]/50">Flux</span>
+        <span className="flex items-center gap-1 text-[8px] font-bold text-[#eccc90]">
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> Demande
+          <ArrowRight className="h-3 w-3 text-[#e5ad46]/40" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#e5ad46]" /> Cotation
+          <ArrowRight className="h-3 w-3 text-[#e5ad46]/40" />
+          <span className="h-1.5 w-1.5 rounded-full bg-green-400" /> Devis
+          <ArrowRight className="h-3 w-3 text-[#e5ad46]/40" />
+          <span className="h-1.5 w-1.5 rounded-full bg-blue-400" /> Cmd
+        </span>
+      </div>
+      <form onSubmit={handleSearch} className="relative mb-3">
+        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#eccc90]/30" />
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Rechercher client, CMD-, devis..."
+          className="w-full rounded-xl border border-[#e5ad46]/15 bg-[#1e2a38] py-2.5 pl-9 pr-3 text-xs text-[#eccc90] placeholder:text-[#eccc90]/30 outline-none focus:border-[#e5ad46]/30"
+        />
+      </form>
+      <div className="grid grid-cols-2 gap-2">
+        <Link href="/backoffice/devis/nouvelle" className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#e5ad46] px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] hover:bg-[#eccc90] transition">
+          <Plus className="h-3.5 w-3.5" /> Cotation
+        </Link>
+        <Link href="/backoffice/devis/nouvelle" className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#e5ad46]/20 bg-[#1e2a38] px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] hover:bg-[#e5ad46]/10 transition">
+          <Plus className="h-3.5 w-3.5" /> Devis
+        </Link>
+      </div>
+      <Link href="/backoffice" className="mt-3 flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-widest text-[#eccc90]/40 hover:text-[#e5ad46] transition">
+        <Activity className="h-3 w-3" /> Voir flux complet
+      </Link>
+    </div>
+  );
+}
+
 function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -147,6 +222,10 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               Admin Control
             </span>
           </div>
+        </div>
+
+        <div className="hidden md:block px-2">
+          <AtelierHub />
         </div>
 
         <nav className="hidden flex-1 space-y-2 overflow-y-auto px-4 py-4 md:block md:py-8">
