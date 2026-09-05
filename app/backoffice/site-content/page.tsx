@@ -12,8 +12,8 @@ type Section = { title: string; description: string; fields: Field[] };
 const imageUrl = (storedName: string) => `${getBackendApiUrls()[0].replace(/\/api$/, "")}/uploads/${storedName}`;
 
 async function compressIfNeeded(file: File): Promise<File> {
-  const MAX_BYTES = 1.8 * 1024 * 1024;
-  const MAX_DIM = 1920;
+  const MAX_BYTES = 8 * 1024 * 1024;
+  const MAX_DIM = 2560;
   const isSupported = ["image/jpeg", "image/png", "image/webp"].includes(file.type) || /\.(jpe?g|png|webp)$/i.test(file.name);
   if (!isSupported) return file;
   if (file.size <= MAX_BYTES) {
@@ -45,7 +45,7 @@ async function compressIfNeeded(file: File): Promise<File> {
     const ctx = canvas.getContext("2d");
     if (!ctx) return file;
     ctx.drawImage(img, 0, 0, width, height);
-    const blob: Blob | null = await new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/webp", 0.80));
+    const blob: Blob | null = await new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/webp", 0.85));
     if (!blob) return file;
     if (blob.size >= file.size && file.size <= MAX_BYTES) return file;
     const name = file.name.replace(/\.[^.]+$/, "") + ".webp";
@@ -163,16 +163,16 @@ export default function SiteContentPage() {
 
   async function upload(field: Field, event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]; if (!file) return;
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) && !/\.(jpe?g|png|webp)$/i.test(file.name)) {
-      setNotice({ tone: "error", message: "Format non supporté : utilisez JPG, PNG ou WEBP." });
+    if (!["image/jpeg", "image/png", "image/webp", "image/avif", "image/heic", "image/heif"].includes(file.type) && !/\.(jpe?g|png|webp|avif|hei[cf])$/i.test(file.name)) {
+      setNotice({ tone: "error", message: "Format non supporté : utilisez JPG, PNG, WEBP, AVIF ou HEIC." });
       event.target.value = "";
       return;
     }
     setUploading(field.key); setNotice(null);
     try {
       const toUpload = await compressIfNeeded(file);
-      if (toUpload.size > 5 * 1024 * 1024) {
-        setNotice({ tone: "error", message: "Image encore trop volumineuse après compression (5 Mo max)." });
+      if (toUpload.size > 30 * 1024 * 1024) {
+        setNotice({ tone: "error", message: "Image encore trop volumineuse après compression (30 Mo max)." });
         return;
       }
       const form = new FormData(); form.append("file", toUpload);

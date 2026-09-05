@@ -25,7 +25,7 @@ interface AttachmentUploaderProps {
   onUpload?: () => void;
 }
 
-export function AttachmentUploader({ entityType, entityId, maxSizeMB = 5, onUpload }: AttachmentUploaderProps) {
+export function AttachmentUploader({ entityType, entityId, maxSizeMB = 30, onUpload }: AttachmentUploaderProps) {
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -83,9 +83,10 @@ export function AttachmentUploader({ entityType, entityId, maxSizeMB = 5, onUplo
         setError(`Type de fichier non autorisé: ${file.name}`);
         return false;
       }
-      const maxBytes = (isImage ? Math.min(maxSizeMB, 5) : 10) * 1024 * 1024;
+      const imageLimitMB = Math.min(maxSizeMB, 30);
+      const maxBytes = (isImage ? imageLimitMB : 10) * 1024 * 1024;
       if (file.size > maxBytes) {
-        setError(`Fichier "${file.name}" trop volumineux (max ${isImage ? 5 : 10} MB)`);
+        setError(`Fichier "${file.name}" trop volumineux (max ${isImage ? imageLimitMB : 10} MB)`);
         return false;
       }
       return true;
@@ -204,7 +205,7 @@ export function AttachmentUploader({ entityType, entityId, maxSizeMB = 5, onUplo
           onChange={(e) => e.target.files && handleUpload(e.target.files)}
           className="hidden"
           id={`attachment-upload-${entityType}-${entityId}`}
-          accept="image/jpeg,image/png,image/webp,application/pdf,text/csv"
+          accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif,application/pdf,text/csv"
         />
         <label
           htmlFor={`attachment-upload-${entityType}-${entityId}`}
