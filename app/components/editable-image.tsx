@@ -9,6 +9,7 @@ type EditableImageProps = {
   alt?: string;
   className?: string;
   imgClassName?: string;
+  placeholder?: React.ReactNode;
   onUploaded?: (url: string) => void;
 };
 
@@ -17,6 +18,7 @@ export function EditableImage({
   alt = "",
   className = "",
   imgClassName = "w-full h-full object-cover",
+  placeholder = null,
   onUploaded,
 }: EditableImageProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -35,7 +37,11 @@ export function EditableImage({
 
   return (
     <div className={`group relative ${className}`}>
-      <img src={src} alt={alt} className={imgClassName} />
+      {src ? (
+        <img src={src} alt={alt} className={imgClassName} />
+      ) : (
+        placeholder
+      )}
       <button
         type="button"
         className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200
