@@ -757,6 +757,54 @@ export const exportsAPI = {
   paiements: (token?: string) => downloadBackendFile("/exports/paiements", token),
 };
 
+function rawUploadHeaders(file: File, token?: string): Record<string, string> {
+  const resolvedToken =
+    (typeof token === "string" && token.length > 0
+      ? token
+      : (typeof window !== "undefined" && window.localStorage.getItem(TOKEN_STORAGE_KEY)) ||
+        readBrowserCookie(AUTH_COOKIE_NAME)) || "";
+  const headers: Record<string, string> = {
+    "X-File-Name": encodeURIComponent(file.name),
+    "Content-Type": file.type || "application/octet-stream",
+  };
+  if (resolvedToken) {
+    headers["Authorization"] = `Bearer ${resolvedToken}`;
+    headers["X-Authorization"] = `Bearer ${resolvedToken}`;
+  }
+  return headers;
+}
+
+// Uploads en FLUX BRUT (corps = fichier, pas de FormData) : contournent le
+// bug serveur upload_tmp_dir. Pas de progression native avec fetch — aucun
+// onprogress/XHR n'est utilisé dans l'app, donc fetch suffit.
+export async function uploadDocumentRaw(
+  file: File,
+  options: { devisId?: string; type?: "preuve_paiement" | "devis" | "recu"; clientId?: string; token?: string } = {},
+) {
+  const apiUrl = getBackendApiUrls()[0];
+  const params = new URLSearchParams();
+  if (options.devisId) params.set("devis_id", options.devisId);
+  if (options.type) params.set("type", options.type);
+  if (options.clientId) params.set("client_id", options.clientId);
+  const query = params.toString() ? `?${params.toString()}` : "";
+  const response = await fetch(`${apiUrl}/documents${query}`, {
+    method: "POST",
+    headers: rawUploadHeaders(file, options.token),
+    body: file,
+  });
+  return response.json();
+}
+
+export async function uploadMediaRaw(file: File, token?: string) {
+  const apiUrl = getBackendApiUrls()[0];
+  const response = await fetch(`${apiUrl}/admin/media`, {
+    method: "POST",
+    headers: rawUploadHeaders(file, token),
+    body: file,
+  });
+  return response.json();
+}
+
 export type PointFideliteRecord = {
   id: string;
   user_id: string;
