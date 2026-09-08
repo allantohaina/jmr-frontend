@@ -2,12 +2,10 @@
 
 import React, { useState } from "react";
 import { authAPI } from "@/app/lib";
-import { EditableImage } from "@/app/components/editable-image";
 import { Trash2, AlertTriangle, CheckCircle, Loader2 } from "lucide-react";
 
 export default function AdminSettingsPage() {
   const [tfaEnabled, setTfaEnabled] = useState(true);
-  const [siteImageUrl, setSiteImageUrl] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const [truncating, setTruncating] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
@@ -85,23 +83,8 @@ export default function AdminSettingsPage() {
         </div>
       </div>
 
-      {/* Images du site */}
-      <div className="bg-[#25303a] p-8 rounded-2xl border border-[#e5ad46]/10 shadow-sm space-y-6">
-        <h3 className="font-headline text-xl text-[#eccc90]">Images du site</h3>
-        <EditableImage
-          src={siteImageUrl}
-          alt="image du site"
-          onUploaded={setSiteImageUrl}
-          className="flex h-48 items-center justify-center rounded-xl bg-[#1e2a38]"
-          imgClassName="h-full w-full rounded-xl object-cover"
-          placeholder={<span className="text-sm text-[#eccc90]/50">image du site</span>}
-        />
-        {siteImageUrl !== "" && (
-          <p className="break-all font-mono text-[11px] text-[#e5ad46]">{siteImageUrl}</p>
-        )}
-      </div>
-
-      {/* Zone danger */}      <div className="bg-[#25303a] p-8 rounded-2xl border border-red-200 shadow-sm space-y-6">
+      {/* Zone danger */}
+      <div className="bg-[#25303a] p-8 rounded-2xl border border-red-200 shadow-sm space-y-6">
         <div className="flex items-center gap-3">
           <AlertTriangle className="h-5 w-5 text-red-500" />
           <h3 className="font-headline text-xl text-red-600">Zone Danger</h3>

@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { EditableImage } from "@/app/components/editable-image";
 import { useLocale } from "@/app/components/locale-provider";
 import { scrollToSection } from "@/app/lib/scroll";
 
@@ -39,21 +39,17 @@ export function HeroSection() {
         </div>
         <div className="lg:col-span-5 relative">
           <div className="aspect-[4/5] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-2xl relative z-0 border-2 md:border-4 border-primary/25">
-            <Image
+            <EditableImage
               className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
               src="/human_images/08_salle_machines_coudre.jpg"
               alt="Environnement d'atelier moderne avec stockage pratique des tissus et équipement professionnel"
-              fill
-              unoptimized
             />
           </div>
           <div className="absolute -bottom-10 -left-10 w-64 aspect-square rounded-2xl overflow-hidden border-4 border-primary/30 shadow-2xl z-30 hidden md:block">
-            <Image
+            <EditableImage
               className="w-full h-full object-cover"
               src="/human_images/07_coupe_machine_denim.jpg"
               alt="Vue détaillée de la couture professionnelle sur un tissu durable"
-              fill
-              unoptimized
             />
           </div>
         </div>

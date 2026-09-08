@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
+import { EditableImage } from "@/app/components/editable-image";
 import { useLocale } from "@/app/components/locale-provider";
 
 export function AboutSection() {
@@ -25,12 +25,10 @@ export function AboutSection() {
               <div className="absolute inset-0 bg-primary/10 z-10 mix-blend-multiply opacity-20"></div>
             </div>
             <div className="relative w-full aspect-[3/4] shadow-xl overflow-hidden rounded-2xl md:rounded-3xl">
-              <Image
-                className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+              <EditableImage
+                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
                 src="/human_images/05_equipe_tracage_patron.jpg"
                 alt="Outils d'atelier réels et fournitures de couture quotidiennes"
-                fill
-                unoptimized
               />
             </div>
           </div>
