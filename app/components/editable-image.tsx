@@ -39,12 +39,12 @@ export function EditableImage({
       <button
         type="button"
         className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200
-                   bg-[#1e2a38]/80 hover:bg-[#1e2a38] text-[#e5ad46] rounded-full p-2
-                   border border-[#e5ad46]/30"
+                   bg-[#1e2a38]/80 hover:bg-[#1e2a38] text-[#e5ad46] rounded-full p-2.5
+                   border border-[#e5ad46]/50"
         onClick={() => fileInputRef.current?.click()}
         title="Modifier l'image"
       >
-        <Pencil size={16} />
+        <Pencil size={15} />
       </button>
       <input
         ref={fileInputRef}
