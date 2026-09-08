@@ -40,16 +40,15 @@ export function HomePageClient() {
   }, []);
 
   const isSignedIn = isMounted && !!user;
-  const isAdmin = user?.role === "admin";
   const hasNotifications = TEXTILE_PROBLEM_THREADS.length > 0;
 
   return (
     <div className="home-page">
-      <HeroSection isAdmin={isAdmin} />
+      <HeroSection />
 
-      <ServicesSection isAdmin={isAdmin} />
+      <ServicesSection />
 
-      <AboutSection isAdmin={isAdmin} />
+      <AboutSection />
 
       <section className="px-6 md:px-12 py-16 md:py-20 max-w-[1440px] mx-auto" data-nav-section="acces-client" id="acces-client">
         <div className="home-page__client-access bg-primary rounded-[2rem] md:rounded-[3rem] overflow-hidden relative p-6 sm:p-10 md:p-16 lg:p-24 text-center shadow-2xl shadow-primary/40">
