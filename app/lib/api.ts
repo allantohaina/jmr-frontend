@@ -777,6 +777,14 @@ function rawUploadHeaders(file: File, token?: string): Record<string, string> {
 // Uploads en FLUX BRUT (corps = fichier, pas de FormData) : contournent le
 // bug serveur upload_tmp_dir. Pas de progression native avec fetch — aucun
 // onprogress/XHR n'est utilisé dans l'app, donc fetch suffit.
+async function parseRawUploadResponse(response: Response) {
+  const data: unknown = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(readErrorMessage(data) || `Échec de l'envoi (${response.status}).`);
+  }
+  return data as Record<string, unknown>;
+}
+
 export async function uploadDocumentRaw(
   file: File,
   options: { devisId?: string; type?: "preuve_paiement" | "devis" | "recu"; clientId?: string; token?: string } = {},
@@ -792,7 +800,7 @@ export async function uploadDocumentRaw(
     headers: rawUploadHeaders(file, options.token),
     body: file,
   });
-  return response.json();
+  return parseRawUploadResponse(response);
 }
 
 export async function uploadMediaRaw(file: File, token?: string) {
@@ -802,7 +810,7 @@ export async function uploadMediaRaw(file: File, token?: string) {
     headers: rawUploadHeaders(file, token),
     body: file,
   });
-  return response.json();
+  return parseRawUploadResponse(response);
 }
 
 export type PointFideliteRecord = {

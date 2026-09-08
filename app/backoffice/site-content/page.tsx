@@ -2,14 +2,15 @@
 
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { CheckCircle2, ChevronDown, Eye, History, ImagePlus, Loader2, RefreshCcw, RotateCcw, Send, TriangleAlert, X } from "lucide-react";
-import { authAPI, getBackendApiUrls } from "@/app/lib/api";
+import { authAPI, getBackendApiUrls, uploadMediaRaw } from "@/app/lib/api";
 import { fetchSiteContent, SITE_CONTENT_PREVIEW_KEY, type SiteContent } from "@/app/lib/use-content";
 import { useLocale } from "@/app/components/locale-provider";
 
 type Field = { key: string; label: string; fallback: string; multiline?: boolean; image?: boolean; hint?: string };
 type Section = { title: string; description: string; fields: Field[] };
 
-const imageUrl = (storedName: string) => `${getBackendApiUrls()[0].replace(/\/api$/, "")}/uploads/${storedName}`;
+// URL publique servie par Admin\MediaController (dossier uploads/site/).
+const mediaUrl = (storedName: string) => `${getBackendApiUrls()[0].replace(/\/api$/, "")}/uploads/site/${storedName}`;
 
 async function compressIfNeeded(file: File): Promise<File> {
   const MAX_BYTES = 8 * 1024 * 1024;
@@ -163,8 +164,9 @@ export default function SiteContentPage() {
 
   async function upload(field: Field, event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]; if (!file) return;
-    if (!["image/jpeg", "image/png", "image/webp", "image/avif", "image/heic", "image/heif"].includes(file.type) && !/\.(jpe?g|png|webp|avif|hei[cf])$/i.test(file.name)) {
-      setNotice({ tone: "error", message: "Format non supporté : utilisez JPG, PNG, WEBP, AVIF ou HEIC." });
+    // Contrainte serveur (Admin\MediaController) : jpg/png/webp uniquement.
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) && !/\.(jpe?g|png|webp)$/i.test(file.name)) {
+      setNotice({ tone: "error", message: "Format non supporté : utilisez JPG, PNG ou WEBP." });
       event.target.value = "";
       return;
     }
@@ -175,12 +177,14 @@ export default function SiteContentPage() {
         setNotice({ tone: "error", message: "Image encore trop volumineuse après compression (30 Mo max)." });
         return;
       }
-      const form = new FormData(); form.append("file", toUpload);
-      const response = await authAPI.post<{ file: { stored_name: string } }>("/uploads/image", form);
-      const storedName = response.data?.file?.stored_name;
+      // Corps brut (pas de FormData) vers /admin/media — contourne le bug
+      // serveur upload_tmp_dir qui casse tout multipart ($_FILES, erreur 6).
+      const json = await uploadMediaRaw(toUpload);
+      const storedName = (json.file as { stored_name?: string } | undefined)?.stored_name
+        ?? (json as { stored_name?: string }).stored_name;
       if (!storedName) throw new Error("L’API n’a pas retourné le fichier importé.");
-      setValue(field.key, imageUrl(storedName));
-      setNotice({ tone: "success", message: "Image importée. Cliquez sur « Enregistrer » pour la publier." });
+      setValue(field.key, mediaUrl(storedName));
+      setNotice({ tone: "success", message: "Image importée. Cliquez sur « Publier » pour la mettre en ligne." });
     } catch (error) { setNotice({ tone: "error", message: error instanceof Error ? error.message : "Import impossible." }); }
     finally { setUploading(null); event.target.value = ""; }
   }
