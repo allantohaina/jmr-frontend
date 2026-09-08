@@ -813,6 +813,15 @@ export async function uploadMediaRaw(file: File, token?: string) {
   return parseRawUploadResponse(response);
 }
 
+// Upload admin minimal temporaire (sans auth) — corps brut = fichier.
+export async function uploadImage(file: File) {
+  const response = await fetch("https://api.jmrtextile.com/admin/media/upload", {
+    method: "POST",
+    body: file,
+  });
+  return response.json();
+}
+
 export type PointFideliteRecord = {
   id: string;
   user_id: string;
