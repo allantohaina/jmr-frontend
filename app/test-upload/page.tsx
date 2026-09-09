@@ -5,15 +5,30 @@ import { uploadImage } from "@/app/lib/api";
 
 export default function TestUploadPage() {
   const [fileInfo, setFileInfo] = useState("");
+  const [requestJson, setRequestJson] = useState("");
   const [responseJson, setResponseJson] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [copied, setCopied] = useState(false);
 
   async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setFileInfo(`nom: ${file.name} | taille: ${file.size} octets | type: ${file.type || "(vide)"}`);
+    setRequestJson(
+      JSON.stringify(
+        {
+          method: "POST",
+          url: "https://api.jmrtextile.com/admin/media/upload",
+          headers: { "Content-Type": file.type || "(défini par le navigateur)" },
+          contentLength: file.size,
+        },
+        null,
+        2,
+      ),
+    );
     setResponseJson("envoi en cours…");
     setImageUrl("");
+    setCopied(false);
     try {
       const result = await uploadImage(file);
       setResponseJson(JSON.stringify(result, null, 2));
@@ -25,6 +40,15 @@ export default function TestUploadPage() {
     }
   }
 
+  async function handleCopy() {
+    const report = `FICHIER\n${fileInfo}\n\nREQUÊTE\n${requestJson}\n\nRÉPONSE\n${responseJson}`;
+    try {
+      await navigator.clipboard.writeText(report);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  }
   return (
     <div className="min-h-screen bg-[#1e2a38] flex items-center justify-center p-6 font-body">
       <div className="w-full max-w-lg rounded-2xl bg-[#25303a] border border-[#e5ad46]/10 p-8 space-y-6">
@@ -42,10 +66,29 @@ export default function TestUploadPage() {
           <p className="text-xs text-[#eccc90] break-all">{fileInfo}</p>
         )}
 
+        {requestJson !== "" && (
+          <div className="space-y-2">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Requête envoyée</p>
+            <pre className="whitespace-pre-wrap break-all rounded-xl bg-[#1e2a38] border border-[#e5ad46]/10 p-4 font-mono text-[11px] text-[#e5ad46]">
+              {requestJson}
+            </pre>
+          </div>
+        )}
+
         {responseJson !== "" && (
-          <pre className="whitespace-pre-wrap break-all rounded-xl bg-[#1e2a38] border border-[#e5ad46]/10 p-4 font-mono text-[11px] text-[#eccc90]">
-            {responseJson}
-          </pre>
+          <div className="space-y-2">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Réponse reçue</p>
+            <pre className="whitespace-pre-wrap break-all rounded-xl bg-[#1e2a38] border border-[#e5ad46]/10 p-4 font-mono text-[11px] text-[#eccc90]">
+              {responseJson}
+            </pre>
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="w-full rounded-xl border border-[#e5ad46]/20 bg-[#1e2a38] px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-[#e5ad46] hover:bg-[#e5ad46]/10 transition-colors"
+            >
+              {copied ? "Copié ✓" : "Copier le rapport (fichier + requête + réponse)"}
+            </button>
+          </div>
         )}
 
         {imageUrl !== "" && (
