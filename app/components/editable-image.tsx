@@ -27,9 +27,35 @@ export function EditableImage({
   async function handleUpload(file: File) {
     const result = await uploadImage(file);
     if (result.success) {
-      setImageUrl(result.url);
+      const previousUrl = imageUrl;
+      const nextUrl = String(result.url);
+      setImageUrl(nextUrl);
+      if (previousUrl && previousUrl !== nextUrl) {
+        void deleteOldImage(previousUrl);
+      }
     } else {
       console.error(result.error);
+    }
+  }
+
+  // Supprime l'ancienne image remplacée pour éviter l'accumulation.
+  // Uniquement les fichiers déjà uploadés (uploads/site/), jamais les
+  // images par défaut du design (/human_images/...) ni les externes.
+  async function deleteOldImage(url: string) {
+    const marker = "uploads/site/";
+    const idx = url.indexOf(marker);
+    if (idx === -1) return;
+    const filename = url.slice(idx + marker.length).split(/[?#]/)[0];
+    if (!filename || filename.includes("/") || filename.includes("\\")) return;
+    const params = new URLSearchParams();
+    params.set("filename", filename);
+    try {
+      await fetch("https://api.jmrtextile.com/admin/media/delete", {
+        method: "POST",
+        body: params,
+      });
+    } catch {
+      // Suppression best-effort : l'upload a déjà réussi.
     }
   }
 
