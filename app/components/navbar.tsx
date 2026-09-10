@@ -561,20 +561,22 @@ export function Navbar({
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
                 aria-expanded={isNotifOpen}
               >
-                <Image
-                  className="site-nav__icon"
-                  src="/notification_bell.svg"
-                  alt=""
-                  aria-hidden="true"
-                  width={42}
-                  height={42}
-                  loading="lazy"
-                />
-                {unreadNotifications > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-2.5 h-2.5 px-1 bg-[#e5ad46] text-[#163526] text-[9px] font-bold leading-[18px] text-center rounded-full">
-                    {unreadNotifications > 9 ? "9+" : unreadNotifications}
-                  </span>
-                )}
+                <span className="relative inline-flex">
+                  <Image
+                    className="site-nav__icon"
+                    src="/notification_bell.svg"
+                    alt=""
+                    aria-hidden="true"
+                    width={42}
+                    height={42}
+                    loading="lazy"
+                  />
+                  {unreadNotifications > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#e5ad46] px-1 text-[10px] font-bold leading-none text-[#1e2a38]">
+                      {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                    </span>
+                  )}
+                </span>
                 <span className="site-nav__language-name">Notifications</span>
               </button>
 
