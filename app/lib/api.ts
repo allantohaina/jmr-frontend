@@ -813,23 +813,52 @@ export async function uploadMediaRaw(file: File, token?: string) {
   return parseRawUploadResponse(response);
 }
 
-// Upload admin minimal temporaire (sans auth) — base64 en champ form
-// urlencodé car le proxy/WAF nginx vide les corps binaires bruts et les
-// gros JSON, mais laisse passer le form-urlencoded. Contenu ASCII uniquement.
-export async function uploadImage(file: File) {
-  const dataUrl = await new Promise<string>((resolve, reject) => {
+// Upload admin minimal temporaire (sans auth) — fragmenté en morceaux de
+// ~6 Ko car le proxy/WAF nginx vide les corps au-delà d'environ 8 Ko.
+// Chaque morceau passe en form-urlencoded, PHP réassemble à la fin.
+export async function uploadImage(file: File, onProgress?: (pct: number) => void) {
+  const CHUNK_SIZE = 6000; // sous le seuil de 8 Ko observé
+  const uploadId = crypto.randomUUID();
+  const base64 = await fileToBase64(file);
+  const totalChunks = Math.ceil(base64.length / CHUNK_SIZE);
+
+  for (let i = 0; i < totalChunks; i++) {
+    const chunk = base64.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+
+    const params = new URLSearchParams();
+    params.set("upload_id", uploadId);
+    params.set("chunk_index", String(i));
+    params.set("data", chunk);
+
+    const response = await fetch("https://api.jmrtextile.com/admin/media/upload-chunk", {
+      method: "POST",
+      body: params,
+    });
+    const result = await response.json();
+    if (!result.success) throw new Error(`Échec morceau ${i}: ${result.error}`);
+
+    if (onProgress) onProgress(Math.round(((i + 1) / totalChunks) * 100));
+  }
+
+  const finalizeParams = new URLSearchParams();
+  finalizeParams.set("upload_id", uploadId);
+  finalizeParams.set("total_chunks", String(totalChunks));
+
+  const finalResponse = await fetch("https://api.jmrtextile.com/admin/media/finalize-upload", {
+    method: "POST",
+    body: finalizeParams,
+  });
+
+  return finalResponse.json();
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(reader.error);
+    reader.onload = () => resolve(String(reader.result).split(",")[1]);
+    reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-  const base64 = dataUrl.includes(",") ? dataUrl.split(",")[1] : dataUrl;
-  const response = await fetch("https://api.jmrtextile.com/admin/media/upload", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `data=${encodeURIComponent(base64)}`,
-  });
-  return response.json();
 }
 
 export type PointFideliteRecord = {

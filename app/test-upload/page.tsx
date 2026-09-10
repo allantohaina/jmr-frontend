@@ -21,14 +21,16 @@ export default function TestUploadPage() {
       reader.readAsDataURL(file);
     });
     const base64Length = dataUrl.includes(",") ? dataUrl.split(",")[1].length : dataUrl.length;
+    const totalChunks = Math.ceil(base64Length / 6000);
     setRequestJson(
       JSON.stringify(
         {
-          method: "POST",
-          url: "https://api.jmrtextile.com/admin/media/upload",
+          transport: "fragmenté (morceaux ~6 Ko)",
+          chunkUrl: "https://api.jmrtextile.com/admin/media/upload-chunk",
+          finalizeUrl: "https://api.jmrtextile.com/admin/media/finalize-upload",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          bodyKind: "form data=urlencoded(base64 du fichier)",
           base64Length,
+          totalChunks,
         },
         null,
         2,
@@ -62,7 +64,7 @@ export default function TestUploadPage() {
       <div className="w-full max-w-lg rounded-2xl bg-[#25303a] border border-[#e5ad46]/10 p-8 space-y-6">
         <div>
           <h1 className="font-headline text-2xl text-[#e5ad46]">Test upload image</h1>
-          <p className="text-xs text-[#eccc90]/50 mt-1">POST corps brut vers /admin/media/upload</p>
+          <p className="text-xs text-[#eccc90]/50 mt-1">Upload fragmenté vers /admin/media/upload-chunk</p>
         </div>
 
         <label className="block cursor-pointer rounded-xl border border-[#e5ad46]/20 bg-[#1e2a38] px-4 py-3 text-sm font-bold text-[#e5ad46] hover:bg-[#e5ad46]/10 transition-colors text-center">
