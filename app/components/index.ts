@@ -8,6 +8,7 @@ export * from './consent-banner';
 export * from './demande-devis-section';
 export * from './deposit-payment-selector';
 export * from './editable-image';
+export * from './editable-text';
 export * from './footer';
 export * from './home-hero-video';
 export * from './home-hero';

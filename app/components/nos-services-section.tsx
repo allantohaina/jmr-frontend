@@ -1,5 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { EditableImage } from "@/app/components/editable-image";
+import { EditableText } from "@/app/components/editable-text";
 
 type ServiceStep = {
   key: string;
@@ -40,7 +44,7 @@ export function NosServicesSection() {
     <section className="services-page ui-section-shell" aria-labelledby="services-page-title" id="nos-services">
       <header className="services-page__header ui-section-header">
         <h1 className="ui-section-title" id="services-page-title">
-          Ce que nous faisons ?
+          <EditableText contentKey="nosservices.title" fallback="Ce que nous faisons ?" as="span" multiline />
         </h1>
         <span className="services-page__underline ui-section-underline" aria-hidden="true" />
       </header>
@@ -53,16 +57,15 @@ export function NosServicesSection() {
             data-reveal
             style={{ transitionDelay: `${index * 90}ms` }}
           >
-            <p className="services-flow__title">{step.title}</p>
+            <p className="services-flow__title"><EditableText contentKey={`nosservices.step.${step.key}.title`} fallback={step.title} as="span" multiline /></p>
             <div className="services-flow__media-wrap">
               <div className={`services-flow__media services-flow__media--${step.key}`}>
                 <div className="services-flow__photo-shell">
-                  <Image
-                    className={`services-flow__photo services-flow__photo--${step.key}`}
+                  <EditableImage
+                    contentKey={`nosservices.step.${step.key}.image`}
+                    className={`services-flow__photo services-flow__photo--${step.key} w-full h-full object-cover`}
                     src={step.imageSrc}
                     alt={step.alt}
-                    fill
-                    sizes="(max-width: 900px) 68vw, (max-width: 1200px) 34vw, 22vw"
                   />
                 </div>
                 <Image
@@ -85,13 +88,13 @@ export function NosServicesSection() {
         ))}
       </ol>
 
-      <p className="services-page__claim">Un seul contact, un cadre clair.</p>
+      <p className="services-page__claim"><EditableText contentKey="nosservices.claim" fallback="Un seul contact, un cadre clair." as="span" /></p>
 
       <Link
         className="services-page__cta"
         href="/mon-profil?next=%2Fsuivi-projet%3Fview%3Dtracking%26step%3D2"
       >
-        Faites votre demande.
+        <EditableText contentKey="nosservices.cta" fallback="Faites votre demande." />
       </Link>
     </section>
   );

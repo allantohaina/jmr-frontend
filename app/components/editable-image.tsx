@@ -4,32 +4,58 @@ import { useEffect, useRef, useState } from "react";
 import { Pencil } from "lucide-react";
 import { uploadImage } from "@/app/lib/api";
 import { getUser } from "@/app/lib/auth";
+import { useSiteContent } from "@/app/lib/site-content";
+
+type EditableImageProps = {
+  src: string;
+  alt?: string;
+  className?: string;
+  wrapperClassName?: string;
+  placeholder?: React.ReactNode;
+  onUploaded?: (url: string) => void;
+  contentKey?: string;
+};
 
 export function EditableImage({
   src,
   alt = "",
   className = "w-full h-full object-cover",
   wrapperClassName = "relative h-full w-full",
-}: {
-  src: string;
-  alt?: string;
-  className?: string;
-  wrapperClassName?: string;
-}) {
+  placeholder = null,
+  onUploaded,
+  contentKey,
+}: EditableImageProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { get, save } = useSiteContent();
   const [imageUrl, setImageUrl] = useState(src);
   const [isAdmin, setIsAdmin] = useState(false);
+  const uploadedRef = useRef(false);
+  const storedUrl = contentKey ? get(contentKey, src) : src;
 
   useEffect(() => {
     setIsAdmin(getUser()?.role === "admin");
   }, []);
+
+  // Suit la valeur persistée (chargée après le premier rendu), sauf après
+  // un upload local qui a toujours priorité.
+  useEffect(() => {
+    if (contentKey && !uploadedRef.current && storedUrl !== imageUrl) {
+      setImageUrl(storedUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storedUrl]);
 
   async function handleUpload(file: File) {
     const result = await uploadImage(file);
     if (result.success) {
       const previousUrl = imageUrl;
       const nextUrl = String(result.url);
+      uploadedRef.current = true;
       setImageUrl(nextUrl);
+      if (contentKey) {
+        save(contentKey, nextUrl, "image").catch((err) => console.error(err));
+      }
+      onUploaded?.(nextUrl);
       if (previousUrl && previousUrl !== nextUrl) {
         void deleteOldImage(previousUrl);
       }
@@ -61,7 +87,11 @@ export function EditableImage({
 
   return (
     <div className={`group/editable ${wrapperClassName}`}>
-      <img src={imageUrl} alt={alt} className={className} />
+      {imageUrl ? (
+        <img src={imageUrl} alt={alt} className={className} />
+      ) : (
+        placeholder
+      )}
       {isAdmin && (
         <button
           type="button"

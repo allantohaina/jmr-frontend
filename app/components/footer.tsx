@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale } from "@/app/components/locale-provider";
+import { EditableText } from "@/app/components/editable-text";
 import { scrollToSection } from "@/app/lib/scroll";
 
 type SocialItem = {
@@ -61,14 +62,14 @@ export function Footer() {
               />
             </Link>
             <div className="font-body text-sm text-[#eccc90]/70 leading-relaxed max-w-sm">
-              <p>{messages.footer.description}</p>
+              <p><EditableText contentKey="footer.description" fallback={messages.footer.description} as="span" multiline /></p>
             </div>
           </div>
 
           {/* Navigation Column */}
           <div className="lg:col-span-2">
             <div className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">
-              <span>{messages.footer.navigation}</span>
+              <span><EditableText contentKey="footer.navigation" fallback={messages.footer.navigation} /></span>
             </div>
             <ul className="space-y-4">
               {footerLinks.map((link) => (
@@ -81,7 +82,7 @@ export function Footer() {
                     }}
                     className="hover:text-[#e5ad46] hover:translate-x-1 transition-all inline-block"
                   >
-                    {link.fallback}
+                    <EditableText contentKey={`footer.link.${link.sectionId}`} fallback={link.fallback} />
                   </Link>
                 </li>
               ))}
@@ -91,7 +92,7 @@ export function Footer() {
           {/* Legal Column */}
           <div className="lg:col-span-2">
             <div className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">
-              <span>{messages.footer.legal}</span>
+              <span><EditableText contentKey="footer.legal" fallback={messages.footer.legal} /></span>
             </div>
             <ul className="space-y-4">
               {legalLinks.map((link) => (
@@ -100,7 +101,7 @@ export function Footer() {
                     href={link.fallbackUrl}
                     className="hover:text-[#e5ad46] hover:translate-x-1 transition-all inline-block"
                   >
-                    {link.fallbackLabel}
+                    <EditableText contentKey={`footer.legal.${link.labelKey}`} fallback={link.fallbackLabel} />
                   </Link>
                 </li>
               ))}
@@ -110,7 +111,7 @@ export function Footer() {
           {/* Social Column */}
           <div className="lg:col-span-4">
             <div className="font-label text-[10px] uppercase tracking-[0.3em] text-[#e5ad46] font-bold mb-8">
-              <span>{messages.footer.social}</span>
+              <span><EditableText contentKey="footer.social" fallback={messages.footer.social} /></span>
             </div>
             <div className="flex gap-4 mb-12">
               {SOCIAL_ITEMS.map((item) => (
@@ -136,12 +137,12 @@ export function Footer() {
         {/* Bottom Line */}
         <div className="mt-20 pt-10 border-t border-[#e5ad46]/10 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="font-body text-[10px] text-[#eccc90]/40 uppercase tracking-[0.3em] text-center md:text-left">
-            <span>{messages.footer.copyright}</span>
+            <span><EditableText contentKey="footer.copyright" fallback={messages.footer.copyright} /></span>
           </div>
           <div className="flex items-center gap-8">
             <span className="w-12 h-[1px] bg-[#e5ad46]/10 hidden md:block"></span>
             <div className="font-body text-[10px] text-[#eccc90]/40 uppercase tracking-[0.3em] text-center">
-              <span>{messages.footer.values}</span>
+              <span><EditableText contentKey="footer.values" fallback={messages.footer.values} /></span>
             </div>
           </div>
         </div>

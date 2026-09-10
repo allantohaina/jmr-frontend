@@ -1,9 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
+import { EditableImage } from "@/app/components/editable-image";
+import { EditableText } from "@/app/components/editable-text";
 
 const HOME_BENEFITS = [
   "Coordination de production de A a Z",
@@ -55,13 +56,12 @@ export function HomeHero() {
         initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, scale: 1.04 }}
         animate={background}
       >
-        <Image
-          className="home-page__hero-background-image"
+        <EditableImage
+          contentKey="home.image-bg"
+          className="home-page__hero-background-image w-full h-full object-cover"
+          wrapperClassName="absolute inset-0"
           src="/sunset.jpg"
           alt=""
-          fill
-          priority
-          sizes="100vw"
         />
         {!shouldReduceMotion ? (
           <HomeHeroVideo poster="/sunset.jpg" src="/video/machine.mp4" />
@@ -77,22 +77,21 @@ export function HomeHero() {
           animate="show"
         >
           <motion.p className="home-page__eyebrow" variants={item}>
-            Fabrication textile structuree a Madagascar
+            <EditableText contentKey="home.eyebrow" fallback="Fabrication textile structuree a Madagascar" />
           </motion.p>
 
           <motion.h1 className="home-page__title" variants={item}>
-            Nous coordonnons vos projets textiles, du devis a la livraison.
+            <EditableText contentKey="home.title" fallback="Nous coordonnons vos projets textiles, du devis a la livraison." as="span" multiline />
           </motion.h1>
 
           <motion.p className="home-page__description" variants={item}>
-            JMR Textile vous aide a lancer, suivre et faire avancer la production avec un cadre
-            clair, un interlocuteur unique et une lecture simple de chaque etape.
+            <EditableText contentKey="home.description" fallback="JMR Textile vous aide a lancer, suivre et faire avancer la production avec un cadre clair, un interlocuteur unique et une lecture simple de chaque etape." as="span" multiline />
           </motion.p>
 
           <motion.ul className="home-page__benefits" aria-label="Points forts" variants={container}>
-            {HOME_BENEFITS.map((benefit) => (
+            {HOME_BENEFITS.map((benefit, index) => (
               <motion.li className="home-page__benefit" key={benefit} variants={item}>
-                {benefit}
+                <EditableText contentKey={`home.benefit${index + 1}`} fallback={benefit} />
               </motion.li>
             ))}
           </motion.ul>
@@ -100,7 +99,7 @@ export function HomeHero() {
           <motion.div className="home-page__cta-group" variants={container}>
             <motion.div variants={item}>
               <Link className="home-page__action home-page__action--primary" href="/#suivi-projet">
-                Suivre un projet
+                <EditableText contentKey="home.ctaPrimary" fallback="Suivre un projet" />
               </Link>
             </motion.div>
             <motion.div variants={item}>
@@ -108,7 +107,7 @@ export function HomeHero() {
                 className="home-page__action home-page__action--secondary"
                 href="/mon-profil?next=%2Fsuivi-projet%3Fview%3Dtracking%26step%3D2"
               >
-                Faites votre demande.
+                <EditableText contentKey="home.ctaSecondary" fallback="Faites votre demande." />
               </Link>
             </motion.div>
           </motion.div>

@@ -9,6 +9,7 @@ import {
   VisitorTracker,
 } from "@/app/components";
 import { getMessages } from "@/app/lib/locale";
+import { SiteContentProvider } from "@/app/lib/site-content";
 import { THEME_COOKIE_NAME } from "@/app/lib/theme";
 import { Suspense } from "react";
 
@@ -91,6 +92,7 @@ export default async function RootLayout({
       </head>
       <body>
         <LocaleProvider initialLocale={initialLocale}>
+          <SiteContentProvider>
           <ToastProvider>
             <a className="skip-link" href="#main-content">
               {messages.common.skipToContent}
@@ -104,6 +106,7 @@ export default async function RootLayout({
             </Suspense>
             <ScrollReveal />
           </ToastProvider>
+          </SiteContentProvider>
         </LocaleProvider>
       </body>
     </html>
