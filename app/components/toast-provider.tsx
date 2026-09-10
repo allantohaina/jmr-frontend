@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
 
 type ToastType = "success" | "error" | "info" | "warning";
 
@@ -38,14 +37,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ showToast }}>
       {children}
       <div className="fixed bottom-8 right-8 z-[10000] flex flex-col gap-4 pointer-events-none">
-        <AnimatePresence>
-          {toasts.map((toast) => (
-            <motion.div
+        {toasts.map((toast) => (
+            <div
               key={toast.id}
-              initial={{ opacity: 0, y: 20, scale: 0.95, x: 20 }}
-              animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.9, x: 20 }}
-              className="pointer-events-auto"
+              className="pointer-events-auto animate-toast-up"
             >
               <div className={`flex items-center gap-4 p-5 rounded-[1.5rem] shadow-2xl border min-w-[320px] max-w-md bg-[#25303a] backdrop-blur-md ${
                 toast.type === "success" ? "border-[#e5ad46]/30" :
@@ -74,9 +69,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   <X className="w-4 h-4" />
                 </button>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   );

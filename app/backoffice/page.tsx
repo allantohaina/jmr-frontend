@@ -141,15 +141,24 @@ export default function AdminDashboardPage() {
   const [extraStats, setExtraStats] = useState<Record<string, Record<string, number>> | null>(null);
 
   useEffect(() => {
+    let active = true;
+
     const fetchDashboardData = async () => {
       try {
+        // Les 3 requêtes critiques partent en parallèle (sinon ~1 s chacune en série).
+        const [demandesRes, commandesRes, quotesRes] = await Promise.all([
+          authAPI.get<unknown[]>("/demandes-client"),
+          authAPI.get<CommandeRow[]>("/commandes"),
+          authAPI.get<{ data: QuoteRow[] }>("/quotes"),
+        ]);
+
+        if (!active) return;
+
         // Récupérer les données de demandes
-        const demandesRes = await authAPI.get<unknown[]>("/demandes-client");
         const demandesCounts = (demandesRes as ApiResponse<unknown[]> & { counts?: Record<string, number> }).counts || {};
         const demandesEnAttente = (demandesCounts['Nouvelle'] || 0) + (demandesCounts["En cours d'étude"] || 0);
 
         // Récupérer les données de commandes
-        const commandesRes = await authAPI.get<CommandeRow[]>("/commandes");
         const commandesCounts = (commandesRes as ApiResponse<CommandeRow[]> & { counts?: Record<string, number> }).counts || {};
         const commandesData: CommandeRow[] = Array.isArray(commandesRes.data) ? commandesRes.data : [];
         const commandesEnCours = commandesData.filter((c: CommandeRow) => c.statut_production !== "Livrée").length;
@@ -158,7 +167,6 @@ export default function AdminDashboardPage() {
         setCommandes(commandesData);
 
         // Récupérer les données de quotes pour acomptes/soldes
-        const quotesRes = await authAPI.get<{ data: QuoteRow[] }>("/quotes");
         const quotes: QuoteRow[] = Array.isArray(quotesRes.data) ? quotesRes.data : (quotesRes.data?.data || []);
         let acomptes = 0;
         let soldes = 0;
@@ -199,9 +207,18 @@ export default function AdminDashboardPage() {
           }
         });
 
+        // Les 3 requêtes optionnelles partent en parallèle, échec isolé.
+        const [achatsSettled, clientsSettled, statsSettled] = await Promise.allSettled([
+          authAPI.get<{ data: AchatRow[] }>("/achats"),
+          authAPI.get<{ data: UserProfile[] }>("/users/clients-revenue"),
+          authAPI.get<Record<string, Record<string, number>>>("/stats/dashboard"),
+        ]);
+
+        if (!active) return;
+
         // Agréger les achats (dépenses) par mois
-        try {
-          const achatsRes = await authAPI.get<{ data: AchatRow[] }>("/achats");
+        if (achatsSettled.status === "fulfilled") {
+          const achatsRes = achatsSettled.value;
           const achats: AchatRow[] = Array.isArray(achatsRes.data) ? achatsRes.data : (achatsRes.data?.data || []);
           achats.forEach((a: AchatRow) => {
             if (a.created_at) {
@@ -211,7 +228,7 @@ export default function AdminDashboardPage() {
               }
             }
           });
-        } catch {}
+        }
 
         const chartArray = Object.entries(monthlyData).map(([key, val]) => {
           const monthIdx = parseInt(key.split('-')[1], 10) - 1;
@@ -221,27 +238,32 @@ export default function AdminDashboardPage() {
         setChartData(chartArray);
 
         // Fetch clients for privilege badges
-        try {
-          const clientsRes = await authAPI.get<{ data: UserProfile[] }>("/users/clients-revenue");
+        if (clientsSettled.status === "fulfilled") {
+          const clientsRes = clientsSettled.value;
           const clientsData = (Array.isArray(clientsRes.data) ? clientsRes.data : (clientsRes.data?.data || [])) as UserProfile[];
           const map: Record<string, UserProfile> = {};
           clientsData.forEach((u: UserProfile) => { map[u.id] = u; });
           setClientsMap(map);
-        } catch {}
+        }
 
         // KPI supplémentaires (stock, satisfaction, relationnel)
-        try {
-          const statsRes = await authAPI.get<Record<string, Record<string, number>>>("/stats/dashboard");
-          setExtraStats(statsRes.data);
-        } catch {}
+        if (statsSettled.status === "fulfilled") {
+          setExtraStats(statsSettled.value.data);
+        }
       } catch (error) {
         console.error("Erreur chargement dashboard:", error);
       } finally {
-        setIsLoading(false);
+        if (active) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchDashboardData();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const tauxLivraison = commandes.length > 0
