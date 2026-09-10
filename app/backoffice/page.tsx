@@ -706,27 +706,6 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="flex flex-col justify-between rounded-xl border border-[#e5ad46]/10 bg-[#25303a] p-6">
-          <div className="mb-6 flex -space-x-2.5">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="flex size-9 items-center justify-center rounded-full border-2 border-[#25303a] bg-[#26313d] text-[10px] font-bold text-[#eccc90]"
-              >
-                OP
-              </div>
-            ))}
-            <div className="flex size-9 items-center justify-center rounded-full border-2 border-[#25303a] bg-[#e5ad46] text-[10px] font-bold text-[#171b22]">
-              +8
-            </div>
-          </div>
-          <div>
-            <p className="font-headline text-xl font-semibold text-[#f3e9d6]">Atelier Actif</p>
-            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9aa7b4]">
-              12 Opérateurs connectés
-            </p>
-          </div>
-        </div>
       </section>
     </div>
   );
