@@ -56,7 +56,8 @@ const config: Config = {
       fontFamily: {
         "headline": ["var(--font-noto-serif)"],
         "body": ["var(--font-manrope)"],
-        "label": ["var(--font-manrope)"]
+        "label": ["var(--font-manrope)"],
+        "brand": ["Fraunces", "Georgia", "serif"]
       },
       borderRadius: {
         "DEFAULT": "0.125rem",
