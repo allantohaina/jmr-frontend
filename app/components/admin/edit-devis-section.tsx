@@ -179,11 +179,12 @@ export function EditDevisSection({ id }: { id: string }) {
         setDepositPaid(!!nextQuote.deposit_paid);
         setBalancePaid(!!nextQuote.balance_paid);
         setFormDeliveryDate(normalizeText(nextQuote.date_livraison_prevue));
-      } catch {
+      } catch (fetchError) {
         if (!active) {
           return;
         }
 
+        console.error("Chargement devis: échec technique.", fetchError);
         setLoadError("Impossible de charger ce devis pour le moment.");
       } finally {
         if (active) {
