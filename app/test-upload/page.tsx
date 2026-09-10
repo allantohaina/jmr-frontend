@@ -14,13 +14,21 @@ export default function TestUploadPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setFileInfo(`nom: ${file.name} | taille: ${file.size} octets | type: ${file.type || "(vide)"}`);
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+    const base64Length = dataUrl.includes(",") ? dataUrl.split(",")[1].length : dataUrl.length;
     setRequestJson(
       JSON.stringify(
         {
           method: "POST",
           url: "https://api.jmrtextile.com/admin/media/upload",
-          headers: { "Content-Type": file.type || "(défini par le navigateur)" },
-          contentLength: file.size,
+          headers: { "Content-Type": "application/json" },
+          bodyKind: "JSON { data: base64 du fichier }",
+          base64Length,
         },
         null,
         2,

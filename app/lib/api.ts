@@ -813,11 +813,20 @@ export async function uploadMediaRaw(file: File, token?: string) {
   return parseRawUploadResponse(response);
 }
 
-// Upload admin minimal temporaire (sans auth) — corps brut = fichier.
+// Upload admin minimal temporaire (sans auth) — base64 dans du JSON car le
+// proxy/WAF nginx vide les corps binaires bruts. Contenu 100 % ASCII.
 export async function uploadImage(file: File) {
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+  const base64 = dataUrl.includes(",") ? dataUrl.split(",")[1] : dataUrl;
   const response = await fetch("https://api.jmrtextile.com/admin/media/upload", {
     method: "POST",
-    body: file,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: base64 }),
   });
   return response.json();
 }
