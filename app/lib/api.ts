@@ -832,15 +832,30 @@ export async function uploadImage(file: File, onProgress?: (pct: number) => void
     params.set("chunk_index", String(i));
     params.set("data", chunk);
 
-    const response = await fetch("https://api.jmrtextile.com/admin/media/upload-chunk", {
-      method: "POST",
-      body: params,
-    });
-    const result = await response.json();
-    if (!result.success) throw new Error(`Échec morceau ${i}: ${result.error}`);
-
-    done += 1;
-    if (onProgress) onProgress(Math.round((done / totalChunks) * 100));
+    // 3 tentatives : le proxy coupe parfois une requête en rafale.
+    let lastError = "";
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      const response = await fetch("https://api.jmrtextile.com/admin/media/upload-chunk", {
+        method: "POST",
+        body: params,
+      });
+      const text = await response.text();
+      let result: { success?: boolean; error?: string } | null = null;
+      try {
+        result = JSON.parse(text) as { success?: boolean; error?: string };
+      } catch {
+        lastError = `morceau ${i} (HTTP ${response.status}, réponse non-JSON: ${text.slice(0, 120)})`;
+        continue;
+      }
+      if (response.ok && result && result.success) {
+        done += 1;
+        if (onProgress) onProgress(Math.round((done / totalChunks) * 100));
+        return;
+      }
+      lastError =
+        `morceau ${i} (HTTP ${response.status}: ${(result?.error ?? text.slice(0, 120)) || "réponse vide"})`;
+    }
+    throw new Error(`Échec ${lastError}`);
   }
 
   for (let b = 0; b < totalChunks; b += BATCH_SIZE) {
@@ -860,7 +875,14 @@ export async function uploadImage(file: File, onProgress?: (pct: number) => void
     body: finalizeParams,
   });
 
-  return finalResponse.json();
+  const finalText = await finalResponse.text();
+  try {
+    return JSON.parse(finalText) as { success?: boolean; url?: string; error?: string };
+  } catch {
+    throw new Error(
+      `Finalisation (HTTP ${finalResponse.status}, réponse non-JSON: ${finalText.slice(0, 120) || "réponse vide"})`,
+    );
+  }
 }
 
 function fileToBase64(file: File): Promise<string> {
