@@ -36,12 +36,10 @@ const signupSchema = z.object({
     .min(2, "Nom trop court (minimum 2 caractères)")
     .max(100, "Nom trop long (maximum 100 caractères)"), // Le nom de famille peut être plus long
   email: z.string().email("Adresse email invalide"),
-  age: z
+  company: z
     .string()
-    .min(1, "Âge requis")
-    .refine((v) => !isNaN(Number(v)) && Number.isInteger(Number(v)), { message: "Âge doit être un nombre entier" })
-    .refine((v) => Number(v) >= 1, { message: "Âge invalide (minimum 1 an)" })
-    .refine((v) => Number(v) <= 120, { message: "Âge invalide (maximum 120 ans)" }),
+    .max(255, "Société / marque trop longue (maximum 255 caractères)")
+    .optional(),
   phone: z.string(),
   country: z.string().min(1, "Veuillez sélectionner un pays"),
   address: z.string().min(5, "Adresse trop courte (minimum 5 caractères)").max(255, "Adresse trop longue"),
@@ -98,7 +96,7 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
       first_name: "",
       last_name: "",
       email: "",
-      age: "",
+      company: "",
       phone: "",
       country: "",
       address: "",
@@ -397,28 +395,26 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
                       <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
-                        {messages.auth.birthDate}
+                        {messages.auth.company}
                       </label>
                       <Controller
-                        name="age"
+                        name="company"
                         control={signupControl}
                         render={({ field }) => (
                           <input
                             {...field}
                             className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
-                              signupErrors.age
+                              signupErrors.company
                                 ? "border-red-400/50 bg-red-50"
                                 : "border-outline-variant/40 bg-white/50"
                             }`}
-                            type="number"
-                            min={1}
-                            max={120}
-                            placeholder="30"
+                            type="text"
+                            placeholder="Ex : JMR Textile"
                           />
                         )}
                       />
-                      {signupErrors.age && (
-                        <p className="text-xs text-red-600 mt-1">{signupErrors.age.message}</p>
+                      {signupErrors.company && (
+                        <p className="text-xs text-red-600 mt-1">{signupErrors.company.message}</p>
                       )}
                     </div>
                     <div className="relative">

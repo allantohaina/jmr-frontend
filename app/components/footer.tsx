@@ -20,6 +20,8 @@ const SOCIAL_ITEMS: SocialItem[] = [
   { key: "instagram", label: "Instagram", icon: "/footer/instagram.svg" },
 ];
 
+const WHATSAPP_URL = "https://wa.me/message/3TRZD5J74BQVO1";
+
 export function Footer() {
   const pathname = usePathname();
   const { messages } = useLocale();
@@ -117,7 +119,10 @@ export function Footer() {
               {SOCIAL_ITEMS.map((item) => (
                 <a
                   key={item.key}
-                  href="#"
+                  href={item.key === "whatsapp" ? WHATSAPP_URL : "#"}
+                  {...(item.key === "whatsapp"
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
                   className="w-14 h-14 rounded-2xl border border-[#e5ad46]/30 flex items-center justify-center hover:border-[#e5ad46] hover:bg-[#e5ad46]/10 transition-all group"
                   aria-label={item.label}
                 >
