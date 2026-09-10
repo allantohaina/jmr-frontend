@@ -87,7 +87,7 @@ function NavGroup({ title, icon: GroupIcon, items }: { title: string; icon: Reac
     <div className="mb-[2px]">
       <button
         onClick={() => setOpen(!open)}
-        className={`flex w-full items-center gap-[11px] rounded-md px-3 py-[11px] text-[12.5px] font-semibold tracking-[0.5px] transition-colors ${
+        className={`flex w-full items-center gap-[11px] rounded-md border-0 bg-transparent px-3 py-[11px] text-[12.5px] font-semibold tracking-[0.5px] transition-colors ${
           open ? "text-[#e2bd42]" : "text-[#7b8496] hover:bg-[#17202f] hover:text-[#ece7db]"
         }`}
       >
@@ -168,12 +168,11 @@ function AdminShell({ children }: { children: React.ReactNode }) {
       <aside className="z-50 flex w-full flex-col bg-[linear-gradient(180deg,#121a28,#0f1622)] shadow-2xl transition-all duration-300 md:fixed md:left-0 md:top-0 md:h-full md:w-64 border-r border-white/5">
         <div className="px-6 pt-7 pb-5 md:block">
           <div>
-            <Link href="/" className="mb-[5px] flex items-baseline gap-[7px] font-brand">
-              <span className="text-[23px] font-semibold tracking-[0.5px] text-[#e2bd42]">JMR</span>
-              <span className="text-[17px] font-medium italic text-[#ece7db] opacity-85">Textile</span>
+            <Link href="/" className="mb-[5px] block font-brand text-[23px] font-semibold tracking-[0.5px] text-[#e2bd42]">
+              JMR Atelier
             </Link>
-            <p className="text-[11px] tracking-[0.4px] text-[#7b8496]">
-              Atelier de confection — console
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#7b8496]">
+              Admin Control
             </p>
           </div>
         </div>
