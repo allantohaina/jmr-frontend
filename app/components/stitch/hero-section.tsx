@@ -47,7 +47,7 @@ export function HeroSection() {
               alt="Environnement d'atelier moderne avec stockage pratique des tissus et équipement professionnel"
             />
           </div>
-          <div className="absolute -bottom-10 -left-10 w-72 aspect-square rounded-2xl overflow-hidden border-4 border-primary/30 shadow-2xl z-30 hidden md:block">
+          <div className="absolute -bottom-10 -left-10 w-80 aspect-square rounded-2xl overflow-hidden border-4 border-primary/30 shadow-2xl z-30 hidden md:block">
             <EditableImage
               contentKey="hero.image-overlay"
               className="w-full h-full object-cover"
