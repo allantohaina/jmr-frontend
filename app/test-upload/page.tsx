@@ -26,8 +26,8 @@ export default function TestUploadPage() {
         {
           method: "POST",
           url: "https://api.jmrtextile.com/admin/media/upload",
-          headers: { "Content-Type": "application/json" },
-          bodyKind: "JSON { data: base64 du fichier }",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          bodyKind: "form data=urlencoded(base64 du fichier)",
           base64Length,
         },
         null,
