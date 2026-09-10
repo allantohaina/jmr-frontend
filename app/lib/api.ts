@@ -818,11 +818,13 @@ export async function uploadMediaRaw(file: File, token?: string) {
 // Chaque morceau passe en form-urlencoded, PHP réassemble à la fin.
 export async function uploadImage(file: File, onProgress?: (pct: number) => void) {
   const CHUNK_SIZE = 6000; // sous le seuil de 8 Ko observé
+  const BATCH_SIZE = 5; // morceaux envoyés en parallèle par lot
   const uploadId = crypto.randomUUID();
   const base64 = await fileToBase64(file);
   const totalChunks = Math.ceil(base64.length / CHUNK_SIZE);
+  let done = 0;
 
-  for (let i = 0; i < totalChunks; i++) {
+  async function sendChunk(i: number): Promise<void> {
     const chunk = base64.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
 
     const params = new URLSearchParams();
@@ -837,7 +839,16 @@ export async function uploadImage(file: File, onProgress?: (pct: number) => void
     const result = await response.json();
     if (!result.success) throw new Error(`Échec morceau ${i}: ${result.error}`);
 
-    if (onProgress) onProgress(Math.round(((i + 1) / totalChunks) * 100));
+    done += 1;
+    if (onProgress) onProgress(Math.round((done / totalChunks) * 100));
+  }
+
+  for (let b = 0; b < totalChunks; b += BATCH_SIZE) {
+    const batch: Promise<void>[] = [];
+    for (let i = b; i < Math.min(b + BATCH_SIZE, totalChunks); i++) {
+      batch.push(sendChunk(i));
+    }
+    await Promise.all(batch);
   }
 
   const finalizeParams = new URLSearchParams();
