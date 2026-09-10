@@ -88,7 +88,7 @@ function NavGroup({ title, icon: GroupIcon, items }: { title: string; icon: Reac
       <button
         onClick={() => setOpen(!open)}
         className={`flex w-full items-center gap-[11px] rounded-md border-0 bg-transparent px-3 py-[11px] text-[12.5px] font-semibold tracking-[0.5px] transition-colors ${
-          open ? "text-[#e2bd42]" : "text-[#7b8496] hover:bg-[#17202f] hover:text-[#ece7db]"
+          open ? "text-[#e5ad46]" : "text-[#7b8496] hover:bg-[#17202f] hover:text-[#ece7db]"
         }`}
       >
         <GroupIcon className="h-4 w-4 shrink-0 opacity-85" />
@@ -96,7 +96,7 @@ function NavGroup({ title, icon: GroupIcon, items }: { title: string; icon: Reac
         <ChevronRight className={`h-[13px] w-[13px] shrink-0 opacity-55 transition-transform duration-200 ${open ? "rotate-90" : ""}`} />
       </button>
       {open && (
-        <div className="ml-5 space-y-[1px] border-l border-dashed border-[rgba(201,162,39,0.14)] pl-2.5">
+        <div className="ml-5 space-y-[1px] border-l border-dashed border-[rgba(229,173,70,0.14)] pl-2.5">
           {items.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || (href !== "/backoffice/client/devis" && pathname?.startsWith(href));
             return (
@@ -105,14 +105,14 @@ function NavGroup({ title, icon: GroupIcon, items }: { title: string; icon: Reac
                 href={href}
                 className={`relative flex items-center gap-2.5 rounded-[5px] px-3 py-[9px] text-[13px] transition-colors ${
                   active
-                    ? "bg-[linear-gradient(90deg,rgba(201,162,39,0.14),rgba(201,162,39,0.02))] text-[#ece7db]"
+                    ? "bg-[linear-gradient(90deg,rgba(229,173,70,0.14),rgba(229,173,70,0.02))] text-[#ece7db]"
                     : "text-[#7b8496] hover:bg-[#17202f] hover:text-[#ece7db]"
                 }`}
               >
                 {active && (
-                  <span className="absolute -left-[11px] top-[3px] bottom-[3px] w-[2px] rounded-sm bg-[#e2bd42]" />
+                  <span className="absolute -left-[11px] top-[3px] bottom-[3px] w-[2px] rounded-sm bg-[#e5ad46]" />
                 )}
-                <Icon className={`h-[15px] w-[15px] shrink-0 ${active ? "text-[#e2bd42] opacity-100" : "opacity-80"}`} />
+                <Icon className={`h-[15px] w-[15px] shrink-0 ${active ? "text-[#e5ad46] opacity-100" : "opacity-80"}`} />
                 {label}
               </Link>
             );
@@ -168,7 +168,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
       <aside className="z-50 flex w-full flex-col bg-[linear-gradient(180deg,#121a28,#0f1622)] shadow-2xl transition-all duration-300 md:fixed md:left-0 md:top-0 md:h-full md:w-64 border-r border-white/5">
         <div className="px-6 pt-7 pb-5 md:block">
           <div>
-            <Link href="/" className="mb-[5px] block font-brand text-[23px] font-semibold tracking-[0.5px] text-[#e2bd42]">
+            <Link href="/" className="mb-[5px] block font-brand text-[23px] font-semibold tracking-[0.5px] text-[#e5ad46]">
               JMR Atelier
             </Link>
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#7b8496]">
@@ -176,21 +176,21 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             </p>
           </div>
         </div>
-        <div className="mx-6 mb-[6px] border-b border-dashed border-[rgba(201,162,39,0.14)]" />
+        <div className="mx-6 mb-[6px] border-b border-dashed border-[rgba(229,173,70,0.14)]" />
 
         <nav className="hidden flex-1 space-y-0 overflow-y-auto px-[14px] py-[10px] md:block">
           <Link
             href="/backoffice"
             className={`relative flex items-center gap-2.5 rounded-[5px] px-3 py-[9px] text-[13px] transition-colors ${
               pathname === "/backoffice"
-                ? "bg-[linear-gradient(90deg,rgba(201,162,39,0.14),rgba(201,162,39,0.02))] text-[#ece7db]"
+                ? "bg-[linear-gradient(90deg,rgba(229,173,70,0.14),rgba(229,173,70,0.02))] text-[#ece7db]"
                 : "text-[#7b8496] hover:bg-[#17202f] hover:text-[#ece7db]"
             }`}
           >
             {pathname === "/backoffice" && (
-              <span className="absolute -left-[11px] top-[3px] bottom-[3px] w-[2px] rounded-sm bg-[#e2bd42]" />
+              <span className="absolute -left-[11px] top-[3px] bottom-[3px] w-[2px] rounded-sm bg-[#e5ad46]" />
             )}
-            <LayoutDashboard className={`h-[15px] w-[15px] shrink-0 ${pathname === "/backoffice" ? "text-[#e2bd42] opacity-100" : "opacity-80"}`} />
+            <LayoutDashboard className={`h-[15px] w-[15px] shrink-0 ${pathname === "/backoffice" ? "text-[#e5ad46] opacity-100" : "opacity-80"}`} />
             Tableau de bord
           </Link>
 
@@ -261,7 +261,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
         <div className="mt-auto hidden border-t border-white/5 p-[14px] md:block">
           <div className="mb-1 flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-[#17202f]">
-            <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#e2bd42,#8a6c1f)] font-brand text-[12px] font-semibold text-[#181205]">
+            <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#e5ad46,#a67428)] font-brand text-[12px] font-semibold text-[#181205]">
               {profileInitials}
             </div>
             <div>
