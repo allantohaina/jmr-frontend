@@ -6399,3 +6399,90 @@ html[data-theme="light"] .site-footer-modern .bg-\[\#e5ad46\]\/10 {
     display: none !important;
   }
 }
+
+/* ===== Toggle "Activer les notifications" ===== */
+.toggle {
+  display: inline-block;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* input reel cache mais garde accessible (focus clavier, lecteurs d'ecran) */
+.toggle__input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.toggle__track {
+  display: block;
+  width: 46px;
+  height: 26px;
+  border-radius: 13px;
+  background: #4a5266; /* etat desactive : gris neutre */
+  position: relative;
+  transition: background 0.15s ease;
+}
+
+.toggle__track::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #f2f2f0;
+  transition: transform 0.15s ease;
+}
+
+/* etat active : piste en ambre, la couleur de marque du site */
+.toggle__input:checked + .toggle__track {
+  background: #f5a623;
+}
+
+.toggle__input:checked + .toggle__track::before {
+  transform: translateX(20px);
+  background: #1b2436; /* rond fonce sur fond ambre pour garder du contraste */
+}
+
+/* anneau de focus visible au clavier, requis pour l'accessibilite */
+.toggle__input:focus-visible + .toggle__track {
+  box-shadow: 0 0 0 2px #1b2436, 0 0 0 4px #f5a623;
+}
+
+.toggle__track:hover {
+  filter: brightness(1.1);
+}
+
+/* etat desactive pendant l'appel push */
+.toggle--disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.toggle--disabled .toggle__track:hover {
+  filter: none;
+}
+
+/* ----- Mode clair : garder du contraste sur fond clair ----- */
+html[data-theme="light"] .toggle__track {
+  background: #9aa3b2; /* gris moyen, visible sur panneau clair */
+}
+
+html[data-theme="light"] .toggle__input:checked + .toggle__track {
+  background: #e89b0c; /* ambre legerement assombri pour le contraste en mode clair */
+}
+
+html[data-theme="light"] .toggle__track::before {
+  background: #ffffff;
+}
+
+html[data-theme="light"] .toggle__input:checked + .toggle__track::before {
+  background: #1b2436;
+}
+
+html[data-theme="light"] .toggle__input:focus-visible + .toggle__track {
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #b97a08;
+}

@@ -591,18 +591,17 @@ export function Navbar({
                           <p className="text-sm font-medium text-white">{messages.notifications.enablePush}</p>
                           <p className="text-xs text-white/60 mt-0.5">{messages.notifications.enablePushHint}</p>
                         </div>
-                        <button
-                          type="button"
-                          role="switch"
-                          aria-checked={isPushEnabled}
-                          disabled={isPushBusy}
-                          onClick={() => void handleTogglePush()}
-                          className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-60 ${isPushEnabled ? "bg-[#e5ad46]" : "bg-white/20"}`}
-                        >
-                          <span
-                            className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform ${isPushEnabled ? "translate-x-5" : ""}`}
+                        <label className={`toggle${isPushBusy ? " toggle--disabled" : ""}`}>
+                          <input
+                            type="checkbox"
+                            className="toggle__input"
+                            checked={isPushEnabled}
+                            disabled={isPushBusy}
+                            onChange={() => void handleTogglePush()}
+                            aria-label={messages.notifications.enablePush}
                           />
-                        </button>
+                          <span className="toggle__track" aria-hidden="true" />
+                        </label>
                       </div>
                       {isPushEnabled && (
                         <button
