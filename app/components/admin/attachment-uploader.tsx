@@ -196,7 +196,7 @@ export function AttachmentUploader({ entityType, entityId, maxSizeMB = 30, onUpl
         className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
           dragActive
             ? "border-orange-500 bg-orange-50"
-            : "border-[#e5ad46]/10 bg-[#1e2a38] hover:border-[#e5ad46]/10/30"
+            : "border-[#F5A623]/10 bg-[#1e2a38] hover:border-[#F5A623]/10/30"
         }`}
       >
         <input
@@ -211,11 +211,11 @@ export function AttachmentUploader({ entityType, entityId, maxSizeMB = 30, onUpl
           htmlFor={`attachment-upload-${entityType}-${entityId}`}
           className="cursor-pointer"
         >
-          <Upload className={`mx-auto h-10 w-10 ${dragActive ? "text-orange-500" : "text-[#eccc90]/40"}`} />
-          <p className="mt-2 text-sm font-medium text-[#eccc90]">
+          <Upload className={`mx-auto h-10 w-10 ${dragActive ? "text-orange-500" : "text-[#F5A623]/40"}`} />
+          <p className="mt-2 text-sm font-medium text-[#F5A623]">
             {dragActive ? "Déposez les fichiers ici" : "Cliquez ou déposez pour ajouter des pièces jointes"}
           </p>
-          <p className="text-[10px] text-[#eccc90]/40 uppercase tracking-widest mt-1">
+          <p className="text-[10px] text-[#F5A623]/40 uppercase tracking-widest mt-1">
             JPG, PNG, WebP, PDF, CSV — Max {maxSizeMB} MB
           </p>
         </label>
@@ -223,23 +223,23 @@ export function AttachmentUploader({ entityType, entityId, maxSizeMB = 30, onUpl
 
       {isLoading ? (
         <div className="flex items-center justify-center py-4">
-          <Loader2 className="h-5 w-5 animate-spin text-[#eccc90]" />
+          <Loader2 className="h-5 w-5 animate-spin text-[#F5A623]" />
         </div>
       ) : attachments.length > 0 ? (
         <div className="space-y-2">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">
             Pièces jointes ({attachments.length})
           </p>
           <div className="space-y-2">
             {attachments.map((att) => (
               <div
                 key={att.id}
-                className="flex items-center gap-3 p-3 bg-[#25303a] border border-[#e5ad46]/10 rounded-xl hover:border-[#e5ad46]/10/20 transition-colors"
+                className="flex items-center gap-3 p-3 bg-[#25303a] border border-[#F5A623]/10 rounded-xl hover:border-[#F5A623]/10/20 transition-colors"
               >
                 <div className="flex-shrink-0">{getFileIcon(att.mime_type)}</div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#eccc90] truncate">{att.original_name}</p>
-                  <p className="text-[10px] text-[#eccc90]/40 uppercase tracking-widest">
+                  <p className="text-sm font-medium text-[#F5A623] truncate">{att.original_name}</p>
+                  <p className="text-[10px] text-[#F5A623]/40 uppercase tracking-widest">
                     {formatFileSize(att.file_size)} • {new Date(att.created_at).toLocaleDateString("fr-FR")}
                   </p>
                 </div>
@@ -247,7 +247,7 @@ export function AttachmentUploader({ entityType, entityId, maxSizeMB = 30, onUpl
                   href={safeUrl(att.url)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 text-[#eccc90]/60 hover:text-orange-500 transition-colors"
+                  className="p-2 text-[#F5A623]/60 hover:text-orange-500 transition-colors"
                   title="Ouvrir"
                 >
                   <span className="material-symbols-outlined">open_in_new</span>

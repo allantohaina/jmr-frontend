@@ -199,8 +199,8 @@ export function DemandesClientSection() {
     <div className="px-4 md:px-12 py-8 md:py-10 space-y-8">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="font-headline text-2xl md:text-3xl text-[#eccc90]">Demandes Client</h2>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#eccc90]/40 mt-1">Gestion des demandes initiales</p>
+          <h2 className="font-headline text-2xl md:text-3xl text-[#F5A623]">Demandes Client</h2>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#F5A623]/40 mt-1">Gestion des demandes initiales</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
@@ -220,68 +220,68 @@ export function DemandesClientSection() {
       )}
 
       {showForm && (
-        <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#e5ad46]/10 shadow-sm">
-          <h3 className="font-headline text-xl text-[#eccc90] mb-6">{editingId ? "Modifier" : "Créer"} une demande</h3>
+        <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#F5A623]/10 shadow-sm">
+          <h3 className="font-headline text-xl text-[#F5A623] mb-6">{editingId ? "Modifier" : "Créer"} une demande</h3>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Nom du client *</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">Nom du client *</label>
               <input
                 required
                 value={formData.nom_client}
                 onChange={(e) => setFormData({ ...formData, nom_client: e.target.value })}
-                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#F5A623] outline-none focus:ring-2 focus:ring-[#163526]/10"
                 placeholder="Nom du client"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Entreprise</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">Entreprise</label>
               <input
                 value={formData.entreprise}
                 onChange={(e) => setFormData({ ...formData, entreprise: e.target.value })}
-                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#F5A623] outline-none focus:ring-2 focus:ring-[#163526]/10"
                 placeholder="Nom de l'entreprise"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Email</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">Email</label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#F5A623] outline-none focus:ring-2 focus:ring-[#163526]/10"
                 placeholder="email@exemple.com"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Téléphone</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">Téléphone</label>
               <input
                 value={formData.telephone}
                 onChange={(e) => setFormData({ ...formData, telephone: e.target.value })}
-                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#F5A623] outline-none focus:ring-2 focus:ring-[#163526]/10"
                 placeholder="+261 XX XXX XX"
               />
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Description du besoin *</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">Description du besoin *</label>
               <textarea
                 required
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10 h-24"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#F5A623] outline-none focus:ring-2 focus:ring-[#163526]/10 h-24"
                 placeholder="Description détaillée du besoin..."
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Statut</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">Statut</label>
               <select
                 value={formData.statut}
                 onChange={(e) => setFormData({ ...formData, statut: e.target.value })}
-                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#eccc90] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#F5A623] outline-none focus:ring-2 focus:ring-[#163526]/10"
               >
                 {STATUS_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -300,7 +300,7 @@ export function DemandesClientSection() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-6 py-3 border border-[#e5ad46]/10 text-[#eccc90] font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#e5ad46]/10 transition-all"
+                className="px-6 py-3 border border-[#F5A623]/10 text-[#F5A623] font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#F5A623]/10 transition-all"
               >
                 Annuler
               </button>
@@ -317,28 +317,28 @@ export function DemandesClientSection() {
       ) : null}
 
       {isLoading ? (
-        <div className="flex items-center justify-center rounded-2xl border border-[#e5ad46]/10 bg-[#25303a] py-16">
-          <Loader2 className="mr-3 h-5 w-5 animate-spin text-[#eccc90]/50" />
+        <div className="flex items-center justify-center rounded-2xl border border-[#F5A623]/10 bg-[#25303a] py-16">
+          <Loader2 className="mr-3 h-5 w-5 animate-spin text-[#F5A623]/50" />
           Chargement...
         </div>
       ) : (
-        <div className="bg-[#25303a] rounded-2xl border border-[#e5ad46]/10 shadow-sm overflow-hidden">
+        <div className="bg-[#25303a] rounded-2xl border border-[#F5A623]/10 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left">
               <thead>
-                <tr className="border-b border-[#e5ad46]/10 bg-[#e5ad46]/10">
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Client</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Contact</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Description</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Statut</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Date réception</th>
-                  <th className="px-6 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Actions</th>
+                <tr className="border-b border-[#F5A623]/10 bg-[#F5A623]/10">
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">Client</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">Contact</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">Description</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">Statut</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">Date réception</th>
+                  <th className="px-6 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e5ad46]/10">
+              <tbody className="divide-y divide-[#F5A623]/10">
                 {demandes.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-sm italic text-[#eccc90]/40">
+                    <td colSpan={6} className="px-6 py-12 text-center text-sm italic text-[#F5A623]/40">
                       Aucune demande pour le moment.
                     </td>
                   </tr>
@@ -354,15 +354,15 @@ demandes.map((d) => (
                         }
                       >
                       <td className="px-6 py-4">
-                        <p className="text-sm font-bold text-[#eccc90]">{d.nom_client}</p>
-                        {d.entreprise && <p className="text-xs text-[#eccc90]/60">{d.entreprise}</p>}
+                        <p className="text-sm font-bold text-[#F5A623]">{d.nom_client}</p>
+                        {d.entreprise && <p className="text-xs text-[#F5A623]/60">{d.entreprise}</p>}
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-xs text-[#eccc90]">{d.email || "—"}</p>
-                        <p className="text-[10px] text-[#eccc90]/40">{d.telephone || "—"}</p>
+                        <p className="text-xs text-[#F5A623]">{d.email || "—"}</p>
+                        <p className="text-[10px] text-[#F5A623]/40">{d.telephone || "—"}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-xs text-[#eccc90]/60 line-clamp-2 max-w-xs">{d.description}</p>
+                        <p className="text-xs text-[#F5A623]/60 line-clamp-2 max-w-xs">{d.description}</p>
                       </td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border ${getStatusColor(d.statut)}`}>
@@ -370,13 +370,13 @@ demandes.map((d) => (
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-xs font-mono text-[#eccc90]">{new Date(d.date_reception).toLocaleDateString('fr-FR')}</span>
+                        <span className="text-xs font-mono text-[#F5A623]">{new Date(d.date_reception).toLocaleDateString('fr-FR')}</span>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           <button
                             onClick={(e) => { e.stopPropagation(); handleEdit(d); }}
-                            className="p-2 rounded-lg border border-[#e5ad46]/10 text-[#eccc90] hover:border-orange-500 hover:text-orange-500 transition-colors"
+                            className="p-2 rounded-lg border border-[#F5A623]/10 text-[#F5A623] hover:border-orange-500 hover:text-orange-500 transition-colors"
                             title="Modifier"
                           >
                             <Pencil className="h-4 w-4" />
@@ -411,17 +411,17 @@ demandes.map((d) => (
       )}
 
       {selectedDemandeId && (
-         <div className="bg-[#25303a] rounded-2xl border border-[#e5ad46]/10 shadow-sm overflow-hidden mt-6">
-           <div className="p-6 border-b border-[#e5ad46]/10 flex justify-between items-center">
+         <div className="bg-[#25303a] rounded-2xl border border-[#F5A623]/10 shadow-sm overflow-hidden mt-6">
+           <div className="p-6 border-b border-[#F5A623]/10 flex justify-between items-center">
              <div>
-               <h3 className="font-headline text-xl text-[#eccc90]">Détails de la demande</h3>
-               <p className="text-xs text-[#eccc90]/40 uppercase tracking-widest mt-1">
+               <h3 className="font-headline text-xl text-[#F5A623]">Détails de la demande</h3>
+               <p className="text-xs text-[#F5A623]/40 uppercase tracking-widest mt-1">
                  {demandes.find((d) => d.id === selectedDemandeId)?.nom_client}
                </p>
              </div>
              <button
                onClick={() => setSelectedDemandeId(null)}
-               className="p-2 rounded-lg border border-[#e5ad46]/10 text-[#eccc90] hover:border-orange-500 hover:text-orange-500 transition-colors"
+               className="p-2 rounded-lg border border-[#F5A623]/10 text-[#F5A623] hover:border-orange-500 hover:text-orange-500 transition-colors"
              >
                <XCircle className="h-4 w-4" />
              </button>

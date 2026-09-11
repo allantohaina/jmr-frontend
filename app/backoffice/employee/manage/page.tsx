@@ -50,8 +50,8 @@ export default function EmployeeManagePage() {
   return (
     <div className="p-6 md:p-12">
       <div className="mb-8">
-        <h1 className="font-headline text-2xl text-[#e5ad46]">Gestion des employés</h1>
-        <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">
+        <h1 className="font-headline text-2xl text-[#F5A623]">Gestion des employés</h1>
+        <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">
           Créer et gérer les comptes employés
         </p>
       </div>
@@ -60,7 +60,7 @@ export default function EmployeeManagePage() {
         <button
           onClick={() => setTab("list")}
           className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest transition-all ${
-            tab === "list" ? "bg-[#e5ad46] text-[#1e2a38]" : "bg-white/5 text-[#eccc90]/60 hover:bg-white/10"
+            tab === "list" ? "bg-[#F5A623] text-[#1e2a38]" : "bg-white/5 text-[#F5A623]/60 hover:bg-white/10"
           }`}
         >
           <Users className="h-4 w-4" />
@@ -69,7 +69,7 @@ export default function EmployeeManagePage() {
         <button
           onClick={() => setTab("create")}
           className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest transition-all ${
-            tab === "create" ? "bg-[#e5ad46] text-[#1e2a38]" : "bg-white/5 text-[#eccc90]/60 hover:bg-white/10"
+            tab === "create" ? "bg-[#F5A623] text-[#1e2a38]" : "bg-white/5 text-[#F5A623]/60 hover:bg-white/10"
           }`}
         >
           <UserPlus className="h-4 w-4" />
@@ -78,7 +78,7 @@ export default function EmployeeManagePage() {
         <button
           onClick={() => setTab("import")}
           className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest transition-all ${
-            tab === "import" ? "bg-[#e5ad46] text-[#1e2a38]" : "bg-white/5 text-[#eccc90]/60 hover:bg-white/10"
+            tab === "import" ? "bg-[#F5A623] text-[#1e2a38]" : "bg-white/5 text-[#F5A623]/60 hover:bg-white/10"
           }`}
         >
           <Upload className="h-4 w-4" />
@@ -96,64 +96,64 @@ export default function EmployeeManagePage() {
         <div>
           <div className="mb-4 flex items-center gap-3">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#eccc90]/40" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#F5A623]/40" />
               <input
                 type="text"
                 placeholder="Rechercher un employé..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border border-[#e5ad46]/10 bg-white/5 pl-10 pr-4 py-2.5 text-sm text-[#eccc90] outline-none focus:border-[#e5ad46]/30"
+                className="w-full rounded-lg border border-[#F5A623]/10 bg-white/5 pl-10 pr-4 py-2.5 text-sm text-[#F5A623] outline-none focus:border-[#F5A623]/30"
               />
               {search && (
-                <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#eccc90]/40 hover:text-[#e5ad46]">
+                <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#F5A623]/40 hover:text-[#F5A623]">
                   <X className="h-4 w-4" />
                 </button>
               )}
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">
               {filtered.length} employé(s)
             </span>
           </div>
 
           {isLoading ? (
-            <div className="py-20 text-center text-[#eccc90]/40">
+            <div className="py-20 text-center text-[#F5A623]/40">
               <span className="text-xs font-bold uppercase tracking-widest">Chargement...</span>
             </div>
           ) : filtered.length === 0 ? (
-            <div className="py-20 text-center text-[#eccc90]/40">
+            <div className="py-20 text-center text-[#F5A623]/40">
               <Users className="mx-auto mb-4 h-12 w-12 opacity-20" />
               <p className="text-sm">Aucun employé trouvé.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-xl border border-[#e5ad46]/10">
+            <div className="overflow-x-auto rounded-xl border border-[#F5A623]/10">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-[#e5ad46]/10 bg-white/5">
-                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/60">Nom</th>
-                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/60">Email</th>
-                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/60">Rôle</th>
-                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/60">Département</th>
-                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/60">Poste</th>
-                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/60">Téléphone</th>
+                  <tr className="border-b border-[#F5A623]/10 bg-white/5">
+                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/60">Nom</th>
+                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/60">Email</th>
+                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/60">Rôle</th>
+                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/60">Département</th>
+                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/60">Poste</th>
+                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/60">Téléphone</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((emp) => (
-                    <tr key={emp.id} className="border-b border-[#e5ad46]/5 transition-colors hover:bg-white/5">
-                      <td className="px-4 py-3 font-semibold text-[#eccc90]">
+                    <tr key={emp.id} className="border-b border-[#F5A623]/5 transition-colors hover:bg-white/5">
+                      <td className="px-4 py-3 font-semibold text-[#F5A623]">
                         {emp.first_name} {emp.last_name}
                       </td>
-                      <td className="px-4 py-3 text-[#eccc90]/70">{emp.email}</td>
+                      <td className="px-4 py-3 text-[#F5A623]/70">{emp.email}</td>
                       <td className="px-4 py-3">
                         <span className={`inline-block rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest ${
-                          emp.role === "admin" ? "bg-[#e5ad46]/20 text-[#e5ad46]" : "bg-blue-500/20 text-blue-400"
+                          emp.role === "admin" ? "bg-[#F5A623]/20 text-[#F5A623]" : "bg-blue-500/20 text-blue-400"
                         }`}>
                           {emp.role}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-[#eccc90]/70">{emp.department || "—"}</td>
-                      <td className="px-4 py-3 text-[#eccc90]/70">{emp.position || "—"}</td>
-                      <td className="px-4 py-3 text-[#eccc90]/70">{emp.phone || "—"}</td>
+                      <td className="px-4 py-3 text-[#F5A623]/70">{emp.department || "—"}</td>
+                      <td className="px-4 py-3 text-[#F5A623]/70">{emp.position || "—"}</td>
+                      <td className="px-4 py-3 text-[#F5A623]/70">{emp.phone || "—"}</td>
                     </tr>
                   ))}
                 </tbody>

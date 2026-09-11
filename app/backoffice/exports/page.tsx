@@ -62,21 +62,21 @@ export default function ExportsPage() {
   return (
     <div className="px-6 md:px-12 py-10 space-y-8">
       <div className="px-2">
-        <h2 className="font-headline text-3xl text-[#eccc90]">Exports comptables</h2>
-        <p className="text-[#eccc90]/40 text-xs font-bold uppercase tracking-widest mt-1">Rapports CSV · JMR Atelier</p>
+        <h2 className="font-headline text-3xl text-[#F5A623]">Exports comptables</h2>
+        <p className="text-[#F5A623]/40 text-xs font-bold uppercase tracking-widest mt-1">Rapports CSV · JMR Atelier</p>
       </div>
 
       {error && <div className="bg-red-50 border border-red-200 p-4 rounded-2xl text-xs text-red-700 font-medium">{error}</div>}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {EXPORTS.map((e) => (
-          <div key={e.key} className="bg-[#25303a] rounded-2xl border border-[#e5ad46]/10 p-6 shadow-sm flex flex-col">
-            <p className="font-headline text-lg text-[#eccc90]">{e.label}</p>
-            <p className="text-xs text-[#eccc90]/50 mt-1 flex-1">{e.desc}</p>
+          <div key={e.key} className="bg-[#25303a] rounded-2xl border border-[#F5A623]/10 p-6 shadow-sm flex flex-col">
+            <p className="font-headline text-lg text-[#F5A623]">{e.label}</p>
+            <p className="text-xs text-[#F5A623]/50 mt-1 flex-1">{e.desc}</p>
             <button
               onClick={() => download(e.key, e.label)}
               disabled={busy !== null}
-              className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-[#163526] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] hover:bg-[#1e4234] transition-colors disabled:opacity-50"
+              className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-[#163526] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#F5A623] hover:bg-[#1e4234] transition-colors disabled:opacity-50"
             >
               {busy === e.key ? <Loader className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}
               Télécharger CSV

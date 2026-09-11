@@ -150,14 +150,14 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
   ) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const fieldCls =
-    "w-full bg-[#1b263c] border border-[#e5ad46]/15 text-[#f3efe4] font-body text-sm px-3 py-2.5 rounded-lg outline-none transition-colors focus:border-[#e5ad46]/60 placeholder:text-[#f3efe4]/25";
+    "w-full bg-[#1b263c] border border-[#F5A623]/15 text-[#f3efe4] font-body text-sm px-3 py-2.5 rounded-lg outline-none transition-colors focus:border-[#F5A623]/60 placeholder:text-[#f3efe4]/25";
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="font-headline text-lg text-[#eccc90]">Brouillons de devis</h2>
-          <p className="mt-1 font-mono text-[11px] text-[#eccc90]/50">
+          <h2 className="font-headline text-lg text-[#F5A623]">Brouillons de devis</h2>
+          <p className="mt-1 font-mono text-[11px] text-[#F5A623]/50">
             {sorted.length === 0
               ? "0 brouillon"
               : sorted.length === 1
@@ -167,17 +167,17 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
         </div>
         <button
           onClick={() => openModal(null)}
-          className="flex items-center gap-2 rounded-lg bg-[#e5ad46] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] transition-all hover:bg-[#eccc90]"
+          className="flex items-center gap-2 rounded-lg bg-[#F5A623] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] transition-all hover:bg-[#F5A623]"
         >
           <Plus className="h-4 w-4" /> Nouveau brouillon
         </button>
       </div>
 
       {sorted.length === 0 ? (
-        <div className="mt-4 flex flex-col items-center border border-dashed border-[#e5ad46]/15 rounded-xl px-6 py-10 text-center">
-          <FileText className="mb-3 h-8 w-8 text-[#eccc90]/20" />
-          <p className="font-headline text-base text-[#eccc90]">Aucun brouillon pour l&apos;instant</p>
-          <p className="mt-1 text-xs text-[#eccc90]/50">
+        <div className="mt-4 flex flex-col items-center border border-dashed border-[#F5A623]/15 rounded-xl px-6 py-10 text-center">
+          <FileText className="mb-3 h-8 w-8 text-[#F5A623]/20" />
+          <p className="font-headline text-base text-[#F5A623]">Aucun brouillon pour l&apos;instant</p>
+          <p className="mt-1 text-xs text-[#F5A623]/50">
             Créez un brouillon pour préparer un devis avant de l&apos;envoyer.
           </p>
         </div>
@@ -186,14 +186,14 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
           {sorted.map((d) => (
             <div
               key={d.id}
-              className="flex flex-col gap-3 rounded-xl border border-[#e5ad46]/12 bg-[#1e2a38] p-4 transition-colors hover:border-[#e5ad46]/35 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-xl border border-[#F5A623]/12 bg-[#1e2a38] p-4 transition-colors hover:border-[#F5A623]/35 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0">
-                <p className="font-mono text-[10px] tracking-wider text-[#e5ad46]">{d.ref}</p>
+                <p className="font-mono text-[10px] tracking-wider text-[#F5A623]">{d.ref}</p>
                 <p className="truncate font-headline text-base text-[#f3efe4]">
                   {d.client || "Sans nom"}
                 </p>
-                <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-[#eccc90]/50">
+                <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-[#F5A623]/50">
                   {d.produit && <span>{d.produit}</span>}
                   {d.quantite && <span>{d.quantite} pcs</span>}
                   {d.budget && <span>{d.budget} Ar</span>}
@@ -203,7 +203,7 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
               <div className="flex shrink-0 gap-2">
                 <button
                   onClick={() => openModal(d.id)}
-                  className="flex items-center gap-2 rounded-lg border border-[#e5ad46]/15 px-3 py-2 text-[11px] text-[#eccc90]/60 transition-colors hover:border-[#e5ad46]/40 hover:text-[#eccc90]"
+                  className="flex items-center gap-2 rounded-lg border border-[#F5A623]/15 px-3 py-2 text-[11px] text-[#F5A623]/60 transition-colors hover:border-[#F5A623]/40 hover:text-[#F5A623]"
                 >
                   <Pencil className="h-3.5 w-3.5" /> Modifier
                 </button>
@@ -226,13 +226,13 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
             if (e.target === e.currentTarget) closeModal();
           }}
         >
-          <div className="w-full max-w-lg rounded-xl border border-[#e5ad46]/15 bg-[#25303a] p-7">
-            <h2 className="font-headline text-xl font-medium text-[#eccc90]">
+          <div className="w-full max-w-lg rounded-xl border border-[#F5A623]/15 bg-[#25303a] p-7">
+            <h2 className="font-headline text-xl font-medium text-[#F5A623]">
               {editingId ? "Modifier le brouillon" : "Nouveau brouillon"}
             </h2>
             <form onSubmit={saveDraft} className="mt-6 space-y-4">
               <div>
-                <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#eccc90]/50">
+                <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#F5A623]/50">
                   Client / Entreprise
                 </label>
                 <input
@@ -246,7 +246,7 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#eccc90]/50">
+                  <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#F5A623]/50">
                     Type de produit
                   </label>
                   <input
@@ -258,7 +258,7 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#eccc90]/50">
+                  <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#F5A623]/50">
                     Quantité
                   </label>
                   <input
@@ -273,7 +273,7 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#eccc90]/50">
+                  <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#F5A623]/50">
                     Tissu / matière
                   </label>
                   <input
@@ -285,7 +285,7 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#eccc90]/50">
+                  <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#F5A623]/50">
                     Budget indicatif (Ar)
                   </label>
                   <input
@@ -298,7 +298,7 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
                 </div>
               </div>
               <div>
-                <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#eccc90]/50">
+                <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#F5A623]/50">
                   Notes internes
                 </label>
                 <textarea
@@ -309,17 +309,17 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
                   className={`${fieldCls} resize-y`}
                 />
               </div>
-              <div className="flex justify-end gap-2 border-t border-[#e5ad46]/10 pt-5">
+              <div className="flex justify-end gap-2 border-t border-[#F5A623]/10 pt-5">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="rounded-lg border border-[#e5ad46]/15 px-4 py-2.5 text-xs text-[#eccc90]/60 transition-colors hover:border-[#e5ad46]/40 hover:text-[#eccc90]"
+                  className="rounded-lg border border-[#F5A623]/15 px-4 py-2.5 text-xs text-[#F5A623]/60 transition-colors hover:border-[#F5A623]/40 hover:text-[#F5A623]"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-[#e5ad46] px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-[#1e2a38] transition-colors hover:bg-[#eccc90]"
+                  className="rounded-lg bg-[#F5A623] px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-[#1e2a38] transition-colors hover:bg-[#F5A623]"
                 >
                   Enregistrer le brouillon
                 </button>

@@ -96,7 +96,7 @@ export default function AdminBansPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center px-6 py-20 md:px-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#e5ad46] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#F5A623] border-t-transparent" />
       </div>
     );
   }
@@ -105,26 +105,26 @@ export default function AdminBansPage() {
     <div className="space-y-8 px-6 py-10 md:px-12">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-headline text-2xl text-[#e5ad46]">Gestion des Bannissements</h2>
-          <p className="mt-1 text-sm text-[#eccc90]/60">Bannir ou réhabiliter des utilisateurs</p>
+          <h2 className="font-headline text-2xl text-[#F5A623]">Gestion des Bannissements</h2>
+          <p className="mt-1 text-sm text-[#F5A623]/60">Bannir ou réhabiliter des utilisateurs</p>
         </div>
       </div>
 
       <div className="relative w-full max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#eccc90]/40" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#F5A623]/40" />
         <input
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Rechercher un utilisateur..."
-          className="w-full rounded-xl border border-[#e5ad46]/20 bg-[#25303a] py-3 pl-10 pr-4 text-sm text-[#eccc90] placeholder-[#eccc90]/30 outline-none transition-colors focus:border-[#e5ad46]"
+          className="w-full rounded-xl border border-[#F5A623]/20 bg-[#25303a] py-3 pl-10 pr-4 text-sm text-[#F5A623] placeholder-[#F5A623]/30 outline-none transition-colors focus:border-[#F5A623]"
         />
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-[#e5ad46]/10">
+      <div className="overflow-x-auto rounded-xl border border-[#F5A623]/10">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-[#e5ad46]/10 bg-[#25303a]/80 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/60">
+            <tr className="border-b border-[#F5A623]/10 bg-[#25303a]/80 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/60">
               <th className="px-6 py-4">Utilisateur</th>
               <th className="px-6 py-4">Email</th>
               <th className="px-6 py-4">Rôle</th>
@@ -132,18 +132,18 @@ export default function AdminBansPage() {
               <th className="px-6 py-4">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#e5ad46]/5">
+          <tbody className="divide-y divide-[#F5A623]/5">
             {filteredUsers.map(user => {
               const isBanned = activeBanUserIds.has(user.id);
               const userBan = bans.find(b => b.user_id === user.id && (!b.expires_at || new Date(b.expires_at) > new Date()));
               return (
-                <tr key={user.id} className="transition-colors hover:bg-[#e5ad46]/5">
-                  <td className="px-6 py-4 font-medium text-[#eccc90]">
+                <tr key={user.id} className="transition-colors hover:bg-[#F5A623]/5">
+                  <td className="px-6 py-4 font-medium text-[#F5A623]">
                     {user.first_name} {user.last_name}
                   </td>
-                  <td className="px-6 py-4 text-[#eccc90]/70">{user.email}</td>
+                  <td className="px-6 py-4 text-[#F5A623]/70">{user.email}</td>
                   <td className="px-6 py-4">
-                    <span className="rounded-full bg-[#e5ad46]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#e5ad46]">
+                    <span className="rounded-full bg-[#F5A623]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]">
                       {user.role}
                     </span>
                   </td>
@@ -152,7 +152,7 @@ export default function AdminBansPage() {
                       <span className="flex items-center gap-2 text-red-400">
                         <ShieldOff className="h-4 w-4" /> Banni
                         {userBan?.expires_at && (
-                          <span className="text-[10px] text-[#eccc90]/40">
+                          <span className="text-[10px] text-[#F5A623]/40">
                             jusqu&apos;au {new Date(userBan.expires_at).toLocaleDateString()}
                           </span>
                         )}
@@ -179,7 +179,7 @@ export default function AdminBansPage() {
                         Bannir
                       </button>
                     ) : (
-                      <span className="text-[10px] text-[#eccc90]/30">—</span>
+                      <span className="text-[10px] text-[#F5A623]/30">—</span>
                     )}
                   </td>
                 </tr>
@@ -187,7 +187,7 @@ export default function AdminBansPage() {
             })}
             {filteredUsers.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-[#eccc90]/40">
+                <td colSpan={5} className="px-6 py-12 text-center text-[#F5A623]/40">
                   Aucun utilisateur trouvé
                 </td>
               </tr>
@@ -198,27 +198,27 @@ export default function AdminBansPage() {
 
       {banModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-[#e5ad46]/20 bg-[#1e2a38] p-8 shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl border border-[#F5A623]/20 bg-[#1e2a38] p-8 shadow-2xl">
             <div className="mb-6 flex items-center gap-3">
               <AlertTriangle className="h-6 w-6 text-red-400" />
-              <h3 className="font-headline text-lg text-[#e5ad46]">Bannir un utilisateur</h3>
+              <h3 className="font-headline text-lg text-[#F5A623]">Bannir un utilisateur</h3>
             </div>
-            <p className="mb-6 text-sm text-[#eccc90]/70">
-              Êtes-vous sûr de vouloir bannir <strong className="text-[#eccc90]">{banModal.user.first_name} {banModal.user.last_name}</strong> ({banModal.user.email}) ?
+            <p className="mb-6 text-sm text-[#F5A623]/70">
+              Êtes-vous sûr de vouloir bannir <strong className="text-[#F5A623]">{banModal.user.first_name} {banModal.user.last_name}</strong> ({banModal.user.email}) ?
             </p>
             <div className="space-y-4">
               <div>
-                <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/60">Motif du ban</label>
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/60">Motif du ban</label>
                 <textarea
                   value={banReason}
                   onChange={e => setBanReason(e.target.value)}
                   rows={3}
                   placeholder="Raison du bannissement..."
-                  className="w-full rounded-xl border border-[#e5ad46]/20 bg-[#25303a] px-4 py-3 text-sm text-[#eccc90] placeholder-[#eccc90]/30 outline-none transition-colors focus:border-[#e5ad46]"
+                  className="w-full rounded-xl border border-[#F5A623]/20 bg-[#25303a] px-4 py-3 text-sm text-[#F5A623] placeholder-[#F5A623]/30 outline-none transition-colors focus:border-[#F5A623]"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/60">
+                <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/60">
                   Durée (minutes, laisser vide pour permanent)
                 </label>
                 <input
@@ -227,14 +227,14 @@ export default function AdminBansPage() {
                   onChange={e => setBanDuration(e.target.value)}
                   min="1"
                   placeholder="Ex: 1440 pour 24h"
-                  className="w-full rounded-xl border border-[#e5ad46]/20 bg-[#25303a] px-4 py-3 text-sm text-[#eccc90] placeholder-[#eccc90]/30 outline-none transition-colors focus:border-[#e5ad46]"
+                  className="w-full rounded-xl border border-[#F5A623]/20 bg-[#25303a] px-4 py-3 text-sm text-[#F5A623] placeholder-[#F5A623]/30 outline-none transition-colors focus:border-[#F5A623]"
                 />
               </div>
             </div>
             <div className="mt-8 flex justify-end gap-4">
               <button
                 onClick={() => { setBanModal(null); setBanReason(""); setBanDuration(""); }}
-                className="rounded-xl border border-[#e5ad46]/20 px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/60 transition-colors hover:bg-[#e5ad46]/5"
+                className="rounded-xl border border-[#F5A623]/20 px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/60 transition-colors hover:bg-[#F5A623]/5"
               >
                 Annuler
               </button>

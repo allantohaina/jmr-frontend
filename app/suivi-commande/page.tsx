@@ -35,46 +35,46 @@ export default function SuiviCommandePage() {
   const statutIndex = result ? (STATUT_INDEX[result.statut_production] ?? 0) : 0;
 
   return (
-    <div className="min-h-screen bg-[#1e2a38] text-[#eccc90]">
-      <header className="border-b border-[#e5ad46]/10">
+    <div className="min-h-screen bg-[#1e2a38] text-[#F5A623]">
+      <header className="border-b border-[#F5A623]/10">
         <div className="mx-auto max-w-3xl px-6 py-6 flex items-center justify-between">
-          <Link href="/" className="font-headline text-2xl text-[#e5ad46]">JMR Atelier</Link>
-          <Link href="/" className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#eccc90]/60 hover:text-[#e5ad46]">← Retour au site</Link>
+          <Link href="/" className="font-headline text-2xl text-[#F5A623]">JMR Atelier</Link>
+          <Link href="/" className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F5A623]/60 hover:text-[#F5A623]">← Retour au site</Link>
         </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-6 py-14">
-        <h1 className="font-headline text-4xl text-[#e5ad46] text-center">Suivi de commande</h1>
-        <p className="text-center text-sm text-[#eccc90]/60 mt-3">
+        <h1 className="font-headline text-4xl text-[#F5A623] text-center">Suivi de commande</h1>
+        <p className="text-center text-sm text-[#F5A623]/60 mt-3">
           Retrouvez l&apos;état d&apos;avancement de votre commande en indiquant son numéro et votre email.
         </p>
 
         <form onSubmit={lookup} className="mt-10 space-y-4">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#eccc90]/50">Numéro de commande</label>
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F5A623]/50">Numéro de commande</label>
             <input
               value={numero}
               onChange={(e) => setNumero(e.target.value)}
               placeholder="ex : CMD-AB12CD34"
               required
-              className="mt-2 w-full rounded-xl border border-[#e5ad46]/20 bg-[#25303a] px-4 py-3 text-sm text-[#eccc90] placeholder:text-[#eccc90]/30 focus:border-[#e5ad46] focus:outline-none"
+              className="mt-2 w-full rounded-xl border border-[#F5A623]/20 bg-[#25303a] px-4 py-3 text-sm text-[#F5A623] placeholder:text-[#F5A623]/30 focus:border-[#F5A623] focus:outline-none"
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#eccc90]/50">Email utilisé lors de la commande</label>
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F5A623]/50">Email utilisé lors de la commande</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="vous@exemple.com"
               required
-              className="mt-2 w-full rounded-xl border border-[#e5ad46]/20 bg-[#25303a] px-4 py-3 text-sm text-[#eccc90] placeholder:text-[#eccc90]/30 focus:border-[#e5ad46] focus:outline-none"
+              className="mt-2 w-full rounded-xl border border-[#F5A623]/20 bg-[#25303a] px-4 py-3 text-sm text-[#F5A623] placeholder:text-[#F5A623]/30 focus:border-[#F5A623] focus:outline-none"
             />
           </div>
           <button
             type="submit"
             disabled={isLoading}
-            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#e5ad46] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#1a1204] hover:brightness-105 disabled:opacity-50"
+            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#F5A623] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#1a1204] hover:brightness-105 disabled:opacity-50"
           >
             {isLoading ? <Loader className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
             Suivre ma commande
@@ -94,51 +94,51 @@ export default function SuiviCommandePage() {
         )}
 
         {checked && !error && !isLoading && !result && (
-          <div className="mt-8 text-center text-sm text-[#eccc90]/50">
+          <div className="mt-8 text-center text-sm text-[#F5A623]/50">
             Aucune commande ne correspond à ces informations.
           </div>
         )}
 
         {result && (
-          <div className="mt-10 rounded-2xl border border-[#e5ad46]/15 bg-[#25303a] p-8">
+          <div className="mt-10 rounded-2xl border border-[#F5A623]/15 bg-[#25303a] p-8">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#eccc90]/50">Numéro de commande</p>
-                <p className="font-headline text-2xl text-[#e5ad46] mt-1">{result.numero}</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F5A623]/50">Numéro de commande</p>
+                <p className="font-headline text-2xl text-[#F5A623] mt-1">{result.numero}</p>
               </div>
-              <Package className="h-10 w-10 text-[#e5ad46]/60" />
+              <Package className="h-10 w-10 text-[#F5A623]/60" />
             </div>
-            <p className="mt-2 text-sm text-[#eccc90]/80">{result.designation || "Confection textile"}</p>
-            <p className="text-xs text-[#eccc90]/50 mt-1">Quantité : {result.quantite} pièce(s)</p>
+            <p className="mt-2 text-sm text-[#F5A623]/80">{result.designation || "Confection textile"}</p>
+            <p className="text-xs text-[#F5A623]/50 mt-1">Quantité : {result.quantite} pièce(s)</p>
 
             <div className="mt-8">
-              <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-[#eccc90]/50 mb-3">
+              <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-[#F5A623]/50 mb-3">
                 <span>Statut actuel</span>
-                <span className="text-[#e5ad46]">{result.statut_production}</span>
+                <span className="text-[#F5A623]">{result.statut_production}</span>
               </div>
               <div className="flex items-center gap-1">
                 {STATUTS_PRODUCTION.map((s, i) => (
                   <div key={s} className="flex-1">
-                    <div className={`h-1.5 rounded-full ${i <= statutIndex ? "bg-[#e5ad46]" : "bg-[#eccc90]/15"}`} />
-                    <p className={`mt-1.5 text-center text-[8px] font-bold uppercase tracking-widest ${i === statutIndex ? "text-[#e5ad46]" : "text-[#eccc90]/30"}`}>
+                    <div className={`h-1.5 rounded-full ${i <= statutIndex ? "bg-[#F5A623]" : "bg-[#F5A623]/15"}`} />
+                    <p className={`mt-1.5 text-center text-[8px] font-bold uppercase tracking-widest ${i === statutIndex ? "text-[#F5A623]" : "text-[#F5A623]/30"}`}>
                       {s}
                     </p>
                   </div>
                 ))}
               </div>
               {result.pieces_produites > 0 && (
-                <p className="mt-4 text-xs text-[#eccc90]/60">Pièces produites : {result.pieces_produites} / {result.quantite}</p>
+                <p className="mt-4 text-xs text-[#F5A623]/60">Pièces produites : {result.pieces_produites} / {result.quantite}</p>
               )}
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-4 text-xs">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#eccc90]/50">Date commande</p>
-                <p className="text-[#eccc90]/80 mt-1">{result.date_commande || "—"}</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F5A623]/50">Date commande</p>
+                <p className="text-[#F5A623]/80 mt-1">{result.date_commande || "—"}</p>
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#eccc90]/50">Livraison prévue</p>
-                <p className="text-[#eccc90]/80 mt-1">{result.date_livraison_prevue || "—"}</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F5A623]/50">Livraison prévue</p>
+                <p className="text-[#F5A623]/80 mt-1">{result.date_livraison_prevue || "—"}</p>
               </div>
             </div>
 

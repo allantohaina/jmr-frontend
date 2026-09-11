@@ -463,10 +463,10 @@ export function Navbar({
                   </button>
 
                   {isProfileOpen && (
-                    <div className="absolute top-full right-0 mt-2 w-48 bg-[#25303a] border border-[#e5ad46]/20 rounded-xl shadow-xl py-2 z-[110] animate-in fade-in zoom-in-95 duration-200">
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-[#25303a] border border-[#F5A623]/20 rounded-xl shadow-xl py-2 z-[110] animate-in fade-in zoom-in-95 duration-200">
                       <Link
                         href="/mon-profil"
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#e5ad46] transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#F5A623] transition-colors"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         <span className="material-symbols-outlined text-xl">person</span>
@@ -475,14 +475,14 @@ export function Navbar({
                       {effectiveUserRole === "admin" && (
                         <Link
                           href="/backoffice"
-                          className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#e5ad46] transition-colors"
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#F5A623] transition-colors"
                           onClick={() => setIsProfileOpen(false)}
                         >
                           <span className="material-symbols-outlined text-xl">admin_panel_settings</span>
                           {messages.navbar.administration}
                         </Link>
                       )}
-                      <div className="h-px bg-[#e5ad46]/20 mx-2 my-1"></div>
+                      <div className="h-px bg-[#F5A623]/20 mx-2 my-1"></div>
                       <button
                         type="button"
                         onClick={handleSignOut}
@@ -548,7 +548,7 @@ export function Navbar({
                     loading="lazy"
                   />
                   {unreadNotifications > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#e5ad46] px-1 text-[10px] font-bold leading-none text-[#1e2a38]">
+                    <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#F5A623] px-1 text-[10px] font-bold leading-none text-[#1e2a38]">
                       {unreadNotifications > 9 ? "9+" : unreadNotifications}
                     </span>
                   )}
@@ -557,8 +557,8 @@ export function Navbar({
               </button>
 
               {isNotifOpen && (
-                <div className="absolute top-full right-0 mt-2 w-80 bg-[#25303a] border border-[#e5ad46]/20 rounded-xl shadow-xl py-4 px-4 z-[110] animate-in fade-in zoom-in-95 duration-200">
-                  <h3 className="text-sm font-semibold text-[#e5ad46] mb-3">{messages.notifications.bellTitle}</h3>
+                <div className="absolute top-full right-0 mt-2 w-80 bg-[#25303a] border border-[#F5A623]/20 rounded-xl shadow-xl py-4 px-4 z-[110] animate-in fade-in zoom-in-95 duration-200">
+                  <h3 className="text-sm font-semibold text-[#F5A623] mb-3">{messages.notifications.bellTitle}</h3>
 
                   {isPushSupported() && (
                     <div className="mb-3 rounded-lg bg-[#1e2a38] p-3">
@@ -644,13 +644,13 @@ export function Navbar({
 
         <button
           type="button"
-          className="max-[900px]:flex max-[900px]:items-center max-[900px]:justify-center hidden h-10 w-10 rounded-xl transition-colors hover:bg-[#e5ad46]/10"
+          className="max-[900px]:flex max-[900px]:items-center max-[900px]:justify-center hidden h-10 w-10 rounded-xl transition-colors hover:bg-[#F5A623]/10"
           onClick={handleToggleBurger}
           aria-label="Menu"
           aria-expanded={isMenuOpen}
           aria-controls="site-mobile-menu"
         >
-          <span className="material-symbols-outlined text-[#e5ad46] text-2xl">
+          <span className="material-symbols-outlined text-[#F5A623] text-2xl">
             {isMenuOpen ? "close" : "menu"}
           </span>
         </button>

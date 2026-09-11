@@ -40,42 +40,42 @@ export default function TicketsPage() {
     <div className="p-6 md:p-10 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Wrench className="h-6 w-6 text-[#e5ad46]" />
-          <h1 className="font-headline text-2xl text-[#e5ad46]">Tickets Réparation Machine</h1>
+          <Wrench className="h-6 w-6 text-[#F5A623]" />
+          <h1 className="font-headline text-2xl text-[#F5A623]">Tickets Réparation Machine</h1>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 rounded-xl bg-[#e5ad46] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] transition hover:bg-[#d49a2e]">
+        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 rounded-xl bg-[#F5A623] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] transition hover:bg-[#F5A623]">
           {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           {showForm ? "Annuler" : "Nouveau ticket"}
         </button>
       </div>
 
       {showForm && (
-        <div className="rounded-xl bg-[#25303a] p-5 border border-[#e5ad46]/20 space-y-4">
-          <input value={form.machine} onChange={(e) => setForm({ ...form, machine: e.target.value })} placeholder="Machine concernée" className="w-full rounded-lg bg-[#1e2a38] px-4 py-3 text-sm text-[#eccc90] placeholder:text-[#eccc90]/30 outline-none border border-[#e5ad46]/10 focus:border-[#e5ad46]/30" />
-          <input value={form.reportedBy} onChange={(e) => setForm({ ...form, reportedBy: e.target.value })} placeholder="Signalé par" className="w-full rounded-lg bg-[#1e2a38] px-4 py-3 text-sm text-[#eccc90] placeholder:text-[#eccc90]/30 outline-none border border-[#e5ad46]/10 focus:border-[#e5ad46]/30" />
-          <button onClick={addTicket} className="w-full rounded-lg bg-[#e5ad46] py-3 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] transition hover:bg-[#d49a2e]">Créer le ticket</button>
+        <div className="rounded-xl bg-[#25303a] p-5 border border-[#F5A623]/20 space-y-4">
+          <input value={form.machine} onChange={(e) => setForm({ ...form, machine: e.target.value })} placeholder="Machine concernée" className="w-full rounded-lg bg-[#1e2a38] px-4 py-3 text-sm text-[#F5A623] placeholder:text-[#F5A623]/30 outline-none border border-[#F5A623]/10 focus:border-[#F5A623]/30" />
+          <input value={form.reportedBy} onChange={(e) => setForm({ ...form, reportedBy: e.target.value })} placeholder="Signalé par" className="w-full rounded-lg bg-[#1e2a38] px-4 py-3 text-sm text-[#F5A623] placeholder:text-[#F5A623]/30 outline-none border border-[#F5A623]/10 focus:border-[#F5A623]/30" />
+          <button onClick={addTicket} className="w-full rounded-lg bg-[#F5A623] py-3 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] transition hover:bg-[#F5A623]">Créer le ticket</button>
         </div>
       )}
 
       <div className="flex gap-2">
         {[null, "ouvert", "en cours", "résolu"].map((s) => (
-          <button key={s || "all"} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === s || (!statusFilter && !s) ? "bg-[#e5ad46] text-[#1e2a38]" : "bg-[#25303a] text-[#eccc90]/60 hover:bg-[#e5ad46]/10"}`}>
+          <button key={s || "all"} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === s || (!statusFilter && !s) ? "bg-[#F5A623] text-[#1e2a38]" : "bg-[#25303a] text-[#F5A623]/60 hover:bg-[#F5A623]/10"}`}>
             {s || "Tous"}
           </button>
         ))}
       </div>
 
       {filteredTickets.length === 0 ? (
-        <p className="text-sm text-[#eccc90]/50">{statusFilter ? "Aucun ticket avec ce statut." : "Aucun ticket de réparation."}</p>
+        <p className="text-sm text-[#F5A623]/50">{statusFilter ? "Aucun ticket avec ce statut." : "Aucun ticket de réparation."}</p>
       ) : (
         <div className="space-y-3">
           {filteredTickets.map((t) => (
-            <div key={t.id} className="rounded-xl bg-[#25303a] p-4 border border-[#e5ad46]/10 flex items-center justify-between cursor-pointer hover:bg-[#2a3642] transition-colors" onClick={() => toggleStatus(t.id, t.status)}>
+            <div key={t.id} className="rounded-xl bg-[#25303a] p-4 border border-[#F5A623]/10 flex items-center justify-between cursor-pointer hover:bg-[#2a3642] transition-colors" onClick={() => toggleStatus(t.id, t.status)}>
               <div className="flex items-center gap-3">
                 <span className={`h-2.5 w-2.5 rounded-full ${t.status === "ouvert" ? "bg-red-400" : t.status === "en cours" ? "bg-yellow-400" : "bg-green-400"}`} />
                 <div>
-                  <p className="font-semibold text-[#eccc90]">{t.machine}</p>
-                  <p className="text-xs text-[#eccc90]/50">Signalé par {t.reportedBy} • {t.date}</p>
+                  <p className="font-semibold text-[#F5A623]">{t.machine}</p>
+                  <p className="text-xs text-[#F5A623]/50">Signalé par {t.reportedBy} • {t.date}</p>
                 </div>
               </div>
               <span className={`text-[10px] font-bold uppercase tracking-widest ${t.status === "ouvert" ? "text-red-400" : t.status === "en cours" ? "text-yellow-400" : "text-green-400"}`}>{t.status}</span>

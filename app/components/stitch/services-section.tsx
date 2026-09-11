@@ -36,14 +36,14 @@ export function ServicesSection() {
               alt="Travail de couture pratique en cours à l'atelier"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#1e2a38]/95 via-[#1e2a38]/35 to-transparent"></div>
-            <div className="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 md:right-auto text-[#eccc90] z-10">
+            <div className="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 md:right-auto text-[#F5A623] z-10">
               <span className="font-body text-[10px] uppercase tracking-[0.3em] text-secondary mb-2 block font-bold">
                 <EditableText contentKey="services.service1Eyebrow" fallback={messages.services.service1Eyebrow} />
               </span>
               <h3 className="font-headline text-2xl sm:text-3xl md:text-4xl mb-3 md:mb-4">
                 <EditableText contentKey="services.service1Title" fallback={messages.services.service1Title} as="span" multiline />
               </h3>
-              <p className="font-body text-sm md:text-base text-[#eccc90]/85 max-w-md mb-4 md:mb-6">
+              <p className="font-body text-sm md:text-base text-[#F5A623]/85 max-w-md mb-4 md:mb-6">
                 <EditableText contentKey="services.service1Desc" fallback={messages.services.service1Desc} as="span" multiline />
               </p>
               <div className="w-12 h-[1px] bg-primary group-hover:w-24 transition-all duration-500"></div>

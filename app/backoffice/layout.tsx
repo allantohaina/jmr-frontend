@@ -88,7 +88,7 @@ function NavGroup({ title, icon: GroupIcon, items }: { title: string; icon: Reac
       <button
         onClick={() => setOpen(!open)}
         className={`flex w-full items-center gap-[11px] rounded-md border-0 bg-transparent px-3 py-[11px] text-[12.5px] font-semibold tracking-[0.5px] transition-colors ${
-          open ? "text-[#e5ad46]" : "text-[#7b8496] hover:bg-[#17202f] hover:text-[#ece7db]"
+          open ? "text-[#F5A623]" : "text-[#7b8496] hover:bg-[#17202f] hover:text-[#ece7db]"
         }`}
       >
         <GroupIcon className="h-4 w-4 shrink-0 opacity-85" />
@@ -96,7 +96,7 @@ function NavGroup({ title, icon: GroupIcon, items }: { title: string; icon: Reac
         <ChevronRight className={`h-[13px] w-[13px] shrink-0 opacity-55 transition-transform duration-200 ${open ? "rotate-90" : ""}`} />
       </button>
       {open && (
-        <div className="ml-5 space-y-[1px] border-l border-dashed border-[rgba(229,173,70,0.14)] pl-2.5">
+        <div className="ml-5 space-y-[1px] border-l border-dashed border-[rgba(245, 166, 35,0.14)] pl-2.5">
           {items.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || (href !== "/backoffice/client/devis" && pathname?.startsWith(href));
             return (
@@ -105,14 +105,14 @@ function NavGroup({ title, icon: GroupIcon, items }: { title: string; icon: Reac
                 href={href}
                 className={`relative flex items-center gap-2.5 rounded-[5px] px-3 py-[9px] text-[13px] transition-colors ${
                   active
-                    ? "bg-[linear-gradient(90deg,rgba(229,173,70,0.14),rgba(229,173,70,0.02))] text-[#ece7db]"
+                    ? "bg-[linear-gradient(90deg,rgba(245, 166, 35,0.14),rgba(245, 166, 35,0.02))] text-[#ece7db]"
                     : "text-[#7b8496] hover:bg-[#17202f] hover:text-[#ece7db]"
                 }`}
               >
                 {active && (
-                  <span className="absolute -left-[11px] top-[3px] bottom-[3px] w-[2px] rounded-sm bg-[#e5ad46]" />
+                  <span className="absolute -left-[11px] top-[3px] bottom-[3px] w-[2px] rounded-sm bg-[#F5A623]" />
                 )}
-                <Icon className={`h-[15px] w-[15px] shrink-0 ${active ? "text-[#e5ad46] opacity-100" : "opacity-80"}`} />
+                <Icon className={`h-[15px] w-[15px] shrink-0 ${active ? "text-[#F5A623] opacity-100" : "opacity-80"}`} />
                 {label}
               </Link>
             );
@@ -164,11 +164,11 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#1e2a38] font-body text-[#eccc90] md:flex">
+    <div className="min-h-screen overflow-hidden bg-[#1e2a38] font-body text-[#F5A623] md:flex">
       <aside className="z-50 flex w-full flex-col bg-[linear-gradient(180deg,#121a28,#0f1622)] shadow-2xl transition-all duration-300 md:fixed md:left-0 md:top-0 md:h-full md:w-64 border-r border-white/5">
         <div className="px-6 pt-7 pb-5 md:block">
           <div>
-            <Link href="/" className="mb-[5px] block font-brand text-[23px] font-semibold tracking-[0.5px] text-[#e5ad46]">
+            <Link href="/" className="mb-[5px] block font-brand text-[23px] font-semibold tracking-[0.5px] text-[#F5A623]">
               JMR Atelier
             </Link>
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#7b8496]">
@@ -176,21 +176,21 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             </p>
           </div>
         </div>
-        <div className="mx-6 mb-[6px] border-b border-dashed border-[rgba(229,173,70,0.14)]" />
+        <div className="mx-6 mb-[6px] border-b border-dashed border-[rgba(245, 166, 35,0.14)]" />
 
         <nav className="hidden flex-1 space-y-0 overflow-y-auto px-[14px] py-[10px] md:block">
           <Link
             href="/backoffice"
             className={`relative flex items-center gap-2.5 rounded-[5px] px-3 py-[9px] text-[13px] transition-colors ${
               pathname === "/backoffice"
-                ? "bg-[linear-gradient(90deg,rgba(229,173,70,0.14),rgba(229,173,70,0.02))] text-[#ece7db]"
+                ? "bg-[linear-gradient(90deg,rgba(245, 166, 35,0.14),rgba(245, 166, 35,0.02))] text-[#ece7db]"
                 : "text-[#7b8496] hover:bg-[#17202f] hover:text-[#ece7db]"
             }`}
           >
             {pathname === "/backoffice" && (
-              <span className="absolute -left-[11px] top-[3px] bottom-[3px] w-[2px] rounded-sm bg-[#e5ad46]" />
+              <span className="absolute -left-[11px] top-[3px] bottom-[3px] w-[2px] rounded-sm bg-[#F5A623]" />
             )}
-            <LayoutDashboard className={`h-[15px] w-[15px] shrink-0 ${pathname === "/backoffice" ? "text-[#e5ad46] opacity-100" : "opacity-80"}`} />
+            <LayoutDashboard className={`h-[15px] w-[15px] shrink-0 ${pathname === "/backoffice" ? "text-[#F5A623] opacity-100" : "opacity-80"}`} />
             Tableau de bord
           </Link>
 
@@ -202,58 +202,58 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           <NavGroup title="Administration" icon={Shield} items={adminItems} />
         </nav>
 
-        <div className="flex gap-4 overflow-x-auto border-b border-[#e5ad46]/10 bg-[#25303a] p-4 md:hidden">
-          <Link href="/backoffice" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5 first:bg-[#e5ad46]/10">
+        <div className="flex gap-4 overflow-x-auto border-b border-[#F5A623]/10 bg-[#25303a] p-4 md:hidden">
+          <Link href="/backoffice" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#F5A623]/5 first:bg-[#F5A623]/10">
             <div className="flex items-center gap-2">
-              <LayoutDashboard className="h-4 w-4 text-[#e5ad46]" />
+              <LayoutDashboard className="h-4 w-4 text-[#F5A623]" />
               <span className="text-[8px] font-bold uppercase tracking-widest">Tableau de bord</span>
             </div>
           </Link>
-          <Link href="/backoffice/client/devis" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
+          <Link href="/backoffice/client/devis" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#F5A623]/5">
             <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4 text-[#e5ad46]" />
+              <FileText className="h-4 w-4 text-[#F5A623]" />
               <span className="text-[8px] font-bold uppercase tracking-widest">Devis</span>
             </div>
           </Link>
-          <Link href="/backoffice/client/orders" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
+          <Link href="/backoffice/client/orders" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#F5A623]/5">
             <div className="flex items-center gap-2">
-              <Package className="h-4 w-4 text-[#e5ad46]" />
+              <Package className="h-4 w-4 text-[#F5A623]" />
               <span className="text-[8px] font-bold uppercase tracking-widest">Commandes</span>
             </div>
           </Link>
-          <Link href="/backoffice/employee/tickets" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
+          <Link href="/backoffice/employee/tickets" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#F5A623]/5">
             <div className="flex items-center gap-2">
-              <Wrench className="h-4 w-4 text-[#e5ad46]" />
+              <Wrench className="h-4 w-4 text-[#F5A623]" />
               <span className="text-[8px] font-bold uppercase tracking-widest">Tickets</span>
             </div>
           </Link>
-          <Link href="/backoffice/employee/tasks" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
+          <Link href="/backoffice/employee/tasks" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#F5A623]/5">
             <div className="flex items-center gap-2">
-              <ClipboardList className="h-4 w-4 text-[#e5ad46]" />
+              <ClipboardList className="h-4 w-4 text-[#F5A623]" />
               <span className="text-[8px] font-bold uppercase tracking-widest">Tâches</span>
             </div>
           </Link>
-          <Link href="/backoffice/orders" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
+          <Link href="/backoffice/orders" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#F5A623]/5">
             <div className="flex items-center gap-2">
-              <Package className="h-4 w-4 text-[#e5ad46]" />
+              <Package className="h-4 w-4 text-[#F5A623]" />
               <span className="text-[8px] font-bold uppercase tracking-widest">Prod.</span>
             </div>
           </Link>
-          <Link href="/backoffice/delivery-notes" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
+          <Link href="/backoffice/delivery-notes" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#F5A623]/5">
             <div className="flex items-center gap-2">
-              <Truck className="h-4 w-4 text-[#e5ad46]" />
+              <Truck className="h-4 w-4 text-[#F5A623]" />
               <span className="text-[8px] font-bold uppercase tracking-widest">BL</span>
             </div>
           </Link>
-          <Link href="/backoffice/purchases" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
+          <Link href="/backoffice/purchases" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#F5A623]/5">
             <div className="flex items-center gap-2">
-              <ShoppingCart className="h-4 w-4 text-[#e5ad46]" />
+              <ShoppingCart className="h-4 w-4 text-[#F5A623]" />
               <span className="text-[8px] font-bold uppercase tracking-widest">Achats</span>
             </div>
           </Link>
-          <Link href="/backoffice/finance/invoices" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#e5ad46]/5">
+          <Link href="/backoffice/finance/invoices" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#F5A623]/5">
             <div className="flex items-center gap-2">
-              <Receipt className="h-4 w-4 text-[#e5ad46]" />
+              <Receipt className="h-4 w-4 text-[#F5A623]" />
               <span className="text-[8px] font-bold uppercase tracking-widest">Factures</span>
             </div>
           </Link>
@@ -261,7 +261,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
         <div className="mt-auto hidden border-t border-white/5 p-[14px] md:block">
           <div className="mb-1 flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-[#17202f]">
-            <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#e5ad46,#a67428)] font-brand text-[12px] font-semibold text-[#181205]">
+            <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#F5A623,#F5A623)] font-brand text-[12px] font-semibold text-[#181205]">
               {profileInitials}
             </div>
             <div>
@@ -280,22 +280,22 @@ function AdminShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="relative flex min-h-screen flex-1 flex-col md:ml-64">
-        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[#e5ad46]/10 bg-[#1e2a38]/80 px-6 py-4 backdrop-blur-md md:px-12 md:py-6">
+        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[#F5A623]/10 bg-[#1e2a38]/80 px-6 py-4 backdrop-blur-md md:px-12 md:py-6">
           <div>
-            <h1 className="font-headline text-xl text-[#e5ad46] md:text-2xl">Espace de Gestion</h1>
-            <p className="mt-1 text-[8px] font-bold uppercase tracking-widest text-[#eccc90]/40 md:text-[10px]">
+            <h1 className="font-headline text-xl text-[#F5A623] md:text-2xl">Espace de Gestion</h1>
+            <p className="mt-1 text-[8px] font-bold uppercase tracking-widest text-[#F5A623]/40 md:text-[10px]">
               Contrôle de production • Temps réel
             </p>
           </div>
 
           <div className="flex items-center gap-4 md:gap-6">
             <AdminHeaderAlerts />
-            <div className="hidden h-8 w-[1px] bg-[#e5ad46]/10 md:block" />
+            <div className="hidden h-8 w-[1px] bg-[#F5A623]/10 md:block" />
             <div className="flex items-center gap-2 md:gap-4">
-              <span className="hidden rounded-full bg-[#e5ad46]/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#e5ad46] md:inline-block">
+              <span className="hidden rounded-full bg-[#F5A623]/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#F5A623] md:inline-block">
                 Systeme v2.4
               </span>
-              <Link href="/" className="text-[#eccc90]/60 transition-colors hover:text-[#e5ad46]" aria-label="Retour au site">
+              <Link href="/" className="text-[#F5A623]/60 transition-colors hover:text-[#F5A623]" aria-label="Retour au site">
                 <Home className="h-5 w-5" />
               </Link>
               <button

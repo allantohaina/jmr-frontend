@@ -45,8 +45,8 @@ export default function TasksPage() {
   return (
     <div className="p-6 md:p-10 space-y-6">
       <div className="flex items-center gap-3">
-        <ClipboardList className="h-6 w-6 text-[#e5ad46]" />
-        <h1 className="font-headline text-2xl text-[#e5ad46]">Suivi Employés</h1>
+        <ClipboardList className="h-6 w-6 text-[#F5A623]" />
+        <h1 className="font-headline text-2xl text-[#F5A623]">Suivi Employés</h1>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -62,27 +62,27 @@ export default function TasksPage() {
 
       <div className="flex gap-2">
         {[null, "present", "absent"].map((s) => (
-          <button key={s || "all"} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === s || (!statusFilter && !s) ? "bg-[#e5ad46] text-[#1e2a38]" : "bg-[#25303a] text-[#eccc90]/60 hover:bg-[#e5ad46]/10"}`}>
+          <button key={s || "all"} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === s || (!statusFilter && !s) ? "bg-[#F5A623] text-[#1e2a38]" : "bg-[#25303a] text-[#F5A623]/60 hover:bg-[#F5A623]/10"}`}>
             {s === "present" ? "Présents" : s === "absent" ? "Absents" : "Tous"}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-8"><LoaderIcon className="h-5 w-5 animate-spin text-[#e5ad46]" /></div>
+        <div className="flex justify-center py-8"><LoaderIcon className="h-5 w-5 animate-spin text-[#F5A623]" /></div>
       ) : employees.length === 0 ? (
-        <p className="text-sm text-[#eccc90]/50">Aucun employé inscrit.</p>
+        <p className="text-sm text-[#F5A623]/50">Aucun employé inscrit.</p>
       ) : filteredEmployees.length === 0 ? (
-        <p className="text-sm text-[#eccc90]/50">Aucun employé avec ce statut.</p>
+        <p className="text-sm text-[#F5A623]/50">Aucun employé avec ce statut.</p>
       ) : (
         <div className="space-y-3">
           {filteredEmployees.map((e) => (
-            <div key={e.id} className="rounded-xl bg-[#25303a] p-4 border border-[#e5ad46]/10 flex items-center justify-between">
+            <div key={e.id} className="rounded-xl bg-[#25303a] p-4 border border-[#F5A623]/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className={`h-3 w-3 rounded-full ${e.present ? "bg-green-400" : "bg-red-400"}`} />
                 <div>
-                  <p className="font-semibold text-[#eccc90]">{e.first_name} {e.last_name}</p>
-                  <p className="text-xs text-[#eccc90]/50">{e.email}</p>
+                  <p className="font-semibold text-[#F5A623]">{e.first_name} {e.last_name}</p>
+                  <p className="text-xs text-[#F5A623]/50">{e.email}</p>
                 </div>
               </div>
               <button

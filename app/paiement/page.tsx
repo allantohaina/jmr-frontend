@@ -47,17 +47,17 @@ function PaymentView() {
   const fmt = (n: number | string | undefined) => Number(n ?? 0).toLocaleString("fr-FR") + " Ar";
 
   return (
-    <div className="min-h-screen bg-[#1e2a38] text-[#eccc90]">
-      <header className="border-b border-[#e5ad46]/10">
+    <div className="min-h-screen bg-[#1e2a38] text-[#F5A623]">
+      <header className="border-b border-[#F5A623]/10">
         <div className="mx-auto max-w-lg px-6 py-6 flex items-center justify-between">
-          <Link href="/" className="font-headline text-2xl text-[#e5ad46]">JMR Atelier</Link>
-          <Link href="/" className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#eccc90]/60 hover:text-[#e5ad46]">← Accueil</Link>
+          <Link href="/" className="font-headline text-2xl text-[#F5A623]">JMR Atelier</Link>
+          <Link href="/" className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F5A623]/60 hover:text-[#F5A623]">← Accueil</Link>
         </div>
       </header>
 
       <main className="mx-auto max-w-lg px-6 py-14">
         {isLoading ? (
-          <div className="flex justify-center py-20"><Loader className="h-6 w-6 animate-spin text-[#e5ad46]" /></div>
+          <div className="flex justify-center py-20"><Loader className="h-6 w-6 animate-spin text-[#F5A623]" /></div>
         ) : error && !lien ? (
           <div className="rounded-2xl border border-[#e05252]/30 bg-[#e05252]/10 p-8 text-center">
             <AlertCircle className="mx-auto h-10 w-10 text-[#e05252]" />
@@ -68,8 +68,8 @@ function PaymentView() {
           <div className="rounded-2xl border border-green-700/30 bg-green-900/10 p-8 text-center">
             <CheckCircle2 className="mx-auto h-12 w-12 text-green-400" />
             <h1 className="font-headline text-2xl text-green-300 mt-4">Déjà payé</h1>
-            <p className="text-sm text-[#eccc90]/60 mt-2">Ce paiement a déjà été enregistré. Merci !</p>
-            <p className="text-xs text-[#eccc90]/40 mt-4">Commande {lien.commande_numero} · {fmt(lien.montant)}</p>
+            <p className="text-sm text-[#F5A623]/60 mt-2">Ce paiement a déjà été enregistré. Merci !</p>
+            <p className="text-xs text-[#F5A623]/40 mt-4">Commande {lien.commande_numero} · {fmt(lien.montant)}</p>
           </div>
         ) : lien && lien.etat === "expiré" ? (
           <div className="rounded-2xl border border-[#e05252]/30 bg-[#e05252]/10 p-8 text-center">
@@ -81,23 +81,23 @@ function PaymentView() {
           <div className="rounded-2xl border border-green-700/30 bg-green-900/10 p-8 text-center">
             <CheckCircle2 className="mx-auto h-12 w-12 text-green-400" />
             <h1 className="font-headline text-2xl text-green-300 mt-4">Paiement enregistré</h1>
-            <p className="text-sm text-[#eccc90]/60 mt-2">Merci pour votre confiance. Votre paiement a bien été pris en compte.</p>
-            <p className="text-xs text-[#eccc90]/40 mt-4">Commande {lien.commande_numero} · {fmt(lien.montant)}</p>
+            <p className="text-sm text-[#F5A623]/60 mt-2">Merci pour votre confiance. Votre paiement a bien été pris en compte.</p>
+            <p className="text-xs text-[#F5A623]/40 mt-4">Commande {lien.commande_numero} · {fmt(lien.montant)}</p>
           </div>
         ) : lien ? (
-          <div className="rounded-2xl border border-[#e5ad46]/15 bg-[#25303a] p-8">
+          <div className="rounded-2xl border border-[#F5A623]/15 bg-[#25303a] p-8">
             <div className="flex items-center gap-3">
-              <CreditCard className="h-8 w-8 text-[#e5ad46]" />
-              <h1 className="font-headline text-2xl text-[#e5ad46]">Paiement en ligne</h1>
+              <CreditCard className="h-8 w-8 text-[#F5A623]" />
+              <h1 className="font-headline text-2xl text-[#F5A623]">Paiement en ligne</h1>
             </div>
 
             <div className="mt-6 space-y-3 text-sm">
-              <div className="flex justify-between"><span className="text-[#eccc90]/50">Commande</span><span className="font-bold text-[#eccc90]">{lien.commande_numero || "—"}</span></div>
-              <div className="flex justify-between"><span className="text-[#eccc90]/50">Désignation</span><span className="text-[#eccc90]">{lien.commande_designation || "—"}</span></div>
-              {lien.client_nom && <div className="flex justify-between"><span className="text-[#eccc90]/50">Client</span><span className="text-[#eccc90]">{lien.client_nom}</span></div>}
-              <div className="flex justify-between items-center border-t border-[#e5ad46]/10 pt-3 mt-3">
-                <span className="text-[#eccc90]/50">Montant à régler</span>
-                <span className="font-headline text-2xl text-[#e5ad46]">{fmt(lien.montant)}</span>
+              <div className="flex justify-between"><span className="text-[#F5A623]/50">Commande</span><span className="font-bold text-[#F5A623]">{lien.commande_numero || "—"}</span></div>
+              <div className="flex justify-between"><span className="text-[#F5A623]/50">Désignation</span><span className="text-[#F5A623]">{lien.commande_designation || "—"}</span></div>
+              {lien.client_nom && <div className="flex justify-between"><span className="text-[#F5A623]/50">Client</span><span className="text-[#F5A623]">{lien.client_nom}</span></div>}
+              <div className="flex justify-between items-center border-t border-[#F5A623]/10 pt-3 mt-3">
+                <span className="text-[#F5A623]/50">Montant à régler</span>
+                <span className="font-headline text-2xl text-[#F5A623]">{fmt(lien.montant)}</span>
               </div>
             </div>
 
@@ -110,12 +110,12 @@ function PaymentView() {
             <button
               onClick={pay}
               disabled={paying}
-              className="mt-8 w-full rounded-xl bg-[#e5ad46] px-6 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#1a1204] hover:brightness-105 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+              className="mt-8 w-full rounded-xl bg-[#F5A623] px-6 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#1a1204] hover:brightness-105 disabled:opacity-50 inline-flex items-center justify-center gap-2"
             >
               {paying ? <Loader className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
               Confirmer le paiement de {fmt(lien.montant)}
             </button>
-            <p className="text-center text-[10px] text-[#eccc90]/40 mt-4">
+            <p className="text-center text-[10px] text-[#F5A623]/40 mt-4">
               Le règlement est enregistré dans votre dossier. Un reçu est disponible auprès de l&apos;atelier.
             </p>
           </div>
@@ -127,7 +127,7 @@ function PaymentView() {
 
 export default function PaiementPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#1e2a38] text-[#eccc90] flex items-center justify-center"><Loader className="h-6 w-6 animate-spin text-[#e5ad46]" /></div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[#1e2a38] text-[#F5A623] flex items-center justify-center"><Loader className="h-6 w-6 animate-spin text-[#F5A623]" /></div>}>
       <PaymentView />
     </Suspense>
   );

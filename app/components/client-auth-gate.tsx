@@ -90,7 +90,7 @@ export function ClientAuthGate({
 
   if (isChecking || !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#1e2a38] text-[#e5ad46]">
+      <div className="flex min-h-screen items-center justify-center bg-[#1e2a38] text-[#F5A623]">
         <span className="text-xs font-bold uppercase tracking-[0.3em]">Verification...</span>
       </div>
     );

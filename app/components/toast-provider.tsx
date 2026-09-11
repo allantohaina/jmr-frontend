@@ -43,14 +43,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               className="pointer-events-auto animate-toast-up"
             >
               <div className={`flex items-center gap-4 p-5 rounded-[1.5rem] shadow-2xl border min-w-[320px] max-w-md bg-[#25303a] backdrop-blur-md ${
-                toast.type === "success" ? "border-[#e5ad46]/30" :
+                toast.type === "success" ? "border-[#F5A623]/30" :
                 toast.type === "error" ? "border-red-500/30" :
-                toast.type === "warning" ? "border-orange-500/30" : "border-[#e5ad46]/30"
+                toast.type === "warning" ? "border-orange-500/30" : "border-[#F5A623]/30"
               }`}>
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  toast.type === "success" ? "bg-[#e5ad46]/10 text-[#e5ad46]" :
+                  toast.type === "success" ? "bg-[#F5A623]/10 text-[#F5A623]" :
                   toast.type === "error" ? "bg-red-500/10 text-red-400" :
-                  toast.type === "warning" ? "bg-orange-500/10 text-orange-400" : "bg-[#e5ad46]/10 text-[#e5ad46]"
+                  toast.type === "warning" ? "bg-orange-500/10 text-orange-400" : "bg-[#F5A623]/10 text-[#F5A623]"
                 }`}>
                   {toast.type === "success" && <CheckCircle2 className="w-5 h-5" />}
                   {toast.type === "error" && <AlertCircle className="w-5 h-5" />}
@@ -59,12 +59,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 </div>
                 
                 <div className="flex-1">
-                  <p className="text-sm font-bold text-[#eccc90] leading-tight">{toast.message}</p>
+                  <p className="text-sm font-bold text-[#F5A623] leading-tight">{toast.message}</p>
                 </div>
 
                 <button 
                   onClick={() => removeToast(toast.id)}
-                  className="p-2 hover:bg-[#e5ad46]/10 rounded-lg transition-colors text-[#eccc90]/20 hover:text-[#eccc90]/40"
+                  className="p-2 hover:bg-[#F5A623]/10 rounded-lg transition-colors text-[#F5A623]/20 hover:text-[#F5A623]/40"
                 >
                   <X className="w-4 h-4" />
                 </button>

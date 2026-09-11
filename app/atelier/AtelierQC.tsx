@@ -53,8 +53,8 @@ export function AtelierQC() {
 
   return (
     <div className="max-w-4xl mx-auto animate-in fade-in duration-500">
-      <div className="bg-[#25303a] rounded-[2.5rem] shadow-xl border border-[#e5ad46]/5 overflow-hidden">
-        <div className="p-10 bg-[#e5ad46] text-[#1e2a38] flex justify-between items-center">
+      <div className="bg-[#25303a] rounded-[2.5rem] shadow-xl border border-[#F5A623]/5 overflow-hidden">
+        <div className="p-10 bg-[#F5A623] text-[#1e2a38] flex justify-between items-center">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-[#1e2a38]/10 flex items-center justify-center">
               <ShieldCheck className="w-8 h-8" />
@@ -73,18 +73,18 @@ export function AtelierQC() {
         <form onSubmit={handleSubmit} className="p-10 space-y-10">
           <div className="space-y-6">
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Numéro de Commande / Lot</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40 mb-3 block">Numéro de Commande / Lot</label>
               <input
                 type="text"
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value)}
                 placeholder="Ex: #CMD-104-LOT2"
-                className="w-full p-5 bg-[#1e2a38] border border-[#e5ad46]/10 rounded-2xl text-lg font-bold text-[#eccc90] focus:outline-none focus:ring-2 focus:ring-[#e5ad46]/20 placeholder:text-[#eccc90]/20"
+                className="w-full p-5 bg-[#1e2a38] border border-[#F5A623]/10 rounded-2xl text-lg font-bold text-[#F5A623] focus:outline-none focus:ring-2 focus:ring-[#F5A623]/20 placeholder:text-[#F5A623]/20"
               />
             </div>
 
             <div className="space-y-3">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-3 block">Checklist de Vérification</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40 mb-3 block">Checklist de Vérification</label>
               <div className="grid md:grid-cols-2 gap-4">
                 {steps.map(step => (
                   <button
@@ -94,7 +94,7 @@ export function AtelierQC() {
                     className={`flex items-center gap-4 p-5 rounded-2xl border transition-all text-left ${
                       step.checked 
                         ? "bg-green-500/10 border-green-500/20 text-green-400 shadow-sm" 
-                        : "bg-[#1e2a38] border-[#e5ad46]/5 text-[#eccc90]/40 hover:border-[#e5ad46]/20"
+                        : "bg-[#1e2a38] border-[#F5A623]/5 text-[#F5A623]/40 hover:border-[#F5A623]/20"
                     }`}
                   >
                     {step.checked ? (
@@ -120,8 +120,8 @@ export function AtelierQC() {
             </div>
           </div>
 
-          <div className="pt-10 border-t border-[#e5ad46]/10 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2 text-[#eccc90]/40">
+          <div className="pt-10 border-t border-[#F5A623]/10 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-2 text-[#F5A623]/40">
               <AlertCircle className="w-4 h-4" />
               <span className="text-[10px] font-bold uppercase tracking-widest">Le rapport sera archivé et visible par l&apos;admin</span>
             </div>

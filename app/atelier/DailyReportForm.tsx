@@ -82,31 +82,31 @@ export function DailyReportForm() {
   };
 
   return (
-    <div className="bg-[#25303a] rounded-[2rem] shadow-sm border border-[#e5ad46]/5 overflow-hidden">
-      <div className="p-8 border-b border-[#e5ad46]/10 flex justify-between items-center bg-[#1e2a38]">
+    <div className="bg-[#25303a] rounded-[2rem] shadow-sm border border-[#F5A623]/5 overflow-hidden">
+      <div className="p-8 border-b border-[#F5A623]/10 flex justify-between items-center bg-[#1e2a38]">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#e5ad46]/10 flex items-center justify-center">
-            <FileText className="text-[#e5ad46] w-6 h-6" />
+          <div className="w-12 h-12 rounded-2xl bg-[#F5A623]/10 flex items-center justify-center">
+            <FileText className="text-[#F5A623] w-6 h-6" />
           </div>
           <div>
-            <h2 className="font-headline text-2xl text-[#e5ad46]">Rapport de Production</h2>
-            <p className="text-[10px] uppercase tracking-widest text-[#eccc90]/40 font-bold">Détails de fin de session</p>
+            <h2 className="font-headline text-2xl text-[#F5A623]">Rapport de Production</h2>
+            <p className="text-[10px] uppercase tracking-widest text-[#F5A623]/40 font-bold">Détails de fin de session</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             {isSaving ? (
-              <div className="animate-pulse flex items-center gap-2 text-[#e5ad46]">
+              <div className="animate-pulse flex items-center gap-2 text-[#F5A623]">
                 <Save className="w-3 h-3" />
                 <span className="text-[10px] font-bold uppercase tracking-widest">Sauvegarde...</span>
               </div>
             ) : isDirty ? (
-              <div className="flex items-center gap-2 text-[#eccc90]/60">
+              <div className="flex items-center gap-2 text-[#F5A623]/60">
                 <Save className="w-3 h-3" />
                 <span className="text-[10px] font-bold uppercase tracking-widest">Modifications non sauvegardées</span>
               </div>
             ) : lastSaved ? (
-              <div className="flex items-center gap-2 text-[#e5ad46]">
+              <div className="flex items-center gap-2 text-[#F5A623]">
                 <CheckCircle2 className="w-3 h-3" />
                 <span className="text-[10px] font-bold uppercase tracking-widest">Sauvegardé à {lastSaved.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
               </div>
@@ -122,11 +122,11 @@ export function DailyReportForm() {
       <form onSubmit={handleSubmit} className="p-8 space-y-8">
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40">Détails des tâches</h3>
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">Détails des tâches</h3>
             <button 
               type="button" 
               onClick={addTask}
-              className="flex items-center gap-2 text-[#e5ad46] hover:text-[#eccc90] text-[10px] font-bold uppercase tracking-widest transition-all"
+              className="flex items-center gap-2 text-[#F5A623] hover:text-[#F5A623] text-[10px] font-bold uppercase tracking-widest transition-all"
             >
               <Plus className="w-3 h-3" /> Ajouter une tâche
             </button>
@@ -137,13 +137,13 @@ export function DailyReportForm() {
               <div key={task.id} className="flex gap-4 items-start animate-in fade-in slide-in-from-right-4 duration-300" style={{ animationDelay: `${index * 100}ms` }}>
                 <div className="flex-1 space-y-4">
                   <div className="relative">
-                    <Package className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#eccc90]/20" />
+                    <Package className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#F5A623]/20" />
                     <input
                       type="text"
                       placeholder="Description de la tâche..."
                       value={task.description}
                       onChange={(e) => updateTask(task.id, "description", e.target.value)}
-                      className="w-full p-4 pl-12 bg-[#1e2a38] border border-[#e5ad46]/10 rounded-2xl text-sm text-[#eccc90] focus:outline-none focus:ring-2 focus:ring-[#e5ad46]/20 placeholder:text-[#eccc90]/20"
+                      className="w-full p-4 pl-12 bg-[#1e2a38] border border-[#F5A623]/10 rounded-2xl text-sm text-[#F5A623] focus:outline-none focus:ring-2 focus:ring-[#F5A623]/20 placeholder:text-[#F5A623]/20"
                     />
                   </div>
                   <div className="flex items-center gap-4">
@@ -153,9 +153,9 @@ export function DailyReportForm() {
                       max="100"
                       value={task.progress}
                       onChange={(e) => updateTask(task.id, "progress", parseInt(e.target.value))}
-                      className="flex-1 accent-[#e5ad46]"
+                      className="flex-1 accent-[#F5A623]"
                     />
-                    <span className="text-[10px] font-bold text-[#eccc90] w-12">{task.progress}%</span>
+                    <span className="text-[10px] font-bold text-[#F5A623] w-12">{task.progress}%</span>
                   </div>
                 </div>
                 <button 
@@ -170,14 +170,14 @@ export function DailyReportForm() {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-[#e5ad46]/10">
+        <div className="pt-8 border-t border-[#F5A623]/10">
           <button
             type="submit"
             disabled={isSubmitting}
             className={`w-full py-5 rounded-2xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-lg ${
               isSubmitting 
                 ? "bg-green-500 text-[#1e2a38] cursor-not-allowed" 
-                : "bg-[#e5ad46] text-[#1e2a38] hover:bg-[#eccc90] active:scale-[0.98]"
+                : "bg-[#F5A623] text-[#1e2a38] hover:bg-[#F5A623] active:scale-[0.98]"
             }`}
           >
             {isSubmitting ? (

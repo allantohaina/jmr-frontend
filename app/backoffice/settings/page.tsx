@@ -32,22 +32,22 @@ export default function AdminSettingsPage() {
     <div className="px-6 md:px-12 py-10 space-y-10">
       <div className="flex justify-between items-end px-2">
         <div>
-          <h2 className="font-headline text-3xl text-[#eccc90]">Paramètres Système</h2>
-          <p className="text-[#eccc90]/40 text-xs font-bold uppercase tracking-widest mt-1">Configuration de l&apos;atelier et des accès administrateur</p>
+          <h2 className="font-headline text-3xl text-[#F5A623]">Paramètres Système</h2>
+          <p className="text-[#F5A623]/40 text-xs font-bold uppercase tracking-widest mt-1">Configuration de l&apos;atelier et des accès administrateur</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-[#25303a] p-8 rounded-2xl border border-[#e5ad46]/10 shadow-sm space-y-6">
-          <h3 className="font-headline text-xl text-[#eccc90]">Profil de l&apos;Atelier</h3>
+        <div className="bg-[#25303a] p-8 rounded-2xl border border-[#F5A623]/10 shadow-sm space-y-6">
+          <h3 className="font-headline text-xl text-[#F5A623]">Profil de l&apos;Atelier</h3>
           <div className="space-y-4">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-1">Nom de l&apos;établissement</p>
-              <p className="text-[#eccc90] font-bold">JMR Textile - Atelier de Production</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40 mb-1">Nom de l&apos;établissement</p>
+              <p className="text-[#F5A623] font-bold">JMR Textile - Atelier de Production</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#eccc90]/40 mb-1">Localisation</p>
-              <p className="text-[#eccc90]">Antananarivo, Madagascar</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40 mb-1">Localisation</p>
+              <p className="text-[#F5A623]">Antananarivo, Madagascar</p>
             </div>
             <button
               onClick={() => alert("Interface d'édition du profil en cours de chargement...")}
@@ -58,16 +58,16 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        <div className="bg-[#25303a] p-8 rounded-2xl border border-[#e5ad46]/10 shadow-sm space-y-6">
-          <h3 className="font-headline text-xl text-[#eccc90]">Sécurité & Accès</h3>
+        <div className="bg-[#25303a] p-8 rounded-2xl border border-[#F5A623]/10 shadow-sm space-y-6">
+          <h3 className="font-headline text-xl text-[#F5A623]">Sécurité & Accès</h3>
           <div className="space-y-4">
             <div
               onClick={() => setTfaEnabled(!tfaEnabled)}
-              className="flex justify-between items-center p-4 bg-[#e5ad46]/10 rounded-xl cursor-pointer hover:bg-[#e5ad46]/10 transition-colors"
+              className="flex justify-between items-center p-4 bg-[#F5A623]/10 rounded-xl cursor-pointer hover:bg-[#F5A623]/10 transition-colors"
             >
               <div>
-                <p className="text-sm font-bold text-[#eccc90]">Double Authentification</p>
-                <p className="text-[10px] text-[#eccc90]/40 uppercase font-bold tracking-widest">Recommandé pour la sécurité</p>
+                <p className="text-sm font-bold text-[#F5A623]">Double Authentification</p>
+                <p className="text-[10px] text-[#F5A623]/40 uppercase font-bold tracking-widest">Recommandé pour la sécurité</p>
               </div>
               <div className={`w-12 h-6 rounded-full relative transition-colors ${tfaEnabled ? 'bg-orange-500/20' : 'bg-gray-200'}`}>
                 <div className={`absolute top-1 w-4 h-4 rounded-full shadow-sm transition-all duration-300 ${tfaEnabled ? 'right-1 bg-orange-500' : 'left-1 bg-gray-400'}`}></div>
@@ -75,7 +75,7 @@ export default function AdminSettingsPage() {
             </div>
             <button
               onClick={() => alert("Gestion des administrateurs réservée au super-admin.")}
-              className="w-full py-4 border border-[#e5ad46]/10 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-[#e5ad46]/10 transition-all active:scale-95"
+              className="w-full py-4 border border-[#F5A623]/10 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-[#F5A623]/10 transition-all active:scale-95"
             >
               Gérer les administrateurs
             </button>
@@ -89,7 +89,7 @@ export default function AdminSettingsPage() {
           <AlertTriangle className="h-5 w-5 text-red-500" />
           <h3 className="font-headline text-xl text-red-600">Zone Danger</h3>
         </div>
-        <p className="text-sm text-[#eccc90]/60">
+        <p className="text-sm text-[#F5A623]/60">
           Supprime toutes les données de test (commandes, devis, demandes, produits, achats, livraisons, notifications, etc.).
           Les comptes administrateurs et travailleurs sont conservés.
         </p>
@@ -125,7 +125,7 @@ export default function AdminSettingsPage() {
               value={adminPassword}
               onChange={(e) => setAdminPassword(e.target.value)}
               placeholder="Mot de passe administrateur"
-              className="w-full px-4 py-3 bg-[#25303a] border border-red-200 rounded-xl text-sm text-[#eccc90] placeholder:text-red-300 outline-none focus:border-red-400 transition-colors"
+              className="w-full px-4 py-3 bg-[#25303a] border border-red-200 rounded-xl text-sm text-[#F5A623] placeholder:text-red-300 outline-none focus:border-red-400 transition-colors"
               onKeyDown={(e) => { if (e.key === "Enter" && adminPassword.trim()) handleTruncate(); }}
               autoFocus
             />

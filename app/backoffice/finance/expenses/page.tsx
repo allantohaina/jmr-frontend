@@ -35,10 +35,10 @@ export default function ExpensesPage() {
     <div className="p-6 md:p-10 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <TrendingDown className="h-6 w-6 text-[#e5ad46]" />
-          <h1 className="font-headline text-2xl text-[#e5ad46]">Dépenses</h1>
+          <TrendingDown className="h-6 w-6 text-[#F5A623]" />
+          <h1 className="font-headline text-2xl text-[#F5A623]">Dépenses</h1>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 rounded-xl bg-[#e5ad46] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] transition hover:bg-[#d49a2e]">
+        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 rounded-xl bg-[#F5A623] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] transition hover:bg-[#F5A623]">
           {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           {showForm ? "Annuler" : "Ajouter"}
         </button>
@@ -52,27 +52,27 @@ export default function ExpensesPage() {
       )}
 
       {showForm && (
-        <div className="rounded-xl bg-[#25303a] p-5 border border-[#e5ad46]/20 space-y-4">
-          <input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="Libellé" className="w-full rounded-lg bg-[#1e2a38] px-4 py-3 text-sm text-[#eccc90] placeholder:text-[#eccc90]/30 outline-none border border-[#e5ad46]/10 focus:border-[#e5ad46]/30" />
-          <input value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} placeholder="Montant (€)" type="number" step="0.01" className="w-full rounded-lg bg-[#1e2a38] px-4 py-3 text-sm text-[#eccc90] placeholder:text-[#eccc90]/30 outline-none border border-[#e5ad46]/10 focus:border-[#e5ad46]/30" />
-          <button onClick={addExpense} className="w-full rounded-lg bg-[#e5ad46] py-3 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] transition hover:bg-[#d49a2e]">Ajouter</button>
+        <div className="rounded-xl bg-[#25303a] p-5 border border-[#F5A623]/20 space-y-4">
+          <input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="Libellé" className="w-full rounded-lg bg-[#1e2a38] px-4 py-3 text-sm text-[#F5A623] placeholder:text-[#F5A623]/30 outline-none border border-[#F5A623]/10 focus:border-[#F5A623]/30" />
+          <input value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} placeholder="Montant (€)" type="number" step="0.01" className="w-full rounded-lg bg-[#1e2a38] px-4 py-3 text-sm text-[#F5A623] placeholder:text-[#F5A623]/30 outline-none border border-[#F5A623]/10 focus:border-[#F5A623]/30" />
+          <button onClick={addExpense} className="w-full rounded-lg bg-[#F5A623] py-3 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] transition hover:bg-[#F5A623]">Ajouter</button>
         </div>
       )}
 
       <div className="relative">
-        <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#eccc90]/30" />
-        <input value={search} onChange={(e) => { setSearch(e.target.value); onSearchChange(e.target.value); }} placeholder="Rechercher..." className="w-full rounded-xl bg-[#25303a] pl-11 pr-4 py-3 text-sm text-[#eccc90] placeholder:text-[#eccc90]/30 outline-none border border-[#e5ad46]/10 focus:border-[#e5ad46]/30" />
+        <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#F5A623]/30" />
+        <input value={search} onChange={(e) => { setSearch(e.target.value); onSearchChange(e.target.value); }} placeholder="Rechercher..." className="w-full rounded-xl bg-[#25303a] pl-11 pr-4 py-3 text-sm text-[#F5A623] placeholder:text-[#F5A623]/30 outline-none border border-[#F5A623]/10 focus:border-[#F5A623]/30" />
       </div>
 
       {filteredExpenses.length === 0 ? (
-        <p className="text-sm text-[#eccc90]/50">{search ? "Aucune dépense trouvée." : "Aucune dépense enregistrée."}</p>
+        <p className="text-sm text-[#F5A623]/50">{search ? "Aucune dépense trouvée." : "Aucune dépense enregistrée."}</p>
       ) : (
         <div className="space-y-3">{filteredExpenses.map((e, i) => (
-          <div key={i} className="rounded-xl bg-[#25303a] p-4 border border-[#e5ad46]/10">
+          <div key={i} className="rounded-xl bg-[#25303a] p-4 border border-[#F5A623]/10">
             <div className="flex justify-between">
               <div>
-                <p className="font-semibold text-[#eccc90]">{e.label}</p>
-                <p className="text-xs text-[#eccc90]/50">{e.date}</p>
+                <p className="font-semibold text-[#F5A623]">{e.label}</p>
+                <p className="text-xs text-[#F5A623]/50">{e.date}</p>
               </div>
               <p className="font-bold text-red-400">{e.amount} €</p>
             </div>
