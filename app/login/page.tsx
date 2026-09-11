@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AuthAccessSection } from "@/app/components";
+import { ClientAccessPage } from "@/app/components";
 import { getSafeRedirectPath, getToken } from "@/app/lib";
 
 function isStaffSubdomain(): boolean {
@@ -17,6 +17,12 @@ export default function LoginPage() {
     if (typeof window === "undefined") return undefined;
     const params = new URLSearchParams(window.location.search);
     return getSafeRedirectPath(params.get("redirect")) ?? getSafeRedirectPath(params.get("next")) ?? "/mon-profil";
+  }, []);
+
+  const initialTab = useMemo(() => {
+    if (typeof window === "undefined") return "login" as const;
+    const params = new URLSearchParams(window.location.search);
+    return params.get("tab") === "signup" ? ("signup" as const) : ("login" as const);
   }, []);
 
   useEffect(() => {
@@ -41,5 +47,5 @@ export default function LoginPage() {
     );
   }
 
-  return <AuthAccessSection nextPath={redirectPath ?? "/mon-profil"} />;
+  return <ClientAccessPage nextPath={redirectPath ?? "/mon-profil"} initialTab={initialTab} />;
 }

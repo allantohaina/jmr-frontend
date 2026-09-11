@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AuthAccessSection, MonProfilSection } from "@/app/components";
+import { MonProfilSection } from "@/app/components";
 import { authAPI, getSafeRedirectPath, getToken, type UserProfile } from "@/app/lib";
 
 export default function MonProfilPage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const nextPath = useMemo(() => {
     if (typeof window === "undefined") {
@@ -24,7 +23,8 @@ export default function MonProfilPage() {
       const token = getToken();
 
       if (!token) {
-        setIsLoading(false);
+        const target = nextPath ?? "/mon-profil";
+        window.location.replace(`/login?next=${encodeURIComponent(target)}`);
         return;
       }
 
@@ -41,7 +41,7 @@ export default function MonProfilPage() {
       } catch (loadError) {
         console.error("Failed to fetch profile:", loadError);
         if (mounted) {
-          setError("auth_failed");
+          window.location.replace("/login?next=%2Fmon-profil");
         }
       } finally {
         if (mounted) {
@@ -66,7 +66,11 @@ export default function MonProfilPage() {
   }
 
   if (!user) {
-    return <AuthAccessSection nextPath={nextPath ?? "/mon-profil"} error={error} />;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#1e2a38] text-[#FFB42D]">
+        <span className="text-xs font-bold uppercase tracking-[0.3em]">Chargement...</span>
+      </div>
+    );
   }
 
   return <MonProfilSection variant="dashboard" user={user} />;

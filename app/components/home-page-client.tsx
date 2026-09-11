@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   NotificationsSection,
-  AuthAccessSection,
+  ClientAccessCta,
   HeroSection,
   ServicesSection,
   AboutSection,
@@ -59,7 +59,7 @@ export function HomePageClient() {
             {isSignedIn && hasNotifications ? (
               <NotificationsSection user={user} />
             ) : (
-              <AuthAccessSection />
+              <ClientAccessCta />
             )}
           </div>
         </div>

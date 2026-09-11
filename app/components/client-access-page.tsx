@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useLocale } from "@/app/components/locale-provider";
 import { authenticateWithForm } from "@/app/lib";
 import { loginRateLimiter } from "@/app/lib/rate-limit";
@@ -9,6 +10,7 @@ import { getErrorMessage } from "@/app/lib/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
+import { AuthBar } from "@/app/components/auth-bar";
 
 // Liste des pays avec code ISO et indicatif téléphonique
 const countries = [
@@ -30,11 +32,11 @@ const signupSchema = z.object({
   first_name: z
     .string()
     .min(2, "Prénom trop court (minimum 2 caractères)")
-    .max(50, "Prénom trop long (maximum 50 caractères)"), // Le prénom le plus long enregistré est environ 50 caractères
+    .max(50, "Prénom trop long (maximum 50 caractères)"),
   last_name: z
     .string()
     .min(2, "Nom trop court (minimum 2 caractères)")
-    .max(100, "Nom trop long (maximum 100 caractères)"), // Le nom de famille peut être plus long
+    .max(100, "Nom trop long (maximum 100 caractères)"),
   email: z.string().email("Adresse email invalide"),
   company: z
     .string()
@@ -67,9 +69,10 @@ const signupSchema = z.object({
 
 type SignupFormData = z.infer<typeof signupSchema>;
 
-type AuthAccessSectionProps = {
+type ClientAccessPageProps = {
   nextPath?: string;
   error?: string | null;
+  initialTab?: "login" | "signup";
 };
 
 type SignupFeedback = {
@@ -82,15 +85,14 @@ function resolveAuthErrorMessage(error?: string | null) {
   return getErrorMessage(error);
 }
 
-export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionProps) {
+export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab = "login" }: ClientAccessPageProps) {
   const { messages } = useLocale();
   const [errorMessage, setErrorMessage] = useState(resolveAuthErrorMessage(error));
   const [signupFeedback, setSignupFeedback] = useState<SignupFeedback | null>(null);
   const [pendingIntent, setPendingIntent] = useState<"login" | "signup" | null>(null);
   const [isMounted, setIsMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
+  const [activeTab, setActiveTab] = useState<"login" | "signup">(initialTab);
 
-  // Hook Form pour l'inscription
   const signupForm = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -131,9 +133,8 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
     }
 
     const formData = new FormData(event.currentTarget);
-    const intent = "login" as const;
 
-    setPendingIntent(intent);
+    setPendingIntent("login");
     setErrorMessage("");
 
     try {
@@ -184,32 +185,276 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
     document.getElementById("signup-feedback")?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  // Get selected country dial code for display
   const getSelectedDialCode = () => {
     if (!isMounted) return "+...";
     const country = countries.find(c => c.code === selectedCountryCode);
     return country?.dialCode || "+...";
   };
 
+  if (!isMounted) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#1e2a38", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 40, height: 40, border: "3px solid #FFB42D", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-background text-on-surface font-body selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
-      <main className="min-h-screen px-4 pb-20 pt-12 md:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-10 text-center">
-            <h1 className="mb-4 font-headline text-5xl font-bold tracking-tight text-primary md:text-6xl">
-              {messages.auth.title}
-            </h1>
-            <p className="mx-auto max-w-xl text-sm font-body text-lg uppercase tracking-[0.1em] text-secondary">
-              {messages.auth.subtitle}
-            </p>
-            {errorMessage && (
-              <div className="mt-8 inline-block rounded-xl bg-red-500/10 p-4 text-red-400 border border-red-500/20" role="alert">
-                {errorMessage}
-              </div>
-            )}
+    <>
+      <AuthBar />
+      <style>{`
+        .client-login-root {
+          min-height: 100vh;
+          background: #1e2a38;
+          font-family: 'Inter', sans-serif;
+          display: grid;
+          grid-template-columns: 1fr 1.2fr;
+        }
+
+        .client-panel {
+          position: relative;
+          background: #141e2e;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 48px;
+          overflow: hidden;
+        }
+
+        .client-thread-bg {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          opacity: 0.15;
+        }
+
+        .client-brand-mark {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+
+        .client-copy-section {
+          position: relative;
+          z-index: 1;
+          margin-top: auto;
+        }
+
+        .client-copy-section .eyebrow {
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 3px;
+          color: #FFB42D;
+          margin-bottom: 16px;
+        }
+
+        .client-copy-section h2 {
+          font-family: 'Fraunces', serif;
+          font-size: 32px;
+          font-weight: 300;
+          line-height: 1.35;
+          color: #f3efe4;
+          margin-bottom: 20px;
+        }
+
+        .client-copy-section p {
+          font-size: 14px;
+          line-height: 1.7;
+          color: #8b93a7;
+          max-width: 440px;
+        }
+
+        .client-points {
+          list-style: none;
+          margin: 24px 0 0;
+          padding: 0;
+          display: grid;
+          gap: 12px;
+        }
+
+        .client-points li {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 13px;
+          color: #f3efe4;
+        }
+
+        .client-points .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #FFB42D;
+          flex-shrink: 0;
+        }
+
+        .client-panel-footer {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          gap: 24px;
+          margin-top: 48px;
+        }
+
+        .client-panel-footer span {
+          font-size: 11px;
+          letter-spacing: 1px;
+          color: #8b93a7;
+          text-transform: uppercase;
+        }
+
+        .client-form-side {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 48px 60px;
+          background: #1e2a38;
+          max-width: 640px;
+          width: 100%;
+          margin: 0 auto;
+        }
+
+        .client-form-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(255, 180, 45, 0.1);
+          border: 1px solid rgba(255, 180, 45, 0.25);
+          border-radius: 24px;
+          padding: 6px 16px;
+          font-size: 12px;
+          font-weight: 500;
+          color: #FFB42D;
+          margin-bottom: 24px;
+          width: fit-content;
+        }
+
+        .client-back-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          color: #8b93a7;
+          text-decoration: none;
+          font-size: 13px;
+          margin-bottom: 32px;
+          transition: color 0.2s;
+        }
+
+        .client-back-link:hover {
+          color: #f3efe4;
+        }
+
+        .client-form-side h3 {
+          font-family: 'Fraunces', serif;
+          font-size: 28px;
+          font-weight: 600;
+          color: #f3efe4;
+          margin-bottom: 6px;
+        }
+
+        .client-form-side .subtitle {
+          font-size: 11px;
+          font-weight: 500;
+          letter-spacing: 3px;
+          color: #8b93a7;
+          margin-bottom: 32px;
+        }
+
+        .client-error-box {
+          background: rgba(220, 53, 69, 0.1);
+          border: 1px solid rgba(220, 53, 69, 0.25);
+          border-radius: 10px;
+          padding: 12px 16px;
+          margin-bottom: 20px;
+          color: #f87171;
+          font-size: 13px;
+          line-height: 1.5;
+        }
+
+        .client-form-footer-note {
+          text-align: center;
+          font-size: 12px;
+          color: #8b93a7;
+          margin-top: 28px;
+        }
+
+        @media (max-width: 900px) {
+          .client-login-root {
+            grid-template-columns: 1fr;
+          }
+          .client-panel {
+            display: none;
+          }
+          .client-form-side {
+            padding: 32px 24px;
+          }
+        }
+      `}</style>
+
+      <div className="client-login-root">
+        {/* LEFT PANEL */}
+        <div className="client-panel">
+          <svg className="client-thread-bg" viewBox="0 0 600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 100 Q200 200 150 400 Q100 600 250 800" stroke="#FFB42D" strokeWidth="1.5" strokeDasharray="8 6" fill="none" />
+            <path d="M120 50 Q300 180 220 450 Q140 720 300 850" stroke="#FFB42D" strokeWidth="1" strokeDasharray="6 8" fill="none" />
+            <path d="M400 30 Q320 250 380 480 Q440 700 350 880" stroke="#FFB42D" strokeWidth="1" strokeDasharray="10 5" fill="none" />
+            <path d="M500 120 Q420 300 480 520 Q540 740 430 870" stroke="#FFB42D" strokeWidth="1.2" strokeDasharray="5 9" fill="none" />
+            <path d="M80 200 Q250 320 180 560 Q110 800 280 900" stroke="#FFB42D" strokeWidth="0.8" strokeDasharray="4 10" fill="none" />
+          </svg>
+
+          <div className="client-brand-mark">
+            <img src="/navbar/logo-dark.svg" alt="JMR Textile" style={{ height: 40, width: "auto" }} />
           </div>
 
-          <div className="auth-card">
+          <div className="client-copy-section">
+            <div className="eyebrow">ESPACE CLIENT</div>
+            <h2>Vos projets textiles, suivis en toute transparence.</h2>
+            <p>
+              Devis, commandes et production : retrouvez l&apos;ensemble de vos projets JMR Textile au même endroit, avec un interlocuteur unique à Madagascar.
+            </p>
+            <ul className="client-points">
+              <li><span className="dot" />Devis et validations en ligne</li>
+              <li><span className="dot" />Suivi de production en temps réel</li>
+              <li><span className="dot" />Paiements par tranches sécurisées</li>
+            </ul>
+          </div>
+
+          <div className="client-panel-footer">
+            <span>Sur-mesure</span>
+            <span>Suivi temps réel</span>
+            <span>© 2026</span>
+          </div>
+        </div>
+
+        {/* RIGHT PANEL */}
+        <div className="client-form-side">
+          <div className="client-form-badge">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="8" width="2.5" height="5" rx="0.5" fill="#FFB42D" />
+              <rect x="4.5" y="5" width="2.5" height="8" rx="0.5" fill="#FFB42D" />
+              <rect x="8" y="2.5" width="2.5" height="10.5" rx="0.5" fill="#FFB42D" />
+              <rect x="11.5" y="0.5" width="2" height="12.5" rx="0.5" fill="#FFB42D" />
+            </svg>
+            Espace client
+          </div>
+
+          <Link href="/" className="client-back-link">
+            ← Retour au site
+          </Link>
+
+          <h3>{messages.auth.title}</h3>
+          <div className="subtitle">{messages.auth.subtitle}</div>
+
+          {errorMessage && (
+            <div className="client-error-box" role="alert">
+              {errorMessage}
+            </div>
+          )}
+
+          <div className="auth-card" style={{ margin: 0, maxWidth: "100%" }}>
             <div className="auth-tabs" role="tablist" aria-label="Se connecter / Créer un compte">
               <button
                 type="button"
@@ -231,11 +476,10 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
               </button>
             </div>
 
-            {/* Formulaire de connexion */}
+            {/* Connexion */}
             <form
               className={`auth-panel${activeTab === "login" ? " is-active" : ""}`}
               onSubmit={handleLoginSubmit}
-              noValidate={false}
             >
               <input name="next" type="hidden" value={nextPath} />
               <input name="intent" type="hidden" value="login" />
@@ -276,11 +520,10 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
               </button>
             </form>
 
-            {/* Formulaire d'inscription — tous les champs requis par la validation */}
+            {/* Inscription — tous les champs requis par la validation */}
             <form
               className={`auth-panel${activeTab === "signup" ? " is-active" : ""}`}
               onSubmit={handleSignupSubmit(onSignupSubmit, onSignupInvalid)}
-              noValidate={false}
             >
               <p className="auth-title">{messages.auth.signupEyebrow}</p>
               <p className="auth-subtitle">{messages.auth.subtitle}</p>
@@ -499,8 +742,12 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
               </button>
             </form>
           </div>
+
+          <div className="client-form-footer-note">
+            Vos données restent confidentielles et ne sont jamais partagées.
+          </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </>
   );
 }
