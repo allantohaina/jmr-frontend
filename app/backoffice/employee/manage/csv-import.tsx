@@ -50,25 +50,25 @@ export function CSVImport({ onImported }: Props) {
 
   return (
     <div className="max-w-2xl">
-      <div className="rounded-xl border border-[#F5A623]/10 bg-white/5 p-6">
+      <div className="rounded-xl border border-[#FFB42D]/10 bg-white/5 p-6">
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#F5A623]/10">
-            <Upload className="h-5 w-5 text-[#F5A623]" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#FFB42D]/10">
+            <Upload className="h-5 w-5 text-[#FFB42D]" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-[#F5A623]">Import CSV</h2>
-            <p className="text-[10px] uppercase tracking-widest text-[#F5A623]/40">
+            <h2 className="text-sm font-bold text-[#FFB42D]">Import CSV</h2>
+            <p className="text-[10px] uppercase tracking-widest text-[#FFB42D]/40">
               Importez plusieurs employés d&apos;un seul coup
             </p>
           </div>
         </div>
 
-        <div className="mb-6 rounded-lg border border-dashed border-[#F5A623]/20 bg-white/5 p-8 text-center">
-          <FileText className="mx-auto mb-3 h-10 w-10 text-[#F5A623]/20" />
-          <p className="mb-2 text-sm text-[#F5A623]/60">
+        <div className="mb-6 rounded-lg border border-dashed border-[#FFB42D]/20 bg-white/5 p-8 text-center">
+          <FileText className="mx-auto mb-3 h-10 w-10 text-[#FFB42D]/20" />
+          <p className="mb-2 text-sm text-[#FFB42D]/60">
             {file ? file.name : "Glissez un fichier CSV ici ou cliquez pour sélectionner"}
           </p>
-          <p className="mb-4 text-[10px] uppercase tracking-widest text-[#F5A623]/30">
+          <p className="mb-4 text-[10px] uppercase tracking-widest text-[#FFB42D]/30">
             Format: email, password, first_name, last_name, phone, role, department, position, hire_date, cin
           </p>
           <input
@@ -80,22 +80,22 @@ export function CSVImport({ onImported }: Props) {
           />
           <button
             onClick={() => fileRef.current?.click()}
-            className="rounded-lg border border-[#F5A623]/20 bg-white/5 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/60 transition-colors hover:bg-white/10 hover:text-[#F5A623]"
+            className="rounded-lg border border-[#FFB42D]/20 bg-white/5 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/60 transition-colors hover:bg-white/10 hover:text-[#FFB42D]"
           >
             Sélectionner un fichier
           </button>
         </div>
 
         <div className="mb-6 rounded-lg bg-white/5 p-4">
-          <h3 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/60">
+          <h3 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/60">
             Format attendu du CSV
           </h3>
-          <pre className="overflow-x-auto text-xs text-[#F5A623]/40">
+          <pre className="overflow-x-auto text-xs text-[#FFB42D]/40">
 {`email,password,first_name,last_name,phone,role,department,position,hire_date,cin
 ahmed@jmrtextile.com,motdepasse123,Ahmed,Benali,0600000001,worker,Production,Couteau,2024-01-15,AB123456
 sara@jmrtextile.com,securepass456,Sara,Elouardi,0600000002,worker,Coupe,Surcheuse,2024-03-20,CD789012`}
           </pre>
-          <p className="mt-2 text-[10px] text-[#F5A623]/30">
+          <p className="mt-2 text-[10px] text-[#FFB42D]/30">
             Colonnes obligatoires: email, password, first_name, last_name. Le rôle par défaut est &quot;worker&quot;.
           </p>
         </div>
@@ -141,7 +141,7 @@ sara@jmrtextile.com,securepass456,Sara,Elouardi,0600000002,worker,Coupe,Surcheus
         <button
           onClick={handleImport}
           disabled={!file || isLoading}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#F5A623] py-3 text-xs font-bold uppercase tracking-[0.3em] text-[#1e2a38] transition-all hover:bg-[#F5A623] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#FFB42D] py-3 text-xs font-bold uppercase tracking-[0.3em] text-[#1e2a38] transition-all hover:bg-[#FFB42D] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isLoading ? (
             <>

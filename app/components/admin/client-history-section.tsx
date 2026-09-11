@@ -162,8 +162,8 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
   if (isLoading) {
     return (
       <div className="px-4 md:px-12 py-8 md:py-10">
-        <div className="flex items-center justify-center rounded-2xl border border-[#F5A623]/10 bg-[#25303a] py-16">
-          <Loader2 className="mr-3 h-5 w-5 animate-spin text-[#F5A623]/50" />
+        <div className="flex items-center justify-center rounded-2xl border border-[#FFB42D]/10 bg-[#25303a] py-16">
+          <Loader2 className="mr-3 h-5 w-5 animate-spin text-[#FFB42D]/50" />
           Chargement...
         </div>
       </div>
@@ -185,8 +185,8 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
     <div className="px-4 md:px-12 py-8 md:py-10 space-y-8">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="font-headline text-2xl md:text-3xl text-[#F5A623]">Historique Client</h2>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#F5A623]/40 mt-1">
+          <h2 className="font-headline text-2xl md:text-3xl text-[#FFB42D]">Historique Client</h2>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#FFB42D]/40 mt-1">
             {client?.first_name} {client?.last_name}
           </p>
         </div>
@@ -199,7 +199,7 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
           </button>
           <button
             onClick={handleCreateQuote}
-            className="px-4 py-2 border border-[#F5A623]/10 text-[#F5A623] font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#F5A623]/10 transition-all"
+            className="px-4 py-2 border border-[#FFB42D]/10 text-[#FFB42D] font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#FFB42D]/10 transition-all"
           >
             + Cotation
           </button>
@@ -217,9 +217,9 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
 
       {/* Info Client */}
       {client && (
-        <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#F5A623]/10 shadow-sm">
+        <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#FFB42D]/10 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-headline text-xl text-[#F5A623]">Informations</h3>
+            <h3 className="font-headline text-xl text-[#FFB42D]">Informations</h3>
             <div className="flex items-center gap-3">
               {isPrivileged && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold uppercase tracking-widest rounded-full">
@@ -233,7 +233,7 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
                 className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border transition-all ${
                   client.is_privileged
                     ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
-                    : "bg-[#F5A623]/10 text-[#F5A623]/60 border-[#F5A623]/10 hover:bg-[#F5A623]/10"
+                    : "bg-[#FFB42D]/10 text-[#FFB42D]/60 border-[#FFB42D]/10 hover:bg-[#FFB42D]/10"
                 } ${togglingPrivilege ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
               >
                 {togglingPrivilege ? "..." : client.is_privileged ? "Retirer privilège" : "Marquer privilégié"}
@@ -242,16 +242,16 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40 mb-1">Email</p>
-              <p className="text-sm font-bold text-[#F5A623]">{client.email}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40 mb-1">Email</p>
+              <p className="text-sm font-bold text-[#FFB42D]">{client.email}</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40 mb-1">Téléphone</p>
-              <p className="text-sm font-bold text-[#F5A623]">{client.phone || "—"}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40 mb-1">Téléphone</p>
+              <p className="text-sm font-bold text-[#FFB42D]">{client.phone || "—"}</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40 mb-1">Chiffre d&apos;affaires cumulé</p>
-              <p className={`text-sm font-bold ${isAutoPrivileged ? "text-amber-600" : "text-[#F5A623]"}`}>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40 mb-1">Chiffre d&apos;affaires cumulé</p>
+              <p className={`text-sm font-bold ${isAutoPrivileged ? "text-amber-600" : "text-[#FFB42D]"}`}>
                 {caCumule.toLocaleString()} Ar
                 {isAutoPrivileged && <span className="ml-2 text-[9px] font-bold uppercase text-amber-500">auto</span>}
               </p>
@@ -261,21 +261,21 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
       )}
 
       {/* Demandes */}
-      <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#F5A623]/10 shadow-sm">
-        <h3 className="font-headline text-xl text-[#F5A623] mb-4 flex items-center gap-2">
+      <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#FFB42D]/10 shadow-sm">
+        <h3 className="font-headline text-xl text-[#FFB42D] mb-4 flex items-center gap-2">
           <FileText className="h-5 w-5 text-orange-500" />
           Demandes ({demandes.length})
         </h3>
         {demandes.length === 0 ? (
-          <p className="text-sm italic text-[#F5A623]/40">Aucune demande</p>
+          <p className="text-sm italic text-[#FFB42D]/40">Aucune demande</p>
         ) : (
           <div className="space-y-3">
             {demandes.map(d => (
-              <div key={d.id} className="p-4 bg-[#1e2a38] rounded-xl border border-[#F5A623]/10">
+              <div key={d.id} className="p-4 bg-[#1e2a38] rounded-xl border border-[#FFB42D]/10">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-xs font-bold text-[#F5A623]">{d.description}</p>
-                    <p className="text-[10px] text-[#F5A623]/40 mt-1">{new Date(d.date_reception).toLocaleDateString('fr-FR')}</p>
+                    <p className="text-xs font-bold text-[#FFB42D]">{d.description}</p>
+                    <p className="text-[10px] text-[#FFB42D]/40 mt-1">{new Date(d.date_reception).toLocaleDateString('fr-FR')}</p>
                   </div>
                   <span className="px-2 py-1 bg-blue-50 text-blue-700 text-[9px] font-bold uppercase rounded-full">{d.statut}</span>
                 </div>
@@ -286,25 +286,25 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
       </div>
 
       {/* Cotations */}
-      <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#F5A623]/10 shadow-sm">
-        <h3 className="font-headline text-xl text-[#F5A623] mb-4 flex items-center gap-2">
+      <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#FFB42D]/10 shadow-sm">
+        <h3 className="font-headline text-xl text-[#FFB42D] mb-4 flex items-center gap-2">
           <DollarSign className="h-5 w-5 text-orange-500" />
           Cotations ({quotes.length})
         </h3>
         {quotes.length === 0 ? (
-          <p className="text-sm italic text-[#F5A623]/40">Aucune cotation</p>
+          <p className="text-sm italic text-[#FFB42D]/40">Aucune cotation</p>
         ) : (
           <div className="space-y-3">
             {quotes.map(q => (
-              <div key={q.id} className="p-4 bg-[#1e2a38] rounded-xl border border-[#F5A623]/10">
+              <div key={q.id} className="p-4 bg-[#1e2a38] rounded-xl border border-[#FFB42D]/10">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-xs font-bold text-[#F5A623]">{q.name || "Sans nom"}</p>
-                    <p className="text-[10px] text-[#F5A623]/40 mt-1">{new Date(q.created_at).toLocaleDateString('fr-FR')}</p>
+                    <p className="text-xs font-bold text-[#FFB42D]">{q.name || "Sans nom"}</p>
+                    <p className="text-[10px] text-[#FFB42D]/40 mt-1">{new Date(q.created_at).toLocaleDateString('fr-FR')}</p>
                   </div>
                   <div className="text-right">
                     <span className="px-2 py-1 bg-orange-50 text-orange-700 text-[9px] font-bold uppercase rounded-full">{q.status}</span>
-                    {q.amount && <p className="text-sm font-bold text-[#F5A623] mt-1">{q.amount.toLocaleString()} Ar</p>}
+                    {q.amount && <p className="text-sm font-bold text-[#FFB42D] mt-1">{q.amount.toLocaleString()} Ar</p>}
                   </div>
                 </div>
               </div>
@@ -314,26 +314,26 @@ export function ClientHistorySection({ clientId }: { clientId: string }) {
       </div>
 
       {/* Commandes */}
-      <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#F5A623]/10 shadow-sm">
-        <h3 className="font-headline text-xl text-[#F5A623] mb-4 flex items-center gap-2">
+      <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#FFB42D]/10 shadow-sm">
+        <h3 className="font-headline text-xl text-[#FFB42D] mb-4 flex items-center gap-2">
           <ShoppingCart className="h-5 w-5 text-orange-500" />
           Commandes ({commandes.length})
         </h3>
         {commandes.length === 0 ? (
-          <p className="text-sm italic text-[#F5A623]/40">Aucune commande</p>
+          <p className="text-sm italic text-[#FFB42D]/40">Aucune commande</p>
         ) : (
           <div className="space-y-3">
             {commandes.map(c => (
-              <div key={c.id} className="p-4 bg-[#1e2a38] rounded-xl border border-[#F5A623]/10">
+              <div key={c.id} className="p-4 bg-[#1e2a38] rounded-xl border border-[#FFB42D]/10">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-xs font-bold text-[#F5A623]">{c.numero}</p>
-                    <p className="text-[10px] text-[#F5A623]/40">{c.designation || "Sans désignation"}</p>
-                    <p className="text-[10px] text-[#F5A623]/40 mt-1">{new Date(c.date_commande).toLocaleDateString('fr-FR')}</p>
+                    <p className="text-xs font-bold text-[#FFB42D]">{c.numero}</p>
+                    <p className="text-[10px] text-[#FFB42D]/40">{c.designation || "Sans désignation"}</p>
+                    <p className="text-[10px] text-[#FFB42D]/40 mt-1">{new Date(c.date_commande).toLocaleDateString('fr-FR')}</p>
                   </div>
                   <div className="text-right">
                     <span className="px-2 py-1 bg-green-50 text-green-700 text-[9px] font-bold uppercase rounded-full">{c.statut_production}</span>
-                    <p className="text-sm font-bold text-[#F5A623] mt-1">{c.total.toLocaleString()} Ar</p>
+                    <p className="text-sm font-bold text-[#FFB42D] mt-1">{c.total.toLocaleString()} Ar</p>
                   </div>
                 </div>
               </div>

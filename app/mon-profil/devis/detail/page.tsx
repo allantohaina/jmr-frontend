@@ -402,7 +402,7 @@ function DevisDetailContent() {
         <header className="site-header">
           <div className="container site-nav">
             <Link href="/" className="logo">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M6 6L18 18M18 6L6 18" stroke="#F5A623" strokeWidth="1.6" strokeLinecap="round"/><circle cx="6" cy="6" r="1.6" fill="#F5A623"/><circle cx="6" cy="18" r="1.6" fill="#F5A623"/></svg>
+              <svg viewBox="0 0 24 24" fill="none"><path d="M6 6L18 18M18 6L6 18" stroke="#FFB42D" strokeWidth="1.6" strokeLinecap="round"/><circle cx="6" cy="6" r="1.6" fill="#FFB42D"/><circle cx="6" cy="18" r="1.6" fill="#FFB42D"/></svg>
               JMR TEXTILE
             </Link>
           </div>
@@ -1003,9 +1003,9 @@ const globalStyles = `
   --card:#1b263c;
   --card-border:#2b3852;
   --input-bg:#141e30;
-  --gold:#F5A623;
-  --gold-light:#F5A623;
-  --gold-dim:#F5A623;
+  --gold:#FFB42D;
+  --gold-light:#FFB42D;
+  --gold-dim:#FFB42D;
   --text-cream:#f3efe4;
   --text-muted:#8b93a7;
   --text-faint:#5c6478;

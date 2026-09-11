@@ -10,7 +10,7 @@ function ClientHistoryPageContent() {
 
   if (!id) {
     return (
-      <div className="px-4 md:px-12 py-6 md:py-10 text-[#F5A623]">
+      <div className="px-4 md:px-12 py-6 md:py-10 text-[#FFB42D]">
         <p className="text-xs font-bold uppercase tracking-[0.3em]">Client introuvable</p>
       </div>
     );

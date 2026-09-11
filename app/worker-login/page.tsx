@@ -66,7 +66,7 @@ export default function WorkerLoginPage() {
   if (!isMounted) {
     return (
       <div style={{ minHeight: "100vh", background: "#1e2a38", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: 40, height: 40, border: "3px solid #F5A623", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+        <div style={{ width: 40, height: 40, border: "3px solid #FFB42D", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
@@ -82,8 +82,8 @@ export default function WorkerLoginPage() {
         :root {
           --bg-deep: #1e2a38;
           --bg-panel: #141e2e;
-          --gold: #F5A623;
-          --gold-light: #F5A623;
+          --gold: #FFB42D;
+          --gold-light: #FFB42D;
           --text-cream: #f3efe4;
           --text-muted: #8b93a7;
         }
@@ -250,7 +250,7 @@ export default function WorkerLoginPage() {
 
         .form-group input:focus {
           border-color: var(--gold);
-          box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.12);
+          box-shadow: 0 0 0 3px rgba(255, 180, 45, 0.12);
           animation: stitchPulse 0.6s ease;
         }
 
@@ -259,9 +259,9 @@ export default function WorkerLoginPage() {
         }
 
         @keyframes stitchPulse {
-          0% { box-shadow: 0 0 0 0 rgba(245, 166, 35, 0.3); }
-          50% { box-shadow: 0 0 0 6px rgba(245, 166, 35, 0.08); }
-          100% { box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.12); }
+          0% { box-shadow: 0 0 0 0 rgba(255, 180, 45, 0.3); }
+          50% { box-shadow: 0 0 0 6px rgba(255, 180, 45, 0.08); }
+          100% { box-shadow: 0 0 0 3px rgba(255, 180, 45, 0.12); }
         }
 
         .error-box {
@@ -333,11 +333,11 @@ export default function WorkerLoginPage() {
         {/* LEFT PANEL */}
         <div className="panel">
           <svg className="thread-bg" viewBox="0 0 600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M50 100 Q200 200 150 400 Q100 600 250 800" stroke="#F5A623" strokeWidth="1.5" strokeDasharray="8 6" fill="none" />
-            <path d="M120 50 Q300 180 220 450 Q140 720 300 850" stroke="#F5A623" strokeWidth="1" strokeDasharray="6 8" fill="none" />
-            <path d="M400 30 Q320 250 380 480 Q440 700 350 880" stroke="#F5A623" strokeWidth="1" strokeDasharray="10 5" fill="none" />
-            <path d="M500 120 Q420 300 480 520 Q540 740 430 870" stroke="#F5A623" strokeWidth="1.2" strokeDasharray="5 9" fill="none" />
-            <path d="M80 200 Q250 320 180 560 Q110 800 280 900" stroke="#F5A623" strokeWidth="0.8" strokeDasharray="4 10" fill="none" />
+            <path d="M50 100 Q200 200 150 400 Q100 600 250 800" stroke="#FFB42D" strokeWidth="1.5" strokeDasharray="8 6" fill="none" />
+            <path d="M120 50 Q300 180 220 450 Q140 720 300 850" stroke="#FFB42D" strokeWidth="1" strokeDasharray="6 8" fill="none" />
+            <path d="M400 30 Q320 250 380 480 Q440 700 350 880" stroke="#FFB42D" strokeWidth="1" strokeDasharray="10 5" fill="none" />
+            <path d="M500 120 Q420 300 480 520 Q540 740 430 870" stroke="#FFB42D" strokeWidth="1.2" strokeDasharray="5 9" fill="none" />
+            <path d="M80 200 Q250 320 180 560 Q110 800 280 900" stroke="#FFB42D" strokeWidth="0.8" strokeDasharray="4 10" fill="none" />
           </svg>
 
           <div className="brand-mark">

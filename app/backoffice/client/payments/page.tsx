@@ -52,33 +52,33 @@ export default function PaymentsPage() {
   return (
     <div className="p-6 md:p-10 space-y-6">
       <div className="flex items-center gap-3">
-        <CreditCard className="h-6 w-6 text-[#F5A623]" />
-        <h1 className="font-headline text-2xl text-[#F5A623]">Paiements</h1>
+        <CreditCard className="h-6 w-6 text-[#FFB42D]" />
+        <h1 className="font-headline text-2xl text-[#FFB42D]">Paiements</h1>
       </div>
       <div className="flex gap-2">
         {[null, "payé", "acompte"].map((s) => (
-          <button key={s || "all"} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === s || (!statusFilter && !s) ? "bg-[#F5A623] text-[#1e2a38]" : "bg-[#25303a] text-[#F5A623]/60 hover:bg-[#F5A623]/10"}`}>
+          <button key={s || "all"} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === s || (!statusFilter && !s) ? "bg-[#FFB42D] text-[#1e2a38]" : "bg-[#25303a] text-[#FFB42D]/60 hover:bg-[#FFB42D]/10"}`}>
             {s === "payé" ? "Payés" : s === "acompte" ? "Acomptes" : "Tous"}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-8"><Loader className="h-5 w-5 animate-spin text-[#F5A623]" /></div>
+        <div className="flex justify-center py-8"><Loader className="h-5 w-5 animate-spin text-[#FFB42D]" /></div>
       ) : payments.length === 0 ? (
-        <p className="text-sm text-[#F5A623]/50">Aucun paiement enregistré.</p>
+        <p className="text-sm text-[#FFB42D]/50">Aucun paiement enregistré.</p>
       ) : filteredPayments.length === 0 ? (
-        <p className="text-sm text-[#F5A623]/50">Aucun paiement avec ce statut.</p>
+        <p className="text-sm text-[#FFB42D]/50">Aucun paiement avec ce statut.</p>
       ) : (
         <div className="space-y-3">{filteredPayments.map((p, i) => (
-          <div key={i} className="rounded-xl bg-[#25303a] p-4 border border-[#F5A623]/10">
+          <div key={i} className="rounded-xl bg-[#25303a] p-4 border border-[#FFB42D]/10">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-semibold text-[#F5A623]">{p.ref}</p>
-                <p className="text-xs text-[#F5A623]/50">{p.client}</p>
+                <p className="font-semibold text-[#FFB42D]">{p.ref}</p>
+                <p className="text-xs text-[#FFB42D]/50">{p.client}</p>
               </div>
               <div className="text-right">
-                <p className="font-bold text-[#F5A623]">{p.amount} €</p>
+                <p className="font-bold text-[#FFB42D]">{p.amount} €</p>
                 <span className={`text-[10px] font-bold uppercase tracking-widest ${p.status === "payé" ? "text-green-400" : "text-yellow-400"}`}>{p.status}</span>
               </div>
             </div>

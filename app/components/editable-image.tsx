@@ -96,8 +96,8 @@ export function EditableImage({
         <button
           type="button"
           className="absolute top-2 right-2 z-20 opacity-0 group-hover/editable:opacity-100 transition-opacity duration-200
-                     bg-[#1e2a38]/80 hover:bg-[#1e2a38] text-[#F5A623] rounded-full p-2.5
-                     border border-[#F5A623]/50"
+                     bg-[#1e2a38]/80 hover:bg-[#1e2a38] text-[#FFB42D] rounded-full p-2.5
+                     border border-[#FFB42D]/50"
           onClick={() => fileInputRef.current?.click()}
           title="Modifier l'image"
         >

@@ -101,13 +101,13 @@ export default function AdminResetPage() {
               value={secret}
               onChange={(e) => setSecret(e.target.value)}
               placeholder="Clé secrète"
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:border-[#F5A623]/50 placeholder:text-white/20"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:border-[#FFB42D]/50 placeholder:text-white/20"
               required
             />
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-lg bg-[#F5A623] py-3 text-xs font-bold uppercase tracking-widest text-[#1a2332] disabled:opacity-60"
+              className="w-full rounded-lg bg-[#FFB42D] py-3 text-xs font-bold uppercase tracking-widest text-[#1a2332] disabled:opacity-60"
             >
               {isLoading ? "Vérification..." : "Accéder"}
             </button>
@@ -136,7 +136,7 @@ export default function AdminResetPage() {
                 onClick={() => setSelectedEmail(u.email)}
                 className={`w-full text-left p-3 rounded-lg text-sm transition-colors ${
                   selectedEmail === u.email
-                    ? "bg-[#F5A623]/20 border border-[#F5A623]/40 text-[#F5A623]"
+                    ? "bg-[#FFB42D]/20 border border-[#FFB42D]/40 text-[#FFB42D]"
                     : "bg-white/5 border border-white/5 text-white/70 hover:bg-white/10"
                 }`}
               >
@@ -166,13 +166,13 @@ export default function AdminResetPage() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Nouveau mot de passe (min 8 car.)"
                 minLength={8}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:border-[#F5A623]/50 placeholder:text-white/20"
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:border-[#FFB42D]/50 placeholder:text-white/20"
                 required
               />
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-lg bg-[#F5A623] py-3 text-xs font-bold uppercase tracking-widest text-[#1a2332] disabled:opacity-60"
+                className="w-full rounded-lg bg-[#FFB42D] py-3 text-xs font-bold uppercase tracking-widest text-[#1a2332] disabled:opacity-60"
               >
                 {isLoading ? "Réinitialisation..." : "Réinitialiser le mot de passe"}
               </button>

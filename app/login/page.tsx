@@ -35,7 +35,7 @@ export default function LoginPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#1e2a38] text-[#F5A623]">
+      <div className="flex min-h-screen items-center justify-center bg-[#1e2a38] text-[#FFB42D]">
         <span className="text-xs font-bold uppercase tracking-[0.3em]">Chargement...</span>
       </div>
     );

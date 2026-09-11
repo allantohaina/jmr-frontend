@@ -58,19 +58,19 @@ export function TextileDocument({
   return (
     <article className="document-sheet mx-auto w-full max-w-[210mm] overflow-hidden bg-[#fffdf8] text-[#172d42] shadow-[0_24px_80px_rgba(3,24,43,.18)] print:max-w-none print:shadow-none">
       <header className="relative overflow-hidden bg-[#172d42] px-7 pb-8 pt-7 text-white sm:px-10">
-        <div className="absolute -right-10 -top-14 h-48 w-48 rotate-12 border-[22px] border-[#F5A623]/20" aria-hidden="true" />
+        <div className="absolute -right-10 -top-14 h-48 w-48 rotate-12 border-[22px] border-[#FFB42D]/20" aria-hidden="true" />
         <div className="relative flex flex-col justify-between gap-8 sm:flex-row sm:items-start">
           <div className="flex items-center gap-3">
-            <div className="grid h-12 w-12 grid-cols-2 gap-1 border-2 border-[#F5A623] p-1" aria-hidden="true">
-              <i className="bg-[#F5A623]" /><i className="bg-[#F5A623]/45" /><i className="bg-[#F5A623]/45" /><i className="bg-[#F5A623]" />
+            <div className="grid h-12 w-12 grid-cols-2 gap-1 border-2 border-[#FFB42D] p-1" aria-hidden="true">
+              <i className="bg-[#FFB42D]" /><i className="bg-[#FFB42D]/45" /><i className="bg-[#FFB42D]/45" /><i className="bg-[#FFB42D]" />
             </div>
             <div>
-              <p className="font-serif text-2xl font-bold leading-none tracking-tight">JMR <span className="text-[#F5A623]">Textile</span></p>
-              <p className="mt-1 text-[9px] font-bold uppercase tracking-[.24em] text-[#F5A623]">Atelier · Madagascar</p>
+              <p className="font-serif text-2xl font-bold leading-none tracking-tight">JMR <span className="text-[#FFB42D]">Textile</span></p>
+              <p className="mt-1 text-[9px] font-bold uppercase tracking-[.24em] text-[#FFB42D]">Atelier · Madagascar</p>
             </div>
           </div>
           <div className="text-left sm:text-right">
-            <p className="text-[10px] font-bold uppercase tracking-[.28em] text-[#F5A623]">Document opérationnel</p>
+            <p className="text-[10px] font-bold uppercase tracking-[.28em] text-[#FFB42D]">Document opérationnel</p>
             <h1 className="mt-1 font-serif text-3xl leading-none">{labels[kind]}</h1>
             <p className="mt-2 font-mono text-sm text-white/80">{number}</p>
           </div>
@@ -80,7 +80,7 @@ export function TextileDocument({
       <main className="p-7 sm:p-10">
         <section className="grid gap-6 border-b border-[#172d42]/15 pb-7 sm:grid-cols-[1fr_auto]">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[#F5A623]">Destinataire</p>
+            <p className="text-[10px] font-bold uppercase tracking-[.2em] text-[#FFB42D]">Destinataire</p>
             <h2 className="mt-2 font-serif text-xl font-bold">{client.name}</h2>
             <p className="mt-1 whitespace-pre-line text-sm leading-6 text-[#40566a]">{client.address}</p>
             <p className="mt-2 text-sm text-[#40566a]">{[client.email, client.phone].filter(Boolean).join(" · ")}</p>
@@ -104,17 +104,17 @@ export function TextileDocument({
 
         <section className="mt-7 grid gap-7 sm:grid-cols-[1fr_245px]">
           <div className="space-y-4 text-sm leading-6 text-[#40566a]">
-            {deliveryAddress ? <div><p className="text-[9px] font-bold uppercase tracking-[.16em] text-[#F5A623]">Lieu de livraison</p><p className="mt-1 whitespace-pre-line">{deliveryAddress}</p></div> : null}
-            {notes ? <div className="border-l-2 border-[#F5A623] bg-[#f4ead4]/45 px-4 py-3"><p className="text-[9px] font-bold uppercase tracking-[.16em] text-[#F5A623]">Notes</p><p className="mt-1 whitespace-pre-line">{notes}</p></div> : null}
+            {deliveryAddress ? <div><p className="text-[9px] font-bold uppercase tracking-[.16em] text-[#FFB42D]">Lieu de livraison</p><p className="mt-1 whitespace-pre-line">{deliveryAddress}</p></div> : null}
+            {notes ? <div className="border-l-2 border-[#FFB42D] bg-[#f4ead4]/45 px-4 py-3"><p className="text-[9px] font-bold uppercase tracking-[.16em] text-[#FFB42D]">Notes</p><p className="mt-1 whitespace-pre-line">{notes}</p></div> : null}
             {paymentTerms ? <p><span className="font-semibold text-[#172d42]">Conditions de paiement · </span>{paymentTerms}</p> : null}
           </div>
-          <dl className="border-t-2 border-[#172d42] pt-3 text-sm"><div className="flex justify-between py-1.5 text-[#40566a]"><dt>Sous-total</dt><dd>{money(subtotal, currency)}</dd></div><div className="flex justify-between py-1.5 text-[#40566a]"><dt>Taxes</dt><dd>{money(tax, currency)}</dd></div><div className="mt-2 flex justify-between bg-[#172d42] px-4 py-3 font-serif text-lg font-bold text-white"><dt>Total</dt><dd className="text-[#F5A623]">{money(total, currency)}</dd></div></dl>
+          <dl className="border-t-2 border-[#172d42] pt-3 text-sm"><div className="flex justify-between py-1.5 text-[#40566a]"><dt>Sous-total</dt><dd>{money(subtotal, currency)}</dd></div><div className="flex justify-between py-1.5 text-[#40566a]"><dt>Taxes</dt><dd>{money(tax, currency)}</dd></div><div className="mt-2 flex justify-between bg-[#172d42] px-4 py-3 font-serif text-lg font-bold text-white"><dt>Total</dt><dd className="text-[#FFB42D]">{money(total, currency)}</dd></div></dl>
         </section>
 
-        {signature ? <section className="mt-9 max-w-xs border border-[#172d42]/15 bg-[#faf6ec] p-4"><p className="text-[9px] font-bold uppercase tracking-[.16em] text-[#F5A623]">Approbation interne</p><p className="mt-3 font-serif text-2xl italic text-[#172d42]">{signature.name}</p><p className="mt-2 text-xs text-[#40566a]">Confirmé le {date(signature.signedAt)}</p></section> : null}
+        {signature ? <section className="mt-9 max-w-xs border border-[#172d42]/15 bg-[#faf6ec] p-4"><p className="text-[9px] font-bold uppercase tracking-[.16em] text-[#FFB42D]">Approbation interne</p><p className="mt-3 font-serif text-2xl italic text-[#172d42]">{signature.name}</p><p className="mt-2 text-xs text-[#40566a]">Confirmé le {date(signature.signedAt)}</p></section> : null}
       </main>
 
-      <footer className="border-t border-[#172d42]/15 px-7 py-5 text-[10px] leading-5 text-[#6f8292] sm:px-10"><div className="flex flex-col justify-between gap-2 sm:flex-row"><p className="whitespace-pre-line">{companyInfo.name}{companyInfo.address ? ` · ${companyInfo.address}` : ""}</p><p>{companyInfo.email}</p></div><p className="mt-3 text-[#F5A623]">Ce document est édité par JMR Textile. Toute validation interne affichée ici n’est pas une signature électronique qualifiée.</p></footer>
+      <footer className="border-t border-[#172d42]/15 px-7 py-5 text-[10px] leading-5 text-[#6f8292] sm:px-10"><div className="flex flex-col justify-between gap-2 sm:flex-row"><p className="whitespace-pre-line">{companyInfo.name}{companyInfo.address ? ` · ${companyInfo.address}` : ""}</p><p>{companyInfo.email}</p></div><p className="mt-3 text-[#FFB42D]">Ce document est édité par JMR Textile. Toute validation interne affichée ici n’est pas une signature électronique qualifiée.</p></footer>
       <style jsx>{`@media print { .document-sheet { min-height: 297mm; } }`}</style>
     </article>
   );

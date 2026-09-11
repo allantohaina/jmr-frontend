@@ -74,29 +74,29 @@ export function AtelierStock() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="font-headline text-3xl text-[#F5A623]">Gestion des Stocks</h2>
-          <p className="text-[10px] uppercase tracking-widest text-[#F5A623]/40 font-bold mt-1">Inventaire des matières premières</p>
+          <h2 className="font-headline text-3xl text-[#FFB42D]">Gestion des Stocks</h2>
+          <p className="text-[10px] uppercase tracking-widest text-[#FFB42D]/40 font-bold mt-1">Inventaire des matières premières</p>
         </div>
         <div className="relative w-full md:w-64">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#F5A623]/40" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FFB42D]/40" />
           <input
             type="text"
             placeholder="Rechercher un article..."
             defaultValue={searchInput}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-[#1e2a38] border border-[#F5A623]/10 rounded-2xl text-sm text-[#F5A623] focus:outline-none focus:ring-2 focus:ring-[#F5A623]/20 transition-all placeholder:text-[#F5A623]/20"
+            className="w-full pl-12 pr-4 py-3 bg-[#1e2a38] border border-[#FFB42D]/10 rounded-2xl text-sm text-[#FFB42D] focus:outline-none focus:ring-2 focus:ring-[#FFB42D]/20 transition-all placeholder:text-[#FFB42D]/20"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredItems.map(item => (
-          <div key={item.id} className="bg-[#25303a] p-6 rounded-[2rem] border border-[#F5A623]/5 shadow-sm hover:shadow-2xl transition-all group">
+          <div key={item.id} className="bg-[#25303a] p-6 rounded-[2rem] border border-[#FFB42D]/5 shadow-sm hover:shadow-2xl transition-all group">
             <div className="flex justify-between items-start mb-4">
               <div className={`p-3 rounded-xl ${
                 item.category === "tissu" ? "bg-blue-500/10 text-blue-400" :
                 item.category === "fil" ? "bg-purple-500/10 text-purple-400" :
-                "bg-[#F5A623]/10 text-[#F5A623]"
+                "bg-[#FFB42D]/10 text-[#FFB42D]"
               }`}>
                 <Package className="w-5 h-5" />
               </div>
@@ -107,24 +107,24 @@ export function AtelierStock() {
               )}
             </div>
 
-            <h3 className="font-headline text-xl text-[#F5A623] mb-1">{item.name}</h3>
-            <p className="text-[10px] uppercase tracking-widest text-[#F5A623]/40 font-bold mb-6">{item.category}</p>
+            <h3 className="font-headline text-xl text-[#FFB42D] mb-1">{item.name}</h3>
+            <p className="text-[10px] uppercase tracking-widest text-[#FFB42D]/40 font-bold mb-6">{item.category}</p>
 
             <div className="flex items-center justify-between bg-[#1e2a38] p-4 rounded-2xl">
               <div>
-                <p className="text-[9px] uppercase tracking-widest text-[#F5A623]/40 font-bold">Quantité</p>
-                <p className="text-lg font-bold text-[#F5A623]">{item.quantity} <span className="text-xs font-medium opacity-60">{item.unit}</span></p>
+                <p className="text-[9px] uppercase tracking-widest text-[#FFB42D]/40 font-bold">Quantité</p>
+                <p className="text-lg font-bold text-[#FFB42D]">{item.quantity} <span className="text-xs font-medium opacity-60">{item.unit}</span></p>
               </div>
               <div className="flex gap-2">
                 <button 
                   onClick={() => updateQuantity(item.id, -1)}
-                  className="w-10 h-10 rounded-xl bg-[#25303a] border border-[#F5A623]/10 text-[#F5A623] flex items-center justify-center hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                  className="w-10 h-10 rounded-xl bg-[#25303a] border border-[#FFB42D]/10 text-[#FFB42D] flex items-center justify-center hover:bg-red-500/10 hover:text-red-400 transition-colors"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
                 <button 
                   onClick={() => updateQuantity(item.id, 1)}
-                  className="w-10 h-10 rounded-xl bg-[#25303a] border border-[#F5A623]/10 text-[#F5A623] flex items-center justify-center hover:bg-green-500/10 hover:text-green-400 transition-colors"
+                  className="w-10 h-10 rounded-xl bg-[#25303a] border border-[#FFB42D]/10 text-[#FFB42D] flex items-center justify-center hover:bg-green-500/10 hover:text-green-400 transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                 </button>

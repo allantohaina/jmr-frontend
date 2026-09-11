@@ -16,12 +16,12 @@ function NouvelleCotationContent() {
   return (
     <div className="px-4 md:px-12 py-8 md:py-10 space-y-6">
       <div className="flex items-center gap-3">
-        <span className="material-symbols-outlined text-[#F5A623]">calculate</span>
+        <span className="material-symbols-outlined text-[#FFB42D]">calculate</span>
         <div>
           <h2 className="font-headline text-2xl md:text-3xl text-white">
             {quoteId ? "Modifier la cotation" : "Nouvelle cotation"}
           </h2>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#F5A623]/40 mt-1">
+          <p className="text-xs font-bold uppercase tracking-widest text-[#FFB42D]/40 mt-1">
             Calcul automatique des prix textile
           </p>
         </div>

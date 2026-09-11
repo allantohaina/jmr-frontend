@@ -53,13 +53,13 @@ export function MobileSidebar({ isStaff, userFirstName }: MobileDrawerProps) {
     <>
       <button
         onClick={openDrawer}
-        className="relative z-50 flex h-10 w-10 items-center justify-center rounded-xl transition-colors hover:bg-[#F5A623]/10 md:hidden"
+        className="relative z-50 flex h-10 w-10 items-center justify-center rounded-xl transition-colors hover:bg-[#FFB42D]/10 md:hidden"
         aria-label="Ouvrir le menu"
       >
         {open ? (
-          <X className="h-5 w-5 text-[#F5A623]" />
+          <X className="h-5 w-5 text-[#FFB42D]" />
         ) : (
-          <Menu className="h-5 w-5 text-[#F5A623]" />
+          <Menu className="h-5 w-5 text-[#FFB42D]" />
         )}
       </button>
 
@@ -77,16 +77,16 @@ export function MobileSidebar({ isStaff, userFirstName }: MobileDrawerProps) {
         }`}
         style={{ background: "#1e2a38" }}
       >
-        <div className="flex items-center justify-between border-b border-[#F5A623]/10 px-6 py-5">
-          <span className="font-headline text-lg font-bold tracking-wide text-[#F5A623]">
+        <div className="flex items-center justify-between border-b border-[#FFB42D]/10 px-6 py-5">
+          <span className="font-headline text-lg font-bold tracking-wide text-[#FFB42D]">
             JMR Textile
           </span>
           <button
             onClick={closeDrawer}
-            className="flex h-10 w-10 items-center justify-center rounded-xl transition-colors hover:bg-[#F5A623]/10"
+            className="flex h-10 w-10 items-center justify-center rounded-xl transition-colors hover:bg-[#FFB42D]/10"
             aria-label="Fermer le menu"
           >
-            <X className="h-5 w-5 text-[#F5A623]" />
+            <X className="h-5 w-5 text-[#FFB42D]" />
           </button>
         </div>
 
@@ -107,11 +107,11 @@ export function MobileSidebar({ isStaff, userFirstName }: MobileDrawerProps) {
                     }}
                     className={`flex items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-bold uppercase tracking-widest transition-all ${
                       active
-                        ? "bg-[#F5A623]/10 text-[#F5A623]"
-                        : "text-[#F5A623]/70 hover:bg-[#F5A623]/5 hover:text-[#F5A623]"
+                        ? "bg-[#FFB42D]/10 text-[#FFB42D]"
+                        : "text-[#FFB42D]/70 hover:bg-[#FFB42D]/5 hover:text-[#FFB42D]"
                     }`}
                   >
-                    <Icon className={`h-5 w-5 ${active ? "text-[#F5A623]" : "text-[#F5A623]/40"}`} />
+                    <Icon className={`h-5 w-5 ${active ? "text-[#FFB42D]" : "text-[#FFB42D]/40"}`} />
                     {label}
                   </Link>
                 </li>
@@ -121,8 +121,8 @@ export function MobileSidebar({ isStaff, userFirstName }: MobileDrawerProps) {
 
           {(isStaff || userFirstName) && (
             <>
-              <div className="my-6 border-t border-[#F5A623]/10" />
-              <p className="mb-3 px-4 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">
+              <div className="my-6 border-t border-[#FFB42D]/10" />
+              <p className="mb-3 px-4 text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40">
                 Administration
               </p>
               <ul className="space-y-1">
@@ -131,9 +131,9 @@ export function MobileSidebar({ isStaff, userFirstName }: MobileDrawerProps) {
                     <Link
                       href="/backoffice"
                       onClick={closeDrawer}
-                      className="flex items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-bold uppercase tracking-widest text-[#F5A623]/70 transition-all hover:bg-[#F5A623]/5 hover:text-[#F5A623]"
+                      className="flex items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-bold uppercase tracking-widest text-[#FFB42D]/70 transition-all hover:bg-[#FFB42D]/5 hover:text-[#FFB42D]"
                     >
-                      <Settings className="h-5 w-5 text-[#F5A623]/40" />
+                      <Settings className="h-5 w-5 text-[#FFB42D]/40" />
                       Backoffice
                     </Link>
                   </li>
@@ -142,9 +142,9 @@ export function MobileSidebar({ isStaff, userFirstName }: MobileDrawerProps) {
                   <Link
                     href="/mon-profil"
                     onClick={closeDrawer}
-                    className="flex items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-bold uppercase tracking-widest text-[#F5A623]/70 transition-all hover:bg-[#F5A623]/5 hover:text-[#F5A623]"
+                    className="flex items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-bold uppercase tracking-widest text-[#FFB42D]/70 transition-all hover:bg-[#FFB42D]/5 hover:text-[#FFB42D]"
                   >
-                    <User className="h-5 w-5 text-[#F5A623]/40" />
+                    <User className="h-5 w-5 text-[#FFB42D]/40" />
                     {userFirstName ? `Mon compte (${userFirstName})` : "Mon compte"}
                   </Link>
                 </li>
@@ -153,7 +153,7 @@ export function MobileSidebar({ isStaff, userFirstName }: MobileDrawerProps) {
           )}
         </nav>
 
-        <div className="border-t border-[#F5A623]/10 px-4 py-6">
+        <div className="border-t border-[#FFB42D]/10 px-4 py-6">
           <div className="space-y-3">
             {SECONDARY_LINKS.map(({ href, label, icon: Icon }) => (
               <Link
@@ -161,14 +161,14 @@ export function MobileSidebar({ isStaff, userFirstName }: MobileDrawerProps) {
                 href={href}
                 onClick={closeDrawer}
                 className="flex items-center justify-center gap-3 rounded-xl px-4 py-3.5 text-sm font-bold uppercase tracking-widest transition-all"
-                style={{ background: "#F5A623", color: "#1e2a38" }}
+                style={{ background: "#FFB42D", color: "#1e2a38" }}
               >
                 <Icon className="h-5 w-5" />
                 {label}
               </Link>
             ))}
           </div>
-          <p className="mt-6 text-center text-[10px] text-[#F5A623]/30">
+          <p className="mt-6 text-center text-[10px] text-[#FFB42D]/30">
             JMR Textile &mdash; Tous droits réservés
           </p>
         </div>

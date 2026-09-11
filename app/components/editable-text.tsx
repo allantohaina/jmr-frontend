@@ -43,7 +43,7 @@ export function EditableText({
     setSaving(true);
     try {
       await save(contentKey, next, "text");
-      await save(colorKey, colorDraft || "#F5A623", "text");
+      await save(colorKey, colorDraft || "#FFB42D", "text");
       await save(sizeKey, String(scaleDraft), "text");
     } catch (err) {
       console.error(err);
@@ -55,7 +55,7 @@ export function EditableText({
 
   function startEditing() {
     setDraft(value);
-    setColorDraft(color || "#F5A623");
+    setColorDraft(color || "#FFB42D");
     setScaleDraft(scale);
     setEditing(true);
   }
@@ -75,8 +75,8 @@ export function EditableText({
           <button
             type="button"
             className="absolute -top-1 -right-1 z-20 opacity-0 group-hover/editable:opacity-100 transition-opacity duration-200
-                       bg-[#1e2a38]/80 hover:bg-[#1e2a38] text-[#F5A623] rounded-full p-1.5
-                       border border-[#F5A623]/50"
+                       bg-[#1e2a38]/80 hover:bg-[#1e2a38] text-[#FFB42D] rounded-full p-1.5
+                       border border-[#FFB42D]/50"
             onClick={startEditing}
             title="Modifier le texte"
           >
@@ -88,7 +88,7 @@ export function EditableText({
   }
 
   const inputClassName =
-    "w-full rounded-lg border border-[#F5A623]/40 bg-[#1e2a38] px-3 py-2 text-sm text-[#F5A623] outline-none focus:border-[#F5A623]";
+    "w-full rounded-lg border border-[#FFB42D]/40 bg-[#1e2a38] px-3 py-2 text-sm text-[#FFB42D] outline-none focus:border-[#FFB42D]";
 
   function changeScale(delta: number) {
     setScaleDraft((prev) => Math.min(3, Math.max(0.5, Math.round((prev + delta) * 10) / 10)));
@@ -131,24 +131,24 @@ export function EditableText({
           value={colorDraft}
           title="Couleur du texte"
           onChange={(e) => setColorDraft(e.target.value)}
-          className="h-8 w-10 cursor-pointer rounded-lg border border-[#F5A623]/40 bg-[#1e2a38] p-1"
+          className="h-8 w-10 cursor-pointer rounded-lg border border-[#FFB42D]/40 bg-[#1e2a38] p-1"
         />
         <button
           type="button"
           title="Réduire la taille"
           onClick={() => changeScale(-0.1)}
-          className="rounded-lg border border-[#F5A623]/40 px-2.5 py-1 text-xs font-bold text-[#F5A623] hover:bg-[#F5A623]/10"
+          className="rounded-lg border border-[#FFB42D]/40 px-2.5 py-1 text-xs font-bold text-[#FFB42D] hover:bg-[#FFB42D]/10"
         >
           A-
         </button>
-        <span className="min-w-[3rem] text-center font-mono text-[11px] text-[#F5A623]">
+        <span className="min-w-[3rem] text-center font-mono text-[11px] text-[#FFB42D]">
           {Math.round(scaleDraft * 100)}%
         </span>
         <button
           type="button"
           title="Agrandir la taille"
           onClick={() => changeScale(0.1)}
-          className="rounded-lg border border-[#F5A623]/40 px-2.5 py-1 text-xs font-bold text-[#F5A623] hover:bg-[#F5A623]/10"
+          className="rounded-lg border border-[#FFB42D]/40 px-2.5 py-1 text-xs font-bold text-[#FFB42D] hover:bg-[#FFB42D]/10"
         >
           A+
         </button>
@@ -156,14 +156,14 @@ export function EditableText({
           type="button"
           onClick={() => void persist()}
           disabled={saving}
-          className="rounded-lg bg-[#F5A623] px-3 py-1 text-xs font-bold uppercase tracking-widest text-[#1e2a38] hover:bg-[#F5A623] disabled:opacity-50"
+          className="rounded-lg bg-[#FFB42D] px-3 py-1 text-xs font-bold uppercase tracking-widest text-[#1e2a38] hover:bg-[#FFB42D] disabled:opacity-50"
         >
           {saving ? "…" : "Valider"}
         </button>
         <button
           type="button"
           onClick={() => setEditing(false)}
-          className="rounded-lg border border-[#F5A623]/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-[#F5A623]/60 hover:text-[#F5A623]"
+          className="rounded-lg border border-[#FFB42D]/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-[#FFB42D]/60 hover:text-[#FFB42D]"
         >
           Annuler
         </button>

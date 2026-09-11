@@ -66,16 +66,16 @@ export function PaiementSection({ id }: { id: string }) {
   return (
     <section
       aria-labelledby="paiement-title"
-      className="mx-auto max-w-2xl rounded-[2rem] border border-[#F5A623]/5 bg-[#25303a] p-5 shadow-sm sm:p-8 md:rounded-[2.5rem] md:p-10"
+      className="mx-auto max-w-2xl rounded-[2rem] border border-[#FFB42D]/5 bg-[#25303a] p-5 shadow-sm sm:p-8 md:rounded-[2.5rem] md:p-10"
     >
       <header className="mb-8">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#F5A623]/10 text-[#F5A623]">
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFB42D]/10 text-[#FFB42D]">
           <UploadCloud className="h-6 w-6" />
         </div>
-        <h1 className="font-headline text-2xl font-bold text-[#F5A623] sm:text-3xl" id="paiement-title">
+        <h1 className="font-headline text-2xl font-bold text-[#FFB42D] sm:text-3xl" id="paiement-title">
           Confirmer le paiement
         </h1>
-        <p className="mt-2 text-sm text-[#F5A623]/60">
+        <p className="mt-2 text-sm text-[#FFB42D]/60">
           Transmettez votre preuve de paiement pour valider votre commande.
         </p>
       </header>
@@ -97,12 +97,12 @@ export function PaiementSection({ id }: { id: string }) {
       <form className="space-y-6" onSubmit={handleSubmit}>
         <div className="space-y-4">
           <label className="block">
-            <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">
+            <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40">
               Methode de paiement
             </span>
             <div className="relative">
               <select
-                className="h-14 w-full appearance-none rounded-2xl border border-[#F5A623]/10 bg-[#1e2a38] px-4 pr-12 font-medium text-[#F5A623] outline-none transition-all focus:border-[#F5A623]"
+                className="h-14 w-full appearance-none rounded-2xl border border-[#FFB42D]/10 bg-[#1e2a38] px-4 pr-12 font-medium text-[#FFB42D] outline-none transition-all focus:border-[#FFB42D]"
                 name="payment_type"
                 required
               >
@@ -110,16 +110,16 @@ export function PaiementSection({ id }: { id: string }) {
                 <option value="orange_money">Orange Money</option>
                 <option value="virement">Virement bancaire</option>
               </select>
-              <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#F5A623]" />
+              <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#FFB42D]" />
             </div>
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">
+            <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40">
               Reference de la transaction
             </span>
             <input
-              className="h-14 w-full rounded-2xl border border-[#F5A623]/10 bg-[#1e2a38] px-4 font-medium text-[#F5A623] outline-none transition-all placeholder:text-[#F5A623]/20 focus:border-[#F5A623]"
+              className="h-14 w-full rounded-2xl border border-[#FFB42D]/10 bg-[#1e2a38] px-4 font-medium text-[#FFB42D] outline-none transition-all placeholder:text-[#FFB42D]/20 focus:border-[#FFB42D]"
               name="transaction_ref"
               placeholder="Ex: T240326.1234.C56789"
               required
@@ -128,12 +128,12 @@ export function PaiementSection({ id }: { id: string }) {
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/40">
+            <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40">
               Preuve de paiement
             </span>
             <input
               accept=".pdf,.png,.jpg,.jpeg,.webp"
-              className="h-14 w-full cursor-pointer rounded-2xl border border-[#F5A623]/10 bg-[#1e2a38] px-4 py-3 text-[#F5A623] transition-all file:mr-4 file:rounded-full file:border-0 file:bg-[#F5A623]/10 file:px-4 file:py-1 file:text-[10px] file:font-bold file:uppercase file:text-[#F5A623] hover:file:bg-[#F5A623]/20"
+              className="h-14 w-full cursor-pointer rounded-2xl border border-[#FFB42D]/10 bg-[#1e2a38] px-4 py-3 text-[#FFB42D] transition-all file:mr-4 file:rounded-full file:border-0 file:bg-[#FFB42D]/10 file:px-4 file:py-1 file:text-[10px] file:font-bold file:uppercase file:text-[#FFB42D] hover:file:bg-[#FFB42D]/20"
               name="proof_of_payment"
               required
               type="file"
@@ -142,7 +142,7 @@ export function PaiementSection({ id }: { id: string }) {
         </div>
 
         <button
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#F5A623] py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#1e2a38] shadow-lg transition-all hover:bg-[#F5A623] disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#FFB42D] py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#1e2a38] shadow-lg transition-all hover:bg-[#FFB42D] disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isSubmitting}
           type="submit"
         >

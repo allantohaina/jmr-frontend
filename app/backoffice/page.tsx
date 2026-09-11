@@ -92,13 +92,13 @@ function StatCard({
   progress?: number;
 }) {
   const toneMap: Record<string, string> = {
-    gold: "text-[#F5A623] bg-[#F5A623]/10 border-[#F5A623]/20",
+    gold: "text-[#FFB42D] bg-[#FFB42D]/10 border-[#FFB42D]/20",
     success: "text-[#1f8457] bg-[#1f8457]/10 border-[#1f8457]/20",
     destructive: "text-[#b14255] bg-[#b14255]/10 border-[#b14255]/20",
-    muted: "text-[#9aa7b4] bg-[#26313d] border-[#F5A623]/10",
+    muted: "text-[#9aa7b4] bg-[#26313d] border-[#FFB42D]/10",
   };
   return (
-    <div className="rounded-xl border border-[#F5A623]/10 bg-[#25303a] p-4">
+    <div className="rounded-xl border border-[#FFB42D]/10 bg-[#25303a] p-4">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">
           {label}
@@ -112,7 +112,7 @@ function StatCard({
       {typeof progress === "number" && (
         <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#26313d]">
           <div
-            className="h-full rounded-full bg-[#F5A623] transition-all"
+            className="h-full rounded-full bg-[#FFB42D] transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -275,7 +275,7 @@ export default function AdminDashboardPage() {
       {/* Page heading */}
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-xl border border-[#F5A623]/20 bg-[#F5A623]/10 text-[#F5A623]">
+          <div className="flex size-10 items-center justify-center rounded-xl border border-[#FFB42D]/20 bg-[#FFB42D]/10 text-[#FFB42D]">
             <LayoutDashboard className="size-5" />
           </div>
           <div>
@@ -290,12 +290,12 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="rounded-md border border-[#F5A623]/15 bg-[#25303a] px-2.5 py-1.5 font-mono text-[11px] text-[#9aa7b4]">
+          <span className="rounded-md border border-[#FFB42D]/15 bg-[#25303a] px-2.5 py-1.5 font-mono text-[11px] text-[#9aa7b4]">
             v2.4
           </span>
           <Link
             href="/backoffice/orders"
-            className="inline-flex items-center gap-2 rounded-lg border border-[#F5A623]/25 bg-[#F5A623]/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-widest text-[#F5A623] transition-colors hover:bg-[#F5A623]/20"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#FFB42D]/25 bg-[#FFB42D]/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-widest text-[#FFB42D] transition-colors hover:bg-[#FFB42D]/20"
           >
             Gérer les Commandes
             <ArrowRight className="size-3.5" />
@@ -339,10 +339,10 @@ export default function AdminDashboardPage() {
       {/* KPI supplémentaires : stock, satisfaction, relationnel */}
       {extraStats && (
         <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <div className="rounded-xl border border-[#F5A623]/10 bg-[#25303a] p-4">
+          <div className="rounded-xl border border-[#FFB42D]/10 bg-[#25303a] p-4">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">Stock atelier</span>
-              <span className="flex size-8 items-center justify-center rounded-lg border border-[#F5A623]/20 bg-[#F5A623]/10 text-[#F5A623]">
+              <span className="flex size-8 items-center justify-center rounded-lg border border-[#FFB42D]/20 bg-[#FFB42D]/10 text-[#FFB42D]">
                 <Package className="size-4" />
               </span>
             </div>
@@ -353,7 +353,7 @@ export default function AdminDashboardPage() {
               {Number(extraStats.stock?.alertes ?? 0)} matière(s) sous seuil
             </p>
           </div>
-          <div className="rounded-xl border border-[#F5A623]/10 bg-[#25303a] p-4">
+          <div className="rounded-xl border border-[#FFB42D]/10 bg-[#25303a] p-4">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">Satisfaction</span>
               <span className="flex size-8 items-center justify-center rounded-lg border border-[#1f8457]/20 bg-[#1f8457]/10 text-[#1f8457]">
@@ -367,7 +367,7 @@ export default function AdminDashboardPage() {
               {Number(extraStats.satisfaction?.nb_avis ?? 0)} avis publiés
             </p>
           </div>
-          <div className="rounded-xl border border-[#F5A623]/10 bg-[#25303a] p-4">
+          <div className="rounded-xl border border-[#FFB42D]/10 bg-[#25303a] p-4">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">Paiements en attente</span>
               <span className="flex size-8 items-center justify-center rounded-lg border border-[#b14255]/20 bg-[#b14255]/10 text-[#b14255]">
@@ -381,10 +381,10 @@ export default function AdminDashboardPage() {
               {Number(extraStats.finance?.liens_paiement ?? 0)} lien(s) généré(s)
             </p>
           </div>
-          <div className="rounded-xl border border-[#F5A623]/10 bg-[#25303a] p-4">
+          <div className="rounded-xl border border-[#FFB42D]/10 bg-[#25303a] p-4">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">Clients fidélisés</span>
-              <span className="flex size-8 items-center justify-center rounded-lg border border-[#F5A623]/20 bg-[#F5A623]/10 text-[#F5A623]">
+              <span className="flex size-8 items-center justify-center rounded-lg border border-[#FFB42D]/20 bg-[#FFB42D]/10 text-[#FFB42D]">
                 <Users className="size-4" />
               </span>
             </div>
@@ -400,7 +400,7 @@ export default function AdminDashboardPage() {
 
       {/* Financial overview + treasury */}
       <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="rounded-xl border border-[#F5A623]/10 bg-[#25303a] p-5 md:p-6 lg:col-span-2">
+        <div className="rounded-xl border border-[#FFB42D]/10 bg-[#25303a] p-5 md:p-6 lg:col-span-2">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
             <div>
               <h3 className="font-headline text-lg font-semibold tracking-tight text-[#f3e9d6]">
@@ -412,11 +412,11 @@ export default function AdminDashboardPage() {
             </div>
             <div className="flex items-center gap-5">
               <div className="flex items-center gap-2">
-                <span className="size-2.5 rounded-full bg-[#F5A623]" />
+                <span className="size-2.5 rounded-full bg-[#FFB42D]" />
                 <span className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]">Ventes</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="size-2.5 rounded-full bg-[#F5A623]" />
+                <span className="size-2.5 rounded-full bg-[#FFB42D]" />
                 <span className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]">Dépenses</span>
               </div>
             </div>
@@ -427,12 +427,12 @@ export default function AdminDashboardPage() {
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorVentes" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#F5A623" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#F5A623" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#FFB42D" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#FFB42D" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorDepenses" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#F5A623" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#F5A623" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#FFB42D" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#FFB42D" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(236,204,144,0.08)" />
@@ -459,12 +459,12 @@ export default function AdminDashboardPage() {
                     padding: "0.75rem 1rem",
                   }}
                   labelStyle={{ fontWeight: 700, marginBottom: "0.5rem", color: "#f3e9d6" }}
-                  itemStyle={{ color: "#F5A623", fontSize: 12 }}
+                  itemStyle={{ color: "#FFB42D", fontSize: 12 }}
                 />
                 <Area
                   type="monotone"
                   dataKey="ventes"
-                  stroke="#F5A623"
+                  stroke="#FFB42D"
                   strokeWidth={2.5}
                   fillOpacity={1}
                   fill="url(#colorVentes)"
@@ -472,7 +472,7 @@ export default function AdminDashboardPage() {
                 <Area
                   type="monotone"
                   dataKey="depenses"
-                  stroke="#F5A623"
+                  stroke="#FFB42D"
                   strokeWidth={2.5}
                   fillOpacity={1}
                   fill="url(#colorDepenses)"
@@ -482,11 +482,11 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-[#F5A623]/15 bg-gradient-to-b from-[#2b3744] to-[#25303a] p-5 md:p-6">
-          <div className="absolute right-0 top-0 h-full w-1 bg-[#F5A623]" />
+        <div className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-[#FFB42D]/15 bg-gradient-to-b from-[#2b3744] to-[#25303a] p-5 md:p-6">
+          <div className="absolute right-0 top-0 h-full w-1 bg-[#FFB42D]" />
           <div>
             <p className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">
-              <Wallet className="size-4 text-[#F5A623]" />
+              <Wallet className="size-4 text-[#FFB42D]" />
               Trésorerie
             </p>
             <div className="space-y-4">
@@ -497,16 +497,16 @@ export default function AdminDashboardPage() {
                   <span className="ml-1 font-headline text-sm text-[#9aa7b4]">Ar</span>
                 </span>
               </div>
-              <div className="flex items-baseline justify-between gap-2 border-t border-[#F5A623]/10 pt-4">
+              <div className="flex items-baseline justify-between gap-2 border-t border-[#FFB42D]/10 pt-4">
                 <span className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]">Soldes</span>
-                <span className="font-headline text-2xl font-semibold tabular-nums text-[#F5A623]">
+                <span className="font-headline text-2xl font-semibold tabular-nums text-[#FFB42D]">
                   {dashboardData.soldes.toLocaleString("fr-FR")}
                   <span className="ml-1 font-headline text-sm text-[#9aa7b4]">Ar</span>
                 </span>
               </div>
             </div>
           </div>
-          <div className="mt-6 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-[#F5A623]/80">
+          <div className="mt-6 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-[#FFB42D]/80">
             <ShieldCheck className="size-3.5" />
             Paiement en 2 tranches actif
           </div>
@@ -515,10 +515,10 @@ export default function AdminDashboardPage() {
 
       {/* Visitors & exchange */}
       <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-[#F5A623]/10 bg-[#25303a] p-5 md:p-6">
+        <div className="rounded-xl border border-[#FFB42D]/10 bg-[#25303a] p-5 md:p-6">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="flex items-center gap-2 font-headline text-lg font-semibold tracking-tight text-[#f3e9d6]">
-              <Users className="size-4 text-[#F5A623]" />
+              <Users className="size-4 text-[#FFB42D]" />
               Visiteurs Anonymes
             </h3>
             <span className="inline-flex items-center gap-1.5 rounded-md border border-[#1f8457]/25 bg-[#1f8457]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-[#1f8457]">
@@ -539,7 +539,7 @@ export default function AdminDashboardPage() {
               {visitors.map((v) => (
                 <div
                   key={v.id}
-                  className="flex items-center justify-between rounded-lg border border-[#F5A623]/5 bg-[#26313d] p-3.5"
+                  className="flex items-center justify-between rounded-lg border border-[#FFB42D]/5 bg-[#26313d] p-3.5"
                 >
                   <div className="flex items-center gap-3">
                     <span
@@ -580,15 +580,15 @@ export default function AdminDashboardPage() {
               onClick={() => setFilterActive(!filterActive)}
               className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-[11px] font-semibold uppercase tracking-widest transition-all ${
                 filterActive
-                  ? "border-[#F5A623]/40 bg-[#F5A623]/15 text-[#F5A623]"
-                  : "border-[#F5A623]/15 bg-[#25303a] text-[#9aa7b4] hover:bg-[#F5A623]/10 hover:text-[#f3e9d6]"
+                  ? "border-[#FFB42D]/40 bg-[#FFB42D]/15 text-[#FFB42D]"
+                  : "border-[#FFB42D]/15 bg-[#25303a] text-[#9aa7b4] hover:bg-[#FFB42D]/10 hover:text-[#f3e9d6]"
               }`}
             >
               {filterActive ? "Filtres actifs" : "Filtrer"}
             </button>
             <Link
               href="/backoffice/orders"
-              className="inline-flex items-center gap-2 rounded-lg bg-[#F5A623] px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-[#171b22] transition-all hover:bg-[#F5A623]/90"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#FFB42D] px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-[#171b22] transition-all hover:bg-[#FFB42D]/90"
             >
               <Package className="size-3.5" />
               Gérer les Commandes
@@ -596,18 +596,18 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-xl border border-[#F5A623]/10 bg-[#25303a]">
-          <div className="hidden grid-cols-[1fr_auto_auto_auto] items-center gap-4 border-b border-[#F5A623]/10 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#9aa7b4] md:grid">
+        <div className="overflow-hidden rounded-xl border border-[#FFB42D]/10 bg-[#25303a]">
+          <div className="hidden grid-cols-[1fr_auto_auto_auto] items-center gap-4 border-b border-[#FFB42D]/10 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#9aa7b4] md:grid">
             <span>Client & Modèle</span>
             <span className="w-36">Statut</span>
             <span className="w-48">Progression</span>
             <span className="w-28 text-right">Alertes</span>
           </div>
 
-          <div className="divide-y divide-[#F5A623]/10">
+          <div className="divide-y divide-[#FFB42D]/10">
             {isLoading ? (
               <div className="flex items-center justify-center gap-3 px-6 py-16 text-sm text-[#9aa7b4]">
-                <span className="size-4 animate-spin rounded-full border-2 border-[#F5A623]/30 border-t-[#F5A623]" />
+                <span className="size-4 animate-spin rounded-full border-2 border-[#FFB42D]/30 border-t-[#FFB42D]" />
                 Chargement…
               </div>
             ) : commandes.length === 0 ? (
@@ -626,7 +626,7 @@ export default function AdminDashboardPage() {
                     className="grid cursor-pointer grid-cols-1 items-center gap-4 px-5 py-4 transition-colors hover:bg-[#26313d] md:grid-cols-[1fr_auto_auto_auto]"
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#F5A623]/10 bg-[#26313d] text-[#F5A623]">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#FFB42D]/10 bg-[#26313d] text-[#FFB42D]">
                         <ClipboardList className="size-4" />
                       </div>
                       <div className="min-w-0">
@@ -653,7 +653,7 @@ export default function AdminDashboardPage() {
                             ? "border-[#1f8457]/25 bg-[#1f8457]/10 text-[#1f8457]"
                             : enRetard
                               ? "border-[#b14255]/25 bg-[#b14255]/10 text-[#b14255]"
-                              : "border-[#F5A623]/20 bg-[#F5A623]/10 text-[#F5A623]"
+                              : "border-[#FFB42D]/20 bg-[#FFB42D]/10 text-[#FFB42D]"
                         }`}
                       >
                         {c.statut_production}
@@ -663,11 +663,11 @@ export default function AdminDashboardPage() {
                     <div className="flex flex-col gap-1.5 md:w-48">
                       <div className="flex justify-between text-[10px] font-semibold uppercase tracking-wide text-[#9aa7b4]">
                         <span>{c.pieces_produites} / {c.quantite} pièces</span>
-                        <span className="text-[#F5A623]">{pct}%</span>
+                        <span className="text-[#FFB42D]">{pct}%</span>
                       </div>
                       <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#26313d]">
                         <div
-                          className="h-full rounded-full bg-[#F5A623] transition-all"
+                          className="h-full rounded-full bg-[#FFB42D] transition-all"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -706,18 +706,18 @@ export default function AdminDashboardPage() {
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-[#9aa7b4]">
               98.4% des commandes passent le contrôle qualité au premier essai ce mois-ci.
             </p>
-            <span className="mt-6 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#F5A623] transition-colors group-hover:text-[#f3e9d6]">
+            <span className="mt-6 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#FFB42D] transition-colors group-hover:text-[#f3e9d6]">
               Suivi de Production
               <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </span>
           </div>
-          <div className="absolute -bottom-8 -right-8 text-[120px] leading-none text-[#F5A623]/5 transition-transform duration-700 group-hover:rotate-12 group-hover:scale-110">
+          <div className="absolute -bottom-8 -right-8 text-[120px] leading-none text-[#FFB42D]/5 transition-transform duration-700 group-hover:rotate-12 group-hover:scale-110">
             <ShieldCheck className="size-full" />
           </div>
         </Link>
 
-        <div className="flex flex-col justify-between rounded-xl border border-[#F5A623]/10 bg-[#25303a] p-6">
-          <AlertTriangle className="size-8 text-[#F5A623]" />
+        <div className="flex flex-col justify-between rounded-xl border border-[#FFB42D]/10 bg-[#25303a] p-6">
+          <AlertTriangle className="size-8 text-[#FFB42D]" />
           <div>
             <p className="font-headline text-4xl font-bold tabular-nums text-[#f3e9d6]">
               {String(dashboardData.commandesEnRetard).padStart(2, "0")}

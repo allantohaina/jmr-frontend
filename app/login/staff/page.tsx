@@ -23,7 +23,7 @@ const roleConfig = {
     icon: "/analytics_chart.svg",
     redirect: "/backoffice",
     gradient: "from-[#1a2332] to-[#25303a]",
-    accent: "#F5A623",
+    accent: "#FFB42D",
   },
   worker: {
     title: "Atelier",
@@ -31,7 +31,7 @@ const roleConfig = {
     icon: "/icone-production.svg",
     redirect: "/atelier",
     gradient: "from-[#1a2332] to-[#25303a]",
-    accent: "#F5A623",
+    accent: "#FFB42D",
   },
 };
 
@@ -103,7 +103,7 @@ export default function StaffLoginPage() {
   if (!isMounted) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#1a2332]">
-        <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#F5A623]">Chargement...</span>
+        <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#FFB42D]">Chargement...</span>
       </div>
     );
   }
@@ -151,7 +151,7 @@ export default function StaffLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white outline-none transition-colors focus:border-[#F5A623]/50 placeholder:text-white/20"
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white outline-none transition-colors focus:border-[#FFB42D]/50 placeholder:text-white/20"
                 placeholder="votre@email.com"
                 autoComplete="username"
               />
@@ -167,7 +167,7 @@ export default function StaffLoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white outline-none transition-colors focus:border-[#F5A623]/50 placeholder:text-white/20"
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-white outline-none transition-colors focus:border-[#FFB42D]/50 placeholder:text-white/20"
                 placeholder="••••••••"
                 autoComplete="current-password"
               />
@@ -176,7 +176,7 @@ export default function StaffLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-lg bg-[#F5A623] py-4 text-xs font-bold uppercase tracking-[0.3em] text-[#1a2332] shadow-lg shadow-[#F5A623]/20 transition-all duration-200 hover:bg-[#F5A623] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-lg bg-[#FFB42D] py-4 text-xs font-bold uppercase tracking-[0.3em] text-[#1a2332] shadow-lg shadow-[#FFB42D]/20 transition-all duration-200 hover:bg-[#FFB42D] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLoading ? "Connexion..." : "Se connecter"}
             </button>

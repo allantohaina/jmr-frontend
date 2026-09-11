@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="JMR Textile">
   <rect width="64" height="64" rx="12" fill="#172d42"/>
-  <g fill="#F5A623"><path d="M12 11h15v7H19v28.5c0 3.4 2.2 5.5 5.5 5.5 3.2 0 5.5-2.1 5.5-5.5V25h8v21.5C38 54.2 32.8 58 24.5 58 16.2 58 12 53.7 12 46.5V11Z"/><path d="M40 11h12v12H40zM40 26h12v12H40zM40 41h12v12H40z"/></g>
-  <path d="M40 23l12-12M40 38l12-12M40 53l12-12" stroke="#F5A623" stroke-width="1.4" opacity=".9"/>
+  <g fill="#FFB42D"><path d="M12 11h15v7H19v28.5c0 3.4 2.2 5.5 5.5 5.5 3.2 0 5.5-2.1 5.5-5.5V25h8v21.5C38 54.2 32.8 58 24.5 58 16.2 58 12 53.7 12 46.5V11Z"/><path d="M40 11h12v12H40zM40 26h12v12H40zM40 41h12v12H40z"/></g>
+  <path d="M40 23l12-12M40 38l12-12M40 53l12-12" stroke="#FFB42D" stroke-width="1.4" opacity=".9"/>
 </svg>

@@ -90,9 +90,9 @@ function buildQuoteRequestPayload(data: QuoteRequestFormData) {
 
 function HelpDot({ tip }: { tip: string }) {
   return (
-    <span className="relative inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-[#F5A623]/40 text-[8px] font-semibold not-italic tracking-normal text-[#F5A623]/60 group-hover:text-[#F5A623]">
+    <span className="relative inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-[#FFB42D]/40 text-[8px] font-semibold not-italic tracking-normal text-[#FFB42D]/60 group-hover:text-[#FFB42D]">
       ?
-      <span className="pointer-events-none absolute bottom-[calc(100%+6px)] left-1/2 z-10 hidden w-52 -translate-x-1/2 rounded-md border border-[#F5A623]/10 bg-[#25303a] px-3 py-2 text-[11px] font-normal leading-relaxed normal-case tracking-normal text-[#F5A623]/80 shadow-xl group-hover:block">
+      <span className="pointer-events-none absolute bottom-[calc(100%+6px)] left-1/2 z-10 hidden w-52 -translate-x-1/2 rounded-md border border-[#FFB42D]/10 bg-[#25303a] px-3 py-2 text-[11px] font-normal leading-relaxed normal-case tracking-normal text-[#FFB42D]/80 shadow-xl group-hover:block">
         {tip}
       </span>
     </span>
@@ -331,35 +331,35 @@ function QuoteFormContent() {
   }
 
   const inputClass = (hasError: boolean) =>
-    `w-full rounded-md border bg-[#1e2a38] px-4 py-3 text-[13.5px] text-[#F5A623] placeholder:text-[#F5A623]/25 focus:border-[#F5A623] focus:outline-none transition-all ${
-      hasError ? "border-red-400/50" : "border-[#F5A623]/10"
+    `w-full rounded-md border bg-[#1e2a38] px-4 py-3 text-[13.5px] text-[#FFB42D] placeholder:text-[#FFB42D]/25 focus:border-[#FFB42D] focus:outline-none transition-all ${
+      hasError ? "border-red-400/50" : "border-[#FFB42D]/10"
     }`;
 
-  const fieldLabelClass = "flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#F5A623]/50 mb-2";
+  const fieldLabelClass = "flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/50 mb-2";
 
   return (
     <div className="min-h-screen bg-[#1e2a38] pb-16 pt-20 md:pb-24 md:pt-24">
       <div className="mx-auto w-full max-w-[920px] px-5" id="demande-devis-form">
         {/* PROGRESS */}
-        <div className="sticky top-[88px] z-20 -mx-5 border-b border-[#F5A623]/10 bg-[#1e2a38]/95 px-5 py-3.5 backdrop-blur-sm">
+        <div className="sticky top-[88px] z-20 -mx-5 border-b border-[#FFB42D]/10 bg-[#1e2a38]/95 px-5 py-3.5 backdrop-blur-sm">
           <div className="flex justify-center" aria-label="Progression du formulaire">
             {PROGRESS_STEPS.map((label, i) => (
               <div
                 key={label}
                 className={`relative flex items-center gap-2 px-3 text-[11px] sm:px-4 ${
-                  i === activeStep ? "text-[#F5A623]" : i < activeStep ? "text-[#F5A623]/70" : "text-[#F5A623]/35"
+                  i === activeStep ? "text-[#FFB42D]" : i < activeStep ? "text-[#FFB42D]/70" : "text-[#FFB42D]/35"
                 }`}
               >
                 {i < PROGRESS_STEPS.length - 1 && (
-                  <span aria-hidden="true" className="absolute right-0 top-1/2 h-px w-4 -translate-y-1/2 bg-[#F5A623]/15 sm:w-6" />
+                  <span aria-hidden="true" className="absolute right-0 top-1/2 h-px w-4 -translate-y-1/2 bg-[#FFB42D]/15 sm:w-6" />
                 )}
                 <span
                   className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border font-mono text-[10px] transition-colors ${
                     i === activeStep
-                      ? "border-[#F5A623] text-[#F5A623]"
+                      ? "border-[#FFB42D] text-[#FFB42D]"
                       : i < activeStep
-                        ? "border-[#F5A623] bg-[#F5A623] text-[#1e2a38]"
-                        : "border-[#F5A623]/15 text-[#F5A623]/35"
+                        ? "border-[#FFB42D] bg-[#FFB42D] text-[#1e2a38]"
+                        : "border-[#FFB42D]/15 text-[#FFB42D]/35"
                   }`}
                 >
                   {i + 1}
@@ -372,11 +372,11 @@ function QuoteFormContent() {
 
         {/* HERO */}
         <header className="mb-10 text-center md:mb-14">
-          <span className="mb-4 block text-[10px] font-bold uppercase tracking-[0.3em] text-[#F5A623]">Demande de devis</span>
-          <h2 className="mb-4 font-headline text-4xl font-semibold text-[#F5A623] md:text-5xl">
+          <span className="mb-4 block text-[10px] font-bold uppercase tracking-[0.3em] text-[#FFB42D]">Demande de devis</span>
+          <h2 className="mb-4 font-headline text-4xl font-semibold text-[#FFB42D] md:text-5xl">
             {modifyCode ? `Modification du devis ${modifyCode}` : "Parlons de votre prochain projet textile"}
           </h2>
-          <p className="mx-auto max-w-[560px] text-[14.5px] leading-relaxed text-[#F5A623]/60">
+          <p className="mx-auto max-w-[560px] text-[14.5px] leading-relaxed text-[#FFB42D]/60">
             {modifyCode
               ? "Precisez ici les modifications souhaitees. Choisissez edit pour une retouche ou add pour un ajout. La version precedente reste verrouillee et nous creerons une nouvelle demande signee."
               : "Remplissez le formulaire pour nous faire part de votre projet. Nous revenons vers vous avec une estimation claire et un suivi adapté à votre besoin."}
@@ -391,7 +391,7 @@ function QuoteFormContent() {
               </div>
               <div className="flex-1">
                 <h3 className="mb-2 text-sm font-bold text-amber-400">Devis en cours de traitement</h3>
-                <p className="mb-4 text-sm text-[#F5A623]/70">
+                <p className="mb-4 text-sm text-[#FFB42D]/70">
                   Vous avez déjà <strong>{pendingQuoteCount} devis en attente</strong>.
                   Souhaitez-vous tout de même envoyer une nouvelle demande ?
                 </p>
@@ -407,7 +407,7 @@ function QuoteFormContent() {
                   <button
                     type="button"
                     onClick={handleCancelDuplicate}
-                    className="rounded-lg border border-[#F5A623]/20 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#F5A623]/60 transition-colors hover:bg-white/5"
+                    className="rounded-lg border border-[#FFB42D]/20 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#FFB42D]/60 transition-colors hover:bg-white/5"
                   >
                     Annuler
                   </button>
@@ -439,22 +439,22 @@ function QuoteFormContent() {
                   aria-label={typeCardA11y(selected)}
                   onClick={() => setProjectType(card.type)}
                   className={`rounded-md border-[1.5px] p-6 text-left transition-colors cursor-pointer ${
-                    selected ? "border-[#F5A623] bg-[#25303a]" : "border-[#F5A623]/10 bg-[#25303a] hover:border-[#F5A623]/60"
+                    selected ? "border-[#FFB42D] bg-[#25303a]" : "border-[#FFB42D]/10 bg-[#25303a] hover:border-[#FFB42D]/60"
                   }`}
                 >
                   <div className="mb-4 flex items-start justify-between">
-                    <span className={`flex h-9 w-9 items-center justify-center rounded-md border text-base ${selected ? "border-[#F5A623] text-[#F5A623]" : "border-[#F5A623]/20 text-[#F5A623]"}`}>
+                    <span className={`flex h-9 w-9 items-center justify-center rounded-md border text-base ${selected ? "border-[#FFB42D] text-[#FFB42D]" : "border-[#FFB42D]/20 text-[#FFB42D]"}`}>
                       {card.icon}
                     </span>
-                    <span className={`relative h-4 w-4 shrink-0 rounded-full border-[1.5px] ${selected ? "border-[#F5A623]" : "border-[#F5A623]/25"}`}>
-                      {selected && <span className="absolute inset-[3px] rounded-full bg-[#F5A623]" />}
+                    <span className={`relative h-4 w-4 shrink-0 rounded-full border-[1.5px] ${selected ? "border-[#FFB42D]" : "border-[#FFB42D]/25"}`}>
+                      {selected && <span className="absolute inset-[3px] rounded-full bg-[#FFB42D]" />}
                     </span>
                   </div>
-                  <span className="mb-1.5 block font-headline text-[17px] font-semibold text-[#F5A623]">{card.name}</span>
-                  <span className="mb-3 block text-[12.5px] leading-relaxed text-[#F5A623]/60">{card.desc}</span>
+                  <span className="mb-1.5 block font-headline text-[17px] font-semibold text-[#FFB42D]">{card.name}</span>
+                  <span className="mb-3 block text-[12.5px] leading-relaxed text-[#FFB42D]/60">{card.desc}</span>
                   <span className="flex flex-wrap gap-1.5">
                     {card.tags.map((tag) => (
-                      <span key={tag} className="rounded-sm bg-[#1e2a38] px-2 py-1 text-[10px] text-[#F5A623]/45">{tag}</span>
+                      <span key={tag} className="rounded-sm bg-[#1e2a38] px-2 py-1 text-[10px] text-[#FFB42D]/45">{tag}</span>
                     ))}
                   </span>
                 </button>
@@ -463,11 +463,11 @@ function QuoteFormContent() {
           </div>
 
           {/* SECTION 01 : SPECIFICATIONS */}
-          <section ref={specsRef} className="mb-5 overflow-hidden rounded-lg border border-[#F5A623]/10 bg-[#25303a]">
-            <div className="flex items-baseline gap-3 border-b border-[#F5A623]/10 px-6 py-5 md:px-7">
-              <span className="font-mono text-xs text-[#F5A623]">01</span>
-              <span className="font-headline text-lg font-semibold text-[#F5A623]">Spécifications du produit</span>
-              <span className="ml-auto text-xs text-[#F5A623]/50">{projectType === "serie" ? "Production en série" : "Pièce sur-mesure"}</span>
+          <section ref={specsRef} className="mb-5 overflow-hidden rounded-lg border border-[#FFB42D]/10 bg-[#25303a]">
+            <div className="flex items-baseline gap-3 border-b border-[#FFB42D]/10 px-6 py-5 md:px-7">
+              <span className="font-mono text-xs text-[#FFB42D]">01</span>
+              <span className="font-headline text-lg font-semibold text-[#FFB42D]">Spécifications du produit</span>
+              <span className="ml-auto text-xs text-[#FFB42D]/50">{projectType === "serie" ? "Production en série" : "Pièce sur-mesure"}</span>
             </div>
             <div className="p-6 md:p-7">
               <div className="mb-6">
@@ -504,7 +504,7 @@ function QuoteFormContent() {
                       </select>
                     )}
                   />
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#F5A623]" />
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#FFB42D]" />
                 </div>
                 {errors.category && <p className="mt-2 text-xs text-red-300">{errors.category.message}</p>}
               </div>
@@ -525,7 +525,7 @@ function QuoteFormContent() {
                   <Controller name="grammage" control={control} render={({ field }) => (
                     <input {...field} id="quote-grammage" type="text" placeholder="Ex : 180 g/m²" className={inputClass(false)} />
                   )} />
-                  <p className="mt-1.5 text-[11px] text-[#F5A623]/40">Repère : léger 120-160 · standard 180-220 · épais 280+</p>
+                  <p className="mt-1.5 text-[11px] text-[#FFB42D]/40">Repère : léger 120-160 · standard 180-220 · épais 280+</p>
                 </div>
                 <div>
                   <label className={fieldLabelClass} htmlFor="quote-coupe">Coupe</label>
@@ -575,21 +575,21 @@ function QuoteFormContent() {
           </section>
 
           {/* SECTION 02 : DOCUMENTS */}
-          <section ref={docsRef} className="mb-5 overflow-hidden rounded-lg border border-[#F5A623]/10 bg-[#25303a]">
-            <div className="flex items-baseline gap-3 border-b border-[#F5A623]/10 px-6 py-5 md:px-7">
-              <span className="font-mono text-xs text-[#F5A623]">02</span>
-              <span className="font-headline text-lg font-semibold text-[#F5A623]">Documents de référence</span>
-              <span className="ml-auto text-xs text-[#F5A623]/50">Facultatif</span>
+          <section ref={docsRef} className="mb-5 overflow-hidden rounded-lg border border-[#FFB42D]/10 bg-[#25303a]">
+            <div className="flex items-baseline gap-3 border-b border-[#FFB42D]/10 px-6 py-5 md:px-7">
+              <span className="font-mono text-xs text-[#FFB42D]">02</span>
+              <span className="font-headline text-lg font-semibold text-[#FFB42D]">Documents de référence</span>
+              <span className="ml-auto text-xs text-[#FFB42D]/50">Facultatif</span>
             </div>
             <div className="p-6 md:p-7">
               <Controller
                 name="technical_files"
                 control={control}
                 render={({ field: { onChange, ref } }) => (
-                  <label className="block cursor-pointer rounded-md border border-dashed border-[#F5A623]/25 p-6 text-center transition-colors hover:border-[#F5A623]" htmlFor="quote-technical-files">
-                    <span className="mb-1 block text-[13px] font-medium text-[#F5A623]/80">Croquis, photos d&apos;inspiration ou fiche technique</span>
-                    <span className="mb-4 block text-[11px] text-[#F5A623]/45">JPG, PNG, WEBP, PDF — {MAX_ATTACHMENTS} fichiers max, 10 Mo par fichier</span>
-                    <span className="inline-flex items-center gap-2 rounded-md bg-[#F5A623]/10 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#F5A623] transition-colors hover:bg-[#F5A623]/20">
+                  <label className="block cursor-pointer rounded-md border border-dashed border-[#FFB42D]/25 p-6 text-center transition-colors hover:border-[#FFB42D]" htmlFor="quote-technical-files">
+                    <span className="mb-1 block text-[13px] font-medium text-[#FFB42D]/80">Croquis, photos d&apos;inspiration ou fiche technique</span>
+                    <span className="mb-4 block text-[11px] text-[#FFB42D]/45">JPG, PNG, WEBP, PDF — {MAX_ATTACHMENTS} fichiers max, 10 Mo par fichier</span>
+                    <span className="inline-flex items-center gap-2 rounded-md bg-[#FFB42D]/10 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#FFB42D] transition-colors hover:bg-[#FFB42D]/20">
                       <UploadCloud className="h-4 w-4" /> Choisir des fichiers
                     </span>
                     <input
@@ -621,25 +621,25 @@ function QuoteFormContent() {
               />
               {attachments.length > 0 ? (
                 <div className="mt-4 space-y-2">
-                  <p className="text-xs text-[#F5A623]/60">
+                  <p className="text-xs text-[#FFB42D]/60">
                     {attachments.length} fichier{attachments.length > 1 ? "s" : ""} sélectionné{attachments.length > 1 ? "s" : ""} sur {MAX_ATTACHMENTS} maximum
                   </p>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {attachments.map((file, index) => (
-                      <div key={`${file.name}-${file.lastModified}-${index}`} className="flex items-center gap-3 rounded-md border border-[#F5A623]/10 bg-[#1e2a38]/70 p-3">
+                      <div key={`${file.name}-${file.lastModified}-${index}`} className="flex items-center gap-3 rounded-md border border-[#FFB42D]/10 bg-[#1e2a38]/70 p-3">
                         {isImageFile(file) ? (
                           <img src={URL.createObjectURL(file)} alt={file.name} className="h-10 w-10 shrink-0 rounded object-cover" />
                         ) : (
-                          <FileImage className="h-9 w-9 shrink-0 text-[#F5A623]" />
+                          <FileImage className="h-9 w-9 shrink-0 text-[#FFB42D]" />
                         )}
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-medium text-[#F5A623]" title={file.name}>{file.name}</p>
-                          <p className="text-[10px] uppercase tracking-widest text-[#F5A623]/40">{formatBytes(file.size)}</p>
+                          <p className="truncate text-xs font-medium text-[#FFB42D]" title={file.name}>{file.name}</p>
+                          <p className="text-[10px] uppercase tracking-widest text-[#FFB42D]/40">{formatBytes(file.size)}</p>
                         </div>
                         <button
                           type="button"
                           onClick={() => removeAttachment(index)}
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[#F5A623]/50 transition-colors hover:bg-white/5 hover:text-red-300"
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[#FFB42D]/50 transition-colors hover:bg-white/5 hover:text-red-300"
                           title="Retirer ce fichier"
                         >
                           <X className="h-4 w-4" />
@@ -654,10 +654,10 @@ function QuoteFormContent() {
           </section>
 
           {/* SECTION 03 : COORDONNEES */}
-          <section ref={coordsRef} className="mb-5 overflow-hidden rounded-lg border border-[#F5A623]/10 bg-[#25303a]">
-            <div className="flex items-baseline gap-3 border-b border-[#F5A623]/10 px-6 py-5 md:px-7">
-              <span className="font-mono text-xs text-[#F5A623]">03</span>
-              <span className="font-headline text-lg font-semibold text-[#F5A623]">Vos coordonnées</span>
+          <section ref={coordsRef} className="mb-5 overflow-hidden rounded-lg border border-[#FFB42D]/10 bg-[#25303a]">
+            <div className="flex items-baseline gap-3 border-b border-[#FFB42D]/10 px-6 py-5 md:px-7">
+              <span className="font-mono text-xs text-[#FFB42D]">03</span>
+              <span className="font-headline text-lg font-semibold text-[#FFB42D]">Vos coordonnées</span>
             </div>
             <div className="p-6 md:p-7">
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
@@ -695,10 +695,10 @@ function QuoteFormContent() {
                         </select>
                       )}
                     />
-                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#F5A623]" />
+                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#FFB42D]" />
                   </div>
                   {modifyCode ? (
-                    <p className="mt-1.5 text-[10px] uppercase tracking-widest text-[#F5A623]/40">
+                    <p className="mt-1.5 text-[10px] uppercase tracking-widest text-[#FFB42D]/40">
                       Edit = ce qu&apos;il faut modifier. Add = ce qu&apos;il faut ajouter.
                     </p>
                   ) : null}
@@ -728,7 +728,7 @@ function QuoteFormContent() {
               type="button"
               onClick={(event) => void saveDraft(event)}
               disabled={isSavingDraft || isSubmitting}
-              className="flex w-full items-center justify-center gap-3 rounded-md border border-[#F5A623]/25 py-4 text-xs font-bold uppercase tracking-[0.3em] text-[#F5A623] transition-all hover:bg-[#F5A623]/10 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-3 rounded-md border border-[#FFB42D]/25 py-4 text-xs font-bold uppercase tracking-[0.3em] text-[#FFB42D] transition-all hover:bg-[#FFB42D]/10 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSavingDraft ? (
                 <>
@@ -743,7 +743,7 @@ function QuoteFormContent() {
               )}
             </button>
             <button
-              className="flex w-full items-center justify-center gap-3 rounded-md bg-[#F5A623] py-4 text-xs font-bold uppercase tracking-[0.3em] text-[#1e2a38] shadow-xl shadow-[#F5A623]/10 transition-all hover:bg-[#F5A623] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-3 rounded-md bg-[#FFB42D] py-4 text-xs font-bold uppercase tracking-[0.3em] text-[#1e2a38] shadow-xl shadow-[#FFB42D]/10 transition-all hover:bg-[#FFB42D] disabled:cursor-not-allowed disabled:opacity-50"
               type="submit"
               disabled={isSubmitting}
             >
@@ -771,14 +771,14 @@ function QuoteFormContent() {
                 </button>
               )}
               {draft && (
-                <p className="sm:col-span-2 text-center text-[10px] uppercase tracking-widest text-[#F5A623]/50">
+                <p className="sm:col-span-2 text-center text-[10px] uppercase tracking-widest text-[#FFB42D]/50">
                   Vous modifiez un brouillon. Cliquez sur Envoyer pour l&apos;envoyer à notre équipe.
                 </p>
               )}
             </div>
 
-          <div className="mt-8 flex items-center justify-center gap-3 text-[#F5A623]/40">
-            <Check className="h-4 w-4 text-[#F5A623]" />
+          <div className="mt-8 flex items-center justify-center gap-3 text-[#FFB42D]/40">
+            <Check className="h-4 w-4 text-[#FFB42D]" />
             <span className="text-[11px] uppercase tracking-widest">Confidentialité garantie — vos documents et idées ne sont jamais partagés sans votre accord.</span>
           </div>
         </form>
@@ -800,7 +800,7 @@ function QuoteFormContent() {
 
 export function DemandeDevisSection() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-[#F5A623]">Chargement...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-[#FFB42D]">Chargement...</div>}>
       <QuoteFormContent />
     </Suspense>
   );

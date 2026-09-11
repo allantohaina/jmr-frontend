@@ -28,8 +28,8 @@ export function DocumentPreview({ file }: { file: FileAttachment }) {
           <FileText className="h-4 w-4" /> Ouvrir le PDF
         </a>
       ) : (
-        <Suspense fallback={<Loader2 className="m-5 h-5 w-5 animate-spin text-[#F5A623]" />}>
-          <PdfDocument file={url} loading={<Loader2 className="m-5 h-5 w-5 animate-spin text-[#F5A623]" />} onLoadSuccess={({ numPages }) => setPages(numPages)} onLoadError={() => setError(true)}>
+        <Suspense fallback={<Loader2 className="m-5 h-5 w-5 animate-spin text-[#FFB42D]" />}>
+          <PdfDocument file={url} loading={<Loader2 className="m-5 h-5 w-5 animate-spin text-[#FFB42D]" />} onLoadSuccess={({ numPages }) => setPages(numPages)} onLoadError={() => setError(true)}>
             <PdfPage pageNumber={1} width={220} renderTextLayer={false} renderAnnotationLayer={false} />
           </PdfDocument>
         </Suspense>
@@ -55,7 +55,7 @@ export function CsvPreview({ file }: { file: File }) {
   return (
     <div className="rounded-xl border border-[#163526]/10 bg-[#faf9f4] p-3">
       <button type="button" onClick={readCsv} className="inline-flex items-center gap-2 text-xs font-bold text-[#163526] underline">
-        <FileSpreadsheet className="h-4 w-4 text-[#F5A623]" /> Prévisualiser le CSV
+        <FileSpreadsheet className="h-4 w-4 text-[#FFB42D]" /> Prévisualiser le CSV
       </button>
       {error ? <p className="mt-2 text-xs text-red-600">{error}</p> : null}
       {rows.length > 0 ? (
