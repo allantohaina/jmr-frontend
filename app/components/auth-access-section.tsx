@@ -88,6 +88,7 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
   const [signupFeedback, setSignupFeedback] = useState<SignupFeedback | null>(null);
   const [pendingIntent, setPendingIntent] = useState<"login" | "signup" | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
 
   // Hook Form pour l'inscription
   const signupForm = useForm<SignupFormData>({
@@ -194,7 +195,7 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
     <div className="bg-background text-on-surface font-body selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
       <main className="min-h-screen px-4 pb-20 pt-12 md:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-16 text-center">
+          <div className="mb-10 text-center">
             <h1 className="mb-4 font-headline text-5xl font-bold tracking-tight text-primary md:text-6xl">
               {messages.auth.title}
             </h1>
@@ -208,360 +209,295 @@ export function AuthAccessSection({ nextPath = "/", error }: AuthAccessSectionPr
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl bg-outline-variant/20 shadow-[0_48px_64px_rgba(27,28,25,0.06)] lg:grid-cols-2">
-            <section className="flex flex-col justify-center bg-surface p-8 md:p-12 lg:p-16">
-              <div className="mx-auto w-full max-w-md">
-                <div className="mb-10">
-                  <h2 className="mb-2 font-headline text-4xl font-bold text-primary">{messages.auth.loginTitle}</h2>
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">{messages.auth.loginSubtitle}</p>
-                </div>
-                <form className="space-y-6" onSubmit={handleLoginSubmit}>
-                  <input name="next" type="hidden" value={nextPath} />
-                  <input name="intent" type="hidden" value="login" />
+          <div className="auth-card">
+            <div className="auth-tabs" role="tablist" aria-label="Se connecter / Créer un compte">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === "login"}
+                className={`auth-tab${activeTab === "login" ? " is-active" : ""}`}
+                onClick={() => setActiveTab("login")}
+              >
+                {messages.auth.loginTitle}
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === "signup"}
+                className={`auth-tab${activeTab === "signup" ? " is-active" : ""}`}
+                onClick={() => setActiveTab("signup")}
+              >
+                {messages.auth.signupButton}
+              </button>
+            </div>
 
-                  <div className="space-y-6">
-                    <div className="relative">
-                      <label htmlFor="login-email" className="mb-2 block font-label text-[10px] font-bold uppercase tracking-[0.2em] text-outline/80">
-                        {messages.auth.usernameOrEmail}
-                      </label>
+            {/* Formulaire de connexion */}
+            <form
+              className={`auth-panel${activeTab === "login" ? " is-active" : ""}`}
+              onSubmit={handleLoginSubmit}
+              noValidate={false}
+            >
+              <input name="next" type="hidden" value={nextPath} />
+              <input name="intent" type="hidden" value="login" />
+              <p className="auth-title">{messages.auth.loginSubtitle}</p>
+              <p className="auth-subtitle">{messages.auth.subtitle}</p>
+
+              <label className="auth-label" htmlFor="login-email">{messages.auth.email}</label>
+              <input
+                className="auth-input"
+                type="email"
+                id="login-email"
+                name="email"
+                placeholder="votre@email.com"
+                required
+                autoComplete="email"
+              />
+
+              <label className="auth-label" htmlFor="login-password">{messages.auth.password}</label>
+              <input
+                className="auth-input"
+                type="password"
+                id="login-password"
+                name="password"
+                required
+                autoComplete="current-password"
+              />
+
+              <div className="auth-row">
+                <label className="auth-checkbox">
+                  <input type="checkbox" name="remember" />
+                  {messages.auth.rememberMe}
+                </label>
+                <button type="button" className="auth-link">{messages.auth.forgotPassword}</button>
+              </div>
+
+              <button className="auth-submit" type="submit" disabled={pendingIntent !== null}>
+                {pendingIntent === "login" ? messages.auth.loginLoading : messages.auth.loginButton}
+              </button>
+            </form>
+
+            {/* Formulaire d'inscription — tous les champs requis par la validation */}
+            <form
+              className={`auth-panel${activeTab === "signup" ? " is-active" : ""}`}
+              onSubmit={handleSignupSubmit(onSignupSubmit, onSignupInvalid)}
+              noValidate={false}
+            >
+              <p className="auth-title">{messages.auth.signupEyebrow}</p>
+              <p className="auth-subtitle">{messages.auth.subtitle}</p>
+
+              {signupFeedback ? (
+                <div
+                  id="signup-feedback"
+                  className={`auth-feedback auth-feedback--${signupFeedback.type}`}
+                  role={signupFeedback.type === "error" ? "alert" : "status"}
+                  aria-live="polite"
+                >
+                  {signupFeedback.message}
+                </div>
+              ) : null}
+
+              <div className="auth-grid">
+                <div>
+                  <label className="auth-label" htmlFor="signup-firstname">{messages.auth.firstName}</label>
+                  <Controller
+                    name="first_name"
+                    control={signupControl}
+                    render={({ field }) => (
                       <input
-                        id="login-email"
-                        name="email"
-                        className="w-full border border-outline-variant/50 bg-white px-4 py-4 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
-                        placeholder="votre@email.com"
-                        type="email"
+                        {...field}
+                        className={`auth-input${signupErrors.first_name ? " has-error" : ""}`}
+                        type="text"
+                        id="signup-firstname"
+                        autoComplete="given-name"
                         required
                       />
-                    </div>
-                    <div className="relative">
-                      <label htmlFor="login-password" className="mb-2 block font-label text-[10px] font-bold uppercase tracking-[0.2em] text-outline/80">
-                        {messages.auth.password}
-                      </label>
+                    )}
+                  />
+                  {signupErrors.first_name && (
+                    <p className="auth-error">{signupErrors.first_name.message}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="auth-label" htmlFor="signup-lastname">{messages.auth.lastName}</label>
+                  <Controller
+                    name="last_name"
+                    control={signupControl}
+                    render={({ field }) => (
                       <input
-                        id="login-password"
-                        name="password"
-                        className="w-full border border-outline-variant/50 bg-white px-4 py-4 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0"
-                        placeholder="********"
+                        {...field}
+                        className={`auth-input${signupErrors.last_name ? " has-error" : ""}`}
+                        type="text"
+                        id="signup-lastname"
+                        autoComplete="family-name"
+                        required
+                      />
+                    )}
+                  />
+                  {signupErrors.last_name && (
+                    <p className="auth-error">{signupErrors.last_name.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <label className="auth-label" htmlFor="signup-email">{messages.auth.email}</label>
+              <Controller
+                name="email"
+                control={signupControl}
+                render={({ field }) => (
+                  <input
+                    {...field}
+                    className={`auth-input${signupErrors.email ? " has-error" : ""}`}
+                    type="email"
+                    id="signup-email"
+                    autoComplete="email"
+                    required
+                  />
+                )}
+              />
+              {signupErrors.email && (
+                <p className="auth-error">{signupErrors.email.message}</p>
+              )}
+
+              <div className="auth-grid">
+                <div>
+                  <label className="auth-label" htmlFor="signup-company">{messages.auth.company}</label>
+                  <Controller
+                    name="company"
+                    control={signupControl}
+                    render={({ field }) => (
+                      <input
+                        {...field}
+                        className={`auth-input${signupErrors.company ? " has-error" : ""}`}
+                        type="text"
+                        id="signup-company"
+                        placeholder="Ex : JMR Textile"
+                        autoComplete="organization"
+                      />
+                    )}
+                  />
+                  {signupErrors.company && (
+                    <p className="auth-error">{signupErrors.company.message}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="auth-label" htmlFor="signup-country">Pays</label>
+                  <Controller
+                    name="country"
+                    control={signupControl}
+                    render={({ field }) => (
+                      <select
+                        {...field}
+                        id="signup-country"
+                        className={`auth-input${signupErrors.country ? " has-error" : ""}`}
+                        required
+                      >
+                        <option value="">Sélectionner un pays</option>
+                        {countries.map((country) => (
+                          <option key={country.code} value={country.code}>
+                            {country.name} ({country.dialCode})
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  />
+                  {signupErrors.country && (
+                    <p className="auth-error">{signupErrors.country.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <label className="auth-label" htmlFor="signup-phone">{messages.auth.phone}</label>
+              <div className="auth-phone">
+                <span className="auth-phone-prefix" suppressHydrationWarning>
+                  {getSelectedDialCode()}
+                </span>
+                <Controller
+                  name="phone"
+                  control={signupControl}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      className={`auth-input auth-input--phone${signupErrors.phone ? " has-error" : ""}`}
+                      type="tel"
+                      id="signup-phone"
+                      placeholder="Numéro de téléphone"
+                      autoComplete="tel"
+                      required
+                    />
+                  )}
+                />
+              </div>
+              {signupErrors.phone && (
+                <p className="auth-error">{signupErrors.phone.message}</p>
+              )}
+
+              <label className="auth-label" htmlFor="signup-address">{messages.auth.address}</label>
+              <Controller
+                name="address"
+                control={signupControl}
+                render={({ field }) => (
+                  <input
+                    {...field}
+                    className={`auth-input${signupErrors.address ? " has-error" : ""}`}
+                    type="text"
+                    id="signup-address"
+                    placeholder="Adresse complète"
+                    autoComplete="street-address"
+                    required
+                  />
+                )}
+              />
+              {signupErrors.address && (
+                <p className="auth-error">{signupErrors.address.message}</p>
+              )}
+
+              <div className="auth-grid">
+                <div>
+                  <label className="auth-label" htmlFor="signup-password">{messages.auth.password}</label>
+                  <Controller
+                    name="password"
+                    control={signupControl}
+                    render={({ field }) => (
+                      <input
+                        {...field}
+                        className={`auth-input${signupErrors.password ? " has-error" : ""}`}
                         type="password"
+                        id="signup-password"
+                        autoComplete="new-password"
                         required
                       />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between py-2">
-                    <label className="group flex cursor-pointer items-center gap-3">
-                      <div className="relative flex h-5 w-5 items-center justify-center rounded-sm border border-outline-variant/50 bg-white transition-colors group-hover:border-primary">
-                        <input className="peer absolute h-full w-full cursor-pointer opacity-0" type="checkbox" name="remember" />
-                        <span className="material-symbols-outlined text-sm text-primary opacity-0 transition-opacity peer-checked:opacity-100">
-                          check
-                        </span>
-                      </div>
-                      <span className="font-label text-[11px] uppercase tracking-wide text-secondary">
-                        {messages.auth.rememberMe}
-                      </span>
-                    </label>
-                    <button
-                      type="button"
-                      className="font-label text-[11px] font-bold uppercase tracking-widest text-primary transition-opacity hover:opacity-70"
-                    >
-                      {messages.auth.forgotPassword}
-                    </button>
-                  </div>
-
-
-
-                  <button
-                    className="w-full rounded-lg bg-primary py-5 font-label text-xs font-bold uppercase tracking-[0.3em] text-on-primary shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-                    type="submit"
-                    disabled={pendingIntent !== null}
-                  >
-                    {pendingIntent === "login" ? messages.auth.loginLoading : messages.auth.loginButton}
-                  </button>
-                </form>
-
-                <div className="relative mt-12">
-                  <div aria-hidden="true" className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-outline-variant/20" />
-                  </div>
-                  <div className="relative flex justify-center text-[10px] font-bold uppercase tracking-[0.3em]">
-                    <span className="bg-surface px-6 text-outline/40">{messages.auth.exclusiveExperience}</span>
-                  </div>
+                    )}
+                  />
+                  {signupErrors.password && (
+                    <p className="auth-error">{signupErrors.password.message}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="auth-label" htmlFor="signup-confirm">{messages.auth.confirmPassword}</label>
+                  <Controller
+                    name="confirm_password"
+                    control={signupControl}
+                    render={({ field }) => (
+                      <input
+                        {...field}
+                        className={`auth-input${signupErrors.confirm_password ? " has-error" : ""}`}
+                        type="password"
+                        id="signup-confirm"
+                        autoComplete="new-password"
+                        required
+                      />
+                    )}
+                  />
+                  {signupErrors.confirm_password && (
+                    <p className="auth-error">{signupErrors.confirm_password.message}</p>
+                  )}
                 </div>
               </div>
-            </section>
 
-            <section className="relative overflow-hidden bg-surface-container-low p-8 md:p-12 lg:p-16">
-              <div className="absolute right-0 top-0 -mr-20 -mt-20 h-64 w-64 rounded-full bg-primary-fixed-dim/10 blur-3xl" />
-              <div className="relative z-10 mx-auto w-full max-w-md">
-                <div className="mb-10 text-center">
-                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-secondary">
-                    {messages.auth.signupEyebrow}
-                  </p>
-                  <div className="mx-auto h-[1px] w-12 bg-outline-variant/30" />
-                </div>
-                <form className="space-y-5" onSubmit={handleSignupSubmit(onSignupSubmit, onSignupInvalid)}>
-                  <input name="next" type="hidden" value={nextPath} />
-
-                  {signupFeedback ? (
-                    <div
-                      id="signup-feedback"
-                      className={`rounded-xl border p-4 text-sm font-medium ${
-                        signupFeedback.type === "success"
-                          ? "border-green-300 bg-green-50 text-green-800"
-                          : signupFeedback.type === "error"
-                            ? "border-red-300 bg-red-50 text-red-800"
-                            : "border-blue-300 bg-blue-50 text-blue-800"
-                      }`}
-                      role={signupFeedback.type === "error" ? "alert" : "status"}
-                      aria-live="polite"
-                    >
-                      {signupFeedback.message}
-                    </div>
-                  ) : null}
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="relative">
-                      <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
-                        {messages.auth.firstName}
-                      </label>
-                      <Controller
-                        name="first_name"
-                        control={signupControl}
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
-                              signupErrors.first_name
-                                ? "border-red-400/50 bg-red-50"
-                                : "border-outline-variant/40 bg-white/50"
-                            }`}
-                            type="text"
-                          />
-                        )}
-                      />
-                      {signupErrors.first_name && (
-                        <p className="text-xs text-red-600 mt-1">{signupErrors.first_name.message}</p>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
-                        {messages.auth.lastName}
-                      </label>
-                      <Controller
-                        name="last_name"
-                        control={signupControl}
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
-                              signupErrors.last_name
-                                ? "border-red-400/50 bg-red-50"
-                                : "border-outline-variant/40 bg-white/50"
-                            }`}
-                            type="text"
-                          />
-                        )}
-                      />
-                      {signupErrors.last_name && (
-                        <p className="text-xs text-red-600 mt-1">{signupErrors.last_name.message}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
-                      {messages.auth.email}
-                    </label>
-                    <Controller
-                      name="email"
-                      control={signupControl}
-                      render={({ field }) => (
-                        <input
-                          {...field}
-                          className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
-                            signupErrors.email
-                              ? "border-red-400/50 bg-red-50"
-                              : "border-outline-variant/40 bg-white/50"
-                          }`}
-                          type="email"
-                        />
-                      )}
-                    />
-                    {signupErrors.email && (
-                      <p className="text-xs text-red-600 mt-1">{signupErrors.email.message}</p>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="relative">
-                      <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
-                        {messages.auth.company}
-                      </label>
-                      <Controller
-                        name="company"
-                        control={signupControl}
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
-                              signupErrors.company
-                                ? "border-red-400/50 bg-red-50"
-                                : "border-outline-variant/40 bg-white/50"
-                            }`}
-                            type="text"
-                            placeholder="Ex : JMR Textile"
-                          />
-                        )}
-                      />
-                      {signupErrors.company && (
-                        <p className="text-xs text-red-600 mt-1">{signupErrors.company.message}</p>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
-                        Pays
-                      </label>
-                      <Controller
-                        name="country"
-                        control={signupControl}
-                        render={({ field }) => (
-                          <select
-                            {...field}
-                            className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
-                              signupErrors.country
-                                ? "border-red-400/50 bg-red-50"
-                                : "border-outline-variant/40 bg-white/50"
-                            }`}
-                          >
-                            <option value="">Sélectionner un pays</option>
-                            {countries.map((country) => (
-                              <option key={country.code} value={country.code}>
-                                {country.name} ({country.dialCode})
-                              </option>
-                            ))}
-                          </select>
-                        )}
-                      />
-                      {signupErrors.country && (
-                        <p className="text-xs text-red-600 mt-1">{signupErrors.country.message}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
-                      {messages.auth.phone}
-                    </label>
-                    <div className="flex">
-                      <div suppressHydrationWarning className="flex items-center px-3 py-3 bg-gray-100 border border-r-0 border-outline-variant/40 rounded-l text-sm text-outline/70">
-                        {getSelectedDialCode() || "+..."}
-                      </div>
-                      <Controller
-                        name="phone"
-                        control={signupControl}
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            className={`flex-1 rounded-r border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
-                              signupErrors.phone
-                                ? "border-red-400/50 bg-red-50"
-                                : "border-outline-variant/40 bg-white/50"
-                            }`}
-                            type="tel"
-                            placeholder="Numéro de téléphone"
-                          />
-                        )}
-                      />
-                    </div>
-                    {signupErrors.phone && (
-                      <p className="text-xs text-red-600 mt-1">{signupErrors.phone.message}</p>
-                    )}
-                  </div>
-
-                  <div className="relative mt-4">
-                    <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
-                      {messages.auth.address}
-                    </label>
-                    <Controller
-                      name="address"
-                      control={signupControl}
-                      render={({ field }) => (
-                        <input
-                          {...field}
-                          className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
-                            signupErrors.address
-                              ? "border-red-400/50 bg-red-50"
-                              : "border-outline-variant/40 bg-white/50"
-                          }`}
-                          type="text"
-                          placeholder="Adresse complète"
-                        />
-                      )}
-                    />
-                    {signupErrors.address && (
-                      <p className="text-xs text-red-600 mt-1">{signupErrors.address.message}</p>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="relative">
-                      <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
-                        {messages.auth.password}
-                      </label>
-                      <Controller
-                        name="password"
-                        control={signupControl}
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
-                              signupErrors.password
-                                ? "border-red-400/50 bg-red-50"
-                                : "border-outline-variant/40 bg-white/50"
-                            }`}
-                            type="password"
-                          />
-                        )}
-                      />
-                      {signupErrors.password && (
-                        <p className="text-xs text-red-600 mt-1">{signupErrors.password.message}</p>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <label className="mb-1 block font-label text-[10px] font-bold uppercase tracking-[0.1em] text-outline/80">
-                        {messages.auth.confirmPassword}
-                      </label>
-                      <Controller
-                        name="confirm_password"
-                        control={signupControl}
-                        render={({ field }) => (
-                          <input
-                            {...field}
-                            className={`w-full rounded border px-3 py-3 font-body text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-0 ${
-                              signupErrors.confirm_password
-                                ? "border-red-400/50 bg-red-50"
-                                : "border-outline-variant/40 bg-white/50"
-                            }`}
-                            type="password"
-                          />
-                        )}
-                      />
-                      {signupErrors.confirm_password && (
-                        <p className="text-xs text-red-600 mt-1">{signupErrors.confirm_password.message}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <button
-                    className="mt-4 w-full rounded-lg border-2 border-primary py-5 font-label text-xs font-bold uppercase tracking-[0.3em] text-primary transition-all duration-300 hover:bg-primary hover:text-on-primary disabled:cursor-not-allowed disabled:opacity-60"
-                    type="submit"
-                    disabled={pendingIntent !== null}
-                  >
-                    {pendingIntent === "signup" ? messages.auth.signupLoading : messages.auth.signupButton}
-                  </button>
-                </form>
-              </div>
-            </section>
+              <button className="auth-submit" type="submit" disabled={pendingIntent !== null}>
+                {pendingIntent === "signup" ? messages.auth.signupLoading : messages.auth.signupButton}
+              </button>
+            </form>
           </div>
         </div>
       </main>
