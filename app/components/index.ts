@@ -23,7 +23,6 @@ export * from './page-heading';
 export * from './production-workflow-board';
 export * from './scroll-reveal';
 export * from './success-toast';
-export * from './theme-toggle';
 export * from './toast-provider';
 export * from './visitor-tracker';
 export * from './watercolor-video-mask';

@@ -9,7 +9,6 @@ import { scrollToSection } from "@/app/lib/scroll";
 import { safeUrl } from "@/app/lib/utils";
 
 import { useLocale } from "@/app/components/locale-provider";
-import { ThemeToggle } from "@/app/components/theme-toggle";
 import MobileMenu from "@/app/components/MobileMenu";
 import { getUser, writeBrowserCookie, getToken } from "@/app/lib/auth";
 import { signOutClient } from "@/app/lib/auth-client";
@@ -22,7 +21,6 @@ import {
   subscribeToPush,
 } from "@/app/lib/push";
 import { LOCALE_COOKIE_NAME, type Locale } from "@/app/lib/locale";
-import type { ThemeName } from "@/app/lib/theme";
 
 type NavItem = {
   route: string;
@@ -53,12 +51,10 @@ export function Navbar({
   isSignedIn = false,
   userFirstName,
   userRole,
-  initialTheme,
 }: {
   isSignedIn?: boolean;
   userFirstName?: string;
   userRole?: string;
-  initialTheme: ThemeName;
 }) {
   const pathname = usePathname();
   const { locale, setLocale, messages } = useLocale();
@@ -68,7 +64,6 @@ export function Navbar({
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [sessionUser, setSessionUser] = useState<UserProfile | null>(null);
-  const [currentTheme, setCurrentTheme] = useState<ThemeName>(initialTheme);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
@@ -398,21 +393,6 @@ export function Navbar({
     handleLocaleChange(next);
   }
 
-  function handleToggleTheme() {
-    const next: ThemeName = currentTheme === "dark" ? "light" : "dark";
-    setCurrentTheme(next);
-    document.documentElement.dataset.theme = next;
-    document.documentElement.style.colorScheme = next;
-    writeBrowserCookie("theme", next, {
-      maxAge: 60 * 60 * 24 * 365,
-      path: "/",
-      sameSite: "Lax",
-    });
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("theme", next);
-    }
-  }
-
   if (pathname?.startsWith("/backoffice") || pathname?.startsWith("/admin-backoffice")) {
     return null;
   }
@@ -437,7 +417,7 @@ export function Navbar({
           ) : (
             <Image
               className="site-nav__brand-logo"
-              src={currentTheme === "light" ? "/navbar/logo-light.svg" : "/navbar/logo-dark.svg"}
+              src="/navbar/logo-dark.svg"
               alt="JMR Textile"
               width={413}
               height={92}
@@ -547,10 +527,6 @@ export function Navbar({
               </li>
             );
           })}
-
-          <li className="site-nav__item site-nav__item--theme">
-            <ThemeToggle initialTheme={initialTheme} />
-          </li>
 
           {hasNotifications && (
             <li className="site-nav__item site-nav__item--notif relative">
@@ -683,24 +659,10 @@ export function Navbar({
       <MobileMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-        initialTheme={initialTheme}
         locale={locale}
         messages={messages}
         isSignedIn={effectiveIsSignedIn}
         isSigningOut={isSigningOut}
-        onToggleTheme={(next) => {
-          setCurrentTheme(next);
-          document.documentElement.dataset.theme = next;
-          document.documentElement.style.colorScheme = next;
-          writeBrowserCookie("theme", next, {
-            maxAge: 60 * 60 * 24 * 365,
-            path: "/",
-            sameSite: "Lax",
-          });
-          if (typeof window !== "undefined") {
-            window.localStorage.setItem("theme", next);
-          }
-        }}
         onLocaleChange={handleLocaleChange}
         onSignOut={handleSignOut}
         brandFallbackText="JMR TEXTILE"

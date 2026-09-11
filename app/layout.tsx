@@ -10,7 +10,6 @@ import {
 } from "@/app/components";
 import { getMessages } from "@/app/lib/locale";
 import { SiteContentProvider } from "@/app/lib/site-content";
-import { THEME_COOKIE_NAME } from "@/app/lib/theme";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
@@ -41,7 +40,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const initialLocale = "fr";
-  const initialTheme = "dark";
   const messages = getMessages(initialLocale);
   const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.jmrtextile.com/api";
   const apiOrigin = new URL(configuredApiUrl).origin;
@@ -49,8 +47,8 @@ export default async function RootLayout({
   return (
     <html
       lang={initialLocale}
-      data-theme={initialTheme}
-      style={{ colorScheme: initialTheme }}
+      data-theme="dark"
+      style={{ colorScheme: "dark" }}
       suppressHydrationWarning
     >
       <head>
@@ -60,25 +58,6 @@ export default async function RootLayout({
         <meta httpEquiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
         <meta httpEquiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()" />
         <meta httpEquiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var storedTheme = localStorage.getItem('${THEME_COOKIE_NAME}');
-                  var theme = storedTheme === 'light' || storedTheme === 'dark'
-                    ? storedTheme
-                    : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-                  document.documentElement.dataset.theme = theme;
-                  document.documentElement.style.colorScheme = theme;
-                } catch (error) {
-                  document.documentElement.dataset.theme = '${initialTheme}';
-                  document.documentElement.style.colorScheme = '${initialTheme}';
-                }
-              })();
-            `,
-          }}
-        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -97,7 +76,7 @@ export default async function RootLayout({
             <a className="skip-link" href="#main-content">
               {messages.common.skipToContent}
             </a>
-            <ClientLayout initialTheme={initialTheme}>
+            <ClientLayout>
               {children}
             </ClientLayout>
             <VisitorTracker />

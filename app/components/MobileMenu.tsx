@@ -4,10 +4,8 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ThemeToggle } from "@/app/components/theme-toggle";
 import { writeBrowserCookie } from "@/app/lib/auth";
 import { LOCALE_COOKIE_NAME, type Locale } from "@/app/lib/locale";
-import type { ThemeName } from "@/app/lib/theme";
 import { scrollToSection } from "@/app/lib/scroll";
 
 const ICON_SIZE = 42;
@@ -20,7 +18,6 @@ const ICON_CLASS = "flex-shrink-0 object-contain";
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
-  initialTheme: ThemeName;
   locale: Locale;
   messages: {
     navbar: {
@@ -37,7 +34,6 @@ interface MobileMenuProps {
       english: string;
     };
   };
-  onToggleTheme?: (next: ThemeName) => void;
   onLocaleChange?: (next: Locale) => void;
   onSignOut?: () => Promise<void> | void;
   isSignedIn?: boolean;
@@ -62,10 +58,8 @@ const STATIC_NAV_LINKS: StaticNavLink[] = [
 export default function MobileMenu({
   isOpen,
   onClose,
-  initialTheme,
   locale,
   messages,
-  onToggleTheme,
   onLocaleChange,
   onSignOut,
   isSignedIn = false,
@@ -235,11 +229,6 @@ export default function MobileMenu({
               />
               <span className="mobile-menu__btn-text">{locale === "fr" ? "FR" : "EN"}</span>
             </button>
-
-            {/* THÈME */}
-            <div className="theme-toggle-mobile-wrapper inline-flex items-center justify-center">
-              <ThemeToggle initialTheme={initialTheme} compact onChangeExplicit={onToggleTheme} />
-            </div>
           </div>
 
           {/* LOGOUT */}

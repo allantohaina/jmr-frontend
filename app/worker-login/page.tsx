@@ -328,7 +328,7 @@ export default function WorkerLoginPage() {
       `}</style>
 
       <div className="worker-login-root">
-        <AuthBar initialTheme="dark" />
+        <AuthBar />
 
         {/* LEFT PANEL */}
         <div className="panel">

@@ -19,14 +19,6 @@ const messages = {
       menu: "Menu",
       close: "Fermer",
     },
-    theme: {
-      switchToDark: "Activer le mode sombre",
-      switchToLight: "Activer le mode clair",
-      darkMode: "Mode sombre",
-      lightMode: "Mode clair",
-      darkShort: "Sombre",
-      lightShort: "Clair",
-    },
     navbar: {
       ariaLabel: "Navigation principale",
       home: "Accueil",
@@ -157,14 +149,6 @@ const messages = {
       english: "English",
       menu: "Menu",
       close: "Close",
-    },
-    theme: {
-      switchToDark: "Enable dark mode",
-      switchToLight: "Enable light mode",
-      darkMode: "Dark mode",
-      lightMode: "Light mode",
-      darkShort: "Dark",
-      lightShort: "Light",
     },
     navbar: {
       ariaLabel: "Main navigation",

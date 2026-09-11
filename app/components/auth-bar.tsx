@@ -1,15 +1,12 @@
 "use client";
 
 import { useLocale } from "./locale-provider";
-import { ThemeToggle } from "./theme-toggle";
 import { writeBrowserCookie } from "@/app/lib";
 import { LOCALE_COOKIE_NAME } from "@/app/lib/locale";
 import type { Locale } from "@/app/lib/locale";
-import { parseThemeValue, type ThemeName } from "@/app/lib/theme";
 
-export function AuthBar({ initialTheme }: { initialTheme: string }) {
+export function AuthBar() {
   const { locale, setLocale } = useLocale();
-  const initialThemeName: ThemeName = parseThemeValue(initialTheme) ?? "dark";
 
   function toggleLocale() {
     const next: Locale = locale === "fr" ? "en" : "fr";
@@ -48,7 +45,6 @@ export function AuthBar({ initialTheme }: { initialTheme: string }) {
       >
         {locale === "fr" ? "EN" : "FR"}
       </button>
-      <ThemeToggle initialTheme={initialThemeName} compact />
     </div>
   );
 }
