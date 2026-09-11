@@ -164,13 +164,23 @@ export function EditDevisSection({ id }: { id: string }) {
 
     async function fetchQuote() {
       try {
-        const response = await authAPI.get(`/quotes/${id}`);
+        const response = await authAPI.get<QuoteRecord | { data?: QuoteRecord }>(`/quotes/${id}`);
 
         if (!active) {
           return;
         }
 
-        const nextQuote = response.data as QuoteRecord;
+        // Le backend peut renvoyer soit { status, data: devis }, soit { data: devis },
+        // soit le devis brut. fetchWithAuth normalise déjà, mais on reste défensif.
+        const raw = response?.data as QuoteRecord | { data?: QuoteRecord } | null | undefined;
+        const nextQuote = (raw && typeof raw === "object" && "data" in (raw as object)
+          ? ((raw as { data?: QuoteRecord }).data as QuoteRecord | undefined)
+          : (raw as QuoteRecord | undefined)) as QuoteRecord | undefined;
+
+        if (!nextQuote || typeof nextQuote !== "object" || nextQuote.id === undefined) {
+          throw new Error("Devis introuvable ou réponse API invalide.");
+        }
+
         setQuote(nextQuote);
         setFormStatus(normalizeText(nextQuote.status));
         setFormAmount(normalizeText(nextQuote.amount));
@@ -185,7 +195,15 @@ export function EditDevisSection({ id }: { id: string }) {
         }
 
         console.error("Chargement devis: échec technique.", fetchError);
-        setLoadError("Impossible de charger ce devis pour le moment.");
+        const message = fetchError instanceof Error && fetchError.message
+          ? fetchError.message
+          : "Impossible de charger ce devis pour le moment.";
+        // Évite l'écran générique quand le backend dit précisément 404 / 403.
+        setLoadError(
+          /introuvable|not found|404/i.test(message)
+            ? "Devis introuvable. Vérifiez la référence ou retournez à la liste."
+            : message,
+        );
       } finally {
         if (active) {
           setIsLoading(false);

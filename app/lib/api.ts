@@ -327,10 +327,23 @@ export async function fetchWithAuth<T = unknown>(
         throw new Error(readErrorMessage(data) || "Une erreur est survenue.");
       }
 
-      if (data && typeof data === "object" && !("status" in data) && !("data" in data)) {
+      if (data && typeof data === "object" && !Array.isArray(data)) {
+        const record = data as Record<string, unknown>;
+        // Enveloppe API : { status: "success"|"error", data: ... }
+        // Attention : un devis brut contient aussi un champ `status`
+        // (pending, sent, ...) — ne pas le confondre avec l'enveloppe.
+        if ("data" in record) {
+          return data as ApiResponse<T>;
+        }
+        if (
+          "status" in record &&
+          (record.status === "success" || record.status === "error")
+        ) {
+          return data as ApiResponse<T>;
+        }
         return {
           status: "success",
-          data: data,
+          data: data as T,
         } as ApiResponse<T>;
       }
 
