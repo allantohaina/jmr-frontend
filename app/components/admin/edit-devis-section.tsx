@@ -424,43 +424,57 @@ export function EditDevisSection({ id }: { id: string }) {
     void updateQuote();
   }
 
-  function quoteToQuoteDoc(q: QuoteRecord): Omit<TextileDocumentProps, "kind"> {
+  function quoteToQuoteDoc(q: QuoteRecord, rows?: LineRow[]): Omit<TextileDocumentProps, "kind"> {
     const amount = parseFloat(String(q.amount ?? "0"));
     const deposit = parseFloat(String(q.deposit_amount ?? "0"));
     const balance = parseFloat(String(q.balance_amount ?? "0"));
     const taxRate = 20;
-    const subtotal = amount / (1 + taxRate / 100);
 
+    // Lignes issues de l'onglet Tarification (prix HT) — sinon repli sur les tranches.
     const docLines: DocumentLineItem[] = [];
-    if (deposit > 0) {
-      docLines.push({
-        description: "Acompte — 30% à la commande",
-        quantity: 1,
-        unit: "lot",
-        unitPrice: deposit / (1 + taxRate / 100),
-        taxRate,
-        reference: "Tranche 1",
-      });
-    }
-    if (balance > 0) {
-      docLines.push({
-        description: "Solde — 70% à livraison",
-        quantity: 1,
-        unit: "lot",
-        unitPrice: balance / (1 + taxRate / 100),
-        taxRate,
-        reference: "Tranche 2",
-      });
-    }
-    if (docLines.length === 0) {
-      docLines.push({
-        description: q.message ? `Devis textile — ${q.message.slice(0, 80)}` : "Prestation de confection textile",
-        quantity: 1,
-        unit: "lot",
-        unitPrice: subtotal,
-        taxRate,
-        reference: q.request_type ?? "",
-      });
+    const pricedRows = (rows ?? []).filter((r) => r.designation.trim() && r.qty > 0 && r.unitPrice >= 0);
+    if (pricedRows.length > 0) {
+      for (const r of pricedRows) {
+        docLines.push({
+          description: r.designation.trim(),
+          quantity: r.qty,
+          unit: "pce",
+          unitPrice: r.unitPrice,
+          taxRate: r.tva,
+          reference: r.detail ? r.detail.slice(0, 80) : undefined,
+        });
+      }
+    } else {
+      const subtotal = amount / (1 + taxRate / 100);
+      if (deposit > 0) {
+        docLines.push({
+          description: "Acompte à la commande",
+          quantity: 1,
+          unit: "lot",
+          unitPrice: deposit / (1 + taxRate / 100),
+          taxRate,
+          reference: "Tranche 1",
+        });
+      }
+      if (balance > 0) {
+        docLines.push({
+          description: "Solde à livraison",
+          quantity: 1,
+          unit: "lot",
+          unitPrice: balance / (1 + taxRate / 100),
+          taxRate,
+          reference: "Tranche 2",
+        });
+      }
+      if (docLines.length === 0) {
+        docLines.push({
+          description: q.category ? `Prestation de confection — ${q.category}` : "Prestation de confection textile",
+          quantity: parseQty(q.quantite),
+          unit: "pce",
+          unitPrice: subtotal,
+          taxRate,
+        });
+      }
     }
 
     const validUntil = q.created_at
@@ -478,12 +492,12 @@ export function EditDevisSection({ id }: { id: string }) {
         address: q.message ? `Projet : ${q.message.slice(0, 120)}` : undefined,
       },
       lines: docLines,
-      currency: "EUR",
+      currency: "MGA",
       status: formatStatusLabel(q.status),
       notes: q.message ?? undefined,
       paymentTerms: deposit > 0 && balance > 0
-        ? `Acompte de ${formatAmount(deposit)} € · Solde de ${formatAmount(balance)} € à livraison`
-        : "Paiement à 30 jours",
+        ? `Acompte de ${fmtAr(deposit)} · Solde de ${fmtAr(balance)} à livraison`
+        : "Acompte de 50% à la commande, solde à la livraison",
       signature: q.admin_signature_name && q.admin_signature_at
         ? { name: q.admin_signature_name, signedAt: q.admin_signature_at }
         : undefined,
@@ -930,7 +944,7 @@ export function EditDevisSection({ id }: { id: string }) {
                   {generatingProforma ? "Génération…" : "Générer la proforma PRO →"}
                 </button>
               </div>
-              <TextileDocument kind="quote" {...quoteToQuoteDoc(previewQuote)} />
+              <TextileDocument kind="quote" {...quoteToQuoteDoc(previewQuote, lines)} />
               <div className="print:hidden max-w-[210mm] mx-auto" style={{ marginTop: 24 }}>
                 {savingSignature ? (
                   <div className="flex items-center justify-center gap-2 rounded-2xl border border-[#FFB42D]/30 bg-[#fffdf8] p-6 text-[#172d42] shadow-sm">

@@ -35,7 +35,7 @@ export function TextileDocument({
   issuedAt,
   client,
   lines,
-  currency = "EUR",
+  currency = "MGA",
   status,
   validUntil,
   orderReference,
@@ -61,14 +61,9 @@ export function TextileDocument({
       <header className="relative overflow-hidden bg-[#172d42] px-7 pb-8 pt-7 text-white sm:px-10">
         <div className="absolute -right-10 -top-14 h-48 w-48 rotate-12 border-[22px] border-[#FFB42D]/20" aria-hidden="true" />
         <div className="relative flex flex-col justify-between gap-8 sm:flex-row sm:items-start">
-          <div className="flex items-center gap-3">
-            <div className="grid h-12 w-12 grid-cols-2 gap-1 border-2 border-[#FFB42D] p-1" aria-hidden="true">
-              <i className="bg-[#FFB42D]" /><i className="bg-[#FFB42D]/45" /><i className="bg-[#FFB42D]/45" /><i className="bg-[#FFB42D]" />
-            </div>
-            <div>
-              <p className="font-serif text-2xl font-bold leading-none tracking-tight">JMR <span className="text-[#FFB42D]">Textile</span></p>
-              <p className="mt-1 text-[9px] font-bold uppercase tracking-[.24em] text-[#FFB42D]">Atelier · Madagascar</p>
-            </div>
+          <div className="flex flex-col gap-1">
+            <img src="/navbar/logo-dark.svg" alt="JMR Textile" className="h-11 w-auto max-w-[220px]" />
+            <p className="mt-1 text-[9px] font-bold uppercase tracking-[.24em] text-[#FFB42D]">Atelier · Madagascar</p>
           </div>
           <div className="text-left sm:text-right">
             <p className="text-[10px] font-bold uppercase tracking-[.28em] text-[#FFB42D]">Document opérationnel</p>

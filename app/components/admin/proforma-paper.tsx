@@ -27,11 +27,8 @@ export function ProformaPaper({ proforma }: { proforma: ProformaRecord }) {
       {/* En-tête */}
       <header className="pp-head">
         <div className="pp-brand">
-          <div className="pp-logo" aria-hidden="true">
-            <i /><i className="dim" /><i className="dim" /><i />
-          </div>
           <div>
-            <p className="pp-company">JMR <span>Textile</span></p>
+            <img src="/navbar/logo-dark.svg" alt="JMR Textile" className="pp-official-logo" />
             <p className="pp-sub">Atelier de confection · Madagascar</p>
             <p className="pp-contact">contact@jmrtextile.com · +261 00 00 000 00</p>
           </div>
@@ -170,13 +167,7 @@ export function ProformaPaper({ proforma }: { proforma: ProformaRecord }) {
           background: #172d42; color: #fff; padding: 28px 36px 24px;
         }
         .pp-brand { display: flex; gap: 12px; align-items: flex-start; }
-        .pp-logo {
-          display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
-          width: 44px; height: 44px; border: 2px solid #FFB42D; padding: 4px; flex-shrink: 0;
-        }
-        .pp-logo i { background: #FFB42D; } .pp-logo i.dim { background: rgba(255,180,45,.45); }
-        .pp-company { font-family: Georgia, serif; font-size: 24px; font-weight: 700; margin: 0; }
-        .pp-company span { color: #FFB42D; }
+        .pp-official-logo { height: 46px; width: auto; max-width: 230px; display: block; }
         .pp-sub { margin: 2px 0 0; font-size: 9px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: #FFB42D; }
         .pp-contact { margin: 6px 0 0; font-size: 11px; color: rgba(255,255,255,.7); }
         .pp-title { text-align: right; }

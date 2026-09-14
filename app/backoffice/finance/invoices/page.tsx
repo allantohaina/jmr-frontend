@@ -35,9 +35,9 @@ function quoteToInvoiceDoc(q: QuoteRecord): Omit<TextileDocumentProps, "kind"> {
       address: q.message ? `Projet : ${q.message.slice(0, 120)}` : undefined,
     },
     lines,
-    currency: "EUR",
+    currency: "MGA",
     status: statusLabel,
-    paymentTerms: q.deposit_paid ? "Acompte perçu — Solde dû à livraison" : "Paiement à 30 jours",
+    paymentTerms: q.deposit_paid ? "Acompte perçu — Solde dû à livraison" : "Acompte de 50% à la commande, solde à la livraison",
     notes: q.message ?? undefined,
     signature: q.admin_signature_name && q.admin_signature_at
       ? { name: q.admin_signature_name, signedAt: q.admin_signature_at }
@@ -131,11 +131,11 @@ export default function InvoicesPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-xl bg-[#25303a] p-4 border border-green-500/20">
           <p className="text-xs text-green-400 uppercase tracking-widest font-bold">Payées</p>
-          <p className="text-2xl font-bold text-green-400 mt-1">{totalPaid.toFixed(2)} €</p>
+          <p className="text-2xl font-bold text-green-400 mt-1">{Math.round(totalPaid).toLocaleString("fr-FR")} Ar</p>
         </div>
         <div className="rounded-xl bg-[#25303a] p-4 border border-red-500/20">
           <p className="text-xs text-red-400 uppercase tracking-widest font-bold">Impayées</p>
-          <p className="text-2xl font-bold text-red-400 mt-1">{totalUnpaid.toFixed(2)} €</p>
+          <p className="text-2xl font-bold text-red-400 mt-1">{Math.round(totalUnpaid).toLocaleString("fr-FR")} Ar</p>
         </div>
       </div>
 
@@ -174,7 +174,7 @@ export default function InvoicesPage() {
                   </div>
                 </div>
                 <div className="text-right shrink-0 ml-4">
-                  <p className={`font-bold ${inv.status === "paid" ? "text-green-400" : "text-yellow-400"}`}>{inv.amount.toFixed(2)} €</p>
+                  <p className={`font-bold ${inv.status === "paid" ? "text-green-400" : "text-yellow-400"}`}>{Math.round(inv.amount).toLocaleString("fr-FR")} Ar</p>
                   <p className="text-[9px] uppercase tracking-widest text-[#FFB42D]/40 mt-0.5">
                     {inv.status === "paid" ? "Payée" : inv.status === "partial" ? "Partielle" : "En attente"}
                   </p>
