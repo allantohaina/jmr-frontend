@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { UserProfile } from "@/app/lib";
-import { authAPI, type QuoteRecord, type CommandeRecord } from "@/app/lib";
+import { authAPI, notificationsAPI, type QuoteRecord, type CommandeRecord, type NotificationRecord } from "@/app/lib";
 import { getErrorMessage } from "@/app/lib/errors";
 import { ConfirmDialog } from "@/app/components/confirm-dialog";
 import { useToast } from "@/app/components/toast-provider";
@@ -264,8 +264,10 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   const [error, setError] = useState("");
   const [selectedQuote, setSelectedQuote] = useState<QuoteRecord | null>(null);
   const [showAllQuotes, setShowAllQuotes] = useState(false);
+  const [showAllActivity, setShowAllActivity] = useState(false);
   const [draftFilter, setDraftFilter] = useState<string | null>(null);
   const [draftCount, setDraftCount] = useState(0);
+  const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
   const [confirmingQuote, setConfirmingQuote] = useState(false);
   const { showToast } = useToast();
   const [pointsSolde, setPointsSolde] = useState<number | null>(null);
@@ -274,13 +276,15 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
     let active = true;
     async function load() {
       try {
-        const [qRes, cRes] = await Promise.all([
+        const [qRes, cRes, nRes] = await Promise.all([
           authAPI.get<{ data: QuoteRecord[]; total: number }>("/quotes").catch(() => null),
           authAPI.get<{ data: CommandeRecord[] }>("/commandes").catch(() => null),
+          notificationsAPI.list().catch(() => null),
         ]);
         if (!active) return;
         if (qRes) setQuotes(Array.isArray(qRes.data) ? qRes.data : (qRes.data?.data ?? []));
         if (cRes) setCommandes(Array.isArray(cRes.data) ? cRes.data : (cRes.data?.data ?? []));
+        if (nRes) setNotifications(Array.isArray(nRes.data) ? nRes.data : []);
         try {
           const pRes = await authAPI.get<{ solde: number }>("/moi/points");
           if (active && pRes) setPointsSolde(Number(pRes.data?.solde ?? pRes.data ?? 0));
@@ -333,10 +337,88 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
     })),
   ].sort((a, b) => new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime());
 
-  const recentItems = [
-    ...submittedQuotes.map((q) => ({ type: "quote" as const, date: q.created_at ?? "", label: "Nouveau devis", detail: `${q.name} - ${q.message?.slice(0, 80)}` })),
-    ...commandes.map((c) => ({ type: "commande" as const, date: c.date_commande ?? "", label: "Commande passée", detail: `${c.numero} - ${c.designation ?? ""}` })),
-  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10);
+  type HistoryItem = {
+    key: string;
+    date: string;
+    label: string;
+    detail: string;
+    href?: string;
+    tone: string;
+  };
+
+  // Historique complet : tout ce que le client a fait + reçu, trié par date.
+  const historyItems: HistoryItem[] = [
+    ...submittedQuotes.map((q) => ({
+      key: `demande-${q.id}`,
+      date: q.created_at ?? "",
+      label: "Demande envoyée",
+      detail: `${q.name ?? "Demande"}${q.message ? ` — ${q.message.slice(0, 80)}` : ""}`,
+      href: `/mon-profil/devis/detail?id=${q.id}`,
+      tone: "var(--gold)",
+    })),
+    ...submittedQuotes
+      .filter((q) => q.status === "sent" || q.status === "accepted" || q.status === "production")
+      .map((q) => ({
+        key: `devis-${q.id}`,
+        date: q.updated_at ?? q.created_at ?? "",
+        label: "Devis reçu",
+        detail: `${quoteReference(q)}${q.amount ? ` — ${Number(q.amount).toLocaleString("fr-FR")} Ar` : ""}`,
+        href: `/mon-profil/devis/detail?id=${q.id}`,
+        tone: "#8b7bd4",
+      })),
+    ...submittedQuotes
+      .filter((q) => q.status === "accepted" || q.status === "production")
+      .map((q) => ({
+        key: `confirme-${q.id}`,
+        date: q.validated_at ?? q.updated_at ?? q.created_at ?? "",
+        label: "Devis confirmé",
+        detail: quoteReference(q),
+        href: `/mon-profil/devis/detail?id=${q.id}`,
+        tone: "#5cb87d",
+      })),
+    ...submittedQuotes
+      .filter((q) => q.status === "rejected")
+      .map((q) => ({
+        key: `annule-${q.id}`,
+        date: q.updated_at ?? q.created_at ?? "",
+        label: "Devis annulé",
+        detail: quoteReference(q),
+        href: `/mon-profil/devis/detail?id=${q.id}`,
+        tone: "#e08b52",
+      })),
+    ...commandes.map((c) => ({
+      key: `commande-${c.id}`,
+      date: c.date_commande ?? c.created_at ?? "",
+      label: "Commande passée",
+      detail: `${c.numero} — ${c.designation ?? `${c.quantite} pièces`}`,
+      href: "/suivi-commande",
+      tone: "var(--gold)",
+    })),
+    ...commandes
+      .filter((c) => c.statut_production === "Livrée")
+      .map((c) => ({
+        key: `livree-${c.id}`,
+        date: c.date_livraison_reelle ?? c.updated_at ?? c.date_commande ?? "",
+        label: "Commande livrée",
+        detail: `${c.numero} — ${c.designation ?? ""}`,
+        href: "/suivi-commande",
+        tone: "#5cb87d",
+      })),
+    ...notifications.map((n) => ({
+      key: `notif-${n.id}`,
+      date: n.created_at,
+      label: n.title || "Notification reçue",
+      detail: (n.message ?? "").slice(0, 90),
+      href: n.action_url ?? undefined,
+      tone: "var(--gold-dim)",
+    })),
+  ]
+    .filter((item) => item.date)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const activityLimit = showAllActivity ? Number.MAX_SAFE_INTEGER : 6;
+  const activitySlice = historyItems.slice(0, activityLimit);
+  const hasMoreActivity = historyItems.length > 6;
 
   if (variant === "dashboard") {
     const hasData = !isLoading && (quotes.length > 0 || commandes.length > 0 || draftCount > 0);
@@ -512,22 +594,46 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
 
                 <div className="db-sidebar">
                   <div className="db-activity">
-                    <h2>Activité</h2>
+                    <h2>Historique</h2>
+                    <p style={{ fontSize: 11.5, color: "var(--text-faint)", marginBottom: 20, lineHeight: 1.5 }}>
+                      Tout ce que vous avez fait : demandes, devis reçus, confirmations et commandes.
+                    </p>
                     {isLoading ? (
                       <p style={{ color: "var(--text-faint)", fontSize: 12 }}>Chargement...</p>
-                    ) : recentItems.length === 0 ? (
-                      <p style={{ color: "var(--text-faint)", fontSize: 12 }}>Aucune activité récente</p>
+                    ) : historyItems.length === 0 ? (
+                      <p style={{ color: "var(--text-faint)", fontSize: 12 }}>Aucune activité pour le moment</p>
                     ) : (
-                      <div className="db-timeline">
-                        {recentItems.slice(0, 6).map((item, idx) => (
-                          <div className="db-tl-item" key={idx}>
-                            <div className="db-tl-dot" />
-                            <div className="db-tl-date">{formatDate(item.date)}</div>
-                            <div className="db-tl-label">{item.label}</div>
-                            <div className="db-tl-detail">{item.detail}</div>
-                          </div>
-                        ))}
-                      </div>
+                      <>
+                        <div className="db-timeline">
+                          {activitySlice.map((item) => (
+                            <div className="db-tl-item" key={item.key}>
+                              <div className="db-tl-dot" style={{ borderColor: item.tone }} />
+                              <div className="db-tl-date">{formatDate(item.date)}</div>
+                              {item.href ? (
+                                <Link href={item.href} style={{ textDecoration: "none" }}>
+                                  <div className="db-tl-label" style={{ color: "var(--gold-light)" }}>{item.label} →</div>
+                                  <div className="db-tl-detail">{item.detail}</div>
+                                </Link>
+                              ) : (
+                                <>
+                                  <div className="db-tl-label">{item.label}</div>
+                                  <div className="db-tl-detail">{item.detail}</div>
+                                </>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        {hasMoreActivity && (
+                          <button
+                            className="db-see-more"
+                            style={{ marginTop: 8 }}
+                            onClick={() => setShowAllActivity(!showAllActivity)}
+                          >
+                            {showAllActivity ? "Voir moins" : `Voir plus (${historyItems.length - 6} autres)`}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 12, height: 12, transform: showAllActivity ? "rotate(180deg)" : undefined, transition: "transform .2s" }}><path d="M6 9L12 15L18 9"/></svg>
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
 
