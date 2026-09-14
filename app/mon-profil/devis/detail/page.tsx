@@ -92,6 +92,8 @@ const STATUS_LABELS: Record<string, string> = {
   completed: "Terminée",
 };
 
+const DEVIS_STEPS = ["Demande envoyée", "Devis envoyé", "Devis validé", "Acompte vérifié", "Production", "Livraison"];
+
 interface Checkpoint {
   id: string;
   title: string;
@@ -376,28 +378,30 @@ function DevisDetailContent() {
   const depositPayment = payments.find((p) => p.phase === "deposit");
   const balancePayment = payments.find((p) => p.phase === "balance");
 
+  const user = typeof window !== "undefined" ? getUser() : null;
+  const userName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || "Client";
+  const userInitial = (userName.trim().charAt(0) || "C").toUpperCase();
+
   if (loading) {
     return (
-      <>
-        <style>{globalStyles}</style>
-        <div className="loading-screen"><div className="loading-text">Chargement…</div></div>
-      </>
+      <div className="cmd-detail">
+        <style>{detailStyles}</style>
+        <div className="cmd-loading">Chargement…</div>
+      </div>
     );
   }
 
-  if (error) {
+  if (error || !quote) {
     return (
-      <>
-        <style>{globalStyles}</style>
-        <div className="loading-screen">
-          <div className="error-text">{error}</div>
-          <Link href="/mon-profil/devis" className="back-link">← Retour à mes devis</Link>
+      <div className="cmd-detail">
+        <style>{detailStyles}</style>
+        <div className="cmd-loading">
+          <div className="cmd-error-text">{error ?? "Devis introuvable."}</div>
+          <Link href="/mon-profil/devis" className="cmd-back">← Retour à mes devis</Link>
         </div>
-      </>
+      </div>
     );
   }
-
-  if (!quote) return null;
 
   const quoteFiles = parseQuoteFiles(quote);
   const quoteNotifications = Array.isArray(quote.notifications) ? quote.notifications : [];
@@ -412,12 +416,33 @@ function DevisDetailContent() {
   const cmd = commandes[0] ?? null;
   const prodIdx = productionIndex(cmd?.statut_production);
   const hasCommande = !!cmd;
+
+  // Étapes : production si commande, sinon cycle de vie du devis.
+  let steps: string[] = DEVIS_STEPS;
+  let doneIdx = -1;
+  if (hasCommande) {
+    steps = [...STATUTS_PRODUCTION];
+    doneIdx = (prodIdx >= 0 ? prodIdx : 0) - 1;
+  } else {
+    const st = quote.status ?? "";
+    doneIdx = st === "pending" ? 0
+      : st === "sent" || st === "needs_info" ? 1
+      : st === "accepted" ? 2
+      : st === "production" ? 4
+      : st === "completed" ? 5 : -1;
+    const depOK = depositPayment?.status === "verified" || quote.deposit_paid;
+    if ((st === "accepted" || st === "production") && depOK) doneIdx = Math.max(doneIdx, 3);
+  }
+  const activeIdx = Math.min(steps.length - 1, Math.max(0, doneIdx + 1));
   const progressPct = hasCommande
-    ? Math.round(((prodIdx < 0 ? 0 : prodIdx + 1) / STATUTS_PRODUCTION.length) * 100)
-    : quote.status === "accepted" || quote.status === "production" ? 15 : quote.status === "sent" ? 8 : 3;
+    ? Math.round((((prodIdx < 0 ? 0 : prodIdx) + 1) / steps.length) * 100)
+    : Math.round(((doneIdx + 1) / steps.length) * 100);
   const currentStepLabel = hasCommande
     ? (cmd?.statut_production ?? "En attente matière")
-    : quote.status === "sent" ? "Devis envoyé" : quote.status === "accepted" ? "Devis accepté" : quote.status === "draft" ? "Brouillon" : (STATUS_LABELS[quote.status ?? ""] ?? quote.status);
+    : quote.status === "sent" ? "Devis envoyé"
+    : quote.status === "accepted" ? "Devis accepté"
+    : quote.status === "draft" ? "Brouillon"
+    : (STATUS_LABELS[quote.status ?? ""] ?? quote.status);
 
   const payLabel = (p?: PaymentRecord | null) => {
     if (!p) return "À venir";
@@ -439,138 +464,151 @@ function DevisDetailContent() {
     : null;
 
   const timeline: { date: string; step: string; title: string; desc: string; tag: string; tone: "success" | "current" | "warning" | "problem" }[] = [];
-  timeline.push({ date: formatDateShort(quote.created_at) || "Début", step: "Demande", title: "Demande envoyée", desc: quote.message ? quote.message.slice(0, 140) : "Votre demande a été transmise à l'atelier.", tag: "EFFECTUÉ", tone: "success" });
+  timeline.push({ date: formatDateShort(quote.created_at) || "Début", step: "Demande", title: "Demande envoyée", desc: quote.message ? quote.message.slice(0, 140) : "Votre demande a été transmise à l'atelier.", tag: "Effectué", tone: "success" });
   if (quote.status && quote.status !== "draft" && quote.status !== "pending") {
-    timeline.push({ date: "", step: "Devis", title: `Devis ${STATUS_LABELS[quote.status] ?? quote.status}`, desc: `Montant chiffré : ${formatCurrency(quote.amount)}.`, tag: quote.status === "sent" ? "ACTION REQUISE" : "EFFECTUÉ", tone: quote.status === "sent" ? "current" : "success" });
+    timeline.push({ date: "", step: "Devis", title: `Devis ${STATUS_LABELS[quote.status] ?? quote.status}`, desc: Number(quote.amount ?? 0) > 0 ? `Montant chiffré : ${formatCurrency(quote.amount)}.` : "L'atelier prépare votre chiffrage.", tag: quote.status === "sent" ? "Action requise" : "Effectué", tone: quote.status === "sent" ? "current" : "success" });
   }
-  if (depositPayment?.status === "verified") timeline.push({ date: formatDateShort(depositPayment.reviewed_at ?? depositPayment.created_at), step: "Tranche 1", title: "Acompte vérifié — production lancée", desc: `${formatCurrency(depositPayment.amount)} vérifiés par l'atelier.`, tag: "EFFECTUÉ", tone: "success" });
-  else if (depositPayment?.proof_path) timeline.push({ date: formatDateShort(depositPayment.created_at), step: "Tranche 1", title: "Preuve d'acompte envoyée", desc: "En attente de vérification par l'atelier.", tag: "EN COURS", tone: "current" });
+  if (depositPayment?.status === "verified") timeline.push({ date: formatDateShort(depositPayment.reviewed_at ?? depositPayment.created_at), step: "Tranche 1", title: "Acompte vérifié — production lancée", desc: `${formatCurrency(depositPayment.amount)} vérifiés par l'atelier.`, tag: "Effectué", tone: "success" });
+  else if (depositPayment?.proof_path) timeline.push({ date: formatDateShort(depositPayment.created_at), step: "Tranche 1", title: "Preuve d'acompte envoyée", desc: "En attente de vérification par l'atelier.", tag: "En cours", tone: "current" });
   displayCheckpoints.filter((c) => c.state === "done").slice(-3).forEach((c) => {
-    timeline.push({ date: "", step: "Production", title: c.title, desc: c.desc || c.meta, tag: "EFFECTUÉ", tone: "success" });
+    timeline.push({ date: "", step: "Production", title: c.title, desc: c.desc || c.meta, tag: "Effectué", tone: "success" });
   });
   warnItems.slice(0, 2).forEach((w) => {
-    timeline.push({ date: "", step: "Atelier", title: "Point d'attention", desc: w.message, tag: "INFORMATION", tone: "warning" });
+    timeline.push({ date: "", step: "Atelier", title: "Point d'attention", desc: w.message, tag: "Information", tone: "warning" });
   });
-  if (balancePayment?.status === "verified") timeline.push({ date: formatDateShort(balancePayment.reviewed_at ?? balancePayment.created_at), step: "Tranche 2", title: "Solde vérifié", desc: `${formatCurrency(balancePayment.amount)} soldés.`, tag: "EFFECTUÉ", tone: "success" });
+  if (balancePayment?.status === "verified") timeline.push({ date: formatDateShort(balancePayment.reviewed_at ?? balancePayment.created_at), step: "Tranche 2", title: "Solde vérifié", desc: `${formatCurrency(balancePayment.amount)} soldés.`, tag: "Effectué", tone: "success" });
 
-  const user = typeof window !== "undefined" ? getUser() : null;
-  const userName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || "Client";
+  const amountNum = Number(quote.amount ?? 0);
+  const refLine = [
+    `#${shortId(quote.id)}`,
+    quote.quantite ? `${quote.quantite} pièces` : null,
+    quote.tissu ?? null,
+    amountNum > 0 ? formatCurrency(quote.amount) : "En chiffrage",
+  ].filter(Boolean).join(" · ");
 
   return (
-    <>
-      <style>{globalStyles}</style>
-      <header className="topbar">
-        <Link href="/" className="wordmark">JMR <span>Textile</span></Link>
-        <nav className="topnav">
+    <div className="cmd-detail">
+      <style>{detailStyles}</style>
+      <header className="cmd-top">
+        <Link href="/" className="cmd-logo">JMR <span>TEXTILE</span></Link>
+        <nav className="cmd-nav">
           <Link href="/">Accueil</Link>
-          <Link href="/mon-profil/devis">Mes devis</Link>
-          <span className="user">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-6 8-6s8 2 8 6" /></svg>
-            {userName}
-          </span>
+          <Link href="/nos-services">Nos services</Link>
+          <Link href="/a-propos">À propos</Link>
         </nav>
+        <div className="cmd-user"><span>{userName}</span><div className="cmd-avatar">{userInitial}</div></div>
       </header>
 
-      <main>
-        <div className="breadcrumb">
-          <Link href="/mon-profil">Tableau de bord</Link><span>›</span>
-          <Link href="/mon-profil/devis">Mes devis</Link><span>›</span>
-          <span className="breadcrumb-current">Devis #{shortId(quote.id)}</span>
-        </div>
+      <main className="cmd-wrap">
+        <div className="cmd-crumb"><Link href="/mon-profil">Tableau de bord</Link> / <Link href="/mon-profil/devis">Devis</Link> / <b>#{shortId(quote.id)}</b></div>
 
-        <section className="page-head">
+        <section className="cmd-order-head">
           <div>
-            <p className="eyebrow">Suivi de devis</p>
-            <h1>{quote.name || (quote.category ? (CATEGORY_LABELS[quote.category] ?? quote.category) : "Devis")}</h1>
-            <p className="order-description">
-              {[quote.quantite ? `${quote.quantite} pièces` : null, quote.tissu, quote.coupe].filter(Boolean).join(" · ") || "Projet sur-mesure"}
-            </p>
-            <p className="order-ref">Référence #{shortId(quote.id)} · envoyé le {formatDate(quote.created_at)}</p>
+            <div className="cmd-eyebrow">Suivi de devis</div>
+            <h1 className="cmd-title">{quote.name || (quote.category ? (CATEGORY_LABELS[quote.category] ?? quote.category) : "Devis")}</h1>
+            <div className="cmd-ref">{refLine}</div>
           </div>
-          <span className="status"><span className="status-dot" />{STATUS_LABELS[quote.status ?? ""] ?? quote.status}</span>
+          <div className="cmd-status"><span className="cmd-dot"></span>{STATUS_LABELS[quote.status ?? ""] ?? quote.status}</div>
         </section>
 
-        {/* Brouillon */}
-        {showActions && (
-          <section className="card action-card" style={{ marginBottom: 24 }}>
-            <div className="action-body">
-              <p className="action-text" style={{ margin: "0 0 14px" }}>Ce devis est encore <b>en brouillon</b> — modifiez-le avant de l&apos;envoyer à l&apos;atelier.</p>
-              <div className="response-actions">
-                <Link href={`/demande-devis?draft=${quote.id}`} className="btn btn-secondary">Modifier le brouillon</Link>
-                <button className="btn btn-primary" onClick={() => setConfirmSendOpen(true)} disabled={sendingQuote}>{sendingQuote ? "Envoi…" : "Envoyer le devis"}</button>
-                <button className="btn btn-secondary" onClick={() => setConfirmDeleteOpen(true)}>Supprimer</button>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Validation client */}
-        {quote.status === "sent" && (
-          <section className="card action-card" style={{ marginBottom: 24 }}>
-            <div className="action-body">
-              <p className="action-label">Validation requise</p>
-              <h3 className="action-title">Validez votre devis — {formatCurrency(quote.amount)}</h3>
-              <p className="action-text">Aucun paiement n&apos;est dû avant validation. Après validation, la tranche 1 (acompte 50%) ouvrira le paiement.</p>
-              <div className="response-actions">
-                <button className="btn btn-primary" onClick={confirmQuote} disabled={confirmingQuote}>{confirmingQuote ? "Validation…" : "Valider le devis"}</button>
-                <button className="btn btn-secondary" onClick={refuseQuote} disabled={refusingQuote}>{refusingQuote ? "Refus…" : "Refuser"}</button>
-              </div>
-            </div>
-          </section>
-        )}
-
-        <div className="layout">
+        <div className="cmd-grid">
           <div>
-            {/* TRACKER */}
-            <section className="card progress-card">
-              <div className="progress-head">
-                <div>
-                  <p className="progress-label">Étape actuelle</p>
-                  <p className="progress-current">{currentStepLabel}</p>
-                </div>
-                <div className="progress-percent">{progressPct}%</div>
-              </div>
-              <div className="stepper">
-                <div className="stepper-track" />
-                <div className="stepper-progress" style={{ width: `${hasCommande ? Math.max(8, (prodIdx + 1) * 16) : 8}%` }} />
-                {STATUTS_PRODUCTION.map((s, i) => {
-                  const done = hasCommande && prodIdx >= 0 && i < prodIdx;
-                  const current = hasCommande && i === prodIdx;
+            <section className="cmd-card">
+              <h2>Progression du dossier</h2>
+              <div className="cmd-sub">Suivez chaque étape de votre demande.</div>
+              <div className="cmd-progress-row"><span>Avancement</span><strong className="cmd-percent">{progressPct}%</strong></div>
+              <div className="cmd-bar"><i style={{ width: `${progressPct}%` }}></i></div>
+
+              <div className="cmd-steps">
+                {steps.map((s, i) => {
+                  const done = i <= doneIdx;
+                  const active = i === activeIdx && !done;
                   return (
-                    <div key={s} className={`step${done ? " done" : ""}${current ? " current" : ""}`}>
-                      <span className="step-circle">{done ? (<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 4 4L19 6" /></svg>) : null}</span>
-                      <span className="step-name">{s}</span>
-                      <span className="step-date">{current ? "En cours" : done ? "Fait" : ""}</span>
+                    <div key={s} className={`cmd-step${done ? " done" : ""}${active ? " active" : ""}`}>
+                      <div className="cmd-circle">{done ? "✓" : (i + 1)}</div>
+                      <div className="cmd-label">{s}</div>
                     </div>
                   );
                 })}
               </div>
-              <div className="last-update">
-                <div className="update-icon">
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8v4l3 2" /><circle cx="12" cy="12" r="9" /></svg>
-                </div>
+
+              <div className="cmd-update">
+                <div className="cmd-icon">✓</div>
                 <div>
-                  <p className="update-label">DERNIÈRE MISE À JOUR</p>
-                  <p className="update-title">{hasCommande ? `Commande ${cmd?.numero} — ${cmd?.statut_production}` : `Devis ${STATUS_LABELS[quote.status ?? ""] ?? quote.status}`}</p>
-                  <p className="update-text">
+                  <strong>Dernière mise à jour · {currentStepLabel}</strong>
+                  <p>
                     {hasCommande ? `${cmd?.pieces_produites ?? 0} / ${cmd?.quantite ?? 0} pièces produites.` : "Suivi mis à jour automatiquement par l'atelier."}
                     {quote.date_livraison_prevue ? ` Livraison estimée : ${formatDate(quote.date_livraison_prevue)}.` : ""}
                   </p>
                 </div>
               </div>
+
+              {showActions && (
+                <div className="cmd-action cmd-action-blue">
+                  <div className="cmd-action-head">
+                    <div className="cmd-icon">✎</div>
+                    <div>
+                      <strong>Brouillon en cours</strong>
+                      <p>Modifiez-le avant de l&apos;envoyer à l&apos;atelier — après l&apos;envoi il ne sera plus modifiable.</p>
+                      <div className="cmd-btn-row">
+                        <Link href={`/demande-devis?draft=${quote.id}`} className="cmd-btn cmd-btn-ghost">Modifier le brouillon</Link>
+                        <button className="cmd-btn" onClick={() => setConfirmSendOpen(true)} disabled={sendingQuote}>{sendingQuote ? "Envoi…" : "Envoyer le devis"}</button>
+                        <button className="cmd-btn cmd-btn-ghost" onClick={() => setConfirmDeleteOpen(true)}>Supprimer</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {quote.status === "sent" && (
+                <div className="cmd-action cmd-action-gold">
+                  <div className="cmd-action-head">
+                    <div className="cmd-icon">✓</div>
+                    <div>
+                      <strong>Validez votre devis — {formatCurrency(quote.amount)}</strong>
+                      <p>Aucun paiement n&apos;est dû avant validation. Après validation, la tranche 1 (acompte 50%) ouvrira le paiement.</p>
+                      <div className="cmd-btn-row">
+                        <button className="cmd-btn" onClick={confirmQuote} disabled={confirmingQuote}>{confirmingQuote ? "Validation…" : "Valider le devis"}</button>
+                        <button className="cmd-btn cmd-btn-ghost" onClick={refuseQuote} disabled={refusingQuote}>{refusingQuote ? "Refus…" : "Refuser"}</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {actionNeeded && (
+                <div className="cmd-action">
+                  <div className="cmd-action-head">
+                    <div className="cmd-icon">!</div>
+                    <div>
+                      <strong>{actionNeeded.label} — {actionNeeded.title}</strong>
+                      <p>{actionNeeded.text}</p>
+                      <button className="cmd-btn" onClick={() => { setResponseOpen(true); setReportingOpen(true); }}>
+                        {rejectedProof ? "Renvoyer une preuve" : quote.status === "sent" ? "Valider le devis" : "Voir le problème"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(responseOpen || reportingOpen) && (
+                <div className="cmd-response show">
+                  <strong>Votre réponse</strong>
+                  <textarea value={reportText} onChange={(e) => setReportText(e.target.value)} placeholder="Écrivez votre réponse à l'équipe..." />
+                  {reportMessage && <p className="cmd-form-status">{reportMessage}</p>}
+                  <div className="cmd-btn-row">
+                    <button className="cmd-btn" onClick={submitReport} disabled={reportSending || !reportText.trim()}>{reportSending ? "Envoi…" : "Envoyer à JMR Textile"}</button>
+                    <button className="cmd-btn cmd-btn-ghost" onClick={() => { setResponseOpen(false); setReportingOpen(false); }}>Annuler</button>
+                  </div>
+                </div>
+              )}
             </section>
 
-            {/* DOUBLE TRANCHE */}
             {showPayment && (
-              <section className="card" style={{ marginTop: 24 }}>
-                <div className="card-header">
-                  <div>
-                    <h2 className="card-title">Paiement en 2 tranches</h2>
-                    <p className="card-subtitle">Preuve image/PDF obligatoire · vérifiée par l&apos;atelier</p>
-                  </div>
-                  <span className="pay-total">{formatCurrency(quote.amount)}</span>
-                </div>
-                <div className="tranche-grid">
+              <section className="cmd-card cmd-timeline">
+                <h2>Paiement en 2 tranches</h2>
+                <div className="cmd-sub">Preuve image/PDF obligatoire · vérifiée par l&apos;atelier · Total {formatCurrency(quote.amount)}</div>
+                <div className="cmd-tranches">
                   {(["deposit", "balance"] as const).map((phase) => {
                     const p = phase === "deposit" ? depositPayment : balancePayment;
                     const amount = phase === "deposit"
@@ -578,13 +616,13 @@ function DevisDetailContent() {
                       : (balancePayment?.amount ?? balanceAmount);
                     const isActive = activePayment?.phase === phase && activePayment?.id === p?.id;
                     return (
-                      <div key={phase} className={`tranche${p?.status === "verified" ? " is-paid" : ""}${isActive && canUpload ? " is-active" : ""}`}>
-                        <div className="tranche-top">
-                          <span className="tranche-name">{phase === "deposit" ? "Tranche 1 · Acompte (50%)" : "Tranche 2 · Solde (50%)"}</span>
-                          <span className={`pill${p?.status === "verified" ? " ok" : p?.status === "rejected" ? " ko" : p?.proof_path ? " wait" : ""}`}>{payLabel(p)}</span>
+                      <div key={phase} className={`cmd-tranche${p?.status === "verified" ? " paid" : ""}${isActive && canUpload ? " active" : ""}`}>
+                        <div className="cmd-tranche-top">
+                          <span>{phase === "deposit" ? "Tranche 1 · Acompte (50%)" : "Tranche 2 · Solde (50%)"}</span>
+                          <span className={`cmd-pill${p?.status === "verified" ? " ok" : p?.status === "rejected" ? " ko" : p?.proof_path ? " wait" : ""}`}>{payLabel(p)}</span>
                         </div>
-                        <p className="tranche-amount">{formatCurrency(amount)}</p>
-                        <p className="tranche-desc">
+                        <p className="cmd-tranche-amount">{formatCurrency(amount)}</p>
+                        <p className="cmd-tranche-desc">
                           {p?.status === "verified"
                             ? phase === "deposit" ? "Vérifié — production lancée." : "Vérifié — dossier soldé."
                             : p?.status === "rejected" ? (p.review_note ?? "Preuve rejetée — renvoyez une preuve.")
@@ -593,206 +631,144 @@ function DevisDetailContent() {
                               ? (quote.status === "sent" ? "Disponible après validation du devis." : "Payez puis déposez la preuve ci-dessous.")
                               : (depositPayment?.status !== "verified" ? "Disponible après vérification de la tranche 1." : totalAddons > 0 ? `Solde + ${formatCurrency(totalAddons)} d'ajouts validés.` : "Payez puis déposez la preuve ci-dessous.")}
                         </p>
-                        {p?.transaction_ref && <p className="tranche-ref">Réf : {p.transaction_ref}</p>}
+                        {p?.transaction_ref && <p className="cmd-tranche-ref">Réf : {p.transaction_ref}</p>}
                       </div>
                     );
                   })}
                 </div>
                 {quote.status === "sent" ? (
-                  <div className="response-body"><p className="response-text">Validez d&apos;abord le devis ci-dessus — aucun paiement n&apos;est dû pour l&apos;instant.</p></div>
+                  <p className="cmd-sub">Validez d&apos;abord le devis ci-dessus — aucun paiement n&apos;est dû pour l&apos;instant.</p>
                 ) : canUpload && activePayment ? (
-                  <div className="response-body">
-                    <p className="response-text">
-                      {activePayment.phase === "deposit" ? "Tranche 1 — l'acompte vérifié démarre la production." : "Tranche 2 — solde (+ ajouts validés)."} Déposez la preuve de paiement :
+                  <div className="cmd-pay-form">
+                    <p className="cmd-sub">
+                      {activePayment.phase === "deposit" ? "Tranche 1 — l'acompte vérifié démarre la production." : "Tranche 2 — solde (+ ajouts validés)."}
                     </p>
-                    <div className="pay-form">
-                      <select value={paymentType} onChange={(e) => setPaymentType(e.target.value)}>
-                        <option value="mvola">MVola</option>
-                        <option value="orange_money">Orange Money</option>
-                        <option value="virement">Virement bancaire</option>
-                      </select>
-                      <input value={transactionRef} onChange={(e) => setTransactionRef(e.target.value)} placeholder="Référence transaction (min 5 caractères)" />
-                      <input type="file" accept=".pdf,.png,.jpg,.jpeg,.webp" onChange={(e) => setProofFile(e.target.files?.[0] ?? null)} />
-                      <div className="response-actions">
-                        <button className="btn btn-primary" onClick={submitProof} disabled={uploadingProof}>{uploadingProof ? "Envoi…" : "Envoyer la preuve"}</button>
-                      </div>
-                      {proofMessage && <p className="form-status">{proofMessage}</p>}
+                    <select value={paymentType} onChange={(e) => setPaymentType(e.target.value)}>
+                      <option value="mvola">MVola</option>
+                      <option value="orange_money">Orange Money</option>
+                      <option value="virement">Virement bancaire</option>
+                    </select>
+                    <input value={transactionRef} onChange={(e) => setTransactionRef(e.target.value)} placeholder="Référence transaction (min 5 caractères)" />
+                    <input type="file" accept=".pdf,.png,.jpg,.jpeg,.webp" onChange={(e) => setProofFile(e.target.files?.[0] ?? null)} />
+                    <div className="cmd-btn-row">
+                      <button className="cmd-btn" onClick={submitProof} disabled={uploadingProof}>{uploadingProof ? "Envoi…" : "Envoyer la preuve"}</button>
                     </div>
+                    {proofMessage && <p className="cmd-form-status">{proofMessage}</p>}
                   </div>
                 ) : activePayment?.proof_path && activePayment.status === "submitted" ? (
-                  <div className="response-body"><p className="response-text">Preuve déjà transmise — l&apos;atelier la vérifie. Nouveau dépôt possible si rejetée.</p></div>
+                  <p className="cmd-sub">Preuve déjà transmise — l&apos;atelier la vérifie. Nouveau dépôt possible si rejetée.</p>
                 ) : null}
               </section>
             )}
 
-            {/* ACTION REQUISE */}
-            {actionNeeded && (
-              <section className="card action-card" style={{ marginTop: 24 }}>
-                <div className="card-header">
-                  <div><h2 className="card-title">Action requise</h2><p className="card-subtitle">Votre intervention est nécessaire</p></div>
-                </div>
-                <div className="action-body">
-                  <p className="action-label">{actionNeeded.label}</p>
-                  <h3 className="action-title">{actionNeeded.title}</h3>
-                  <p className="action-text">{actionNeeded.text}</p>
-                  <button className="btn btn-primary" onClick={() => { setResponseOpen(true); setReportingOpen(true); }}>
-                    {rejectedProof ? "Renvoyer une preuve" : quote.status === "sent" ? "Valider le devis" : "Voir le problème"}
-                  </button>
-                </div>
-              </section>
-            )}
-
-            {/* ÉTAPES À VALIDER */}
             {displayCheckpoints.length > 0 && (
-              <section className="card" style={{ marginTop: 24 }}>
-                <div className="card-header">
-                  <div><h2 className="card-title">Étapes à valider</h2><p className="card-subtitle">{displayCheckpoints.filter((c) => c.state === "action").length} en attente de votre validation</p></div>
-                </div>
-                <div className="timeline">
-                  {displayCheckpoints.map((cp) => (
-                    <article key={cp.id} className={`timeline-item${cp.state === "done" ? " success" : cp.state === "action" ? " current" : ""}`}>
-                      <div className="timeline-date">{cp.state === "done" ? "Fait" : cp.state === "action" ? "À valider" : "À venir"}</div>
-                      <div className="timeline-marker"><span className="timeline-dot" /></div>
-                      <div>
-                        <h3 className="timeline-title">{cp.title}</h3>
-                        {cp.desc && <p className="timeline-description">{cp.desc}</p>}
-                        {cp.meta && <p className="timeline-description">{cp.meta}</p>}
-                        {cp.state === "action" && (
-                          <div className="response-actions" style={{ marginTop: 8 }}>
-                            <button className="btn btn-primary" onClick={() => validateCheckpoint(cp.id)} disabled={validatingCp === cp.id}>{validatingCp === cp.id ? "Validation…" : "Valider cette étape"}</button>
-                          </div>
-                        )}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* HISTORIQUE */}
-            <section className="card" style={{ marginTop: 24 }}>
-              <div className="card-header">
-                <div><h2 className="card-title">Historique de la commande</h2><p className="card-subtitle">Toutes les mises à jour communiquées par l&apos;atelier</p></div>
-              </div>
-              <div className="timeline">
-                {timeline.map((t, i) => (
-                  <article key={i} className={`timeline-item ${t.tone}`}>
-                    <div className="timeline-date">{t.date}</div>
-                    <div className="timeline-marker"><span className="timeline-dot" /></div>
+              <section className="cmd-card cmd-timeline">
+                <h2>Étapes à valider</h2>
+                <div className="cmd-sub">{displayCheckpoints.filter((c) => c.state === "action").length} en attente de votre validation</div>
+                {displayCheckpoints.map((cp) => (
+                  <div key={cp.id} className={`cmd-event${cp.state === "done" ? " success" : ""}`}>
+                    <div className="cmd-rail"><div className="cmd-bubble">{cp.state === "done" ? "✓" : "i"}</div></div>
                     <div>
-                      <p className="timeline-step">{t.step}</p>
-                      <h3 className="timeline-title">{t.title}</h3>
-                      <p className="timeline-description">{t.desc}</p>
-                      <div className="timeline-meta"><span className={`timeline-tag tag-${t.tone === "success" ? "success" : t.tone === "current" ? "warning" : t.tone}`}>{t.tag}</span><span>Atelier JMR Textile</span></div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-
-            {/* AJOUTS */}
-            <section className="card" style={{ marginTop: 24 }}>
-              <div className="card-header">
-                <div><h2 className="card-title">Ajouts demandés</h2><p className="card-subtitle">En production vous pouvez augmenter le devis — chiffré puis ajouté au solde</p></div>
-                {displayAddons.length > 0 && <span className="pay-total">+{formatNumber(displayAddons.reduce((s, a) => s + (a.price > 0 ? a.price : 0), 0))} Ar</span>}
-              </div>
-              <div className="response-body">
-                {displayAddons.length === 0 ? (
-                  <p className="response-text">Aucun ajout pour le moment — décrivez une modification ci-dessous.</p>
-                ) : (
-                  displayAddons.map((a) => (
-                    <div key={a.id} className="addon-row">
-                      <div><b>{a.title}</b><p>{a.desc}</p></div>
-                      <div className="addon-right"><span>+{formatNumber(a.price)} Ar</span><span className={`pill${a.status === "included" ? " ok" : a.status === "rejected" ? " ko" : " wait"}`}>{a.status === "included" ? "Inclus au solde" : a.status === "rejected" ? "Refusé" : "En chiffrage"}</span></div>
-                    </div>
-                  ))
-                )}
-                {totalAddons > 0 && <p className="response-text"><b>+{formatNumber(totalAddons)} Ar</b> d&apos;ajouts validés — inclus dans la tranche 2.</p>}
-                {addonMessage && <p className="form-status">{addonMessage}</p>}
-                <button className="btn btn-secondary" onClick={() => setAddonFormOpen(!addonFormOpen)}>Demander un ajout</button>
-                {addonFormOpen && (
-                  <div className="pay-form" style={{ marginTop: 12 }}>
-                    <textarea value={addonText} onChange={(e) => setAddonText(e.target.value)} placeholder="Ex. : Ajouter un motif brodé sur la manche gauche…" />
-                    <div className="response-actions">
-                      <button className="btn btn-primary" onClick={submitAddon} disabled={addonSending || !addonText.trim()}>{addonSending ? "Envoi…" : "Envoyer la demande"}</button>
+                      <div className="cmd-event-top"><span className="cmd-event-title">{cp.title}</span><span className="cmd-time">{cp.state === "done" ? "Fait" : cp.state === "action" ? "À valider" : "À venir"}</span></div>
+                      {cp.desc && <p>{cp.desc}</p>}
+                      {cp.meta && <p>{cp.meta}</p>}
+                      {cp.state === "action" && (
+                        <div className="cmd-btn-row" style={{ marginTop: 10 }}>
+                          <button className="cmd-btn" onClick={() => validateCheckpoint(cp.id)} disabled={validatingCp === cp.id}>{validatingCp === cp.id ? "Validation…" : "Valider cette étape"}</button>
+                        </div>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
+                ))}
+              </section>
+            )}
+
+            <section className="cmd-card cmd-timeline">
+              <h2>Historique détaillé</h2>
+              <div className="cmd-sub">Toutes les mises à jour publiées par notre équipe.</div>
+              {timeline.map((t, i) => (
+                <div key={i} className={`cmd-event${t.tone === "success" ? " success" : t.tone === "problem" ? " problem" : ""}`}>
+                  <div className="cmd-rail"><div className="cmd-bubble">{t.tone === "success" ? "✓" : t.tone === "problem" ? "!" : "i"}</div></div>
+                  <div>
+                    <div className="cmd-event-top"><span className="cmd-event-title">{t.title}</span><span className="cmd-time">{t.date}</span></div>
+                    <span className="cmd-tag">{t.tag}</span>
+                    <p>{t.desc}</p>
+                  </div>
+                </div>
+              ))}
             </section>
 
-            {/* RÉPONSE / REMARQUE */}
-            <section className="card response-card" style={{ display: responseOpen || reportingOpen ? "block" : "none" }}>
-              <div className="card-header">
-                <div><h2 className="card-title">Répondre / remarque</h2><p className="card-subtitle">Fichier + message à l&apos;atelier</p></div>
+            <section className="cmd-card cmd-timeline">
+              <h2>Ajouts demandés</h2>
+              <div className="cmd-sub">En production vous pouvez augmenter le devis — chiffré puis ajouté au solde{totalAddons > 0 ? ` · +${formatNumber(totalAddons)} Ar validés` : ""}</div>
+              {displayAddons.length === 0 ? (
+                <p className="cmd-sub">Aucun ajout pour le moment — décrivez une modification ci-dessous.</p>
+              ) : (
+                displayAddons.map((a) => (
+                  <div key={a.id} className="cmd-addon-row">
+                    <div><b>{a.title}</b><p>{a.desc}</p></div>
+                    <div className="cmd-addon-right"><span>+{formatNumber(a.price)} Ar</span><span className={`cmd-pill${a.status === "included" ? " ok" : a.status === "rejected" ? " ko" : " wait"}`}>{a.status === "included" ? "Inclus au solde" : a.status === "rejected" ? "Refusé" : "En chiffrage"}</span></div>
+                  </div>
+                ))
+              )}
+              {addonMessage && <p className="cmd-form-status">{addonMessage}</p>}
+              <div className="cmd-btn-row" style={{ marginTop: 12 }}>
+                <button className="cmd-btn cmd-btn-ghost" onClick={() => setAddonFormOpen(!addonFormOpen)}>Demander un ajout</button>
               </div>
-              <div className="response-body">
-                <p className="response-text">Envoyez un fichier ou un commentaire à l&apos;atelier.</p>
-                <textarea value={reportText} onChange={(e) => setReportText(e.target.value)} placeholder="Ajouter un message..." />
-                <div className="response-actions">
-                  <button className="btn btn-primary" onClick={submitReport} disabled={reportSending || !reportText.trim()}>{reportSending ? "Envoi…" : "Envoyer la réponse"}</button>
-                  <button className="btn btn-secondary" onClick={() => { setResponseOpen(false); setReportingOpen(false); }}>Annuler</button>
+              {addonFormOpen && (
+                <div className="cmd-response show">
+                  <textarea value={addonText} onChange={(e) => setAddonText(e.target.value)} placeholder="Ex. : Ajouter un motif brodé sur la manche gauche…" />
+                  <div className="cmd-btn-row">
+                    <button className="cmd-btn" onClick={submitAddon} disabled={addonSending || !addonText.trim()}>{addonSending ? "Envoi…" : "Envoyer la demande"}</button>
+                  </div>
                 </div>
-                {reportMessage && <p className="form-status">{reportMessage}</p>}
-              </div>
+              )}
             </section>
-            {!responseOpen && !reportingOpen && (
-              <button className="btn btn-secondary" style={{ marginTop: 16 }} onClick={() => { setResponseOpen(true); setReportingOpen(true); }}>Faire une remarque</button>
-            )}
+
+            <Link className="cmd-back" href="/mon-profil">← Retour au tableau de bord</Link>
           </div>
 
-          <aside>
-            <section className="card">
-              <div className="card-header"><div><h2 className="card-title">Commande</h2><p className="card-subtitle">Informations générales</p></div></div>
-              <div className="info-body">
-                <div className="info-row"><span className="info-label">Référence</span><span className="info-value">#{shortId(quote.id)}</span></div>
-                <div className="info-row"><span className="info-label">Quantité</span><span className="info-value">{quote.quantite ?? cmd?.quantite ?? "—"} pièces</span></div>
-                <div className="info-row"><span className="info-label">Produit</span><span className="info-value">{quote.category ? (CATEGORY_LABELS[quote.category] ?? quote.category) : "—"}</span></div>
-                <div className="info-row"><span className="info-label">Matière</span><span className="info-value">{quote.tissu ?? "—"}</span></div>
-                <div className="info-row"><span className="info-label">Grammage</span><span className="info-value">{quote.grammage ?? "—"}</span></div>
-                <div className="info-row"><span className="info-label">Total</span><span className="info-value">{formatCurrency(quote.amount)}</span></div>
-              </div>
+          <aside className="cmd-side">
+            <section className="cmd-card">
+              <h2>Informations</h2>
+              <div className="cmd-info-row"><span>Référence</span><b>#{shortId(quote.id)}</b></div>
+              <div className="cmd-info-row"><span>Quantité</span><b>{quote.quantite ?? cmd?.quantite ?? "—"}{quote.quantite || cmd?.quantite ? " pièces" : ""}</b></div>
+              <div className="cmd-info-row"><span>Produit</span><b>{quote.category ? (CATEGORY_LABELS[quote.category] ?? quote.category) : "—"}</b></div>
+              <div className="cmd-info-row"><span>Matière</span><b>{quote.tissu ?? "—"}</b></div>
+              <div className="cmd-info-row"><span>Montant</span><b>{amountNum > 0 ? formatCurrency(quote.amount) : "En chiffrage"}</b></div>
+              <div className="cmd-info-row"><span>Commande</span><b>{cmd ? `${cmd.numero} — ${cmd.statut_production}` : formatDate(quote.created_at)}</b></div>
             </section>
 
-            <section className="card" style={{ marginTop: 20 }}>
-              <div className="card-header"><div><h2 className="card-title">Livraison</h2><p className="card-subtitle">Estimation actuelle</p></div></div>
-              <div className="delivery-body">
-                <p className="delivery-date">{formatDate(quote.date_livraison_prevue ?? cmd?.date_livraison_prevue)}</p>
-                <div className="delivery-line" />
-                <p className="delivery-text">Cette date peut évoluer selon l&apos;avancement. Vous serez informé automatiquement.</p>
-              </div>
+            <section className="cmd-card">
+              <h2>Livraison estimée</h2>
+              <div className="cmd-delivery">{formatDate(quote.date_livraison_prevue ?? cmd?.date_livraison_prevue)}</div>
+              <div className="cmd-sub">Sous réserve du bon déroulement de la production.</div>
             </section>
 
-            <section className="card" style={{ marginTop: 20 }}>
-              <div className="card-header"><div><h2 className="card-title">Notifications</h2><p className="card-subtitle">Concernant ce dossier</p></div></div>
-              <div className="notification-list">
-                {[...goodItems, ...warnItems].length === 0 ? (
-                  <div className="notification-item"><div className="notification-content"><p className="notification-title">Aucune notification</p></div></div>
-                ) : (
-                  [...goodItems, ...warnItems].slice(0, 5).map((n, i) => (
-                    <div key={i} className="notification-item"><span className="notification-status" /><div className="notification-content"><p className="notification-title">{n.message}</p><p className="notification-time">{formatDateShort(n.date ?? n.created_at)}</p></div></div>
-                  ))
-                )}
-              </div>
+            <section className="cmd-card">
+              <h2>Notifications</h2>
+              {[...goodItems, ...warnItems].length === 0 ? (
+                <div className="cmd-notify"><b>Aucune notification</b><p>Vous serez informé ici de chaque avancée.</p></div>
+              ) : (
+                [...goodItems, ...warnItems].slice(0, 5).map((n, i) => (
+                  <div key={i} className="cmd-notify"><b>{n.message}</b><p>{formatDateShort(n.date ?? n.created_at)}</p></div>
+                ))
+              )}
             </section>
 
             {quoteFiles.length > 0 && (
-              <section className="card" style={{ marginTop: 20 }}>
-                <div className="card-header"><div><h2 className="card-title">Fichiers</h2><p className="card-subtitle">{quoteFiles.length} fichier(s)</p></div></div>
-                <div className="notification-list">
-                  {quoteFiles.map((f, i) => (
-                    <div key={i} className="notification-item"><div className="notification-content"><a className="notification-title" style={{ color: "var(--gold)" }} href={safeUrl(f.url)} target="_blank" rel="noopener noreferrer">{f.name || "Fichier joint"}</a></div></div>
-                  ))}
-                </div>
+              <section className="cmd-card">
+                <h2>Fichiers</h2>
+                {quoteFiles.map((f, i) => (
+                  <div key={i} className="cmd-notify"><b><a href={safeUrl(f.url)} target="_blank" rel="noopener noreferrer" style={{ color: "var(--gold2)" }}>{f.name || "Fichier joint"}</a></b></div>
+                ))}
               </section>
             )}
 
-            <section className="card" style={{ marginTop: 20 }}>
-              <div className="card-header"><div><h2 className="card-title">Besoin d&apos;aide ?</h2><p className="card-subtitle">Une question sur ce dossier ?</p></div></div>
-              <div className="response-body">
-                <p className="response-text">Contactez directement l&apos;équipe JMR Textile.</p>
-                <Link href="/contact" className="btn btn-secondary">Contacter l&apos;atelier</Link>
-              </div>
+            <section className="cmd-card">
+              <h2>Besoin d&apos;aide ?</h2>
+              <div className="cmd-sub">Une question concernant votre dossier ?</div>
+              <Link href="/contact" className="cmd-btn" style={{ marginTop: 16, width: "100%", justifyContent: "center" }}>Contacter JMR Textile</Link>
             </section>
           </aside>
         </div>
@@ -827,171 +803,134 @@ function DevisDetailContent() {
           }
         }}
       />
-    </>
+    </div>
   );
 }
 
 export default function DevisDetailPage() {
   return (
     <Suspense fallback={
-      <div className="loading-screen"><div className="loading-text">Chargement…</div></div>
+      <div className="cmd-detail"><style>{detailStyles}</style><div className="cmd-loading">Chargement…</div></div>
     }>
       <DevisDetailContent />
     </Suspense>
   );
 }
 
-const globalStyles = `
-:root{
-  --navy-950:#0f1826;
-  --navy-900:#1b263c;
-  --navy-850:#1e2a38;
-  --navy-800:#25303a;
-  --navy-border:#2b3852;
-  --gold:#FFB42D;
-  --gold-bright:#FFC964;
-  --cream:#f3efe4;
-  --slate:#8b93a7;
-  --slate-dim:#5c6478;
-  --green:#5cb87d;
-  --blue:#5c9ad9;
-  --purple:#a08fd1;
-  --orange:#e08b52;
-  --red:#e05252;
-  --serif:'Fraunces',Georgia,serif;
-  --sans:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+const detailStyles = `
+.cmd-detail{
+  --bg:#080a0d;--panel:#101318;--panel2:#151920;--line:#262b33;
+  --gold:#dca34a;--gold2:#f0c179;--text:#f4f0e8;--muted:#9299a5;
+  --green:#46d39a;--red:#ff6b6b;--blue:#69a7ff;--orange:#f2a65a;
+  background:radial-gradient(circle at 80% 0%,#1c1710 0,#080a0d 35%);
+  background-color:#080a0d;color:var(--text);
+  font-family:Inter,Arial,sans-serif;min-height:100vh;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth;}
-body{margin:0;background:var(--navy-950);color:var(--cream);font-family:var(--sans);line-height:1.5;}
-button,input,textarea,select{font:inherit;}
-button{cursor:pointer;}
-a{color:inherit;text-decoration:none;}
-:focus-visible{outline:2px solid var(--gold-bright);outline-offset:3px;}
-.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-bottom:1px solid var(--navy-border);}
-.wordmark{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--gold-bright);}
-.wordmark span{color:var(--cream);}
-.topnav{display:flex;align-items:center;gap:28px;color:var(--slate);font-size:14px;}
-.topnav a:hover{color:var(--cream);}
-.user{display:flex;align-items:center;gap:8px;padding-left:20px;border-left:1px solid var(--navy-border);color:var(--cream);}
-main{width:min(1120px,calc(100% - 80px));margin:0 auto;padding:38px 0 80px;}
-.breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:22px;color:var(--slate-dim);font-size:13px;}
-.breadcrumb a:hover{color:var(--cream);}
-.breadcrumb-current{color:var(--slate);}
-.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:30px;padding-bottom:26px;border-bottom:1px solid var(--navy-border);}
-.eyebrow{margin:0 0 6px;color:var(--gold-bright);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
-h1{margin:0;font-family:var(--serif);font-size:36px;line-height:1.15;font-weight:600;color:var(--cream);}
-.order-description{margin:8px 0 0;color:var(--slate);font-size:14px;}
-.order-ref{margin-top:8px;color:var(--slate-dim);font-family:monospace;font-size:12px;}
-.status{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;color:var(--gold-bright);background:rgba(255,180,45,.14);font-size:12px;font-weight:600;white-space:nowrap;}
-.status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
-.layout{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(280px,.8fr);gap:24px;margin-top:28px;}
-.card{background:var(--navy-850);border:1px solid var(--navy-border);border-radius:11px;}
-.card-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 22px 17px;border-bottom:1px solid var(--navy-border);}
-.card-title{margin:0;font-family:var(--serif);font-size:19px;font-weight:500;color:var(--cream);}
-.card-subtitle{margin:4px 0 0;color:var(--slate-dim);font-size:12px;}
-.pay-total{color:var(--gold-bright);font-family:var(--serif);font-size:20px;white-space:nowrap;}
-.progress-card{padding:25px 24px 27px;}
-.progress-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;}
-.progress-label{margin:0;color:var(--slate);font-size:13px;}
-.progress-current{margin:4px 0 0;color:var(--cream);font-family:var(--serif);font-size:22px;}
-.progress-percent{color:var(--gold-bright);font-family:var(--serif);font-size:25px;}
-.stepper{position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:0;}
-.stepper-track{position:absolute;left:12px;right:12px;top:10px;height:2px;background:var(--navy-border);}
-.stepper-progress{position:absolute;left:12px;top:10px;height:2px;background:var(--gold);}
-.step{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;}
-.step-circle{width:21px;height:21px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--navy-850);border:2px solid var(--navy-border);color:var(--navy-950);}
-.step.done .step-circle{background:var(--gold);border-color:var(--gold);}
-.step.current .step-circle{border-color:var(--gold);box-shadow:0 0 0 5px rgba(255,180,45,.15);}
-.step-name{max-width:105px;margin-top:11px;color:var(--slate-dim);font-size:11.5px;line-height:1.35;}
-.step.done .step-name,.step.current .step-name{color:var(--cream);}
-.step-date{margin-top:3px;color:var(--slate-dim);font-size:10px;}
-.step.current .step-date{color:var(--gold-bright);}
-.last-update{display:flex;gap:13px;margin-top:30px;padding-top:18px;border-top:1px dashed var(--navy-border);}
-.update-icon{width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--gold-bright);background:rgba(255,180,45,.1);}
-.update-label{margin:0 0 2px;color:var(--slate-dim);font-size:11px;}
-.update-title{margin:0;color:var(--cream);font-size:14px;font-weight:500;}
-.update-text{margin:4px 0 0;color:var(--slate);font-size:13px;}
-.action-card{border-color:rgba(255,180,45,.45);background:linear-gradient(135deg,rgba(255,180,45,.08),transparent 55%),var(--navy-850);}
-.action-body{padding:20px 22px 22px;}
-.action-label{margin:0 0 3px;color:var(--orange);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
-.action-title{margin:0;font-family:var(--serif);font-size:17px;font-weight:500;color:var(--cream);}
-.action-text{margin:14px 0 18px;color:var(--slate);font-size:13px;line-height:1.6;}
-.action-text b{color:var(--cream);}
-.btn{border:0;border-radius:7px;padding:10px 14px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:8px;}
-.btn-primary{background:var(--gold);color:#1a1204;}
-.btn-primary:hover{background:var(--gold-bright);}
-.btn-primary:disabled{opacity:.6;cursor:not-allowed;}
-.btn-secondary{background:transparent;border:1px solid var(--navy-border);color:var(--cream);}
-.btn-secondary:hover{border-color:var(--gold);color:var(--gold-bright);}
-.timeline{padding:7px 22px 20px;}
-.timeline-item{position:relative;display:grid;grid-template-columns:70px 20px 1fr;gap:13px;padding:17px 0;border-bottom:1px solid var(--navy-border);}
-.timeline-item:last-child{border-bottom:0;}
-.timeline-date{padding-top:2px;color:var(--slate-dim);font-size:11px;text-align:right;}
-.timeline-marker{position:relative;display:flex;justify-content:center;}
-.timeline-marker::before{content:"";position:absolute;top:15px;bottom:-35px;width:1px;background:var(--navy-border);}
-.timeline-item:last-child .timeline-marker::before{display:none;}
-.timeline-dot{position:relative;z-index:2;width:9px;height:9px;margin-top:4px;border-radius:50%;background:var(--slate-dim);border:2px solid var(--navy-850);box-shadow:0 0 0 1px var(--navy-border);}
-.timeline-item.success .timeline-dot{background:var(--green);}
-.timeline-item.current .timeline-dot{background:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 0 5px rgba(255,180,45,.12);}
-.timeline-item.warning .timeline-dot{background:var(--orange);}
-.timeline-item.problem .timeline-dot{background:var(--red);}
-.timeline-step{margin:0 0 3px;color:var(--slate-dim);font-size:11px;text-transform:uppercase;letter-spacing:.035em;}
-.timeline-title{margin:0;color:var(--cream);font-size:14px;font-weight:500;}
-.timeline-description{margin:5px 0 0;color:var(--slate);font-size:13px;line-height:1.55;}
-.timeline-meta{display:flex;align-items:center;gap:9px;margin-top:8px;color:var(--slate-dim);font-size:10.5px;}
-.timeline-tag{padding:3px 7px;border-radius:5px;font-size:10px;}
-.tag-success{color:var(--green);background:rgba(92,184,125,.1);}
-.tag-warning{color:var(--orange);background:rgba(224,139,82,.1);}
-.tag-current{color:var(--gold-bright);background:rgba(255,180,45,.12);}
-.tag-problem{color:var(--red);background:rgba(224,82,82,.1);}
-.info-body{padding:19px 22px;}
-.info-row{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid var(--navy-border);}
-.info-row:last-child{border-bottom:0;}
-.info-label{color:var(--slate-dim);font-size:12px;}
-.info-value{color:var(--cream);font-size:12.5px;font-weight:500;text-align:right;}
-.delivery-body{padding:20px 22px;}
-.delivery-date{margin:0;color:var(--gold-bright);font-family:var(--serif);font-size:23px;}
-.delivery-line{height:1px;margin:12px 0 14px;background:repeating-linear-gradient(to right,var(--gold) 0 6px,transparent 6px 13px);opacity:.5;}
-.delivery-text{margin:0;color:var(--slate);font-size:12px;}
-.notification-list{padding:5px 0;}
-.notification-item{display:flex;gap:12px;padding:15px 22px;border-bottom:1px solid var(--navy-border);}
-.notification-item:last-child{border-bottom:0;}
-.notification-status{width:7px;height:7px;flex-shrink:0;margin-top:6px;border-radius:50%;background:var(--gold);}
-.notification-content{min-width:0;}
-.notification-title{margin:0;color:var(--cream);font-size:12.5px;font-weight:500;}
-.notification-time{margin:3px 0 0;color:var(--slate-dim);font-size:10.5px;}
-.response-card{margin-top:24px;}
-.response-body{padding:20px 22px 22px;}
-.response-text{margin:0 0 15px;color:var(--slate);font-size:13px;}
-.response-text b{color:var(--cream);}
-.response-actions{display:flex;gap:9px;flex-wrap:wrap;}
-.response-body textarea,.pay-form textarea{width:100%;min-height:90px;resize:vertical;padding:12px;background:var(--navy-900);border:1px solid var(--navy-border);border-radius:7px;color:var(--cream);margin-bottom:12px;}
-.pay-form{display:grid;gap:10px;}
-.pay-form select,.pay-form input[type="text"],.pay-form input:not([type]){background:var(--navy-900);border:1px solid var(--navy-border);border-radius:7px;padding:10px 12px;color:var(--cream);}
-.pay-form input[type="file"]{color:var(--slate);font-size:12px;}
-.tranche-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px 22px 0;}
-.tranche{background:var(--navy-900);border:1px solid var(--navy-border);border-radius:10px;padding:18px;}
-.tranche.is-paid{border-color:rgba(92,184,125,.4);}
-.tranche.is-active{border-color:rgba(255,180,45,.55);box-shadow:0 0 0 1px rgba(255,180,45,.25);}
-.tranche-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
-.tranche-name{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);font-weight:700;}
-.tranche-amount{font-family:var(--serif);font-size:24px;color:var(--gold-bright);margin:0 0 6px;}
-.tranche-desc{font-size:12px;color:var(--slate);margin:0;}
-.tranche-ref{font-size:11px;color:var(--slate-dim);font-family:monospace;margin:6px 0 0;}
-.pill{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:100px;background:var(--navy-800);color:var(--slate);border:1px solid var(--navy-border);white-space:nowrap;}
-.pill.ok{background:rgba(92,184,125,.12);color:var(--green);border-color:rgba(92,184,125,.35);}
-.pill.ko{background:rgba(224,82,82,.12);color:var(--red);border-color:rgba(224,82,82,.35);}
-.pill.wait{background:rgba(255,180,45,.12);color:var(--gold-bright);border-color:rgba(255,180,45,.35);}
-.addon-row{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--navy-border);font-size:13px;}
-.addon-row:last-of-type{border-bottom:0;}
-.addon-row p{margin:4px 0 0;color:var(--slate);font-size:12px;}
-.addon-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
-.form-status{font-size:12px;color:var(--gold-bright);}
-.loading-screen{min-height:100vh;background:var(--navy-950);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
-.loading-text{color:var(--gold);font-size:18px;}
-.error-text{color:var(--red);font-size:18px;}
-.back-link{color:var(--gold);text-decoration:underline;font-size:16px;}
-@media(max-width:850px){.topbar{padding:0 22px;}.topnav a{display:none;}main{width:min(100% - 40px,700px);}.layout{grid-template-columns:1fr;}.stepper{grid-template-columns:repeat(3,1fr);gap:26px 8px;}.stepper-track,.stepper-progress{display:none;}.tranche-grid{grid-template-columns:1fr;}}
-@media(max-width:560px){.topbar{height:64px;padding:0 18px;}.wordmark{font-size:20px;}.user{display:none;}main{width:calc(100% - 30px);padding-top:25px;}.page-head{flex-direction:column;gap:15px;}h1{font-size:29px;}.status{align-self:flex-start;}.timeline-item{grid-template-columns:52px 15px 1fr;gap:8px;}}
+.cmd-detail button,.cmd-detail input,.cmd-detail textarea,.cmd-detail select{font:inherit;}
+.cmd-detail button{cursor:pointer;}
+.cmd-detail a{color:inherit;text-decoration:none;}
+.cmd-detail :focus-visible{outline:2px solid var(--gold2);outline-offset:3px;}
+.cmd-detail .cmd-top{height:76px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 5%;background:rgba(8,10,13,.88);position:sticky;top:0;z-index:5;}
+.cmd-detail .cmd-logo{font-weight:800;letter-spacing:.18em;color:var(--text);}
+.cmd-detail .cmd-logo span{color:var(--gold);}
+.cmd-detail .cmd-nav{display:flex;gap:28px;color:var(--muted);font-size:14px;}
+.cmd-detail .cmd-nav a{color:inherit;text-decoration:none;}
+.cmd-detail .cmd-nav a:first-child{color:var(--text);}
+.cmd-detail .cmd-user{display:flex;align-items:center;gap:10px;font-size:14px;}
+.cmd-detail .cmd-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#8a5d20);display:grid;place-items:center;color:#111;font-weight:800;}
+.cmd-detail .cmd-wrap{max-width:1280px;margin:auto;padding:42px 5% 70px;}
+.cmd-detail .cmd-crumb{color:var(--muted);font-size:13px;margin-bottom:25px;}
+.cmd-detail .cmd-crumb b{color:var(--text);}
+.cmd-detail .cmd-order-head{display:flex;justify-content:space-between;gap:25px;align-items:flex-start;margin-bottom:28px;}
+.cmd-detail .cmd-eyebrow{color:var(--gold2);text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:700;}
+.cmd-detail .cmd-title{font-size:clamp(30px,4vw,48px);margin:8px 0;font-weight:800;letter-spacing:-.04em;color:var(--text);}
+.cmd-detail .cmd-ref{color:var(--muted);font-size:14px;font-family:monospace;}
+.cmd-detail .cmd-status{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid rgba(220,163,74,.35);background:rgba(220,163,74,.08);color:var(--gold2);border-radius:999px;font-size:13px;white-space:nowrap;}
+.cmd-detail .cmd-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold);}
+.cmd-detail .cmd-grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:22px;}
+.cmd-detail .cmd-card{background:linear-gradient(145deg,rgba(21,25,32,.95),rgba(13,16,21,.95));border:1px solid var(--line);border-radius:20px;padding:25px;box-shadow:0 18px 60px rgba(0,0,0,.2);}
+.cmd-detail .cmd-card h2{font-size:18px;margin:0;color:var(--text);}
+.cmd-detail .cmd-sub{color:var(--muted);font-size:13px;margin-top:7px;}
+.cmd-detail .cmd-progress-row{display:flex;justify-content:space-between;align-items:end;margin:25px 0 12px;}
+.cmd-detail .cmd-percent{font-size:28px;font-weight:800;color:var(--gold2);}
+.cmd-detail .cmd-bar{height:7px;background:#252a31;border-radius:20px;overflow:hidden;}
+.cmd-detail .cmd-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:inherit;}
+.cmd-detail .cmd-steps{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:27px;}
+.cmd-detail .cmd-step{text-align:center;position:relative;}
+.cmd-detail .cmd-step:not(:last-child):after{content:"";position:absolute;top:15px;left:calc(50% + 18px);width:calc(100% - 36px);height:1px;background:#343943;}
+.cmd-detail .cmd-circle{width:30px;height:30px;border-radius:50%;border:1px solid #414752;background:#171b21;display:grid;place-items:center;margin:auto;color:#747b87;font-size:12px;position:relative;z-index:1;}
+.cmd-detail .cmd-step.done .cmd-circle{background:rgba(70,211,154,.13);border-color:var(--green);color:var(--green);}
+.cmd-detail .cmd-step.active .cmd-circle{background:rgba(220,163,74,.13);border-color:var(--gold);color:var(--gold2);box-shadow:0 0 0 5px rgba(220,163,74,.05);}
+.cmd-detail .cmd-label{font-size:11px;color:var(--muted);margin-top:9px;}
+.cmd-detail .cmd-step.done .cmd-label,.cmd-detail .cmd-step.active .cmd-label{color:var(--text);}
+.cmd-detail .cmd-update{margin-top:25px;padding:17px;border-radius:14px;background:#0c0f13;border:1px solid #252a31;display:flex;gap:14px;}
+.cmd-detail .cmd-icon{width:38px;height:38px;border-radius:11px;background:rgba(70,211,154,.1);color:var(--green);display:grid;place-items:center;flex:none;font-weight:800;}
+.cmd-detail .cmd-update strong{font-size:14px;}
+.cmd-detail .cmd-update p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.55;}
+.cmd-detail .cmd-action{margin-top:20px;border:1px solid rgba(242,166,90,.35);background:rgba(242,166,90,.055);border-radius:16px;padding:20px;}
+.cmd-detail .cmd-action .cmd-icon{background:rgba(242,166,90,.1);color:var(--orange);}
+.cmd-detail .cmd-action-gold{border-color:rgba(220,163,74,.45);background:rgba(220,163,74,.06);}
+.cmd-detail .cmd-action-gold .cmd-icon{background:rgba(220,163,74,.12);color:var(--gold2);}
+.cmd-detail .cmd-action-blue{border-color:rgba(105,167,255,.35);background:rgba(105,167,255,.05);}
+.cmd-detail .cmd-action-blue .cmd-icon{background:rgba(105,167,255,.1);color:var(--blue);}
+.cmd-detail .cmd-action-head{display:flex;gap:12px;}
+.cmd-detail .cmd-action strong{font-size:15px;}
+.cmd-detail .cmd-action p{color:#c7cbd2;font-size:13px;line-height:1.6;}
+.cmd-detail .cmd-btn{border:0;border-radius:10px;background:var(--gold);color:#111;font-weight:800;padding:11px 15px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:13px;text-decoration:none;}
+.cmd-detail .cmd-btn:hover{background:var(--gold2);}
+.cmd-detail .cmd-btn:disabled{opacity:.55;cursor:not-allowed;}
+.cmd-detail .cmd-btn-ghost{background:transparent;border:1px solid var(--line);color:var(--text);font-weight:600;}
+.cmd-detail .cmd-btn-ghost:hover{border-color:var(--gold);color:var(--gold2);}
+.cmd-detail .cmd-btn-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px;}
+.cmd-detail .cmd-response{display:none;margin-top:18px;}
+.cmd-detail .cmd-response.show{display:block;}
+.cmd-detail .cmd-response textarea,.cmd-detail .cmd-pay-form textarea{width:100%;margin:8px 0 14px;background:#0b0e12;border:1px solid #2b3038;color:var(--text);border-radius:10px;padding:12px;min-height:100px;resize:vertical;}
+.cmd-detail .cmd-response input,.cmd-detail .cmd-pay-form input,.cmd-detail .cmd-pay-form select{width:100%;margin:8px 0 14px;background:#0b0e12;border:1px solid #2b3038;color:var(--text);border-radius:10px;padding:12px;}
+.cmd-detail .cmd-timeline{margin-top:22px;}
+.cmd-detail .cmd-event{display:grid;grid-template-columns:24px 1fr;gap:14px;padding:18px 0;border-bottom:1px solid #20252c;}
+.cmd-detail .cmd-event:last-child{border-bottom:0;}
+.cmd-detail .cmd-rail{position:relative;}
+.cmd-detail .cmd-rail:after{content:"";position:absolute;left:11px;top:24px;bottom:-24px;width:1px;background:#30353d;}
+.cmd-detail .cmd-event:last-child .cmd-rail:after{display:none;}
+.cmd-detail .cmd-bubble{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;background:#1c2229;border:1px solid #3a414b;color:var(--blue);}
+.cmd-detail .cmd-event.success .cmd-bubble{color:var(--green);border-color:rgba(70,211,154,.45);}
+.cmd-detail .cmd-event.problem .cmd-bubble{color:var(--red);border-color:rgba(255,107,107,.45);}
+.cmd-detail .cmd-event-top{display:flex;justify-content:space-between;gap:12px;}
+.cmd-detail .cmd-event-title{font-weight:700;font-size:14px;}
+.cmd-detail .cmd-time{font-size:11px;color:var(--muted);white-space:nowrap;}
+.cmd-detail .cmd-tag{display:inline-block;margin-top:7px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
+.cmd-detail .cmd-event p{margin:7px 0 0;color:#aeb4be;font-size:13px;line-height:1.55;}
+.cmd-detail .cmd-side{display:flex;flex-direction:column;gap:22px;}
+.cmd-detail .cmd-info-row{display:flex;justify-content:space-between;gap:15px;padding:13px 0;border-bottom:1px solid #22272e;font-size:13px;}
+.cmd-detail .cmd-info-row:last-child{border-bottom:0;}
+.cmd-detail .cmd-info-row span{color:var(--muted);}
+.cmd-detail .cmd-delivery{font-size:27px;font-weight:800;color:var(--gold2);margin-top:15px;}
+.cmd-detail .cmd-notify{padding:14px 0;border-bottom:1px solid #22272e;}
+.cmd-detail .cmd-notify:last-child{border-bottom:0;}
+.cmd-detail .cmd-notify b{font-size:13px;}
+.cmd-detail .cmd-notify p{margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.45;}
+.cmd-detail .cmd-back{display:inline-flex;margin-top:25px;color:var(--muted);font-size:13px;text-decoration:none;}
+.cmd-detail .cmd-back:hover{color:var(--text);}
+.cmd-detail .cmd-tranches{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0;}
+.cmd-detail .cmd-tranche{background:#0c0f13;border:1px solid #252a31;border-radius:14px;padding:16px;}
+.cmd-detail .cmd-tranche.paid{border-color:rgba(70,211,154,.4);}
+.cmd-detail .cmd-tranche.active{border-color:rgba(220,163,74,.55);box-shadow:0 0 0 1px rgba(220,163,74,.25);}
+.cmd-detail .cmd-tranche-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;}
+.cmd-detail .cmd-tranche-amount{font-size:22px;font-weight:800;color:var(--gold2);margin:0 0 6px;}
+.cmd-detail .cmd-tranche-desc{font-size:12px;color:var(--muted);margin:0;line-height:1.5;}
+.cmd-detail .cmd-tranche-ref{font-size:11px;color:var(--muted);font-family:monospace;margin:6px 0 0;}
+.cmd-detail .cmd-pill{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:100px;background:#1c2229;color:var(--muted);border:1px solid #3a414b;white-space:nowrap;text-transform:none;letter-spacing:0;}
+.cmd-detail .cmd-pill.ok{background:rgba(70,211,154,.12);color:var(--green);border-color:rgba(70,211,154,.35);}
+.cmd-detail .cmd-pill.ko{background:rgba(255,107,107,.12);color:var(--red);border-color:rgba(255,107,107,.35);}
+.cmd-detail .cmd-pill.wait{background:rgba(220,163,74,.12);color:var(--gold2);border-color:rgba(220,163,74,.35);}
+.cmd-detail .cmd-addon-row{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid #20252c;font-size:13px;}
+.cmd-detail .cmd-addon-row p{margin:4px 0 0;color:var(--muted);font-size:12px;}
+.cmd-detail .cmd-addon-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.cmd-detail .cmd-form-status{font-size:12px;color:var(--gold2);}
+.cmd-detail .cmd-pay-form{margin-top:6px;}
+.cmd-detail .cmd-loading{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;font-size:18px;color:var(--gold);}
+.cmd-detail .cmd-error-text{color:var(--red);font-size:18px;}
+.cmd-detail .cmd-back.cmd-back{font-size:16px;}
+@media(max-width:900px){.cmd-detail .cmd-grid{grid-template-columns:1fr;}.cmd-detail .cmd-side{display:grid;grid-template-columns:1fr 1fr;}.cmd-detail .cmd-steps{grid-template-columns:repeat(3,1fr);gap:20px;}.cmd-detail .cmd-step:not(:last-child):after{display:none;}.cmd-detail .cmd-tranches{grid-template-columns:1fr;}}
+@media(max-width:620px){.cmd-detail .cmd-top{height:64px;padding:0 20px;}.cmd-detail .cmd-nav{display:none;}.cmd-detail .cmd-user span{display:none;}.cmd-detail .cmd-wrap{padding:25px 18px 50px;}.cmd-detail .cmd-order-head{flex-direction:column;}.cmd-detail .cmd-card{padding:18px;border-radius:16px;}.cmd-detail .cmd-steps{grid-template-columns:repeat(2,1fr);}.cmd-detail .cmd-side{display:flex;}.cmd-detail .cmd-event-top{flex-direction:column;gap:4px;}.cmd-detail .cmd-title{font-size:32px;}}
 `;

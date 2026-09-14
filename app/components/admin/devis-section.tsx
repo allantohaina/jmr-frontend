@@ -382,12 +382,20 @@ export function DevisSection() {
                   <p className="line-clamp-2 text-xs leading-6 text-[#FFB42D]/60">
                     {quote.message || "—"}
                   </p>
-                  {typeof quote.amount === "number" ||
-                  (typeof quote.amount === "string" && quote.amount !== "") ? (
+                  {quote.amount != null &&
+                  quote.amount !== "" &&
+                  Number(quote.amount) > 0 ? (
                     <p className="mt-3 text-sm font-bold text-[#FFB42D]">
                       {Number(quote.amount).toLocaleString()} Ar
                     </p>
-                  ) : null}
+                  ) : (
+                    <Link
+                      href={`/backoffice/devis/edit?id=${quote.id}`}
+                      className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#FFB42D]/70 hover:text-[#FFB42D]"
+                    >
+                      Voir détail <ChevronRight className="h-3.5 w-3.5" />
+                    </Link>
+                  )}
                   <div className="mt-5 flex flex-wrap items-center gap-3">
                     <Link
                       href={`/backoffice/devis/edit?id=${quote.id}`}
@@ -493,16 +501,20 @@ export function DevisSection() {
                           </p>
                         </td>
                         <td className="px-8 py-6">
-                          {typeof quote.amount === "number" ||
-                          (typeof quote.amount === "string" &&
-                            quote.amount !== "") ? (
+                          {quote.amount != null &&
+                          quote.amount !== "" &&
+                          Number(quote.amount) > 0 ? (
                             <p className="text-sm font-bold text-[#FFB42D]">
                               {Number(quote.amount).toLocaleString()} Ar
                             </p>
                           ) : (
-                            <span className="text-[10px] text-[#FFB42D]/30">
-                              —
-                            </span>
+                            <Link
+                              href={`/backoffice/devis/edit?id=${quote.id}`}
+                              className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/70 hover:text-[#FFB42D]"
+                            >
+                              Voir détail
+                              <ChevronRight className="h-3.5 w-3.5" />
+                            </Link>
                           )}
                         </td>
                         <td className="px-8 py-6">
