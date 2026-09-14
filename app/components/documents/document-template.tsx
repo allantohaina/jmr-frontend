@@ -5,6 +5,7 @@ const labels: Record<DocumentKind, string> = {
   purchase_order: "Bon de commande",
   delivery_note: "Bon de livraison",
   invoice: "Facture",
+  proforma: "Facture proforma",
 };
 
 const statusTone: Record<string, string> = {

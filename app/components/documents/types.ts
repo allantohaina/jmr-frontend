@@ -1,4 +1,4 @@
-export type DocumentKind = "quote" | "purchase_order" | "delivery_note" | "invoice";
+export type DocumentKind = "quote" | "purchase_order" | "delivery_note" | "invoice" | "proforma";
 
 export type DocumentLineItem = {
   description: string;

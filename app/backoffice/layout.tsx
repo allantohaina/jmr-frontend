@@ -44,6 +44,7 @@ const clientItems = [
 const atelierItems = [
   { href: "/backoffice/demandes", label: "Demandes client", icon: MessageSquare },
   { href: "/backoffice/devis", label: "Cotations / Devis", icon: FileText },
+  { href: "/backoffice/proformas", label: "Proformas", icon: Receipt },
   { href: "/backoffice/orders", label: "Commandes", icon: Package },
   { href: "/backoffice/matieres", label: "Matières premières", icon: Boxes },
   { href: "/backoffice/produits", label: "Fiches produits", icon: Wrench },

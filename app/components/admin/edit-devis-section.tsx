@@ -227,6 +227,7 @@ export function EditDevisSection({ id }: { id: string }) {
   const [balancePaid, setBalancePaid] = useState(false);
   const [savingSignature, setSavingSignature] = useState(false);
   const [confirmationDays, setConfirmationDays] = useState(7);
+  const [generatingProforma, setGeneratingProforma] = useState(false);
   const [formDeliveryDate, setFormDeliveryDate] = useState("");
 
   useEffect(() => {
@@ -506,6 +507,28 @@ export function EditDevisSection({ id }: { id: string }) {
       setSavingSignature(false);
     }
   }
+
+  const handleGenerateProforma = async () => {
+    if (!quote) return;
+    setGeneratingProforma(true);
+    setNotice(null);
+    try {
+      const res = await authAPI.post<{ data?: { id: string; number?: string }; id?: string; number?: string }>(`/proformas/from-quote/${id}`, {});
+      const d = res.data as { data?: { id: string; number?: string }; id?: string; number?: string };
+      const pid = d?.data?.id ?? d?.id;
+      const pnum = d?.data?.number ?? d?.number ?? "";
+      if (pid) {
+        setNotice({ tone: "success", message: `Proforma ${pnum} générée.` });
+        window.location.href = `/backoffice/proformas?id=${pid}`;
+      } else {
+        setNotice({ tone: "danger", message: "Proforma créée mais ID introuvable." });
+      }
+    } catch (e) {
+      setNotice({ tone: "danger", message: e instanceof Error ? e.message : "Génération impossible (devis non chiffré ?)." });
+    } finally {
+      setGeneratingProforma(false);
+    }
+  };
 
   const handleCreateOrder = async () => {
     if (!quote || quote.status !== "accepted") return;
@@ -885,8 +908,28 @@ export function EditDevisSection({ id }: { id: string }) {
           {/* Onglet Aperçu — même document A4 qu'avant, inchangé */}
           <div className={`eqd-panel${activeTab === "apercu" ? " active" : ""}`} role="tabpanel">
             <div className="eqd-card">
-              <h2>Aperçu du document A4</h2>
-              <p className="card-sub">Généré à partir des lignes saisies dans l&apos;onglet Tarification.</p>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+                <div>
+                  <h2>Aperçu du document A4</h2>
+                  <p className="card-sub">Généré à partir des lignes saisies dans l&apos;onglet Tarification.</p>
+                </div>
+                <Link
+                  href={`/backoffice/devis/proforma?id=${quote.id}`}
+                  className="eqd-btn ghost"
+                  style={{ textDecoration: "none", fontSize: 12, padding: "9px 14px", flex: "0 0 auto" }}
+                >
+                  Aperçu rapide →
+                </Link>
+                <button
+                  type="button"
+                  className="eqd-btn"
+                  style={{ fontSize: 12, padding: "9px 14px", flex: "0 0 auto" }}
+                  disabled={generatingProforma}
+                  onClick={handleGenerateProforma}
+                >
+                  {generatingProforma ? "Génération…" : "Générer la proforma PRO →"}
+                </button>
+              </div>
               <TextileDocument kind="quote" {...quoteToQuoteDoc(previewQuote)} />
               <div className="print:hidden max-w-[210mm] mx-auto" style={{ marginTop: 24 }}>
                 {savingSignature ? (
