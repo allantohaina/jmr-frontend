@@ -40,14 +40,12 @@ function Editable({
 
 export function DevisEditor() {
   const [lines, setLines] = useState<LineItem[]>([
-    { id: 1, qty: 300, price: 18000 },
-    { id: 2, qty: 300, price: 3500 },
-    { id: 3, qty: 1, price: 250000 },
+    { id: 1, qty: 1, price: 0 },
   ]);
   const [discountPct, setDiscountPct] = useState(0);
   const [vatPct, setVatPct] = useState(20);
   const [logo, setLogo] = useState<string | null>(null);
-  const nextIdRef = useRef(4);
+  const nextIdRef = useRef(2);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
   const { rates, isLoading } = useExchangeRate("USD", "MGA,EUR");
@@ -192,8 +190,8 @@ export function DevisEditor() {
           </div>
           <div className="px-8 py-6 md:px-12 md:py-7">
             <Editable as="div" initial="Destinataire" className="mb-2.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-[#6f8292]" />
-            <Editable as="div" initial="Allan Tohaina" placeholder="Nom du client" className="mb-1.5 min-h-[20px] text-[15px] font-semibold text-[#172d42]" />
-            <Editable as="div" initial="allantohaina2@gmail.com&#10;+261 34 608 8600&#10;Réf. demande #0ea30a18" placeholder="Email, téléphone" className="min-h-[20px] text-[13px] leading-[1.8] whitespace-pre-line text-[#40566a]" />
+            <Editable as="div" initial="" placeholder="Nom du client" className="mb-1.5 min-h-[20px] text-[15px] font-semibold text-[#172d42]" />
+            <Editable as="div" initial="" placeholder="Email, téléphone" className="min-h-[20px] text-[13px] leading-[1.8] whitespace-pre-line text-[#40566a]" />
           </div>
         </div>
 
@@ -228,30 +226,18 @@ export function DevisEditor() {
               </tr>
             </thead>
             <tbody>
-              {lines.map((line, index) => (
+              {lines.map((line) => (
                 <tr key={line.id} className="border-b border-[#172d42]/10 align-top text-[13.5px]">
                   <td className="py-3.5 pr-1">
                     <Editable
                       as="div"
-                      initial={
-                        index === 0
-                          ? "Sweat-shirt / Hoodie oversize — coton 180g/m²"
-                          : index === 1
-                            ? "Broderie logo"
-                            : "Frais de préparation atelier"
-                      }
+                      initial=""
                       placeholder="Désignation"
                       className="mb-0.5 min-h-[18px] font-semibold text-[#172d42]"
                     />
                     <Editable
                       as="div"
-                      initial={
-                        index === 0
-                          ? "Coupe oversize, style casual, taille XL, gabarit standard."
-                          : index === 1
-                            ? "Finition brodée, emplacement à définir avec le client."
-                            : "Patronage, échantillon de validation, mise en production."
-                      }
+                      initial=""
                       placeholder="Détail, précisions"
                       className="min-h-[16px] text-[12.5px] leading-[1.5] text-[#6f8292]"
                     />
@@ -337,7 +323,7 @@ export function DevisEditor() {
           <div>
             <Editable as="h4" initial="Conditions de paiement" className="mb-2 text-[12.5px] font-bold tracking-[0.01em] text-[#172d42]" />
             <ul contentEditable suppressContentEditableWarning data-placeholder="Modifie les conditions" className="list-none p-0 text-[12.5px] leading-[1.9] text-[#40566a]">
-              <li>— Acompte de 40% à la commande</li>
+              <li>— Acompte à la commande</li>
               <li>— Solde à la livraison</li>
               <li>— Paiement par virement ou Mobile Money</li>
             </ul>
@@ -345,8 +331,8 @@ export function DevisEditor() {
           <div>
             <Editable as="h4" initial="Délais et livraison" className="mb-2 text-[12.5px] font-bold tracking-[0.01em] text-[#172d42]" />
             <ul contentEditable suppressContentEditableWarning data-placeholder="Modifie les délais" className="list-none p-0 text-[12.5px] leading-[1.9] text-[#40566a]">
-              <li>— Production estimée à 6 semaines après acompte</li>
-              <li>— Livraison souhaitée avant le 3 juillet 2027</li>
+              <li>— Production après acompte</li>
+              <li>— Livraison à définir avec le client</li>
               <li>— Échantillon validé avant lancement série</li>
             </ul>
           </div>

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FileText, Download, Maximize2, Ruler, Scissors, Shirt } from "lucide-react";
+import { authAPI } from "@/app/lib/api";
 
 interface TechSheet {
   id: string;
@@ -13,41 +14,59 @@ interface TechSheet {
   specs: { label: string; value: string }[];
 }
 
+type CommandeSheet = {
+  id: string;
+  numero?: string;
+  designation?: string;
+  quantite?: number;
+  statut_production?: string;
+  client_first_name?: string;
+  client_email?: string;
+  created_at?: string;
+  date_livraison_prevue?: string;
+};
+
 export function AtelierTechnicalSheets() {
   const [selectedSheet, setSelectedSheet] = useState<TechSheet | null>(null);
+  const [sheets, setSheets] = useState<TechSheet[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const sheets: TechSheet[] = [
-    {
-      id: "TS-104",
-      orderId: "#CMD-104",
-      client: "Maison Haussmann",
-      product: "Polo Coton Piqué",
-      date: "24/03/2026",
-      image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820?q=80&w=400&auto=format&fit=crop",
-      specs: [
-        { label: "Matière", value: "100% Coton Bio" },
-        { label: "Grammage", value: "220g/m²" },
-        { label: "Couleur", value: "Bleu Marine (PANTONE 19-4023)" },
-        { label: "Tailles", value: "S to XXL" },
-        { label: "Finition", value: "Col tricoté, Boutons nacre" }
-      ]
-    },
-    {
-      id: "TS-105",
-      orderId: "#CMD-105",
-      client: "Atelier Granville",
-      product: "Chemise Lin Homme",
-      date: "22/03/2026",
-      image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=400&auto=format&fit=crop",
-      specs: [
-        { label: "Matière", value: "100% Lin Français" },
-        { label: "Grammage", value: "160g/m²" },
-        { label: "Couleur", value: "Blanc Optique" },
-        { label: "Coupe", value: "Ajustée" },
-        { label: "Boutons", value: "Bois Olivier" }
-      ]
-    }
-  ];
+  useEffect(() => {
+    let active = true;
+    const fetchSheets = async () => {
+      setIsLoading(true);
+      try {
+        const res = await authAPI.get<CommandeSheet[]>("/commandes");
+        if (!active) return;
+        const list: CommandeSheet[] = Array.isArray(res.data) ? res.data : [];
+        setSheets(
+          list.slice(0, 20).map((c) => ({
+            id: String(c.id),
+            orderId: c.numero ? `#${c.numero}` : `#${c.id}`,
+            client: c.client_first_name || c.client_email || "Client",
+            product: c.designation || "Sans désignation",
+            date: (c.created_at || "").slice(0, 10),
+            image: "",
+            specs: [
+              { label: "Quantité", value: String(c.quantite ?? "—") },
+              { label: "Statut", value: c.statut_production || "—" },
+              ...(c.date_livraison_prevue
+                ? [{ label: "Livraison prévue", value: c.date_livraison_prevue.slice(0, 10) }]
+                : []),
+            ],
+          }))
+        );
+      } catch (error) {
+        console.error("Erreur chargement fiches techniques:", error);
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    };
+    fetchSheets();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -59,6 +78,12 @@ export function AtelierTechnicalSheets() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* List */}
         <div className="lg:col-span-1 space-y-4">
+          {isLoading ? (
+            <p className="text-sm text-[#FFB42D]/40 italic">Chargement des fiches…</p>
+          ) : sheets.length === 0 ? (
+            <p className="text-sm text-[#FFB42D]/40 italic">Aucune fiche technique pour le moment.</p>
+          ) : (
+          <>
           {sheets.map(sheet => (
             <button
               key={sheet.id}
@@ -81,18 +106,19 @@ export function AtelierTechnicalSheets() {
               </p>
             </button>
           ))}
+          </>
+          )}
         </div>
 
         {/* Details */}
         <div className="lg:col-span-2">
           {selectedSheet ? (
             <div className="bg-[#25303a] rounded-[2.5rem] border border-[#FFB42D]/5 shadow-sm overflow-hidden animate-in slide-in-from-right-4 duration-500">
-              <div className="relative h-64 bg-[#1e2a38]">
-                <img src={selectedSheet.image} alt={selectedSheet.product} className="w-full h-full object-cover opacity-60" />
+              <div className="relative h-48 bg-[#1e2a38]">
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1e2a38] to-transparent" />
                 <div className="absolute bottom-8 left-8 text-[#FFB42D]">
                   <h3 className="font-headline text-3xl mb-1 text-[#FFB42D]">{selectedSheet.product}</h3>
-                  <p className="text-[10px] uppercase tracking-widest font-bold opacity-80">{selectedSheet.id} • Mis à jour le {selectedSheet.date}</p>
+                  <p className="text-[10px] uppercase tracking-widest font-bold opacity-80">{selectedSheet.orderId}{selectedSheet.date ? ` • ${selectedSheet.date}` : ""}</p>
                 </div>
                 <button className="absolute top-6 right-6 p-3 bg-white/5 backdrop-blur-md rounded-xl text-white hover:bg-white/10 transition-all border border-white/10">
                   <Download className="w-5 h-5 text-[#FFB42D]" />
@@ -122,18 +148,7 @@ export function AtelierTechnicalSheets() {
                       <Ruler className="w-3 h-3" /> Guide des Mesures
                     </h4>
                     <div className="p-6 bg-[#1e2a38] rounded-3xl space-y-4 border border-[#FFB42D]/5">
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="font-medium text-[#FFB42D]/40 text-[10px] uppercase tracking-widest">Tour de poitrine</span>
-                        <span className="font-bold text-[#FFB42D]">52 cm (± 1cm)</span>
-                      </div>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="font-medium text-[#FFB42D]/40 text-[10px] uppercase tracking-widest">Longueur dos</span>
-                        <span className="font-bold text-[#FFB42D]">70 cm</span>
-                      </div>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="font-medium text-[#FFB42D]/40 text-[10px] uppercase tracking-widest">Manches</span>
-                        <span className="font-bold text-[#FFB42D]">22 cm</span>
-                      </div>
+                      <p className="text-xs text-[#FFB42D]/40 italic">Mesures issues de la fiche client — voir Fiche mesures.</p>
                     </div>
                   </div>
                   

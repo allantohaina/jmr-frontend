@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { CheckSquare, Square, ShieldCheck, Camera, Send, AlertCircle } from "lucide-react";
 import { useToast } from "@/app/components";
+import { authAPI } from "@/app/lib/api";
 
 interface QCStep {
   id: number;
@@ -31,7 +32,7 @@ export function AtelierQC() {
 
   const progress = (steps.filter(s => s.checked).length / steps.length) * 100;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!orderId) {
       showToast("Veuillez entrer un numéro de commande", "error");
@@ -43,12 +44,17 @@ export function AtelierQC() {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await authAPI.post("/checklists/initialize-command", { project_id: orderId });
       showToast(`Contrôle Qualité validé pour ${orderId}`, "success");
       setOrderId("");
       setSteps(prev => prev.map(s => ({ ...s, checked: false })));
-    }, 1500);
+    } catch (error) {
+      console.error("Erreur validation QC:", error);
+      showToast("Impossible d'enregistrer le contrôle qualité", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

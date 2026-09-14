@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AtelierCheckIn } from "./AtelierCheckIn";
@@ -11,6 +11,7 @@ import { AtelierQC } from "./AtelierQC";
 import { useToast } from "@/app/components";
 import { signOutClient } from "@/app/lib/auth-client";
 import { useInactivityLogout } from "@/app/lib/use-inactivity-logout";
+import { authAPI } from "@/app/lib/api";
 import { 
   Factory, 
   Clock, 
@@ -29,12 +30,22 @@ import {
 type View = "dashboard" | "stock" | "tech-sheets" | "qc" | "history";
 
 type ProductionLine = {
-  id: number;
+  id: string;
   name: string;
   status: string;
   order: string;
   progress: number;
   issues: string[];
+};
+
+type CommandeAtelier = {
+  id: string;
+  numero?: string;
+  designation?: string;
+  statut_production?: string;
+  pieces_produites?: number;
+  quantite?: number;
+  en_retard?: boolean;
 };
 
 export default function AtelierClient() {
@@ -53,28 +64,70 @@ export default function AtelierClient() {
       setIsSigningOut(false);
     }
   }
-  const [productionLines, setProductionLines] = useState<ProductionLine[]>([
-    { id: 1, name: "Ligne A - Polos", status: "en_cours", order: "#CMD-104", progress: 65, issues: [] },
-    { id: 2, name: "Ligne B - Chemises", status: "probleme", order: "#CMD-105", progress: 30, issues: ["Machine #4 en panne"] },
-    { id: 3, name: "Ligne C - Vestes", status: "termine", order: "#CMD-103", progress: 100, issues: [] },
-  ]);
+  const [productionLines, setProductionLines] = useState<ProductionLine[]>([]);
+  const [isLoadingLines, setIsLoadingLines] = useState(true);
 
-  const reportIssue = (lineId: number) => {
+  useEffect(() => {
+    let active = true;
+    const fetchLines = async () => {
+      setIsLoadingLines(true);
+      try {
+        const res = await authAPI.get<CommandeAtelier[]>("/commandes");
+        if (!active) return;
+        const list: CommandeAtelier[] = Array.isArray(res.data) ? res.data : [];
+        setProductionLines(
+          list
+            .filter((c) => c.statut_production !== "Livrée")
+            .slice(0, 6)
+            .map((c) => {
+              const qty = Number(c.quantite ?? 0);
+              const done = Number(c.pieces_produites ?? 0);
+              return {
+                id: String(c.id),
+                name: c.designation || "Commande sans désignation",
+                status: c.en_retard ? "probleme" : "en_cours",
+                order: c.numero ? `#${c.numero}` : `#${c.id}`,
+                progress: qty > 0 ? Math.min(100, Math.round((done / qty) * 100)) : 0,
+                issues: c.en_retard ? ["Commande en retard"] : [],
+              };
+            })
+        );
+      } catch (error) {
+        console.error("Erreur chargement lignes atelier:", error);
+      } finally {
+        if (active) setIsLoadingLines(false);
+      }
+    };
+    fetchLines();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const reportIssue = (lineId: string) => {
     const motive = prompt("Quelle est la cause du problème ? (Ex: Machine cassée, Manque de fil)");
     if (!motive) return;
 
-    setProductionLines(lines => lines.map(line => 
+    setProductionLines(lines => lines.map(line =>
       line.id === lineId ? { ...line, status: "probleme", issues: [...line.issues, motive] } : line
     ));
     showToast("L'admin a été notifié du problème : " + motive, "warning");
   };
 
-  const markAsFinished = (lineId: number) => {
-    setProductionLines(lines => lines.map(line => 
+  const markAsFinished = async (lineId: string) => {
+    setProductionLines(lines => lines.map(line =>
       line.id === lineId ? { ...line, status: "termine", progress: 100 } : line
     ));
-    showToast("Notification envoyée à l'admin : Production terminée !", "success");
+    try {
+      await authAPI.put(`/commandes/${lineId}`, { statut_production: "Livrée" });
+      showToast("Notification envoyée à l'admin : Production terminée !", "success");
+    } catch {
+      showToast("Production marquée localement, synchronisation à vérifier", "warning");
+    }
   };
+
+  const nbTerminees = productionLines.filter((l) => l.status === "termine").length;
+  const nbProblemes = productionLines.filter((l) => l.status === "probleme").length;
 
   return (
     <div className="min-h-screen bg-[#1e2a38] font-body text-[#FFB42D]">
@@ -154,7 +207,7 @@ export default function AtelierClient() {
                 OP
               </div>
               <div>
-                <p className="text-xs font-bold text-[#FFB42D]">Opérateur #12</p>
+                <p className="text-xs font-bold text-[#FFB42D]">Opérateur Atelier</p>
                 <p className="text-[9px] uppercase tracking-widest text-[#FFB42D]/40">Atelier Principal</p>
               </div>
             </div>
@@ -187,16 +240,21 @@ export default function AtelierClient() {
                   </div>
                   <div className="flex gap-4">
                     <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-full text-[10px] font-bold uppercase border border-green-500/20">
-                      <CheckCircle className="w-3 h-3" /> 1 Terminé
+                      <CheckCircle className="w-3 h-3" /> {nbTerminees} Terminé
                     </div>
                     <div className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-400 rounded-full text-[10px] font-bold uppercase border border-red-500/20">
-                      <AlertTriangle className="w-3 h-3" /> 1 Problème
+                      <AlertTriangle className="w-3 h-3" /> {nbProblemes} Problème
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {productionLines.map(line => (
+                  {isLoadingLines ? (
+                    <p className="text-sm text-[#FFB42D]/40 italic">Chargement des commandes en cours…</p>
+                  ) : productionLines.length === 0 ? (
+                    <p className="text-sm text-[#FFB42D]/40 italic md:col-span-2">Aucune commande en cours pour le moment.</p>
+                  ) : (
+                  productionLines.map(line => (
                     <div key={line.id} className="bg-[#25303a] p-8 rounded-[2rem] shadow-sm border border-[#FFB42D]/5 space-y-6 group hover:shadow-2xl transition-all duration-500">
                       <div className="flex justify-between items-start">
                         <div>
@@ -249,7 +307,8 @@ export default function AtelierClient() {
                         </button>
                       </div>
                     </div>
-                  ))}
+                  ))
+                  )}
                 </div>
               </section>
 

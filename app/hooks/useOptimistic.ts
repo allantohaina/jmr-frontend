@@ -49,6 +49,7 @@ export function useOptimistic<T, TResult = unknown>({
   
   return {
     data,
+    setData,
     updateOptimistic,
     isPending: () => pendingActionsRef.current.size > 0,
     rollback: useCallback(() => {

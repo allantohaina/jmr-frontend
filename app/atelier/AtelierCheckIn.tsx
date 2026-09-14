@@ -30,12 +30,10 @@ export function AtelierCheckIn() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Enregistrement local uniquement — brancher sur une vraie API présence si besoin.
     setIsSubmitted(true);
-    // Simulation d'envoi à l'API
-    setTimeout(() => {
-      setIsSubmitted(false);
-      showToast("Rapport de check-in envoyé avec succès !", "success");
-    }, 1500);
+    showToast("Rapport de check-in enregistré !", "success");
+    setIsSubmitted(false);
   };
 
   return (

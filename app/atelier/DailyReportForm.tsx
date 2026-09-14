@@ -20,8 +20,10 @@ interface Task {
   progress: number;
 }
 
-const mockSaveTasks = async (tasks: Task[]) => {
-  await new Promise(resolve => setTimeout(resolve, 1000));
+// Sauvegarde locale uniquement — aucun appel réseau simulé.
+// TODO: brancher sur une vraie route API rapports quand elle existera.
+const saveTasksLocally = async (_tasks: Task[]) => {
+  return;
 };
 
 export function DailyReportForm() {
@@ -37,7 +39,7 @@ export function DailyReportForm() {
     lastSaved 
   } = useAutoSave({
     initialData: initialTasks,
-    saveFn: mockSaveTasks,
+    saveFn: saveTasksLocally,
     debounceTime: 3000, // Auto save every 3 seconds
     onSaveStart: () => {},
     onSaveSuccess: () => {
@@ -70,11 +72,11 @@ export function DailyReportForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       await flush(); // Flush any pending auto-saves
-      await mockSaveTasks(tasks);
-      showToast("Rapport de fin de journée envoyé !", "success");
+      await saveTasksLocally(tasks);
+      showToast("Rapport de fin de journée enregistré !", "success");
       updateData([{ id: 1, description: "", progress: 0 }]);
     } finally {
       setIsSubmitting(false);

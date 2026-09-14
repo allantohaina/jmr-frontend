@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { Package, Search, Plus, Minus, AlertTriangle } from "lucide-react";
 import { useToast } from "@/app/components";
 import { debounce } from "@/app/lib/utils";
 import { useOptimistic } from "@/app/hooks/useOptimistic";
+import { matieresAPI, type MatiereRecord } from "@/app/lib/api";
 
 interface StockItem {
-  id: number;
+  id: string;
   name: string;
   category: "tissu" | "fil" | "accessoire";
   quantity: number;
@@ -15,25 +16,30 @@ interface StockItem {
   minThreshold: number;
 }
 
-// Mock save function for API
-const mockUpdateQuantity = async (id: number, newQty: number) => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-};
+function toStockItem(m: MatiereRecord): StockItem {
+  const raw = `${m.nom ?? ""} ${m.description ?? ""}`.toLowerCase();
+  const category: StockItem["category"] = raw.includes("fil")
+    ? "fil"
+    : raw.includes("bouton") || raw.includes("fermeture") || raw.includes("accessoire")
+      ? "accessoire"
+      : "tissu";
+  return {
+    id: String(m.id),
+    name: m.nom || "Sans nom",
+    category,
+    quantity: Number(m.stock_actuel ?? 0),
+    unit: m.unite || "pce",
+    minThreshold: Number(m.stock_seuil ?? 0),
+  };
+}
 
 export function AtelierStock() {
   const { showToast } = useToast();
   const [searchInput, setSearchInput] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   
-  const initialItems: StockItem[] = [
-    { id: 1, name: "Coton Bio Bleu Marine", category: "tissu", quantity: 150, unit: "mètres", minThreshold: 50 },
-    { id: 2, name: "Fil Polyester Noir #40", category: "fil", quantity: 12, unit: "bobines", minThreshold: 5 },
-    { id: 3, name: "Boutons Nacre 12mm", category: "accessoire", quantity: 1200, unit: "unités", minThreshold: 200 },
-    { id: 4, name: "Lin Naturel", category: "tissu", quantity: 30, unit: "mètres", minThreshold: 40 },
-    { id: 5, name: "Fermeture Éclair 20cm", category: "accessoire", quantity: 15, unit: "unités", minThreshold: 50 },
-  ];
-  
-  const { data: items, updateOptimistic } = useOptimistic<StockItem[]>({
-    initialData: initialItems,
+  const { data: items, updateOptimistic, setData } = useOptimistic<StockItem[]>({
+    initialData: [],
     onSuccess: () => showToast('Stock mis à jour!', 'success'),
     onError: (error, rollbackData) => {
       console.error('Update failed, rolled back', error);
@@ -41,7 +47,25 @@ export function AtelierStock() {
     }
   });
 
-  const updateQuantity = (id: number, delta: number) => {
+  const fetchStock = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await matieresAPI.list();
+      const list: MatiereRecord[] = Array.isArray(res.data?.data) ? res.data.data : [];
+      setData(list.map(toStockItem));
+    } catch (error) {
+      console.error("Erreur chargement stock atelier:", error);
+      showToast("Impossible de charger le stock", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setData, showToast]);
+
+  useEffect(() => {
+    fetchStock();
+  }, [fetchStock]);
+
+  const updateQuantity = (id: string, delta: number) => {
     const item = items.find(i => i.id === id);
     if (!item) return;
 
@@ -56,7 +80,12 @@ export function AtelierStock() {
     
     updateOptimistic(
       newItems,
-      () => mockUpdateQuantity(id, newQty)
+      () => matieresAPI.mouvement({
+        matiere_id: String(id),
+        type: delta >= 0 ? "entree" : "sortie",
+        quantite: Math.abs(delta),
+        motif: "Ajustement atelier",
+      })
     );
   };
 
@@ -90,6 +119,12 @@ export function AtelierStock() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {isLoading ? (
+          <p className="text-sm text-[#FFB42D]/40 italic md:col-span-3">Chargement du stock…</p>
+        ) : filteredItems.length === 0 ? (
+          <p className="text-sm text-[#FFB42D]/40 italic md:col-span-3">Aucune matière en stock pour le moment.</p>
+        ) : (
+        <>
         {filteredItems.map(item => (
           <div key={item.id} className="bg-[#25303a] p-6 rounded-[2rem] border border-[#FFB42D]/5 shadow-sm hover:shadow-2xl transition-all group">
             <div className="flex justify-between items-start mb-4">
@@ -132,6 +167,8 @@ export function AtelierStock() {
             </div>
           </div>
         ))}
+        </>
+        )}
       </div>
     </div>
   );
