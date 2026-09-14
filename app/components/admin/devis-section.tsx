@@ -107,8 +107,7 @@ const TABS: TabDef[] = [
   },
 ];
 
-function formatQuoteStatusLabel(status?: string | null) {
-  switch (status) {
+function formatQuoteStatusLabel(status?: string | null) {  switch (status) {
     case "draft":
       return "Brouillon";
     case "sent":
