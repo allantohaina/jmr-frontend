@@ -196,7 +196,7 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
                 <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-[#FFB42D]/50">
                   {d.produit && <span>{d.produit}</span>}
                   {d.quantite && <span>{d.quantite} pcs</span>}
-                  {d.budget && <span>{d.budget} Ar</span>}
+                  {d.budget && <span>Budget : {d.budget} Ar</span>}
                   <span className="font-mono text-[10px]">Modifié le {formatDate(d.updatedAt)}</span>
                 </div>
               </div>
@@ -286,7 +286,7 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
                 </div>
                 <div>
                   <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#FFB42D]/50">
-                    Budget indicatif (Ar)
+                    Budget envisagé (indicatif)
                   </label>
                   <input
                     type="text"
@@ -295,6 +295,9 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
                     onChange={set("budget")}
                     className={fieldCls}
                   />
+                  <p className="mt-1 text-[11px] text-[#FFB42D]/40">
+                    Simple indication — le prix définitif est fixé par l&apos;atelier lors de la cotation.
+                  </p>
                 </div>
               </div>
               <div>

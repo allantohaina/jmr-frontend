@@ -312,38 +312,23 @@ function DevisDetailContent() {
   const showPayment = quote && Number(quote.amount ?? 0) > 0;
   const showActions = quote?.status === "draft";
 
-  const defaults: Checkpoint[] = [
-    { id: "cp1", title: "Prototype validé", desc: "Le modèle final a été approuvé avant lancement de la série.", meta: `Validé par vous le ${formatDate(quote?.created_at)}`, state: "done" },
-    { id: "cp2", title: "Premier lot — contrôle qualité", desc: "L'atelier a terminé le contrôle qualité du premier lot et attend votre retour avant de poursuivre la finition du reste de la commande.", meta: "", state: "action" },
-    { id: "cp3", title: "Lot complet avant expédition", desc: "Vérification finale des pièces avant mise en livraison.", meta: "À venir", state: "upcoming" },
-  ];
+  const displayCheckpoints: Checkpoint[] = checkpoints.map((cp) => ({
+    id: cp.id,
+    title: cp.title,
+    desc: cp.description ?? "",
+    meta: cp.validated_at
+      ? `Validé par ${cp.validated_by ?? "—"} le ${formatDate(cp.validated_at)}`
+      : cp.status === "upcoming" ? "À venir" : "",
+    state: cp.status === "done" ? "done" : cp.status === "upcoming" ? "upcoming" : ("action" as const),
+  }));
 
-  const defaultAddons: Addon[] = [
-    { id: "a1", title: "Bouton doré supplémentaire", desc: "Ajout d'un second bouton en laiton doré.", price: 15000, status: "included" },
-    { id: "a2", title: "Broderie motif floral", desc: "Petit motif brodé main sur la poche.", price: 42000, status: "pending" },
-  ];
-
-  const displayCheckpoints: Checkpoint[] = checkpoints.length > 0
-    ? checkpoints.map((cp) => ({
-        id: cp.id,
-        title: cp.title,
-        desc: cp.description ?? "",
-        meta: cp.validated_at
-          ? `Validé par ${cp.validated_by ?? "—"} le ${formatDate(cp.validated_at)}`
-          : cp.status === "upcoming" ? "À venir" : "",
-        state: cp.status === "done" ? "done" : cp.status === "upcoming" ? "upcoming" : ("action" as const),
-      }))
-    : defaults;
-
-  const displayAddons: Addon[] = addons.length > 0
-    ? addons.map((a) => ({
-        id: a.id,
-        title: a.title,
-        desc: a.description ?? "",
-        price: Number(a.price ?? 0),
-        status: (a.status ?? "pending") as Addon["status"],
-      }))
-    : defaultAddons;
+  const displayAddons: Addon[] = addons.map((a) => ({
+    id: a.id,
+    title: a.title,
+    desc: a.description ?? "",
+    price: Number(a.price ?? 0),
+    status: (a.status ?? "pending") as Addon["status"],
+  }));
 
   const depositPayment = payments.find((p) => p.phase === "deposit");
   const balancePayment = payments.find((p) => p.phase === "balance");
@@ -688,7 +673,10 @@ function DevisDetailContent() {
                       <span className="hint">{displayCheckpoints.filter((c) => c.state === "action").length} en attente de votre validation</span>
                     </div>
                     <div className="checkpoint-list">
-                      {displayCheckpoints.map((cp) => (
+                      {displayCheckpoints.length === 0 ? (
+                        <div className="hl-empty" style={{ padding: "20px 0" }}>Aucune étape pour le moment — l&apos;atelier les ajoutera au fur et à mesure de l&apos;avancement.</div>
+                      ) : (
+                      displayCheckpoints.map((cp) => (
                         <div key={cp.id} className={`checkpoint-item ${cp.state}`}>
                           <div className="cp-marker">
                             {cp.state === "done" && <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12L9 17L20 6"/></svg>}
@@ -728,7 +716,7 @@ function DevisDetailContent() {
                             )}
                           </div>
                         </div>
-                      ))}
+                      )))}
                     </div>
 
                     {/* Points d'attention / Avancées */}
@@ -797,9 +785,13 @@ function DevisDetailContent() {
                     {/* Ajouts demandés */}
                     <div className="panel-header">
                       <h3>Ajouts demandés</h3>
-                      <span className="hint">+{formatNumber(sumAllAddons)} Ar au total</span>
+                      {displayAddons.length > 0 && <span className="hint">+{formatNumber(sumAllAddons)} Ar au total</span>}
                     </div>
                     <div className="addon-section">
+                      {displayAddons.length === 0 ? (
+                        <div className="hl-empty" style={{ padding: "20px 0" }}>Aucun ajout pour le moment — décrivez une modification ci-dessous, l&apos;atelier la chiffrera.</div>
+                      ) : (
+                      <>
                       {displayAddons.map((addon) => (
                         <div key={addon.id} className="addon-item">
                           <div className="addon-left">
@@ -814,10 +806,14 @@ function DevisDetailContent() {
                           </div>
                         </div>
                       ))}
+                      {totalAddons > 0 && (
                       <div className="addon-total">
                         <span>Total des ajouts validés, ajouté au solde de livraison</span>
                         <b>+{formatNumber(totalAddons)} Ar</b>
                       </div>
+                      )}
+                      </>
+                      )}
                       {addonMessage && <p className="form-status">{addonMessage}</p>}
                       <button className="addon-add-btn" onClick={() => { setAddonFormOpen(!addonFormOpen); setAddonMessage(null); }}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5V19M5 12H19"/></svg>
