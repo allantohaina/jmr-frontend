@@ -1,10 +1,9 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ProblemHierarchyPanel } from "../problem-hierarchy-panel";
 import { TEXTILE_PROBLEM_THREADS, authAPI } from "@/app/lib";
-import { DocumentPreview } from "@/app/components/document-preview";
 import { TextileDocument, AdminSignaturePanel } from "@/app/components/documents";
 import type { DocumentSignature, DocumentLineItem, TextileDocumentProps } from "@/app/components/documents/types";
 import { Loader, Printer, ShoppingCart } from "lucide-react";
@@ -17,6 +16,8 @@ type QuoteRecord = {
   email?: string | null;
   phone?: string | null;
   message?: string | null;
+  category?: string | null;
+  quantite?: string | null;
   status?: string | null;
   amount?: string | number | null;
   deposit_amount?: string | number | null;
@@ -38,6 +39,17 @@ type Notice = {
   message: string;
 } | null;
 
+type TabId = "tarif" | "client" | "statut" | "apercu";
+
+type LineRow = {
+  id: string;
+  designation: string;
+  detail: string;
+  qty: number;
+  unitPrice: number;
+  tva: number;
+};
+
 const STATUS_OPTIONS = [
   { value: "draft", label: "Brouillon" },
   { value: "pending", label: "Reçu" },
@@ -49,17 +61,14 @@ const STATUS_OPTIONS = [
   { value: "expired", label: "Expiré" },
 ];
 
+const TVA_OPTIONS = [0, 20];
+
 function normalizeText(value?: string | number | null) {
   if (value === null || value === undefined) {
     return "";
   }
 
   return String(value).trim();
-}
-
-function formatDisplayValue(value?: string | number | null, fallback = "Non renseigne") {
-  const text = normalizeText(value);
-  return text || fallback;
 }
 
 function formatStatusLabel(status?: string | null) {
@@ -81,7 +90,7 @@ function formatStatusLabel(status?: string | null) {
     case "expired":
       return "Expiré";
     default:
-      return formatDisplayValue(status, "Inconnu");
+      return normalizeText(status) || "Inconnu";
   }
 }
 
@@ -103,6 +112,10 @@ function formatAmount(value?: string | number | null) {
   return text;
 }
 
+function fmtAr(n: number) {
+  return `${Math.round(n).toLocaleString("fr-FR")} Ar`;
+}
+
 function buildStatusOptions(status?: string | null) {
   const normalizedStatus = normalizeText(status);
 
@@ -119,16 +132,83 @@ function buildStatusOptions(status?: string | null) {
   ];
 }
 
-function getInitials(value?: string | number | null) {
-  const text = normalizeText(value);
-
-  if (!text) {
-    return "DV";
-  }
-
-  const compact = text.replace(/[^a-zA-Z0-9]+/g, "");
-  return compact.slice(0, 2).toUpperCase() || "DV";
+function parseQty(raw?: string | number | null) {
+  const n = typeof raw === "number" ? raw : parseInt(String(raw ?? ""), 10);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 1;
 }
+
+function buildLinesFromQuote(q: QuoteRecord): LineRow[] {
+  const qty = parseQty(q.quantite);
+  const amount = Number(String(q.amount ?? "0").replace(/\s/g, "").replace(",", ".")) || 0;
+  return [
+    {
+      id: "ligne-1",
+      designation: q.category ? `Prestation — ${q.category}` : "Prestation de confection textile",
+      detail: q.message ? q.message.slice(0, 120) : "",
+      qty,
+      unitPrice: amount > 0 && qty > 0 ? Math.round(amount / qty) : 0,
+      tva: 20,
+    },
+  ];
+}
+
+const scopedStyles = `
+.eqd-page{max-width:900px;margin:0 auto;}
+.eqd-crumb{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,180,45,.4);margin-bottom:14px;text-decoration:none;transition:color .2s;}
+.eqd-crumb:hover{color:#FFB42D;}
+.eqd-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.eqd-head h1{font-size:22px;font-weight:600;margin:0 0 4px;color:#f3e9d6;}
+.eqd-head .ref{font-size:13px;color:#9aa7b4;}
+.eqd-badge{background:rgba(255,180,45,.12);color:#FFB42D;border:1px solid rgba(255,180,45,.35);padding:5px 14px;border-radius:20px;font-size:13px;font-weight:500;height:fit-content;white-space:nowrap;}
+.eqd-tabs{display:flex;gap:4px;border-bottom:1px solid rgba(255,180,45,.12);margin-bottom:20px;overflow-x:auto;}
+.eqd-tab{background:none;border:none;color:#9aa7b4;font-size:14px;font-weight:500;padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s;}
+.eqd-tab:hover{color:#f3e9d6;}
+.eqd-tab.active{color:#FFB42D;border-bottom-color:#FFB42D;}
+.eqd-panel{display:none;}
+.eqd-panel.active{display:block;}
+.eqd-card{background:#25303a;border:1px solid rgba(255,180,45,.1);border-radius:12px;padding:20px 22px;margin-bottom:16px;}
+.eqd-card h2{font-size:15px;font-weight:600;margin:0 0 4px;color:#f3e9d6;}
+.eqd-card .card-sub{font-size:13px;color:#9aa7b4;margin:0 0 16px;line-height:1.55;}
+.eqd-client-msg-label{font-size:12px;color:#9aa7b4;margin-bottom:8px;}
+.eqd-client-msg{background:#1e2a38;border:1px solid rgba(255,180,45,.1);border-radius:10px;padding:14px 16px;font-size:13.5px;color:#9aa7b4;line-height:1.6;}
+.eqd-table-wrap{overflow-x:auto;}
+table.eqd-lines{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px;}
+table.eqd-lines th{text-align:left;font-weight:500;color:#9aa7b4;font-size:12px;padding:0 8px 8px 0;border-bottom:1px solid rgba(255,180,45,.12);}
+table.eqd-lines td{padding:8px 8px 8px 0;border-bottom:1px solid rgba(255,180,45,.08);vertical-align:middle;color:#f3e9d6;}
+table.eqd-lines th:last-child,table.eqd-lines td:last-child{text-align:right;padding-right:0;}
+table.eqd-lines input,table.eqd-lines select{width:100%;background:#1e2a38;border:1px solid rgba(255,180,45,.15);color:#f3e9d6;border-radius:6px;padding:6px 8px;font-size:13.5px;}
+table.eqd-lines input:focus,table.eqd-lines select:focus{outline:none;border-color:#FFB42D;}
+.eqd-col-qty,.eqd-col-tva{width:70px;}
+.eqd-col-price{width:130px;}
+.eqd-col-total{width:120px;text-align:right;font-weight:500;}
+.eqd-locked .sub{display:block;font-size:11px;color:#9aa7b4;margin-top:2px;}
+.eqd-col-qty.eqd-locked{color:#9aa7b4;}
+.eqd-totals{display:flex;justify-content:flex-end;margin-top:18px;}
+.eqd-totals-box{width:240px;font-size:13.5px;}
+.eqd-totals-row{display:flex;justify-content:space-between;padding:5px 0;color:#9aa7b4;}
+.eqd-totals-row.grand{border-top:1px solid rgba(255,180,45,.15);margin-top:6px;padding-top:10px;font-size:16px;font-weight:600;color:#f3e9d6;}
+.eqd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;}
+.eqd-field label{display:block;font-size:12px;color:#9aa7b4;margin-bottom:6px;}
+.eqd-field input,.eqd-field select,.eqd-field textarea{width:100%;background:#1e2a38;border:1px solid rgba(255,180,45,.15);color:#f3e9d6;border-radius:8px;padding:9px 10px;font-size:14px;}
+.eqd-field input:focus,.eqd-field select:focus,.eqd-field textarea:focus{outline:none;border-color:#FFB42D;}
+.eqd-field textarea{resize:vertical;min-height:90px;}
+.eqd-field.full{grid-column:1/-1;}
+.eqd-readonly{background:#1e2a38;border:1px solid rgba(255,180,45,.1);border-radius:8px;padding:9px 10px;font-size:14px;color:#9aa7b4;}
+.eqd-checkline{display:flex;align-items:center;gap:8px;font-size:13.5px;color:#9aa7b4;margin-top:6px;}
+.eqd-checkline input{width:auto;accent-color:#FFB42D;}
+.eqd-actionbar{position:sticky;bottom:16px;display:flex;gap:10px;background:#25303a;border:1px solid rgba(255,180,45,.2);border-radius:12px;padding:12px;margin-top:8px;z-index:10;}
+.eqd-btn{flex:1;padding:11px 16px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid rgba(255,180,45,.2);background:#1e2a38;color:#f3e9d6;transition:background .2s;}
+.eqd-btn:hover:not(:disabled){background:rgba(255,180,45,.1);}
+.eqd-btn:disabled{opacity:.5;cursor:not-allowed;}
+.eqd-btn.primary{background:#FFB42D;border-color:#FFB42D;color:#1a1300;font-weight:600;}
+.eqd-btn.primary:hover:not(:disabled){filter:brightness(1.07);background:#FFB42D;}
+.eqd-btn.ghost{flex:0 0 auto;background:none;}
+.eqd-notice{padding:14px 16px;border-radius:12px;border:1px solid;font-size:12px;font-weight:600;margin-bottom:16px;}
+.eqd-notice.success{background:rgba(31,132,87,.1);border-color:rgba(31,132,87,.3);color:#5fd39a;}
+.eqd-notice.danger{background:rgba(177,66,85,.1);border-color:rgba(177,66,85,.3);color:#f0869a;}
+.eqd-validated{padding:14px 16px;border-radius:12px;border:1px solid rgba(31,132,87,.3);background:rgba(31,132,87,.1);color:#5fd39a;font-size:12px;font-weight:600;margin-bottom:16px;}
+@media(max-width:640px){.eqd-grid{grid-template-columns:1fr;}.eqd-actionbar{flex-direction:column;}}
+`;
 
 export function EditDevisSection({ id }: { id: string }) {
   const { showToast } = useToast();
@@ -138,8 +218,9 @@ export function EditDevisSection({ id }: { id: string }) {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [notice, setNotice] = useState<Notice>(null);
   const [reloadIndex, setReloadIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState<TabId>("tarif");
+  const [lines, setLines] = useState<LineRow[]>([]);
   const [formStatus, setFormStatus] = useState("");
-  const [formAmount, setFormAmount] = useState("");
   const [formDeposit, setFormDeposit] = useState("");
   const [formBalance, setFormBalance] = useState("");
   const [depositPaid, setDepositPaid] = useState(false);
@@ -155,8 +236,8 @@ export function EditDevisSection({ id }: { id: string }) {
     setLoadError(null);
     setNotice(null);
     setQuote(null);
+    setLines([]);
     setFormStatus("");
-    setFormAmount("");
     setFormDeposit("");
     setFormBalance("");
     setDepositPaid(false);
@@ -182,8 +263,8 @@ export function EditDevisSection({ id }: { id: string }) {
         }
 
         setQuote(nextQuote);
+        setLines(buildLinesFromQuote(nextQuote));
         setFormStatus(normalizeText(nextQuote.status));
-        setFormAmount(normalizeText(nextQuote.amount));
         setFormDeposit(normalizeText(nextQuote.deposit_amount));
         setFormBalance(normalizeText(nextQuote.balance_amount));
         setDepositPaid(!!nextQuote.deposit_paid);
@@ -218,19 +299,34 @@ export function EditDevisSection({ id }: { id: string }) {
     };
   }, [id, reloadIndex]);
 
-  async function updateQuote(formData: FormData) {
-    const nextStatus = normalizeText(String(formData.get("status") ?? ""));
-    const nextAmount = normalizeText(String(formData.get("amount") ?? ""));
-    const nextDeposit = normalizeText(String(formData.get("deposit_amount") ?? ""));
-    const nextBalance = normalizeText(String(formData.get("balance_amount") ?? ""));
+  const totals = useMemo(() => {
+    let subtotal = 0;
+    let tax = 0;
+    for (const line of lines) {
+      const lineSubtotal = (line.qty || 0) * (line.unitPrice || 0);
+      subtotal += lineSubtotal;
+      tax += lineSubtotal * ((line.tva || 0) / 100);
+    }
+    return { subtotal, tax, total: subtotal + tax };
+  }, [lines]);
+
+  function updateLine(lineId: string, key: "unitPrice" | "tva", value: number) {
+    setLines((prev) => prev.map((line) => (line.id === lineId ? { ...line, [key]: value } : line)));
+  }
+
+  async function updateQuote() {
+    const nextStatus = formStatus.trim();
+    const nextTotal = Math.round(totals.total);
+    const nextDeposit = normalizeText(formDeposit);
+    const nextBalance = normalizeText(formBalance);
 
     const errors: string[] = [];
     if (!nextStatus) errors.push("Le statut est requis.");
-    if (!nextAmount || isNaN(Number(nextAmount)) || Number(nextAmount) < 0) errors.push("Le montant total doit être un nombre positif.");
+    if (!(nextTotal > 0)) errors.push("Fixez au moins un prix unitaire — le total doit être supérieur à 0.");
     if (nextDeposit && (isNaN(Number(nextDeposit)) || Number(nextDeposit) < 0)) errors.push("L'acompte doit être un nombre positif.");
     if (nextBalance && (isNaN(Number(nextBalance)) || Number(nextBalance) < 0)) errors.push("Le solde doit être un nombre positif.");
-    if (nextDeposit && nextAmount && Number(nextDeposit) > Number(nextAmount)) errors.push("L'acompte ne peut pas dépasser le montant total.");
-    if (nextBalance && nextAmount && Number(nextBalance) > Number(nextAmount)) errors.push("Le solde ne peut pas dépasser le montant total.");
+    if (nextDeposit && Number(nextDeposit) > nextTotal) errors.push("L'acompte ne peut pas dépasser le montant total.");
+    if (nextBalance && Number(nextBalance) > nextTotal) errors.push("Le solde ne peut pas dépasser le montant total.");
 
     if (errors.length > 0) {
       setNotice({ tone: "danger", message: errors.join(" ") });
@@ -243,7 +339,7 @@ export function EditDevisSection({ id }: { id: string }) {
     try {
       await authAPI.put(`/quotes/${id}`, {
         status: nextStatus,
-        amount: nextAmount,
+        amount: String(nextTotal),
         deposit_amount: nextDeposit,
         balance_amount: nextBalance,
         deposit_paid: depositPaid,
@@ -256,7 +352,7 @@ export function EditDevisSection({ id }: { id: string }) {
           ? {
               ...current,
               status: nextStatus,
-              amount: nextAmount,
+              amount: String(nextTotal),
               deposit_amount: nextDeposit,
               balance_amount: nextBalance,
               deposit_paid: depositPaid,
@@ -264,10 +360,6 @@ export function EditDevisSection({ id }: { id: string }) {
             }
           : current,
       );
-      setFormStatus(nextStatus);
-      setFormAmount(nextAmount);
-      setFormDeposit(nextDeposit);
-      setFormBalance(nextBalance);
       setNotice({
         tone: "success",
         message: "Le devis et les tranches de paiement ont été mis à jour.",
@@ -328,7 +420,7 @@ export function EditDevisSection({ id }: { id: string }) {
       return;
     }
 
-    void updateQuote(new FormData(event.currentTarget));
+    void updateQuote();
   }
 
   function quoteToQuoteDoc(q: QuoteRecord): Omit<TextileDocumentProps, "kind"> {
@@ -338,9 +430,9 @@ export function EditDevisSection({ id }: { id: string }) {
     const taxRate = 20;
     const subtotal = amount / (1 + taxRate / 100);
 
-    const lines: DocumentLineItem[] = [];
+    const docLines: DocumentLineItem[] = [];
     if (deposit > 0) {
-      lines.push({
+      docLines.push({
         description: "Acompte — 30% à la commande",
         quantity: 1,
         unit: "lot",
@@ -350,7 +442,7 @@ export function EditDevisSection({ id }: { id: string }) {
       });
     }
     if (balance > 0) {
-      lines.push({
+      docLines.push({
         description: "Solde — 70% à livraison",
         quantity: 1,
         unit: "lot",
@@ -359,8 +451,8 @@ export function EditDevisSection({ id }: { id: string }) {
         reference: "Tranche 2",
       });
     }
-    if (lines.length === 0) {
-      lines.push({
+    if (docLines.length === 0) {
+      docLines.push({
         description: q.message ? `Devis textile — ${q.message.slice(0, 80)}` : "Prestation de confection textile",
         quantity: 1,
         unit: "lot",
@@ -384,7 +476,7 @@ export function EditDevisSection({ id }: { id: string }) {
         phone: q.phone ?? undefined,
         address: q.message ? `Projet : ${q.message.slice(0, 120)}` : undefined,
       },
-      lines,
+      lines: docLines,
       currency: "EUR",
       status: formatStatusLabel(q.status),
       notes: q.message ?? undefined,
@@ -451,7 +543,7 @@ export function EditDevisSection({ id }: { id: string }) {
       <div className="px-6 md:px-12 py-10 text-center">
         <span className="material-symbols-outlined text-red-500 text-6xl mb-4">error</span>
         <h2 className="font-headline text-2xl text-[#FFB42D] mb-2">{loadError}</h2>
-        <button 
+        <button
           onClick={() => setReloadIndex(i => i + 1)}
           className="mt-6 px-8 py-3 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl"
         >
@@ -465,149 +557,285 @@ export function EditDevisSection({ id }: { id: string }) {
 
   const statusLabel = formatStatusLabel(quote.status);
   const statusOptions = buildStatusOptions(quote.status);
-  const initials = getInitials(quote.name || quote.id);
   const isClientValidated = quote.status === "accepted" || quote.status === "production";
+  // Aperçu en direct : même document A4 qu'avant, avec le total issu de la tarification.
+  const previewQuote: QuoteRecord = {
+    ...quote,
+    amount: String(Math.round(totals.total)),
+    deposit_amount: formDeposit,
+    balance_amount: formBalance,
+  };
+  const tabs: Array<{ id: TabId; label: string }> = [
+    { id: "tarif", label: "Tarification" },
+    { id: "client", label: "Client" },
+    { id: "statut", label: "Statut & suivi" },
+    { id: "apercu", label: "Aperçu du devis" },
+  ];
 
   return (
-    <div className="px-6 md:px-12 py-10 space-y-10 max-w-5xl">
-      {/* Breadcrumb / Back */}
-      <Link href="/backoffice/devis" className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40 hover:text-orange-500 transition-colors group">
-        <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back</span>
-        Retour aux devis
-      </Link>
+    <div className="px-6 md:px-12 py-10">
+      <style>{scopedStyles}</style>
+      <div className="eqd-page">
+        <Link href="/backoffice/devis" className="eqd-crumb">
+          <span aria-hidden="true">←</span> Retour aux devis
+        </Link>
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div>
-          <h2 className="font-headline text-3xl text-[#FFB42D]">Modifier le devis</h2>
-          <p className="text-[#FFB42D]/40 text-xs font-bold uppercase tracking-widest mt-1">Référence: #{quote.id}</p>
-        </div>
-        <div className="flex gap-4">
-          <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
-            quote.status === "accepted" ? "bg-green-100 text-green-700 border-green-200" :
-            quote.status === "rejected" ? "bg-red-100 text-red-700 border-red-200" :
-            "bg-orange-100 text-orange-700 border-orange-200"
-          }`}>
-            {statusLabel}
-          </span>
-        </div>
-      </div>
-
-      {notice && (
-        <div className={`p-4 rounded-xl border text-xs font-bold uppercase tracking-widest flex items-center gap-3 ${
-          notice.tone === "success" ? "bg-green-50 border-green-100 text-green-700" : "bg-red-50 border-red-100 text-red-700"
-        }`}>
-          <span className="material-symbols-outlined text-sm">{notice.tone === "success" ? "check_circle" : "error"}</span>
-          {notice.message}
-        </div>
-      )}
-
-      {isClientValidated ? (
-        <div className="p-4 rounded-xl border border-green-100 bg-green-50 text-xs font-bold uppercase tracking-widest text-green-700 flex items-center gap-3">
-          <span className="material-symbols-outlined text-sm">verified</span>
-          Le client a valide et signe cette version. Toute correction ou ajout passe par une nouvelle version signee.
-        </div>
-      ) : null}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Client Info Card */}
-        <div className="bg-[#25303a] rounded-[2rem] p-8 border border-[#FFB42D]/10 shadow-sm space-y-8">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-[#163526] rounded-2xl flex items-center justify-center text-white font-headline text-2xl">
-              {initials}
-            </div>
-            <div>
-              <h3 className="font-headline text-xl text-[#FFB42D]">{quote.name || "Client sans nom"}</h3>
-              <p className="text-xs text-[#FFB42D]/60">{quote.email || "Pas d'email"}</p>
-            </div>
+        <div className="eqd-head">
+          <div>
+            <h1>Modifier le devis</h1>
+            <div className="ref">Référence #{String(quote.id).slice(0, 8).toUpperCase()} · {quote.name || "Client sans nom"}</div>
           </div>
+          <span className="eqd-badge">{statusLabel}</span>
+        </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40 mb-1">Téléphone</p>
-              <p className="text-sm font-bold text-[#FFB42D]">{quote.phone || "-"}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40 mb-1">Montant Total</p>
-              <p className="text-sm font-bold text-[#FFB42D]">{formatAmount(quote.amount)}</p>
-            </div>
+        {notice && (
+          <div className={`eqd-notice ${notice.tone}`}>
+            {notice.message}
           </div>
+        )}
 
-          <div className="pt-6 border-t border-[#FFB42D]/10 space-y-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40">Suivi des Tranches</p>
-            <div className="grid grid-cols-1 gap-3">
-              <div className={`p-4 rounded-xl flex justify-between items-center ${quote.deposit_paid ? "bg-green-50 border border-green-100" : "bg-orange-50 border border-orange-100"}`}>
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/60">Acompte (Avant livraison)</p>
-                  <p className="text-sm font-bold text-[#FFB42D]">{formatAmount(quote.deposit_amount)}</p>
-                </div>
-                <span className={`material-symbols-outlined ${quote.deposit_paid ? "text-green-600" : "text-orange-400"}`}>
-                  {quote.deposit_paid ? "check_circle" : "pending"}
-                </span>
-              </div>
-              <div className={`p-4 rounded-xl flex justify-between items-center ${quote.balance_paid ? "bg-green-50 border border-green-100" : "bg-gray-50 border border-gray-100"}`}>
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/60">Solde (Après livraison)</p>
-                  <p className="text-sm font-bold text-[#FFB42D]">{formatAmount(quote.balance_amount)}</p>
-                </div>
-                <span className={`material-symbols-outlined ${quote.balance_paid ? "text-green-600" : "text-gray-300"}`}>
-                  {quote.balance_paid ? "check_circle" : "schedule"}
-                </span>
+        {isClientValidated ? (
+          <div className="eqd-validated">
+            Le client a validé et signé cette version. Toute correction ou ajout passe par une nouvelle version signée.
+          </div>
+        ) : null}
+
+        <div className="eqd-tabs" role="tablist">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              className={`eqd-tab${activeTab === tab.id ? " active" : ""}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          {/* Onglet Tarification */}
+          <div className={`eqd-panel${activeTab === "tarif" ? " active" : ""}`} role="tabpanel">
+            <div className="eqd-card">
+              <div className="eqd-client-msg-label">Demande du client — pour référence, non modifiable ici</div>
+              <div className="eqd-client-msg">
+                {quote.message || "Aucun message fourni par le client."}
               </div>
             </div>
-          </div>
 
-          <div className="pt-6 border-t border-[#FFB42D]/10 space-y-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40">Documents & Pièces jointes</p>
-            <AttachmentUploader entityType="cotation" entityId={id} />
-          </div>
+            <div className="eqd-card">
+              <h2>Lignes du devis</h2>
+              <p className="card-sub">Désignation et quantité proviennent de la demande du client (verrouillées). Fixez uniquement le prix unitaire et la TVA — le total se calcule automatiquement.</p>
 
-          <div className="pt-6 border-t border-[#FFB42D]/10">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40 mb-3">Message du client</p>
-            <div className="bg-[#1e2a38] p-4 rounded-xl text-xs text-[#FFB42D]/80 leading-relaxed italic">
-              &quot;{quote.message || "Aucun message fourni"}&quot;
+              <div className="eqd-table-wrap">
+                <table className="eqd-lines">
+                  <thead>
+                    <tr>
+                      <th>Désignation (demande client)</th>
+                      <th className="eqd-col-qty">Qté</th>
+                      <th className="eqd-col-price">Prix unit. (Ar)</th>
+                      <th className="eqd-col-tva">TVA</th>
+                      <th className="eqd-col-total">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lines.map((line) => (
+                      <tr key={line.id}>
+                        <td className="eqd-locked">
+                          {line.designation}
+                          {line.detail ? <span className="sub">{line.detail}</span> : null}
+                        </td>
+                        <td className="eqd-col-qty eqd-locked">{line.qty}</td>
+                        <td className="eqd-col-price">
+                          <input
+                            type="number"
+                            min={0}
+                            value={Number.isFinite(line.unitPrice) ? line.unitPrice : 0}
+                            onChange={(e) => updateLine(line.id, "unitPrice", parseFloat(e.target.value) || 0)}
+                            disabled={isSaving}
+                            aria-label={`Prix unitaire — ${line.designation}`}
+                          />
+                        </td>
+                        <td className="eqd-col-tva">
+                          <select
+                            value={line.tva}
+                            onChange={(e) => updateLine(line.id, "tva", Number(e.target.value))}
+                            disabled={isSaving}
+                            aria-label={`TVA — ${line.designation}`}
+                          >
+                            {TVA_OPTIONS.map((v) => (
+                              <option key={v} value={v}>{v}%</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="eqd-col-total">{fmtAr(line.qty * line.unitPrice * (1 + line.tva / 100))}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="eqd-totals">
+                <div className="eqd-totals-box">
+                  <div className="eqd-totals-row"><span>Sous-total</span><span>{fmtAr(totals.subtotal)}</span></div>
+                  <div className="eqd-totals-row"><span>Taxes</span><span>{fmtAr(totals.tax)}</span></div>
+                  <div className="eqd-totals-row grand"><span>Total</span><span>{fmtAr(totals.total)}</span></div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Action Form Card */}
-        <form onSubmit={handleSubmit} className="bg-[#25303a] rounded-[2rem] p-8 border border-[#FFB42D]/10 shadow-sm space-y-8">
-          <h3 className="font-headline text-xl text-[#FFB42D]">Gestion & Mise à jour</h3>
-          
-          <div className="space-y-6">
-            {/* Notification / Alert Section */}
-            <div className="space-y-3 p-4 bg-orange-50 rounded-2xl border border-orange-100">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-orange-800 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">notifications_active</span>
-                Envoyer une notification au client
-              </p>
-              <select 
-                className="w-full bg-[#25303a] border-none p-3 rounded-lg text-[11px] font-bold text-orange-900 outline-none"
-                defaultValue=""
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value) {
-                    void notifyClient(value);
-                    e.target.value = "";
-                  }
-                }}
-              >
-                <option value="">S&eacute;lectionner un type d&apos;alerte...</option>
-                <option value="delay">Retard de production</option>
-                <option value="error">Erreur de conception / technique</option>
-                <option value="ready">Prêt pour livraison</option>
-                <option value="info">Besoin d&apos;informations compl&eacute;mentaires</option>
-              </select>
+          {/* Onglet Client */}
+          <div className={`eqd-panel${activeTab === "client" ? " active" : ""}`} role="tabpanel">
+            <div className="eqd-card">
+              <h2>Coordonnées du client</h2>
+              <p className="card-sub">Informations transmises par le client lors de sa demande — non modifiables ici.</p>
+              <div className="eqd-grid">
+                <div className="eqd-field">
+                  <label>Nom</label>
+                  <div className="eqd-readonly">{quote.name || "—"}</div>
+                </div>
+                <div className="eqd-field">
+                  <label>Téléphone</label>
+                  <div className="eqd-readonly">{quote.phone || "—"}</div>
+                </div>
+                <div className="eqd-field full">
+                  <label>E-mail</label>
+                  <div className="eqd-readonly">{quote.email || "—"}</div>
+                </div>
+                <div className="eqd-field full">
+                  <label>Message complet du client</label>
+                  <div className="eqd-readonly" style={{ whiteSpace: "pre-wrap" }}>{quote.message || "—"}</div>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-3 rounded-2xl border border-orange-100 bg-orange-50 p-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-orange-800 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">report</span>
-                Probleme / Sous-probleme
-              </p>
-              <p className="text-[11px] font-medium text-orange-900/70">
-                Seuls les 4 problemes majeurs restent visibles par defaut. Les sous-problemes se
-                deploient avec Voir plus.
-              </p>
+            <div className="eqd-card">
+              <h2>Documents & pièces jointes</h2>
+              <p className="card-sub">Fichiers liés à ce dossier.</p>
+              <AttachmentUploader entityType="cotation" entityId={id} />
+            </div>
+          </div>
+
+          {/* Onglet Statut & suivi */}
+          <div className={`eqd-panel${activeTab === "statut" ? " active" : ""}`} role="tabpanel">
+            <div className="eqd-card">
+              <h2>Suivi des tranches de paiement</h2>
+              <p className="card-sub">Montants en Ariary. L&apos;acompte et le solde ne peuvent pas dépasser le total ({fmtAr(totals.total)}).</p>
+              <div className="eqd-grid">
+                <div className="eqd-field">
+                  <label>Acompte (Ar)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={formDeposit}
+                    onChange={(e) => setFormDeposit(e.target.value)}
+                    placeholder="Montant acompte"
+                    disabled={isSaving}
+                  />
+                  <label className="eqd-checkline">
+                    <input
+                      type="checkbox"
+                      checked={depositPaid}
+                      onChange={(e) => setDepositPaid(e.target.checked)}
+                    />
+                    Payé (acompte)
+                  </label>
+                </div>
+                <div className="eqd-field">
+                  <label>Solde (Ar)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={formBalance}
+                    onChange={(e) => setFormBalance(e.target.value)}
+                    placeholder="Montant solde"
+                    disabled={isSaving}
+                  />
+                  <label className="eqd-checkline">
+                    <input
+                      type="checkbox"
+                      checked={balancePaid}
+                      onChange={(e) => setBalancePaid(e.target.checked)}
+                    />
+                    Payé (solde)
+                  </label>
+                </div>
+                <div className="eqd-field">
+                  <label>Statut du dossier</label>
+                  <select
+                    value={formStatus}
+                    onChange={(e) => setFormStatus(e.target.value)}
+                    disabled={isSaving}
+                  >
+                    <option value="">Choisir un statut</option>
+                    {statusOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="eqd-field">
+                  <label>Date de livraison prévue</label>
+                  <input
+                    type="date"
+                    value={formDeliveryDate}
+                    onChange={(e) => setFormDeliveryDate(e.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
+                    disabled={isSaving}
+                  />
+                </div>
+                {quote.status !== "sent" && quote.status !== "production" && (
+                  <div className="eqd-field">
+                    <label>Délai de confirmation (jours)</label>
+                    <select
+                      value={confirmationDays}
+                      onChange={(e) => setConfirmationDays(Number(e.target.value))}
+                      disabled={isSaving}
+                    >
+                      <option value={3}>3 jours</option>
+                      <option value={5}>5 jours</option>
+                      <option value={7}>7 jours</option>
+                      <option value={10}>10 jours</option>
+                      <option value={14}>14 jours</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="eqd-card">
+              <h2>Notifier le client</h2>
+              <p className="card-sub">Le client sera prévenu même hors du site.</p>
+              <div className="eqd-grid">
+                <div className="eqd-field full">
+                  <label>Type d&apos;alerte</label>
+                  <select
+                    defaultValue=""
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value) {
+                        void notifyClient(value);
+                        e.target.value = "";
+                      }
+                    }}
+                  >
+                    <option value="">Sélectionner un type d&apos;alerte…</option>
+                    <option value="delay">Retard de production</option>
+                    <option value="error">Erreur de conception / technique</option>
+                    <option value="ready">Prêt pour livraison</option>
+                    <option value="info">Besoin d&apos;informations complémentaires</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="eqd-card">
+              <h2>Problèmes & sous-problèmes</h2>
+              <p className="card-sub">Zone secondaire, réservée à la gestion de litiges ou blocages sur ce dossier.</p>
               <ProblemHierarchyPanel
                 className="space-y-4"
                 mode="admin"
@@ -616,211 +844,93 @@ export function EditDevisSection({ id }: { id: string }) {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40">Statut du dossier</label>
-                <select
-                  name="status"
-                  value={formStatus}
-                  onChange={(e) => setFormStatus(e.target.value)}
-                  className="w-full bg-[#1e2a38] border-none p-4 rounded-xl text-xs font-bold text-[#FFB42D] focus:ring-2 focus:ring-[#163526]/10 outline-none appearance-none cursor-pointer"
-                  disabled={isSaving}
-                >
-                  <option value="">Choisir un statut</option>
-                  {statusOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40">Montant Total (€)</label>
-                <input
-                  name="amount"
-                  type="number"
-                  step="0.01"
-                  value={formAmount}
-                  onChange={(e) => setFormAmount(e.target.value)}
-                  className="w-full bg-[#1e2a38] border-none p-4 rounded-xl text-xs font-bold text-[#FFB42D] focus:ring-2 focus:ring-[#163526]/10 outline-none"
-                  placeholder="Ex: 1500.00"
-                  disabled={isSaving}
-                />
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-[#FFB42D]/10 space-y-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/40">Gestion des Tranches de Paiement</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-3 p-4 bg-[#1e2a38] rounded-2xl">
-                  <label className="text-[9px] font-bold uppercase tracking-widest text-[#FFB42D]/40">Acompte (€)</label>
-                  <input
-                    name="deposit_amount"
-                    type="number"
-                    step="0.01"
-                    value={formDeposit}
-                    onChange={(e) => setFormDeposit(e.target.value)}
-                    className="w-full bg-[#25303a] border-none p-3 rounded-lg text-xs font-bold text-[#FFB42D] outline-none"
-                    placeholder="Montant acompte"
-                    disabled={isSaving}
-                  />
-                  <label className="flex items-center gap-2 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={depositPaid}
-                      onChange={(e) => setDepositPaid(e.target.checked)}
-                      className="w-4 h-4 rounded border-[#FFB42D]/10 text-[#FFB42D] focus:ring-0"
-                    />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/60 group-hover:text-[#FFB42D] transition-colors">Payé (Acompte)</span>
-                  </label>
+            {quote.status === "accepted" && (
+              <div className="eqd-card">
+                <h2>Production & commande</h2>
+                <p className="card-sub">Devis accepté par le client — lancez la production ou créez la commande.</p>
+                <div className="eqd-grid">
+                  <div className="eqd-field">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await authAPI.put(`/quotes/${id}`, { status: "production" });
+                          setQuote((c) => c ? { ...c, status: "production" } : c);
+                          setFormStatus("production");
+                          setNotice({ tone: "success", message: "Production lancée — statut mis à jour." });
+                        } catch {
+                          setNotice({ tone: "danger", message: "Impossible de lancer la production." });
+                        }
+                      }}
+                      className="eqd-btn"
+                    >
+                      Lancer la production
+                    </button>
+                  </div>
+                  <div className="eqd-field">
+                    <button
+                      type="button"
+                      onClick={handleCreateOrder}
+                      className="eqd-btn"
+                    >
+                      <ShoppingCart className="h-4 w-4" style={{ display: "inline", verticalAlign: "-2px", marginRight: 6 }} />
+                      Créer la commande
+                    </button>
+                  </div>
                 </div>
+              </div>
+            )}
+          </div>
 
-                <div className="space-y-3 p-4 bg-[#1e2a38] rounded-2xl">
-                  <label className="text-[9px] font-bold uppercase tracking-widest text-[#FFB42D]/40">Solde (€)</label>
-                  <input
-                    name="balance_amount"
-                    type="number"
-                    step="0.01"
-                    value={formBalance}
-                    onChange={(e) => setFormBalance(e.target.value)}
-                    className="w-full bg-[#25303a] border-none p-3 rounded-lg text-xs font-bold text-[#FFB42D] outline-none"
-                    placeholder="Montant solde"
-                    disabled={isSaving}
+          {/* Onglet Aperçu — même document A4 qu'avant, inchangé */}
+          <div className={`eqd-panel${activeTab === "apercu" ? " active" : ""}`} role="tabpanel">
+            <div className="eqd-card">
+              <h2>Aperçu du document A4</h2>
+              <p className="card-sub">Généré à partir des lignes saisies dans l&apos;onglet Tarification.</p>
+              <TextileDocument kind="quote" {...quoteToQuoteDoc(previewQuote)} />
+              <div className="print:hidden max-w-[210mm] mx-auto" style={{ marginTop: 24 }}>
+                {savingSignature ? (
+                  <div className="flex items-center justify-center gap-2 rounded-2xl border border-[#FFB42D]/30 bg-[#fffdf8] p-6 text-[#172d42] shadow-sm">
+                    <Loader className="h-4 w-4 animate-spin text-[#FFB42D]" />
+                    <span className="text-xs font-bold uppercase tracking-widest">Enregistrement de la signature…</span>
+                  </div>
+                ) : (
+                  <AdminSignaturePanel
+                    initialSignature={
+                      quote.admin_signature_name && quote.admin_signature_at
+                        ? { name: quote.admin_signature_name, signedAt: quote.admin_signature_at }
+                        : undefined
+                    }
+                    onApprove={handleApprove}
                   />
-                  <label className="flex items-center gap-2 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={balancePaid}
-                      onChange={(e) => setBalancePaid(e.target.checked)}
-                      className="w-4 h-4 rounded border-[#FFB42D]/10 text-[#FFB42D] focus:ring-0"
-                    />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/60 group-hover:text-[#FFB42D] transition-colors">Payé (Solde)</span>
-                  </label>
-                </div>
+                )}
               </div>
             </div>
           </div>
 
-          <div className="pt-6 flex flex-col gap-4">
-            {quote.status === "accepted" && (
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    await authAPI.put(`/quotes/${id}`, { status: "production" });
-                    setQuote((c) => c ? { ...c, status: "production" } : c);
-                    setFormStatus("production");
-                    setNotice({ tone: "success", message: "Production lancée — statut mis à jour." });
-                  } catch {
-                    setNotice({ tone: "danger", message: "Impossible de lancer la production." });
-                  }
-                }}
-                className="w-full py-4 bg-orange-500 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
-              >
-                <span className="material-symbols-outlined text-sm">precision_manufacturing</span>
-                Lancer la Production
-              </button>
-            )}
-            
-            {quote.status === "accepted" && (
-              <button
-                type="button"
-                onClick={handleCreateOrder}
-                className="w-full py-4 bg-green-600 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
-              >
-                <ShoppingCart className="h-4 w-4" />
-                Créer la Commande
-              </button>
-            )}
-            
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="w-full py-4 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
-            >
-              {isSaving ? "Sauvegarde en cours..." : "Enregistrer les modifications"}
+          <div className="eqd-actionbar">
+            <button type="submit" className="eqd-btn" disabled={isSaving}>
+              {isSaving ? "Sauvegarde en cours..." : "Enregistrer"}
             </button>
-            
             <button
               type="button"
+              className="eqd-btn primary"
               onClick={sendQuote}
               disabled={isSaving || quote.status === "sent" || quote.status === "production"}
-              className="w-full py-4 bg-[#25303a] border border-[#FFB42D]/10 text-[#FFB42D] font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#FFB42D]/10 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              <span className="material-symbols-outlined text-sm text-orange-500">send</span>
               {quote.status === "production"
-                ? "Deja en production"
+                ? "Déjà en production"
                 : quote.status === "sent"
-                  ? "Deja envoye"
+                  ? "Déjà envoyé"
                   : "Envoyer le devis au client"}
             </button>
-            {quote.status !== "sent" && quote.status !== "production" && (
-              <div className="space-y-3 mt-2">
-                <div className="flex items-center gap-3">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/50 whitespace-nowrap">Délai de confirmation</label>
-                  <select
-                    value={confirmationDays}
-                    onChange={(e) => setConfirmationDays(Number(e.target.value))}
-                    className="flex-1 border border-[#FFB42D]/10 rounded-lg px-3 py-2 text-sm text-[#FFB42D] bg-[#25303a]"
-                  >
-                    <option value={3}>3 jours</option>
-                    <option value={5}>5 jours</option>
-                    <option value={7}>7 jours</option>
-                    <option value={10}>10 jours</option>
-                    <option value={14}>14 jours</option>
-                  </select>
-                </div>
-                <div className="flex items-center gap-3">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#FFB42D]/50 whitespace-nowrap">Date de livraison prévue</label>
-                  <input
-                    type="date"
-                    value={formDeliveryDate}
-                    onChange={(e) => setFormDeliveryDate(e.target.value)}
-                    min={new Date().toISOString().split("T")[0]}
-                    className="flex-1 border border-[#FFB42D]/10 rounded-lg px-3 py-2 text-sm text-[#FFB42D] bg-[#25303a]"
-                  />
-                </div>
-              </div>
-            )}
+            <button type="button" className="eqd-btn ghost" onClick={() => window.print()}>
+              <Printer className="h-4 w-4" style={{ display: "inline", verticalAlign: "-2px", marginRight: 6 }} />
+              Imprimer
+            </button>
           </div>
         </form>
       </div>
-
-      <section className="space-y-6 print:space-y-0">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 print:hidden">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[.22em] text-[#FFB42D]">Document A4 · Imprimable</p>
-            <h3 className="font-headline text-2xl text-[#FFB42D] mt-1">Aperçu du devis</h3>
-          </div>
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="inline-flex items-center gap-2 rounded-2xl border border-[#FFB42D]/15 bg-[#25303a] px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#FFB42D] hover:border-[#FFB42D] hover:text-[#FFB42D] transition-colors"
-          >
-            <Printer className="h-4 w-4" /> Imprimer
-          </button>
-        </div>
-
-        <TextileDocument kind="quote" {...quoteToQuoteDoc(quote)} />
-
-        <div className="print:hidden max-w-[210mm] mx-auto">
-          {savingSignature ? (
-            <div className="flex items-center justify-center gap-2 rounded-2xl border border-[#FFB42D]/30 bg-[#fffdf8] p-6 text-[#172d42] shadow-sm">
-              <Loader className="h-4 w-4 animate-spin text-[#FFB42D]" />
-              <span className="text-xs font-bold uppercase tracking-widest">Enregistrement de la signature…</span>
-            </div>
-          ) : (
-            <AdminSignaturePanel
-              initialSignature={
-                quote.admin_signature_name && quote.admin_signature_at
-                  ? { name: quote.admin_signature_name, signedAt: quote.admin_signature_at }
-                  : undefined
-              }
-              onApprove={handleApprove}
-            />
-          )}
-        </div>
-      </section>
     </div>
   );
 }
