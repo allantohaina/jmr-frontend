@@ -365,10 +365,10 @@ export function EditDevisSection({ id }: { id: string }) {
         tone: "success",
         message: "Le devis et les tranches de paiement ont été mis à jour.",
       });
-    } catch {
+    } catch (error) {
       setNotice({
         tone: "danger",
-        message: "La mise à jour a échoué. Veuillez réessayer.",
+        message: error instanceof Error ? error.message : "La mise à jour a échoué. Veuillez réessayer.",
       });
     } finally {
       setIsSaving(false);
@@ -404,10 +404,10 @@ export function EditDevisSection({ id }: { id: string }) {
         tone: "success",
         message: "Le devis a été envoyé au client.",
       });
-    } catch {
+    } catch (error) {
       setNotice({
         tone: "danger",
-        message: "L'envoi a échoué. Veuillez réessayer.",
+        message: error instanceof Error ? error.message : "L'envoi a échoué. Veuillez réessayer.",
       });
     } finally {
       setIsSaving(false);
@@ -557,8 +557,8 @@ export function EditDevisSection({ id }: { id: string }) {
       } else {
         setNotice({ tone: "danger", message: "Commande créée mais impossible de récupérer l'ID" });
       }
-    } catch {
-      setNotice({ tone: "danger", message: "Erreur lors de la création de la commande" });
+    } catch (error) {
+      setNotice({ tone: "danger", message: error instanceof Error ? error.message : "Erreur lors de la création de la commande" });
     }
   };
 

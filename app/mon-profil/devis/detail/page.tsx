@@ -158,8 +158,8 @@ function DevisDetailContent() {
     try {
       const quoteRes = await authAPI.get<QuoteRecord>(`/quotes/${id}`);
       quoteData = quoteRes.data;
-    } catch {
-      throw new Error("NOT_FOUND");
+    } catch (error) {
+      throw error instanceof Error ? error : new Error("NOT_FOUND");
     }
     setQuote(quoteData);
 
@@ -199,8 +199,8 @@ function DevisDetailContent() {
           return;
         }
         await loadQuote(token);
-      } catch {
-        setError("Impossible de charger les données du devis.");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Impossible de charger les données du devis.");
       } finally {
         setLoading(false);
       }
@@ -216,8 +216,8 @@ function DevisDetailContent() {
       setQuote({ ...quote, status: "pending" });
       const token = getToken();
       if (token) await loadQuote(token);
-    } catch {
-      showToast("Erreur lors de l'envoi. Réessayez.", "error");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Erreur lors de l'envoi. Réessayez.", "error");
     } finally {
       setSendingQuote(false);
       setConfirmSendOpen(false);
@@ -252,8 +252,8 @@ function DevisDetailContent() {
       setAddonMessage("Votre demande d'ajout a été transmise à l'atelier.");
       const token = getToken();
       if (token) await loadQuote(token);
-    } catch {
-      setAddonMessage("Impossible d'envoyer la demande. Réessayez.");
+    } catch (err) {
+      setAddonMessage(err instanceof Error ? err.message : "Impossible d'envoyer la demande. Réessayez.");
     } finally {
       setAddonSending(false);
     }
@@ -275,8 +275,8 @@ function DevisDetailContent() {
       setReportingOpen(false);
       setResponseOpen(false);
       setReportMessage("Votre signalement a été transmis à l'atelier.");
-    } catch {
-      setReportMessage("Impossible d'envoyer le signalement. Réessayez.");
+    } catch (err) {
+      setReportMessage(err instanceof Error ? err.message : "Impossible d'envoyer le signalement. Réessayez.");
     } finally {
       setReportSending(false);
     }
@@ -290,8 +290,8 @@ function DevisDetailContent() {
       showToast("Devis validé — vous pouvez payer la tranche 1.", "success");
       const token = getToken();
       if (token) await loadQuote(token);
-    } catch {
-      showToast("Impossible de valider ce devis.", "error");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Impossible de valider ce devis.", "error");
     } finally {
       setConfirmingQuote(false);
     }
@@ -306,8 +306,8 @@ function DevisDetailContent() {
       showToast("Devis refusé.", "success");
       const token = getToken();
       if (token) await loadQuote(token);
-    } catch {
-      showToast("Impossible de refuser ce devis.", "error");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Impossible de refuser ce devis.", "error");
     } finally {
       setRefusingQuote(false);
     }
@@ -821,8 +821,8 @@ function DevisDetailContent() {
           try {
             await authAPI.delete(`/quotes/${quote.id}`);
             router.push("/mon-profil/devis");
-          } catch {
-            showToast("Erreur lors de la suppression.", "error");
+          } catch (err) {
+            showToast(err instanceof Error ? err.message : "Erreur lors de la suppression.", "error");
             setConfirmDeleteOpen(false);
           }
         }}
