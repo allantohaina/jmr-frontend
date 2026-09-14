@@ -56,6 +56,20 @@ export type NotificationRecord = {
   created_at: string;
 };
 
+/**
+ * Le backend MySQL renvoie parfois 0/1 ou "0"/"1" pour les BOOLEAN.
+ * En JS, la string "0" est truthy => `if (q.balance_paid)` affichait
+ * "Payé" même quand rien n'était payé. On normalise ici.
+ */
+export function isPaidFlag(value: unknown): boolean {
+  return value === true || value === 1 || value === "1";
+}
+
+/** Un paiement ne peut exister que si le devis a été envoyé au client. */
+export function isQuoteSentForPayment(status?: string | null): boolean {
+  return ["sent", "accepted", "production", "completed"].includes(String(status ?? ""));
+}
+
 export type PaymentRecord = {
   id: string;
   quote_id: string;
@@ -64,6 +78,9 @@ export type PaymentRecord = {
   amount: number | string;
   status: "submitted" | "verified" | "rejected";
   proof_path?: string | null;
+  payment_type?: string | null;
+  transaction_ref?: string | null;
+  submitted_by?: string | null;
   review_note?: string | null;
   reviewed_at?: string | null;
   created_at: string;
@@ -94,8 +111,8 @@ export type QuoteRecord = {
   amount?: string | number | null;
   deposit_amount?: string | number | null;
   balance_amount?: string | number | null;
-  deposit_paid?: boolean;
-  balance_paid?: boolean;
+  deposit_paid?: boolean | number | string;
+  balance_paid?: boolean | number | string;
   files?: Array<{ name: string; url: string; type: string }> | string | null;
   notifications?: Array<{
     id: string;
@@ -594,6 +611,8 @@ export const addonsAPI = {
 export const paymentsAPI = {
   list: async (quoteId: string) =>
     fetchWithAuth<PaymentRecord[]>(`/payments?quote_id=${quoteId}`, { method: "GET" }),
+  pending: async () =>
+    fetchWithAuth<PaymentRecord[]>(`/payments/pending`, { method: "GET" }),
   get: async (id: string) =>
     fetchWithAuth<PaymentRecord>(`/payments/${id}`, { method: "GET" }),
   updateStatus: async (id: string, status: string, reviewNote?: string) =>

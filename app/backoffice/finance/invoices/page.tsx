@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { authAPI, type QuoteRecord } from "@/app/lib/api";
+import { authAPI, type QuoteRecord, isPaidFlag, isQuoteSentForPayment } from "@/app/lib/api";
 import { Receipt, Loader, X, Printer, FileText } from "lucide-react";
 import { TextileDocument, AdminSignaturePanel } from "@/app/components/documents";
 import type { DocumentSignature, DocumentLineItem, TextileDocumentProps } from "@/app/components/documents/types";
@@ -23,7 +23,10 @@ function quoteToInvoiceDoc(q: QuoteRecord): Omit<TextileDocumentProps, "kind"> {
     },
   ];
 
-  const statusLabel = q.balance_paid ? "Payée" : q.deposit_paid ? "En attente" : "Envoyée";
+  const depositPaid = isPaidFlag(q.deposit_paid) && isQuoteSentForPayment(q.status);
+  const balancePaid = isPaidFlag(q.balance_paid) && isQuoteSentForPayment(q.status);
+  const sent = isQuoteSentForPayment(q.status);
+  const statusLabel = balancePaid ? "Payée" : depositPaid ? "Partielle" : sent ? "En attente" : "Non envoyée";
 
   return {
     number: `FACT-${String(q.id).slice(0, 8).toUpperCase()}`,
@@ -37,7 +40,7 @@ function quoteToInvoiceDoc(q: QuoteRecord): Omit<TextileDocumentProps, "kind"> {
     lines,
     currency: "MGA",
     status: statusLabel,
-    paymentTerms: q.deposit_paid ? "Acompte perçu — Solde dû à livraison" : "Acompte de 50% à la commande, solde à la livraison",
+    paymentTerms: depositPaid ? "Acompte perçu — Solde dû à livraison" : "Acompte de 50% à la commande, solde à la livraison",
     notes: q.message ?? undefined,
     signature: q.admin_signature_name && q.admin_signature_at
       ? { name: q.admin_signature_name, signedAt: q.admin_signature_at }
@@ -92,7 +95,7 @@ export default function InvoicesPage() {
     ref: `FACT-${String(q.id).slice(0, 8).toUpperCase()}`,
     client: q.name || q.email || "Inconnu",
     amount: parseFloat(String(q.amount ?? "0")),
-    status: q.balance_paid ? "paid" : q.deposit_paid ? "partial" : "unpaid",
+    status: isPaidFlag(q.balance_paid) && isQuoteSentForPayment(q.status) ? "paid" : isPaidFlag(q.deposit_paid) && isQuoteSentForPayment(q.status) ? "partial" : "unpaid",
     issuedAt: q.created_at,
     quote: q,
   }));

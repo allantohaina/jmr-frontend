@@ -7,6 +7,7 @@ import { authAPI } from "@/app/lib";
 import ExchangeRateWidget from "@/app/components/exchange-rate-widget";
 import { PrivilegeBadge } from "@/app/components/admin/privilege-badge";
 import type { ApiResponse, UserProfile } from "@/app/lib/api";
+import { isPaidFlag, isQuoteSentForPayment } from "@/app/lib/api";
 
 import {
   LayoutDashboard,
@@ -171,8 +172,9 @@ export default function AdminDashboardPage() {
         let acomptes = 0;
         let soldes = 0;
         quotes.forEach((q: QuoteRow) => {
-          if (q.deposit_paid) acomptes += Number(q.deposit_amount || 0);
-          if (q.balance_paid) soldes += Number(q.balance_amount || 0);
+          if (!isQuoteSentForPayment(q.status)) return;
+          if (isPaidFlag(q.deposit_paid)) acomptes += Number(q.deposit_amount || 0);
+          if (isPaidFlag(q.balance_paid)) soldes += Number(q.balance_amount || 0);
         });
 
         setDashboardData({

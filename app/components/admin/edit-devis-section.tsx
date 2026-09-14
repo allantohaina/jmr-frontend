@@ -22,8 +22,8 @@ type QuoteRecord = {
   amount?: string | number | null;
   deposit_amount?: string | number | null;
   balance_amount?: string | number | null;
-  deposit_paid?: boolean;
-  balance_paid?: boolean;
+  deposit_paid?: boolean | number | string;
+  balance_paid?: boolean | number | string;
   files?: Array<{ name: string; url: string; type: string }>;
   created_at?: string;
   request_type?: string;
@@ -268,8 +268,8 @@ export function EditDevisSection({ id }: { id: string }) {
         setFormStatus(normalizeText(nextQuote.status));
         setFormDeposit(normalizeText(nextQuote.deposit_amount));
         setFormBalance(normalizeText(nextQuote.balance_amount));
-        setDepositPaid(!!nextQuote.deposit_paid);
-        setBalancePaid(!!nextQuote.balance_paid);
+        setDepositPaid(nextQuote.deposit_paid === true || nextQuote.deposit_paid === 1 || (nextQuote.deposit_paid as unknown) === "1");
+        setBalancePaid(nextQuote.balance_paid === true || nextQuote.balance_paid === 1 || (nextQuote.balance_paid as unknown) === "1");
         setFormDeliveryDate(normalizeText(nextQuote.date_livraison_prevue));
       } catch (fetchError) {
         if (!active) {
@@ -760,7 +760,7 @@ export function EditDevisSection({ id }: { id: string }) {
           <div className={`eqd-panel${activeTab === "statut" ? " active" : ""}`} role="tabpanel">
             <div className="eqd-card">
               <h2>Suivi des tranches de paiement</h2>
-              <p className="card-sub">Montants en Ariary. L&apos;acompte et le solde ne peuvent pas dépasser le total ({fmtAr(totals.total)}).</p>
+              <p className="card-sub">Montants en Ariary. L&apos;acompte et le solde ne peuvent pas dépasser le total ({fmtAr(totals.total)}). Le passage à « Payé » doit venir de la vérification de la preuve image/PDF (page Paiements) — ne cochez manuellement qu&apos;en cas d&apos;exception.</p>
               <div className="eqd-grid">
                 <div className="eqd-field">
                   <label>Acompte (Ar)</label>

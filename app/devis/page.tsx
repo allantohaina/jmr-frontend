@@ -12,8 +12,8 @@ type SharedQuote = {
   category: string;
   status: string;
   amount: string;
-  deposit_paid: boolean;
-  balance_paid: boolean;
+  deposit_paid: boolean | number | string;
+  balance_paid: boolean | number | string;
   created_at: string;
 };
 
@@ -56,9 +56,13 @@ function SharedDevisContent() {
     </div>
   );
 
-  const StatusIcon = quote.balance_paid ? CheckCircle : quote.deposit_paid ? Clock : Clock;
-  const statusColor = quote.balance_paid ? "text-green-400" : quote.deposit_paid ? "text-yellow-400" : "text-[#FFB42D]";
-  const statusLabel = quote.balance_paid ? "Payé" : quote.deposit_paid ? "Acompte versé" : "En attente";
+  const depositPaid = quote.deposit_paid === true || quote.deposit_paid === 1 || (quote.deposit_paid as unknown) === "1";
+  const balancePaid = quote.balance_paid === true || quote.balance_paid === 1 || (quote.balance_paid as unknown) === "1";
+  // Tant que le devis n'est pas envoyé au client, aucun paiement n'est possible.
+  const isSent = ["sent", "accepted", "production", "completed"].includes(String(quote.status ?? ""));
+  const StatusIcon = balancePaid && isSent ? CheckCircle : depositPaid && isSent ? Clock : Clock;
+  const statusColor = balancePaid && isSent ? "text-green-400" : depositPaid && isSent ? "text-yellow-400" : "text-[#FFB42D]";
+  const statusLabel = !isSent ? "Non envoyé" : balancePaid ? "Payé" : depositPaid ? "Acompte versé" : "En attente de paiement";
 
   return (
     <div className="min-h-screen bg-[#1e2a38] flex items-center justify-center p-6">
@@ -97,8 +101,9 @@ function SharedDevisContent() {
         <div className="h-px bg-[#FFB42D]/10" />
 
         <div className="flex gap-2">
-          {quote.deposit_paid && <span className="flex-1 text-center py-2 rounded-lg bg-green-500/10 text-green-400 text-[9px] font-bold uppercase tracking-widest">Acompte reçu</span>}
-          {quote.balance_paid && <span className="flex-1 text-center py-2 rounded-lg bg-green-500/10 text-green-400 text-[9px] font-bold uppercase tracking-widest">Solde payé</span>}
+          {isSent && depositPaid && <span className="flex-1 text-center py-2 rounded-lg bg-green-500/10 text-green-400 text-[9px] font-bold uppercase tracking-widest">Acompte reçu</span>}
+          {isSent && balancePaid && <span className="flex-1 text-center py-2 rounded-lg bg-green-500/10 text-green-400 text-[9px] font-bold uppercase tracking-widest">Solde payé</span>}
+          {!isSent && <span className="flex-1 text-center py-2 rounded-lg bg-[#FFB42D]/10 text-[#FFB42D]/70 text-[9px] font-bold uppercase tracking-widest">Devis non envoyé — paiement impossible</span>}
         </div>
       </div>
     </div>

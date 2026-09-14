@@ -24,6 +24,15 @@ function formatDate(d: string | null | undefined): string {
   }
 }
 
+function formatDateShort(d: string | null | undefined): string {
+  if (!d) return "";
+  try {
+    return new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  } catch {
+    return "";
+  }
+}
+
 function formatCurrency(val: string | number | null | undefined): string {
   if (val == null) return "—";
   const n = typeof val === "string" ? parseFloat(val) : val;
@@ -51,10 +60,6 @@ function parseQuoteFiles(quote: QuoteRecord | null): QuoteFile[] {
   return [];
 }
 
-function isImageType(file: QuoteFile): boolean {
-  return /^image\//.test(file.type ?? "") || /\.(jpe?g|png|webp)$/i.test(file.name ?? "");
-}
-
 const CATEGORY_LABELS: Record<string, string> = {
   pantalon: "Pantalon",
   jupe: "Jupe",
@@ -75,40 +80,17 @@ const CATEGORY_LABELS: Record<string, string> = {
   autre: "Autre projet sur-mesure",
 };
 
-const REQUEST_TYPE_LABELS: Record<string, string> = {
-  new: "Nouveau projet",
-  edit: "Edit / modification",
-  add: "Ajout à un dossier",
-};
-
-function statutToStepIndex(statut: string | null | undefined): number {
-  if (!statut) return 0;
-  if (statut === "Livrée") return 4; // Terminé
-  if (statut === "Prête") return 3; // Livraison
-  const idx = STATUTS_PRODUCTION.indexOf(statut as (typeof STATUTS_PRODUCTION)[number]);
-  if (idx >= 0 && idx < 4) return 2; // Production
-  return 0;
-}
-
-function daysBetween(from: string | null | undefined, to: string | null | undefined): number | null {
-  if (!from || !to) return null;
-  const a = new Date(from).getTime();
-  const b = new Date(to).getTime();
-  if (isNaN(a) || isNaN(b)) return null;
-  return Math.round((b - a) / 86400000);
-}
-
 const STATUS_LABELS: Record<string, string> = {
   draft: "Brouillon",
   pending: "En attente",
+  sent: "Envoyé",
+  needs_info: "À préciser",
   accepted: "Acceptée",
-  refused: "Refusée",
+  rejected: "Refusée",
   expired: "Expirée",
-  production: "En production",
+  production: "Production",
   completed: "Terminée",
 };
-
-const STEP_LABELS = ["Envoyé", "Accepté", "Production", "Livraison", "Terminé"];
 
 interface Checkpoint {
   id: string;
@@ -126,17 +108,15 @@ interface Addon {
   status: "included" | "pending" | "rejected";
 }
 
-interface Feedback {
-  id: string;
-  avatar: string;
-  name: string;
-  date: string;
-  text: string;
-}
-
 interface Alert {
   type: "warn" | "info";
   text: string;
+}
+
+function productionIndex(statut: string | null | undefined): number {
+  if (!statut) return -1;
+  const idx = STATUTS_PRODUCTION.indexOf(statut as (typeof STATUTS_PRODUCTION)[number]);
+  return idx;
 }
 
 function DevisDetailContent() {
@@ -151,21 +131,26 @@ function DevisDetailContent() {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [openCards, setOpenCards] = useState<Set<string>>(new Set());
-  const [warnExtraOpen, setWarnExtraOpen] = useState(false);
-  const [goodExtraOpen, setGoodExtraOpen] = useState(false);
   const [addonFormOpen, setAddonFormOpen] = useState(false);
   const [addonText, setAddonText] = useState("");
   const [addonSending, setAddonSending] = useState(false);
   const [addonMessage, setAddonMessage] = useState<string | null>(null);
-  const [reportingCp, setReportingCp] = useState<string | null>(null);
+  const [reportingOpen, setReportingOpen] = useState(false);
   const [reportText, setReportText] = useState("");
   const [reportSending, setReportSending] = useState(false);
   const [reportMessage, setReportMessage] = useState<string | null>(null);
+  const [responseOpen, setResponseOpen] = useState(false);
   const [validatingCp, setValidatingCp] = useState<string | null>(null);
   const [sendingQuote, setSendingQuote] = useState(false);
   const [confirmSendOpen, setConfirmSendOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [confirmingQuote, setConfirmingQuote] = useState(false);
+  const [refusingQuote, setRefusingQuote] = useState(false);
+  const [paymentType, setPaymentType] = useState("mvola");
+  const [transactionRef, setTransactionRef] = useState("");
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [uploadingProof, setUploadingProof] = useState(false);
+  const [proofMessage, setProofMessage] = useState<string | null>(null);
   const { showToast } = useToast();
 
   const loadQuote = useCallback(async (token: string) => {
@@ -182,9 +167,6 @@ function DevisDetailContent() {
     const allCommandes: CommandeRecord[] = commandesRes.data;
     const filtered = allCommandes.filter((c) => c.cotation_id === id);
     setCommandes(filtered);
-    if (filtered.length > 0) {
-      setOpenCards(new Set([filtered[0].id]));
-    }
 
     if (quoteData?.status !== "draft") {
       const [cpRes, addonRes, payRes] = await Promise.all([
@@ -225,15 +207,6 @@ function DevisDetailContent() {
     };
     fetchData();
   }, [id, router, loadQuote]);
-
-  const toggleCard = useCallback((cardId: string) => {
-    setOpenCards((prev) => {
-      const next = new Set(prev);
-      if (next.has(cardId)) next.delete(cardId);
-      else next.add(cardId);
-      return next;
-    });
-  }, []);
 
   const sendQuote = async () => {
     if (!quote) return;
@@ -299,7 +272,8 @@ function DevisDetailContent() {
         cotation_id: String(quote.id),
       });
       setReportText("");
-      setReportingCp(null);
+      setReportingOpen(false);
+      setResponseOpen(false);
       setReportMessage("Votre signalement a été transmis à l'atelier.");
     } catch {
       setReportMessage("Impossible d'envoyer le signalement. Réessayez.");
@@ -308,8 +282,77 @@ function DevisDetailContent() {
     }
   };
 
-  const showConfirm = quote && ["accepted", "production", "completed"].includes(quote.status ?? "");
-  const showPayment = quote && Number(quote.amount ?? 0) > 0;
+  const confirmQuote = async () => {
+    if (!quote) return;
+    setConfirmingQuote(true);
+    try {
+      await authAPI.post(`/quotes/${quote.id}/confirm`, {});
+      showToast("Devis validé — vous pouvez payer la tranche 1.", "success");
+      const token = getToken();
+      if (token) await loadQuote(token);
+    } catch {
+      showToast("Impossible de valider ce devis.", "error");
+    } finally {
+      setConfirmingQuote(false);
+    }
+  };
+
+  const refuseQuote = async () => {
+    if (!quote) return;
+    if (!window.confirm("Refuser ce devis ?")) return;
+    setRefusingQuote(true);
+    try {
+      await authAPI.put(`/quotes/${quote.id}`, { status: "rejected" });
+      showToast("Devis refusé.", "success");
+      const token = getToken();
+      if (token) await loadQuote(token);
+    } catch {
+      showToast("Impossible de refuser ce devis.", "error");
+    } finally {
+      setRefusingQuote(false);
+    }
+  };
+
+  const submitProof = async () => {
+    if (!quote) return;
+    setProofMessage(null);
+    if (transactionRef.trim().length < 5) {
+      setProofMessage("La référence de transaction doit comporter au moins 5 caractères.");
+      return;
+    }
+    if (!proofFile) {
+      setProofMessage("La preuve image/PDF de votre paiement est obligatoire.");
+      return;
+    }
+    if (proofFile.size > 10 * 1024 * 1024) {
+      setProofMessage("Le fichier ne doit pas dépasser 10 Mo.");
+      return;
+    }
+    const allowed = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+    if (!allowed.includes(proofFile.type)) {
+      setProofMessage("Format non autorisé : JPG, PNG, WEBP ou PDF.");
+      return;
+    }
+    setUploadingProof(true);
+    try {
+      const data = new FormData();
+      data.append("payment_type", paymentType);
+      data.append("transaction_ref", transactionRef.trim());
+      data.append("proof_of_payment", proofFile);
+      await authAPI.post(`/quotes/${quote.id}/payments`, data);
+      setProofMessage("Preuve envoyée — en attente de vérification par l'atelier.");
+      setTransactionRef("");
+      setProofFile(null);
+      const token = getToken();
+      if (token) await loadQuote(token);
+    } catch (e) {
+      setProofMessage(e instanceof Error ? e.message : "Envoi impossible. Réessayez.");
+    } finally {
+      setUploadingProof(false);
+    }
+  };
+
+  const showPayment = quote && Number(quote.amount ?? 0) > 0 && ["sent", "accepted", "production", "completed"].includes(quote.status ?? "");
   const showActions = quote?.status === "draft";
 
   const displayCheckpoints: Checkpoint[] = checkpoints.map((cp) => ({
@@ -317,7 +360,7 @@ function DevisDetailContent() {
     title: cp.title,
     desc: cp.description ?? "",
     meta: cp.validated_at
-      ? `Validé par ${cp.validated_by ?? "—"} le ${formatDate(cp.validated_at)}`
+      ? `Validé le ${formatDate(cp.validated_at)}`
       : cp.status === "upcoming" ? "À venir" : "",
     state: cp.status === "done" ? "done" : cp.status === "upcoming" ? "upcoming" : ("action" as const),
   }));
@@ -337,9 +380,7 @@ function DevisDetailContent() {
     return (
       <>
         <style>{globalStyles}</style>
-        <div className="loading-screen">
-          <div className="loading-text">Chargement…</div>
-        </div>
+        <div className="loading-screen"><div className="loading-text">Chargement…</div></div>
       </>
     );
   }
@@ -362,589 +403,400 @@ function DevisDetailContent() {
   const quoteNotifications = Array.isArray(quote.notifications) ? quote.notifications : [];
   const warnItems = quoteNotifications.filter((n) => n.type === "delay" || n.type === "error");
   const goodItems = quoteNotifications.filter((n) => n.type === "info");
-  const allMessages = [...goodItems, ...warnItems];
 
   const pendingAddonCount = displayAddons.filter((a) => a.status === "pending").length;
   const totalAddons = displayAddons.reduce((s, a) => s + (a.status === "included" ? a.price : 0), 0);
-  const sumAllAddons = displayAddons.reduce((s, a) => s + (a.price > 0 ? a.price : 0), 0);
   const balanceAmount = balancePayment?.amount ?? quote.balance_amount ?? Number(quote.amount ?? 0) / 2;
-
-  const buildAlerts = (cmd: CommandeRecord): Alert[] => {
-    const list: Alert[] = [];
-    if (cmd.en_retard) list.push({ type: "warn", text: "Retard sur la date de livraison prévue" });
-    if (pendingAddonCount > 0) list.push({ type: "warn", text: `${pendingAddonCount} ajout${pendingAddonCount > 1 ? "s" : ""} en attente de chiffrage` });
-    if (cmd.notes) list.push({ type: "warn", text: cmd.notes });
-    return list;
-  };
-
   const formatNumber = (n: number) => n.toLocaleString("fr-FR");
+
+  const cmd = commandes[0] ?? null;
+  const prodIdx = productionIndex(cmd?.statut_production);
+  const hasCommande = !!cmd;
+  const progressPct = hasCommande
+    ? Math.round(((prodIdx < 0 ? 0 : prodIdx + 1) / STATUTS_PRODUCTION.length) * 100)
+    : quote.status === "accepted" || quote.status === "production" ? 15 : quote.status === "sent" ? 8 : 3;
+  const currentStepLabel = hasCommande
+    ? (cmd?.statut_production ?? "En attente matière")
+    : quote.status === "sent" ? "Devis envoyé" : quote.status === "accepted" ? "Devis accepté" : quote.status === "draft" ? "Brouillon" : (STATUS_LABELS[quote.status ?? ""] ?? quote.status);
+
+  const payLabel = (p?: PaymentRecord | null) => {
+    if (!p) return "À venir";
+    if (p.status === "verified") return "Payé";
+    if (p.status === "rejected") return "Preuve rejetée";
+    if (p.proof_path) return "Preuve envoyée";
+    return "À payer";
+  };
+  const activePayment = depositPayment?.status !== "verified" ? depositPayment : balancePayment;
+  const canUpload = !!showPayment && quote.status !== "sent" && !!activePayment && (activePayment.status === "rejected" || !activePayment.proof_path);
+
+  const rejectedProof = depositPayment?.status === "rejected" ? depositPayment : balancePayment?.status === "rejected" ? balancePayment : null;
+  const needsValidation = quote.status === "sent";
+  const actionNeeded: { label: string; title: string; text: string } | null =
+    rejectedProof ? { label: "Preuve rejetée", title: `Tranche ${rejectedProof.phase === "deposit" ? "1" : "2"} à renvoyer`, text: rejectedProof.review_note ?? "La preuve a été rejetée par l'atelier. Déposez une nouvelle preuve ci-dessous." }
+    : needsValidation ? { label: "Validation requise", title: "Validez votre devis", text: "L'atelier vous a envoyé le chiffrage. Validez-le pour ouvrir la tranche 1 — aucun paiement n'est dû avant validation." }
+    : quote.status === "needs_info" ? { label: "Information requise", title: "L'atelier attend des précisions", text: "Contactez l'atelier ou complétez votre demande pour débloquer le chiffrage." }
+    : warnItems.length > 0 ? { label: "Problème signalé", title: "Point d'attention de l'atelier", text: warnItems[0].message }
+    : null;
+
+  const timeline: { date: string; step: string; title: string; desc: string; tag: string; tone: "success" | "current" | "warning" | "problem" }[] = [];
+  timeline.push({ date: formatDateShort(quote.created_at) || "Début", step: "Demande", title: "Demande envoyée", desc: quote.message ? quote.message.slice(0, 140) : "Votre demande a été transmise à l'atelier.", tag: "EFFECTUÉ", tone: "success" });
+  if (quote.status && quote.status !== "draft" && quote.status !== "pending") {
+    timeline.push({ date: "", step: "Devis", title: `Devis ${STATUS_LABELS[quote.status] ?? quote.status}`, desc: `Montant chiffré : ${formatCurrency(quote.amount)}.`, tag: quote.status === "sent" ? "ACTION REQUISE" : "EFFECTUÉ", tone: quote.status === "sent" ? "current" : "success" });
+  }
+  if (depositPayment?.status === "verified") timeline.push({ date: formatDateShort(depositPayment.reviewed_at ?? depositPayment.created_at), step: "Tranche 1", title: "Acompte vérifié — production lancée", desc: `${formatCurrency(depositPayment.amount)} vérifiés par l'atelier.`, tag: "EFFECTUÉ", tone: "success" });
+  else if (depositPayment?.proof_path) timeline.push({ date: formatDateShort(depositPayment.created_at), step: "Tranche 1", title: "Preuve d'acompte envoyée", desc: "En attente de vérification par l'atelier.", tag: "EN COURS", tone: "current" });
+  displayCheckpoints.filter((c) => c.state === "done").slice(-3).forEach((c) => {
+    timeline.push({ date: "", step: "Production", title: c.title, desc: c.desc || c.meta, tag: "EFFECTUÉ", tone: "success" });
+  });
+  warnItems.slice(0, 2).forEach((w) => {
+    timeline.push({ date: "", step: "Atelier", title: "Point d'attention", desc: w.message, tag: "INFORMATION", tone: "warning" });
+  });
+  if (balancePayment?.status === "verified") timeline.push({ date: formatDateShort(balancePayment.reviewed_at ?? balancePayment.created_at), step: "Tranche 2", title: "Solde vérifié", desc: `${formatCurrency(balancePayment.amount)} soldés.`, tag: "EFFECTUÉ", tone: "success" });
+
+  const user = typeof window !== "undefined" ? getUser() : null;
+  const userName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || "Client";
 
   return (
     <>
       <style>{globalStyles}</style>
-      <div className="page">
-        {/* Header */}
-        <header className="site-header">
-          <div className="container site-nav">
-            <Link href="/" className="logo">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M6 6L18 18M18 6L6 18" stroke="#FFB42D" strokeWidth="1.6" strokeLinecap="round"/><circle cx="6" cy="6" r="1.6" fill="#FFB42D"/><circle cx="6" cy="18" r="1.6" fill="#FFB42D"/></svg>
-              JMR TEXTILE
-            </Link>
-          </div>
-        </header>
+      <header className="topbar">
+        <Link href="/" className="wordmark">JMR <span>Textile</span></Link>
+        <nav className="topnav">
+          <Link href="/">Accueil</Link>
+          <Link href="/mon-profil/devis">Mes devis</Link>
+          <span className="user">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-6 8-6s8 2 8 6" /></svg>
+            {userName}
+          </span>
+        </nav>
+      </header>
 
-        <main className="container">
-          {/* Breadcrumb */}
-          <div className="breadcrumb">
-            <Link href="/mon-profil">Tableau de bord</Link> / <Link href="/mon-profil/devis">Mes devis</Link> / <span style={{ color: "var(--text-cream)" }}>Devis #{shortId(quote.id)}</span>
-          </div>
+      <main>
+        <div className="breadcrumb">
+          <Link href="/mon-profil">Tableau de bord</Link><span>›</span>
+          <Link href="/mon-profil/devis">Mes devis</Link><span>›</span>
+          <span className="breadcrumb-current">Devis #{shortId(quote.id)}</span>
+        </div>
 
-          {/* Page Head */}
-          <div className="page-head">
-            <div className="head-left">
-              <div className="eyebrow">Suivi de devis</div>
-              <h1>{quote.name || quote.category || "Devis"}</h1>
-              <div className="ref">Réf. <b>#{shortId(quote.id)}</b> · envoyé le {formatDate(quote.created_at)}</div>
-            </div>
-            <span className={`status-pill-lg ${quote.status ?? ""}`}>
-              <span className="dot" />{STATUS_LABELS[quote.status ?? ""] ?? quote.status}
-            </span>
+        <section className="page-head">
+          <div>
+            <p className="eyebrow">Suivi de devis</p>
+            <h1>{quote.name || (quote.category ? (CATEGORY_LABELS[quote.category] ?? quote.category) : "Devis")}</h1>
+            <p className="order-description">
+              {[quote.quantite ? `${quote.quantite} pièces` : null, quote.tissu, quote.coupe].filter(Boolean).join(" · ") || "Projet sur-mesure"}
+            </p>
+            <p className="order-ref">Référence #{shortId(quote.id)} · envoyé le {formatDate(quote.created_at)}</p>
           </div>
+          <span className="status"><span className="status-dot" />{STATUS_LABELS[quote.status ?? ""] ?? quote.status}</span>
+        </section>
 
-          {/* Action bar — visible uniquement quand le devis est encore au stade brouillon */}
-          {showActions && (
-            <div className="action-bar">
-              <div className="msg">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M12 8V13M12 16H12.01M10.3 3.9L2.8 17A2 2 0 004.5 20H19.5A2 2 0 0021.2 17L13.7 3.9A2 2 0 0010.3 3.9Z"/></svg>
-                Ce devis est encore <b>en brouillon</b> — vous pouvez le modifier avant de l&apos;envoyer à l&apos;atelier.
-              </div>
-              <div className="action-buttons">
-                <Link href={`/demande-devis?draft=${quote.id}`} className="btn-outline">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 4H6A2 2 0 004 6V18A2 2 0 006 20H18A2 2 0 0020 18V13"/><path d="M18.5 2.5A2.1 2.1 0 0121.5 5.5L12 15L8 16L9 12L18.5 2.5Z"/></svg>
-                  Modifier le brouillon
-                </Link>
-                <button className="btn-gold" onClick={() => setConfirmSendOpen(true)} disabled={sendingQuote}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
-                  {sendingQuote ? "Envoi…" : "Envoyer le devis"}
-                </button>
-                <button className="btn-outline" style={{ color: "var(--warn)", borderColor: "rgba(224,139,82,0.3)" }} onClick={() => setConfirmDeleteOpen(true)}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-                  Supprimer
-                </button>
+        {/* Brouillon */}
+        {showActions && (
+          <section className="card action-card" style={{ marginBottom: 24 }}>
+            <div className="action-body">
+              <p className="action-text" style={{ margin: "0 0 14px" }}>Ce devis est encore <b>en brouillon</b> — modifiez-le avant de l&apos;envoyer à l&apos;atelier.</p>
+              <div className="response-actions">
+                <Link href={`/demande-devis?draft=${quote.id}`} className="btn btn-secondary">Modifier le brouillon</Link>
+                <button className="btn btn-primary" onClick={() => setConfirmSendOpen(true)} disabled={sendingQuote}>{sendingQuote ? "Envoi…" : "Envoyer le devis"}</button>
+                <button className="btn btn-secondary" onClick={() => setConfirmDeleteOpen(true)}>Supprimer</button>
               </div>
             </div>
-          )}
+          </section>
+        )}
 
-          {/* Détails complets de la demande */}
-          <div className="panel">
-            <div className="panel-header">
-              <h3>Détails de votre demande</h3>
-              <span className="hint">{quote.name || quote.category || "Demande de devis"}</span>
-            </div>
-            <div className="detail-grid">
-              {quote.category ? <div className="detail-item"><div className="label">Catégorie</div><div className="value">{CATEGORY_LABELS[quote.category] ?? quote.category}</div></div> : null}
-              {quote.email ? <div className="detail-item"><div className="label">Email</div><div className="value">{quote.email}</div></div> : null}
-              {quote.phone ? <div className="detail-item"><div className="label">Téléphone</div><div className="value">{quote.phone}</div></div> : null}
-              {quote.tissu ? <div className="detail-item"><div className="label">Tissu</div><div className="value">{quote.tissu}</div></div> : null}
-              {quote.coupe ? <div className="detail-item"><div className="label">Coupe</div><div className="value">{quote.coupe}</div></div> : null}
-              {quote.gabarit ? <div className="detail-item"><div className="label">Gabarit</div><div className="value">{quote.gabarit}</div></div> : null}
-              {quote.style ? <div className="detail-item"><div className="label">Style</div><div className="value">{quote.style}</div></div> : null}
-              {quote.grammage ? <div className="detail-item"><div className="label">Grammage</div><div className="value">{quote.grammage}</div></div> : null}
-              {quote.tailles ? <div className="detail-item"><div className="label">Tailles</div><div className="value">{quote.tailles}</div></div> : null}
-              {quote.quantite ? <div className="detail-item"><div className="label">Quantité</div><div className="value">{quote.quantite}</div></div> : null}
-              {quote.finitions ? <div className="detail-item"><div className="label">Finitions</div><div className="value">{quote.finitions}</div></div> : null}
-              {quote.delai_souhaite ? <div className="detail-item"><div className="label">Délai souhaité</div><div className="value">{formatDate(quote.delai_souhaite)}</div></div> : null}
-              {quote.request_type ? <div className="detail-item"><div className="label">Genre de demande</div><div className="value">{REQUEST_TYPE_LABELS[quote.request_type] ?? quote.request_type}</div></div> : null}
-              {quote.modify_code ? <div className="detail-item"><div className="label">Devis d&apos;origine</div><div className="value">#{quote.modify_code}</div></div> : null}
-              <div className="detail-item"><div className="label">Demande créée le</div><div className="value">{formatDate(quote.created_at)}</div></div>
-            </div>
-            {quote.message ? (
-              <div className="detail-item" style={{ marginBottom: 0 }}>
-                <div className="label">Description du projet</div>
-                <div className="value" style={{ whiteSpace: "pre-wrap" }}>{quote.message}</div>
+        {/* Validation client */}
+        {quote.status === "sent" && (
+          <section className="card action-card" style={{ marginBottom: 24 }}>
+            <div className="action-body">
+              <p className="action-label">Validation requise</p>
+              <h3 className="action-title">Validez votre devis — {formatCurrency(quote.amount)}</h3>
+              <p className="action-text">Aucun paiement n&apos;est dû avant validation. Après validation, la tranche 1 (acompte 50%) ouvrira le paiement.</p>
+              <div className="response-actions">
+                <button className="btn btn-primary" onClick={confirmQuote} disabled={confirmingQuote}>{confirmingQuote ? "Validation…" : "Valider le devis"}</button>
+                <button className="btn btn-secondary" onClick={refuseQuote} disabled={refusingQuote}>{refusingQuote ? "Refus…" : "Refuser"}</button>
               </div>
-            ) : null}
-          </div>
+            </div>
+          </section>
+        )}
 
-          {quoteFiles.length > 0 && (
-            <div className="panel">
-              <div className="panel-header">
-                <h3>Images et documents de référence</h3>
-                <span className="hint">{quoteFiles.length} fichier{quoteFiles.length > 1 ? "s" : ""}</span>
+        <div className="layout">
+          <div>
+            {/* TRACKER */}
+            <section className="card progress-card">
+              <div className="progress-head">
+                <div>
+                  <p className="progress-label">Étape actuelle</p>
+                  <p className="progress-current">{currentStepLabel}</p>
+                </div>
+                <div className="progress-percent">{progressPct}%</div>
               </div>
-              <div className="file-grid">
-                {quoteFiles.map((file, index) => {
-                  const fileUrl = safeUrl(file.url);
+              <div className="stepper">
+                <div className="stepper-track" />
+                <div className="stepper-progress" style={{ width: `${hasCommande ? Math.max(8, (prodIdx + 1) * 16) : 8}%` }} />
+                {STATUTS_PRODUCTION.map((s, i) => {
+                  const done = hasCommande && prodIdx >= 0 && i < prodIdx;
+                  const current = hasCommande && i === prodIdx;
                   return (
-                    <div key={`${file.url}-${index}`} className="file-card">
-                      {isImageType(file) ? (
-                        <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="file-thumb">
-                          <img
-                            src={fileUrl}
-                            alt={file.name || "Pièce jointe"}
-                            loading="lazy"
-                            onError={(e) => {
-                              const img = e.currentTarget as HTMLImageElement;
-                              img.style.display = "none";
-                              img.parentElement?.classList.add("fallback");
-                            }}
-                          />
-                        </a>
-                      ) : (
-                        <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="file-thumb">
-                          <div className="f-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3"/></svg>
-                          </div>
-                        </a>
-                      )}
-                      <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="file-name" title={file.name || "Fichier"}>
-                        {file.name || "Fichier joint"}
-                      </a>
+                    <div key={s} className={`step${done ? " done" : ""}${current ? " current" : ""}`}>
+                      <span className="step-circle">{done ? (<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 4 4L19 6" /></svg>) : null}</span>
+                      <span className="step-name">{s}</span>
+                      <span className="step-date">{current ? "En cours" : done ? "Fait" : ""}</span>
                     </div>
                   );
                 })}
               </div>
-            </div>
-          )}
-
-          {/* Quote Confirm Panel */}
-          {showConfirm && (
-            <div className="quote-confirm">
-              <div className="quote-confirm-top">
-                <span className="icon-box"><svg viewBox="0 0 24 24" fill="none" strokeWidth="2"><path d="M4 12L9 17L20 6"/></svg></span>
-                <span>Prix validé — commande définitive</span>
-              </div>
-              <div className="quote-figures">
-                <div className="quote-figure"><b>{formatCurrency(quote.amount)}</b><span>Montant total chiffré</span></div>
-                <div className="quote-figure"><b>{formatDate(quote.date_livraison_prevue)}</b><span>Date de rendu</span></div>
-                <div className="quote-figure"><b>{quote.admin_signature_name || quote.validated_by || "—"}</b><span>Validé par</span></div>
-              </div>
-              <div className="quote-confirm-note">
-                Chiffré par l&apos;atelier le <b>{formatDate(quote.created_at)}</b>, puis validé par vos soins le <b>{formatDate(quote.admin_signature_at ?? quote.validated_at ?? quote.created_at)}</b>. L&apos;acompte de la <b>tranche 1</b> a déclenché le lancement de la production.
-              </div>
-            </div>
-          )}
-
-          {/* Payment Grid */}
-          {showPayment && (
-            <div className="panel">
-              <div className="panel-header">
-                <h3>Paiement</h3>
-                <span className="hint">2 tranches</span>
-              </div>
-              <div className="payment-grid">
-                <div className="payment-card">
-                  <div className="payment-card-top">
-                    <span className="payment-tag">Tranche 1 · Acompte (50%)</span>
-                    <span className={`payment-status ${depositPayment?.status === "verified" ? "paid" : "waiting"}`}>
-                      {depositPayment?.status === "verified" ? "Payé" : depositPayment?.status === "submitted" ? "En attente" : "À créer"}
-                    </span>
-                  </div>
-                  <div className="payment-amount">{formatCurrency(depositPayment?.amount ?? quote.deposit_amount ?? Number(quote.amount ?? 0) / 2)}</div>
-                  <div className="payment-desc">
-                    {depositPayment?.status === "verified"
-                      ? `Réglé le ${formatDate(depositPayment.reviewed_at ?? depositPayment.created_at)}`
-                      : depositPayment
-                        ? "En attente de vérification par l'atelier"
-                        : "Sera créée automatiquement après validation du devis"}
-                  </div>
+              <div className="last-update">
+                <div className="update-icon">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8v4l3 2" /><circle cx="12" cy="12" r="9" /></svg>
                 </div>
-                <div className="payment-card">
-                  <div className="payment-card-top">
-                    <span className="payment-tag">Tranche 2 · Solde (50%)</span>
-                    <span className={`payment-status ${balancePayment?.status === "verified" ? "paid" : "waiting"}`}>
-                      {balancePayment?.status === "verified" ? "Payé" : "En attente"}
-                    </span>
-                  </div>
-                  <div className="payment-amount">{formatCurrency(balancePayment?.amount ?? balanceAmount)}</div>
-                  <div className="payment-desc">
-                    {balancePayment?.status === "verified"
-                      ? `Réglé le ${formatDate(balancePayment.reviewed_at ?? balancePayment.created_at)}`
-                      : totalAddons > 0
-                        ? `Solde de base + ${formatCurrency(totalAddons)} d'ajouts validés`
-                        : "Exigible à la livraison finale du dernier lot"}
-                  </div>
+                <div>
+                  <p className="update-label">DERNIÈRE MISE À JOUR</p>
+                  <p className="update-title">{hasCommande ? `Commande ${cmd?.numero} — ${cmd?.statut_production}` : `Devis ${STATUS_LABELS[quote.status ?? ""] ?? quote.status}`}</p>
+                  <p className="update-text">
+                    {hasCommande ? `${cmd?.pieces_produites ?? 0} / ${cmd?.quantite ?? 0} pièces produites.` : "Suivi mis à jour automatiquement par l'atelier."}
+                    {quote.date_livraison_prevue ? ` Livraison estimée : ${formatDate(quote.date_livraison_prevue)}.` : ""}
+                  </p>
                 </div>
               </div>
-            </div>
-          )}
+            </section>
 
-          {/* Commandes liées */}
-          <div className="section-head">
-            <h2>Commandes liées à ce devis</h2>
-            <span className="hint">{commandes.length} commande{commandes.length > 1 ? "s" : ""}</span>
-          </div>
-
-          {commandes.length === 0 && quote.status !== "draft" && (
-            <div className="pending-info">
-              <div className="pending-info-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7V12L15 14"/></svg>
-              </div>
-              <div>
-                <div className="pending-info-title">
-                  {quote.status === "pending" && "Votre demande est en cours d'examen par l'atelier."}
-                  {quote.status === "sent" && "Le devis vous a été envoyé — vous pouvez le consulter et le confirmer."}
-                  {quote.status === "needs_info" && "L'atelier a besoin d'informations complémentaires."}
-                  {quote.status === "accepted" && "Devis accepté — la commande sera créée prochainement."}
-                  {quote.status === "production" && "La commande est en cours de production."}
-                  {quote.status === "rejected" && "Ce devis a été refusé."}
-                  {!["pending", "sent", "needs_info", "accepted", "production", "rejected"].includes(quote.status ?? "") && "En attente de traitement par l'atelier."}
-                </div>
-                <div className="pending-info-detail">
-                  {quote.status === "pending" && "Notre équipe vous répondra sous 2 à 3 jours ouvrés avec un chiffrage détaillé."}
-                  {quote.status === "sent" && "Vous avez 7 jours pour confirmer ou refuser ce devis."}
-                  {quote.status === "needs_info" && "N'hésitez pas à nous contacter pour plus de détails."}
-                  {quote.status === "accepted" && "Vous recevrez une notification une fois la commande lancée."}
-                  {quote.status === "production" && "Suivez l'avancement dans la section ci-dessus."}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {commandes.map((cmd) => {
-            const isOpen = openCards.has(cmd.id);
-            const stepIdx = statutToStepIndex(cmd.statut_production);
-            const alerts = buildAlerts(cmd);
-            const delayDays = daysBetween(quote.date_livraison_prevue, cmd.date_livraison_prevue);
-
-            return (
-              <div key={cmd.id} className={`order-card ${isOpen ? "open" : ""}`}>
-                <div className="order-summary" onClick={() => toggleCard(cmd.id)}>
-                  <div className="order-summary-left">
-                    <span className="order-icon"><svg viewBox="0 0 24 24" fill="none" strokeWidth="1.6"><rect x="4" y="7" width="16" height="13" rx="1.5"/><path d="M8 7V5A2 2 0 0110 3H14A2 2 0 0116 5V7"/></svg></span>
-                    <div>
-                      <div className="order-title">Commande #{cmd.numero}</div>
-                      <div className="order-sub">{cmd.quantite} pièces · créée le {formatDate(cmd.date_commande)}</div>
-                    </div>
+            {/* DOUBLE TRANCHE */}
+            {showPayment && (
+              <section className="card" style={{ marginTop: 24 }}>
+                <div className="card-header">
+                  <div>
+                    <h2 className="card-title">Paiement en 2 tranches</h2>
+                    <p className="card-subtitle">Preuve image/PDF obligatoire · vérifiée par l&apos;atelier</p>
                   </div>
-                  <div className="order-summary-right">
-                    {alerts.length > 0 ? (
-                      <span className="alert-count">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 8V13M12 16.5H12.01M10.3 3.9L2.8 17A2 2 0 004.5 20H19.5A2 2 0 0021.2 17L13.7 3.9A2 2 0 0010.3 3.9Z"/></svg>
-                        {alerts.length} alerte{alerts.length > 1 ? "s" : ""}
-                      </span>
-                    ) : (
-                      <span className="alert-count none">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12L9 17L20 6"/></svg>
-                        Aucune alerte
-                      </span>
-                    )}
-                    <div className="mini-progress">
-                      <div className="segs">
-                        {[0, 1, 2, 3, 4].map((i) => (
-                          <span key={i} className={`seg ${i < stepIdx ? "filled" : i === stepIdx ? "current" : ""}`} />
-                        ))}
+                  <span className="pay-total">{formatCurrency(quote.amount)}</span>
+                </div>
+                <div className="tranche-grid">
+                  {(["deposit", "balance"] as const).map((phase) => {
+                    const p = phase === "deposit" ? depositPayment : balancePayment;
+                    const amount = phase === "deposit"
+                      ? (depositPayment?.amount ?? quote.deposit_amount ?? Number(quote.amount ?? 0) / 2)
+                      : (balancePayment?.amount ?? balanceAmount);
+                    const isActive = activePayment?.phase === phase && activePayment?.id === p?.id;
+                    return (
+                      <div key={phase} className={`tranche${p?.status === "verified" ? " is-paid" : ""}${isActive && canUpload ? " is-active" : ""}`}>
+                        <div className="tranche-top">
+                          <span className="tranche-name">{phase === "deposit" ? "Tranche 1 · Acompte (50%)" : "Tranche 2 · Solde (50%)"}</span>
+                          <span className={`pill${p?.status === "verified" ? " ok" : p?.status === "rejected" ? " ko" : p?.proof_path ? " wait" : ""}`}>{payLabel(p)}</span>
+                        </div>
+                        <p className="tranche-amount">{formatCurrency(amount)}</p>
+                        <p className="tranche-desc">
+                          {p?.status === "verified"
+                            ? phase === "deposit" ? "Vérifié — production lancée." : "Vérifié — dossier soldé."
+                            : p?.status === "rejected" ? (p.review_note ?? "Preuve rejetée — renvoyez une preuve.")
+                            : p?.proof_path ? "Preuve envoyée — en attente de vérification."
+                            : phase === "deposit"
+                              ? (quote.status === "sent" ? "Disponible après validation du devis." : "Payez puis déposez la preuve ci-dessous.")
+                              : (depositPayment?.status !== "verified" ? "Disponible après vérification de la tranche 1." : totalAddons > 0 ? `Solde + ${formatCurrency(totalAddons)} d'ajouts validés.` : "Payez puis déposez la preuve ci-dessous.")}
+                        </p>
+                        {p?.transaction_ref && <p className="tranche-ref">Réf : {p.transaction_ref}</p>}
                       </div>
-                      <span className="stage-label">{STEP_LABELS[stepIdx] ?? "—"}</span>
-                    </div>
-                    <svg className={`order-chevron ${isOpen ? "open" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9L12 15L18 9"/></svg>
-                  </div>
+                    );
+                  })}
                 </div>
+                {quote.status === "sent" ? (
+                  <div className="response-body"><p className="response-text">Validez d&apos;abord le devis ci-dessus — aucun paiement n&apos;est dû pour l&apos;instant.</p></div>
+                ) : canUpload && activePayment ? (
+                  <div className="response-body">
+                    <p className="response-text">
+                      {activePayment.phase === "deposit" ? "Tranche 1 — l'acompte vérifié démarre la production." : "Tranche 2 — solde (+ ajouts validés)."} Déposez la preuve de paiement :
+                    </p>
+                    <div className="pay-form">
+                      <select value={paymentType} onChange={(e) => setPaymentType(e.target.value)}>
+                        <option value="mvola">MVola</option>
+                        <option value="orange_money">Orange Money</option>
+                        <option value="virement">Virement bancaire</option>
+                      </select>
+                      <input value={transactionRef} onChange={(e) => setTransactionRef(e.target.value)} placeholder="Référence transaction (min 5 caractères)" />
+                      <input type="file" accept=".pdf,.png,.jpg,.jpeg,.webp" onChange={(e) => setProofFile(e.target.files?.[0] ?? null)} />
+                      <div className="response-actions">
+                        <button className="btn btn-primary" onClick={submitProof} disabled={uploadingProof}>{uploadingProof ? "Envoi…" : "Envoyer la preuve"}</button>
+                      </div>
+                      {proofMessage && <p className="form-status">{proofMessage}</p>}
+                    </div>
+                  </div>
+                ) : activePayment?.proof_path && activePayment.status === "submitted" ? (
+                  <div className="response-body"><p className="response-text">Preuve déjà transmise — l&apos;atelier la vérifie. Nouveau dépôt possible si rejetée.</p></div>
+                ) : null}
+              </section>
+            )}
 
-                {isOpen && (
-                  <div className="order-body">
-                    {/* Stepper */}
-                    <div className="panel-header">
-                      <h3>Avancement</h3>
-                      <span className="hint">Mis à jour le {formatDate(cmd.updated_at ?? cmd.date_commande)}</span>
-                    </div>
-                    <div className="stepper">
-                      <div className="stepper-line" />
-                      <div className="stepper-line-fill" style={{ width: `${Math.min(88, 8 + stepIdx * 15)}%` }} />
-                      {STEP_LABELS.map((label, i) => {
-                        let state: "done" | "current" | "upcoming" = "upcoming";
-                        if (i < stepIdx) state = "done";
-                        else if (i === stepIdx) state = "current";
-                        return (
-                          <div key={i} className={`step ${state}`}>
-                            <div className="step-dot">
-                              {state === "done" && <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12L9 17L20 6"/></svg>}
-                              {state === "current" && <span className="pulse" />}
-                            </div>
-                            <div className="step-label">{label}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
+            {/* ACTION REQUISE */}
+            {actionNeeded && (
+              <section className="card action-card" style={{ marginTop: 24 }}>
+                <div className="card-header">
+                  <div><h2 className="card-title">Action requise</h2><p className="card-subtitle">Votre intervention est nécessaire</p></div>
+                </div>
+                <div className="action-body">
+                  <p className="action-label">{actionNeeded.label}</p>
+                  <h3 className="action-title">{actionNeeded.title}</h3>
+                  <p className="action-text">{actionNeeded.text}</p>
+                  <button className="btn btn-primary" onClick={() => { setResponseOpen(true); setReportingOpen(true); }}>
+                    {rejectedProof ? "Renvoyer une preuve" : quote.status === "sent" ? "Valider le devis" : "Voir le problème"}
+                  </button>
+                </div>
+              </section>
+            )}
 
-                    {/* Étapes à valider */}
-                    <div className="panel-header">
-                      <h3>Étapes à valider</h3>
-                      <span className="hint">{displayCheckpoints.filter((c) => c.state === "action").length} en attente de votre validation</span>
-                    </div>
-                    <div className="checkpoint-list">
-                      {displayCheckpoints.length === 0 ? (
-                        <div className="hl-empty" style={{ padding: "20px 0" }}>Aucune étape pour le moment — l&apos;atelier les ajoutera au fur et à mesure de l&apos;avancement.</div>
-                      ) : (
-                      displayCheckpoints.map((cp) => (
-                        <div key={cp.id} className={`checkpoint-item ${cp.state}`}>
-                          <div className="cp-marker">
-                            {cp.state === "done" && <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12L9 17L20 6"/></svg>}
-                            {cp.state === "action" && <span className="dot-pulse" />}
+            {/* ÉTAPES À VALIDER */}
+            {displayCheckpoints.length > 0 && (
+              <section className="card" style={{ marginTop: 24 }}>
+                <div className="card-header">
+                  <div><h2 className="card-title">Étapes à valider</h2><p className="card-subtitle">{displayCheckpoints.filter((c) => c.state === "action").length} en attente de votre validation</p></div>
+                </div>
+                <div className="timeline">
+                  {displayCheckpoints.map((cp) => (
+                    <article key={cp.id} className={`timeline-item${cp.state === "done" ? " success" : cp.state === "action" ? " current" : ""}`}>
+                      <div className="timeline-date">{cp.state === "done" ? "Fait" : cp.state === "action" ? "À valider" : "À venir"}</div>
+                      <div className="timeline-marker"><span className="timeline-dot" /></div>
+                      <div>
+                        <h3 className="timeline-title">{cp.title}</h3>
+                        {cp.desc && <p className="timeline-description">{cp.desc}</p>}
+                        {cp.meta && <p className="timeline-description">{cp.meta}</p>}
+                        {cp.state === "action" && (
+                          <div className="response-actions" style={{ marginTop: 8 }}>
+                            <button className="btn btn-primary" onClick={() => validateCheckpoint(cp.id)} disabled={validatingCp === cp.id}>{validatingCp === cp.id ? "Validation…" : "Valider cette étape"}</button>
                           </div>
-                          <div className="cp-body">
-                            <div className="cp-title">{cp.title}</div>
-                            <div className="cp-desc">{cp.desc}</div>
-                            {cp.meta && <div className="cp-meta">{cp.meta}</div>}
-                            {cp.state === "action" && (
-                              <>
-                                <div className="cp-actions">
-                                  <button className="btn-sm-gold" onClick={() => validateCheckpoint(cp.id)} disabled={validatingCp === cp.id}>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M4 12L9 17L20 6"/></svg>
-                                    {validatingCp === cp.id ? "Validation…" : "Valider cette étape"}
-                                  </button>
-                                  <button className="btn-sm-outline" onClick={() => { setReportingCp(reportingCp === cp.id ? null : cp.id); setReportMessage(null); }}>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 8V13M12 16.5H12.01M10.3 3.9L2.8 17A2 2 0 004.5 20H19.5A2 2 0 0021.2 17L13.7 3.9A2 2 0 0010.3 3.9Z"/></svg>
-                                    Signaler un problème
-                                  </button>
-                                </div>
-                                {reportingCp === cp.id && (
-                                  <div className="addon-form open" style={{ marginTop: 12 }}>
-                                    <label>Décrivez le problème rencontré</label>
-                                    <textarea value={reportText} onChange={(e) => setReportText(e.target.value)} placeholder="Ex. : La couleur du tissu ne correspond pas au prototype…" />
-                                    <div className="form-actions">
-                                      <button className="btn-sm-gold" onClick={submitReport} disabled={reportSending || !reportText.trim()}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
-                                        {reportSending ? "Envoi…" : "Envoyer le signalement"}
-                                      </button>
-                                      <button className="btn-sm-outline" onClick={() => setReportingCp(null)}>Annuler</button>
-                                    </div>
-                                    {reportMessage && <p className="form-status">{reportMessage}</p>}
-                                  </div>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      )))}
-                    </div>
-
-                    {/* Points d'attention / Avancées */}
-                    <div className="highlights-grid">
-                      <div className="hl-panel warn">
-                        <div className="hl-head">
-                          <span className="icon-box"><svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8"><path d="M12 9V13M12 16.5H12.01M10.3 3.9L2.8 17A2 2 0 004.5 20H19.5A2 2 0 0021.2 17L13.7 3.9A2 2 0 0010.3 3.9Z"/></svg></span>
-                          <h4>Points d&apos;attention</h4>
-                          <span>{Math.min(warnItems.length, 3)} sur {warnItems.length}</span>
-                        </div>
-                        {warnItems.length === 0 ? (
-                          <div className="hl-empty">Aucun point d&apos;attention</div>
-                        ) : (
-                          <>
-                            {warnItems.slice(0, warnExtraOpen ? warnItems.length : 3).map((a, i: number) => (
-                              <div key={i} className="hl-item">
-                                <span className="num">{String(i + 1).padStart(2, "0")}</span>
-                                <div className="hl-item-body">
-                                  <b>{a.message}</b>
-                                  {a.detail && <p>{a.detail}</p>}
-                                  <span className="impact">{a.impact ?? (a.type === "delay" ? "Retard" : "À surveiller")}</span>
-                                </div>
-                              </div>
-                            ))}
-                            {warnItems.length > 3 && (
-                              <button className="see-more" onClick={() => setWarnExtraOpen(!warnExtraOpen)}>
-                                {warnExtraOpen ? "Voir moins " : `Voir plus (+${warnItems.length - 3}) `}
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9L12 15L18 9"/></svg>
-                              </button>
-                            )}
-                          </>
                         )}
                       </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
 
-                      <div className="hl-panel good">
-                        <div className="hl-head">
-                          <span className="icon-box"><svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8"><path d="M4 12L9 17L20 6"/></svg></span>
-                          <h4>Avancées</h4>
-                          <span>{Math.min(goodItems.length, 3)} sur {goodItems.length}</span>
-                        </div>
-                        {goodItems.length === 0 ? (
-                          <div className="hl-empty">Aucune avancée signalée</div>
-                        ) : (
-                          <>
-                            {goodItems.slice(0, goodExtraOpen ? goodItems.length : 3).map((a, i: number) => (
-                              <div key={i} className="hl-item">
-                                <span className="num">{String(i + 1).padStart(2, "0")}</span>
-                                <div className="hl-item-body">
-                                  <b>{a.message}</b>
-                                  {a.detail && <p>{a.detail}</p>}
-                                  <span className="impact">{a.impact ?? "Terminé"}</span>
-                                </div>
-                              </div>
-                            ))}
-                            {goodItems.length > 3 && (
-                              <button className="see-more" onClick={() => setGoodExtraOpen(!goodExtraOpen)}>
-                                {goodExtraOpen ? "Voir moins " : `Voir plus (+${goodItems.length - 3}) `}
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9L12 15L18 9"/></svg>
-                              </button>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Ajouts demandés */}
-                    <div className="panel-header">
-                      <h3>Ajouts demandés</h3>
-                      {displayAddons.length > 0 && <span className="hint">+{formatNumber(sumAllAddons)} Ar au total</span>}
-                    </div>
-                    <div className="addon-section">
-                      {displayAddons.length === 0 ? (
-                        <div className="hl-empty" style={{ padding: "20px 0" }}>Aucun ajout pour le moment — décrivez une modification ci-dessous, l&apos;atelier la chiffrera.</div>
-                      ) : (
-                      <>
-                      {displayAddons.map((addon) => (
-                        <div key={addon.id} className="addon-item">
-                          <div className="addon-left">
-                            <b>{addon.title}</b>
-                            <p>{addon.desc}</p>
-                          </div>
-                          <div className="addon-right">
-                            <span className="addon-price">+{formatNumber(addon.price)} Ar</span>
-                            <span className={`addon-status ${addon.status}`}>
-                              {addon.status === "included" ? "Inclus au total" : addon.status === "rejected" ? "Refusé" : "En attente de chiffrage"}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                      {totalAddons > 0 && (
-                      <div className="addon-total">
-                        <span>Total des ajouts validés, ajouté au solde de livraison</span>
-                        <b>+{formatNumber(totalAddons)} Ar</b>
-                      </div>
-                      )}
-                      </>
-                      )}
-                      {addonMessage && <p className="form-status">{addonMessage}</p>}
-                      <button className="addon-add-btn" onClick={() => { setAddonFormOpen(!addonFormOpen); setAddonMessage(null); }}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5V19M5 12H19"/></svg>
-                        Demander un ajout
-                      </button>
-                      {addonFormOpen && (
-                        <div className="addon-form open">
-                          <label>Décrivez ce que vous souhaitez ajouter ou modifier</label>
-                          <textarea value={addonText} onChange={(e) => setAddonText(e.target.value)} placeholder="Ex. : Ajouter un motif brodé sur la manche gauche, changer la couleur des boutons…" />
-                          <p className="hint-sm">L&apos;atelier vous répondra avec un chiffrage de l&apos;ajout avant de l&apos;intégrer à la commande.</p>
-                          <button className="btn-sm-gold" onClick={submitAddon} disabled={addonSending || !addonText.trim()}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
-                            {addonSending ? "Envoi…" : "Envoyer la demande"}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Retour de l'atelier */}
-                    <div className="panel-header">
-                      <h3>Retour de l&apos;atelier</h3>
-                      <span className="hint">{allMessages.length} message{allMessages.length > 1 ? "s" : ""}</span>
-                    </div>
+            {/* HISTORIQUE */}
+            <section className="card" style={{ marginTop: 24 }}>
+              <div className="card-header">
+                <div><h2 className="card-title">Historique de la commande</h2><p className="card-subtitle">Toutes les mises à jour communiquées par l&apos;atelier</p></div>
+              </div>
+              <div className="timeline">
+                {timeline.map((t, i) => (
+                  <article key={i} className={`timeline-item ${t.tone}`}>
+                    <div className="timeline-date">{t.date}</div>
+                    <div className="timeline-marker"><span className="timeline-dot" /></div>
                     <div>
-                      {allMessages.length === 0 ? (
-                        <div className="hl-empty" style={{ padding: "20px 0" }}>Aucun message de l&apos;atelier pour le moment.</div>
-                      ) : (
-                        allMessages.map((msg, i: number) => (
-                          <div key={i} className="feedback-item">
-                            <div className="fb-avatar">A</div>
-                            <div className="fb-body">
-                              <div className="fb-top">
-                                <span className="fb-name">Atelier JMR</span>
-                                <span className="fb-date">{formatDate(msg.date ?? msg.created_at)}</span>
-                              </div>
-                              <p className="fb-text">{msg.message}</p>
-                            </div>
-                          </div>
-                        ))
-                      )}
+                      <p className="timeline-step">{t.step}</p>
+                      <h3 className="timeline-title">{t.title}</h3>
+                      <p className="timeline-description">{t.desc}</p>
+                      <div className="timeline-meta"><span className={`timeline-tag tag-${t.tone === "success" ? "success" : t.tone === "current" ? "warning" : t.tone}`}>{t.tag}</span><span>Atelier JMR Textile</span></div>
                     </div>
+                  </article>
+                ))}
+              </div>
+            </section>
 
-                    {/* Comparatif */}
-                    <div className="panel-header">
-                      <h3>Comparatif devis · commande · livraison</h3>
-                      <span className="hint">Se complète automatiquement</span>
+            {/* AJOUTS */}
+            <section className="card" style={{ marginTop: 24 }}>
+              <div className="card-header">
+                <div><h2 className="card-title">Ajouts demandés</h2><p className="card-subtitle">En production vous pouvez augmenter le devis — chiffré puis ajouté au solde</p></div>
+                {displayAddons.length > 0 && <span className="pay-total">+{formatNumber(displayAddons.reduce((s, a) => s + (a.price > 0 ? a.price : 0), 0))} Ar</span>}
+              </div>
+              <div className="response-body">
+                {displayAddons.length === 0 ? (
+                  <p className="response-text">Aucun ajout pour le moment — décrivez une modification ci-dessous.</p>
+                ) : (
+                  displayAddons.map((a) => (
+                    <div key={a.id} className="addon-row">
+                      <div><b>{a.title}</b><p>{a.desc}</p></div>
+                      <div className="addon-right"><span>+{formatNumber(a.price)} Ar</span><span className={`pill${a.status === "included" ? " ok" : a.status === "rejected" ? " ko" : " wait"}`}>{a.status === "included" ? "Inclus au solde" : a.status === "rejected" ? "Refusé" : "En chiffrage"}</span></div>
                     </div>
-                    <table className="compare-table">
-                      <thead>
-                        <tr>
-                          <th />
-                          <th>Devis</th>
-                          <th className="col-active">Bon de commande</th>
-                          <th>Livraison</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>Quantité</td>
-                          <td>{quote.quantite ?? "—"} pièces</td>
-                          <td className="col-active">{cmd.quantite} pièces</td>
-                          <td>
-                            {cmd.date_livraison_reelle ? (
-                              `${cmd.pieces_produites ?? "—"} pièces`
-                            ) : (
-                              <span className="pending-tag">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7V12L15 14"/></svg>
-                                À venir
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>Prix unitaire</td>
-                          <td>{formatCurrency(cmd.quantite ? Number(quote.amount ?? 0) / cmd.quantite : null)}</td>
-                          <td className="col-active">{formatCurrency(cmd.prix_unitaire)}</td>
-                          <td>
-                            {cmd.date_livraison_reelle ? (
-                              formatCurrency(cmd.total)
-                            ) : (
-                              <span className="pending-tag">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7V12L15 14"/></svg>
-                                À venir
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>Date de rendu</td>
-                          <td>{formatDate(quote.date_livraison_prevue)}</td>
-                          <td className="col-active">
-                            {formatDate(cmd.date_livraison_prevue)}
-                            {delayDays !== null && delayDays > 0 && <span style={{ color: "var(--warn)", fontSize: "11px" }}> (+{delayDays}j)</span>}
-                          </td>
-                          <td>
-                            {cmd.date_livraison_reelle ? (
-                              formatDate(cmd.date_livraison_reelle)
-                            ) : (
-                              <span className="pending-tag">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7V12L15 14"/></svg>
-                                À venir
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>Statut</td>
-                          <td>{STATUS_LABELS[quote.status ?? ""] ?? quote.status}</td>
-                          <td className="col-active">{cmd.statut_production ?? "—"}</td>
-                          <td>
-                            {cmd.date_livraison_reelle ? (
-                              "Livré"
-                            ) : (
-                              <span className="pending-tag">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7V12L15 14"/></svg>
-                                Non généré
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                  ))
+                )}
+                {totalAddons > 0 && <p className="response-text"><b>+{formatNumber(totalAddons)} Ar</b> d&apos;ajouts validés — inclus dans la tranche 2.</p>}
+                {addonMessage && <p className="form-status">{addonMessage}</p>}
+                <button className="btn btn-secondary" onClick={() => setAddonFormOpen(!addonFormOpen)}>Demander un ajout</button>
+                {addonFormOpen && (
+                  <div className="pay-form" style={{ marginTop: 12 }}>
+                    <textarea value={addonText} onChange={(e) => setAddonText(e.target.value)} placeholder="Ex. : Ajouter un motif brodé sur la manche gauche…" />
+                    <div className="response-actions">
+                      <button className="btn btn-primary" onClick={submitAddon} disabled={addonSending || !addonText.trim()}>{addonSending ? "Envoi…" : "Envoyer la demande"}</button>
+                    </div>
                   </div>
                 )}
               </div>
-            );
-          })}
-        </main>
+            </section>
 
-        <footer className="site-footer">JMR Textile © 2026 — Suivi mis à jour automatiquement par l&apos;atelier</footer>
-      </div>
+            {/* RÉPONSE / REMARQUE */}
+            <section className="card response-card" style={{ display: responseOpen || reportingOpen ? "block" : "none" }}>
+              <div className="card-header">
+                <div><h2 className="card-title">Répondre / remarque</h2><p className="card-subtitle">Fichier + message à l&apos;atelier</p></div>
+              </div>
+              <div className="response-body">
+                <p className="response-text">Envoyez un fichier ou un commentaire à l&apos;atelier.</p>
+                <textarea value={reportText} onChange={(e) => setReportText(e.target.value)} placeholder="Ajouter un message..." />
+                <div className="response-actions">
+                  <button className="btn btn-primary" onClick={submitReport} disabled={reportSending || !reportText.trim()}>{reportSending ? "Envoi…" : "Envoyer la réponse"}</button>
+                  <button className="btn btn-secondary" onClick={() => { setResponseOpen(false); setReportingOpen(false); }}>Annuler</button>
+                </div>
+                {reportMessage && <p className="form-status">{reportMessage}</p>}
+              </div>
+            </section>
+            {!responseOpen && !reportingOpen && (
+              <button className="btn btn-secondary" style={{ marginTop: 16 }} onClick={() => { setResponseOpen(true); setReportingOpen(true); }}>Faire une remarque</button>
+            )}
+          </div>
+
+          <aside>
+            <section className="card">
+              <div className="card-header"><div><h2 className="card-title">Commande</h2><p className="card-subtitle">Informations générales</p></div></div>
+              <div className="info-body">
+                <div className="info-row"><span className="info-label">Référence</span><span className="info-value">#{shortId(quote.id)}</span></div>
+                <div className="info-row"><span className="info-label">Quantité</span><span className="info-value">{quote.quantite ?? cmd?.quantite ?? "—"} pièces</span></div>
+                <div className="info-row"><span className="info-label">Produit</span><span className="info-value">{quote.category ? (CATEGORY_LABELS[quote.category] ?? quote.category) : "—"}</span></div>
+                <div className="info-row"><span className="info-label">Matière</span><span className="info-value">{quote.tissu ?? "—"}</span></div>
+                <div className="info-row"><span className="info-label">Grammage</span><span className="info-value">{quote.grammage ?? "—"}</span></div>
+                <div className="info-row"><span className="info-label">Total</span><span className="info-value">{formatCurrency(quote.amount)}</span></div>
+              </div>
+            </section>
+
+            <section className="card" style={{ marginTop: 20 }}>
+              <div className="card-header"><div><h2 className="card-title">Livraison</h2><p className="card-subtitle">Estimation actuelle</p></div></div>
+              <div className="delivery-body">
+                <p className="delivery-date">{formatDate(quote.date_livraison_prevue ?? cmd?.date_livraison_prevue)}</p>
+                <div className="delivery-line" />
+                <p className="delivery-text">Cette date peut évoluer selon l&apos;avancement. Vous serez informé automatiquement.</p>
+              </div>
+            </section>
+
+            <section className="card" style={{ marginTop: 20 }}>
+              <div className="card-header"><div><h2 className="card-title">Notifications</h2><p className="card-subtitle">Concernant ce dossier</p></div></div>
+              <div className="notification-list">
+                {[...goodItems, ...warnItems].length === 0 ? (
+                  <div className="notification-item"><div className="notification-content"><p className="notification-title">Aucune notification</p></div></div>
+                ) : (
+                  [...goodItems, ...warnItems].slice(0, 5).map((n, i) => (
+                    <div key={i} className="notification-item"><span className="notification-status" /><div className="notification-content"><p className="notification-title">{n.message}</p><p className="notification-time">{formatDateShort(n.date ?? n.created_at)}</p></div></div>
+                  ))
+                )}
+              </div>
+            </section>
+
+            {quoteFiles.length > 0 && (
+              <section className="card" style={{ marginTop: 20 }}>
+                <div className="card-header"><div><h2 className="card-title">Fichiers</h2><p className="card-subtitle">{quoteFiles.length} fichier(s)</p></div></div>
+                <div className="notification-list">
+                  {quoteFiles.map((f, i) => (
+                    <div key={i} className="notification-item"><div className="notification-content"><a className="notification-title" style={{ color: "var(--gold)" }} href={safeUrl(f.url)} target="_blank" rel="noopener noreferrer">{f.name || "Fichier joint"}</a></div></div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <section className="card" style={{ marginTop: 20 }}>
+              <div className="card-header"><div><h2 className="card-title">Besoin d&apos;aide ?</h2><p className="card-subtitle">Une question sur ce dossier ?</p></div></div>
+              <div className="response-body">
+                <p className="response-text">Contactez directement l&apos;équipe JMR Textile.</p>
+                <Link href="/contact" className="btn btn-secondary">Contacter l&apos;atelier</Link>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </main>
 
       <ConfirmDialog
         open={confirmSendOpen}
@@ -956,7 +808,6 @@ function DevisDetailContent() {
         onCancel={() => setConfirmSendOpen(false)}
         onConfirm={sendQuote}
       />
-
       <ConfirmDialog
         open={confirmDeleteOpen}
         title="Supprimer ce brouillon ?"
@@ -983,9 +834,7 @@ function DevisDetailContent() {
 export default function DevisDetailPage() {
   return (
     <Suspense fallback={
-      <div className="loading-screen">
-        <div className="loading-text">Chargement…</div>
-      </div>
+      <div className="loading-screen"><div className="loading-text">Chargement…</div></div>
     }>
       <DevisDetailContent />
     </Suspense>
@@ -994,271 +843,155 @@ export default function DevisDetailPage() {
 
 const globalStyles = `
 :root{
-  --bg-deep:#131c2b;
-  --bg-panel:#0f1826;
-  --card:#1b263c;
-  --card-border:#2b3852;
-  --input-bg:#141e30;
+  --navy-950:#0f1826;
+  --navy-900:#1b263c;
+  --navy-850:#1e2a38;
+  --navy-800:#25303a;
+  --navy-border:#2b3852;
   --gold:#FFB42D;
-  --gold-light:#FFB42D;
-  --gold-dim:#FFB42D;
-  --text-cream:#f3efe4;
-  --text-muted:#8b93a7;
-  --text-faint:#5c6478;
-  --warn:#e08b52;
-  --warn-bg:rgba(224,139,82,0.09);
-  --warn-border:rgba(224,139,82,0.28);
-  --good:#5cb87d;
-  --good-bg:rgba(92,184,125,0.09);
-  --good-border:rgba(92,184,125,0.28);
-  --font-serif:'Fraunces',serif;
-  --font-mono:'JetBrains Mono',monospace;
+  --gold-bright:#FFC964;
+  --cream:#f3efe4;
+  --slate:#8b93a7;
+  --slate-dim:#5c6478;
+  --green:#5cb87d;
+  --blue:#5c9ad9;
+  --purple:#a08fd1;
+  --orange:#e08b52;
+  --red:#e05252;
+  --serif:'Fraunces',Georgia,serif;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg-deep);font-family:'Inter',system-ui,sans-serif;color:var(--text-cream);-webkit-font-smoothing:antialiased;}
-a{color:inherit;}
-.container{max-width:1100px;margin:0 auto;padding:0 40px;}
-@media(max-width:760px){.container{padding:0 20px;}}
-
-.loading-screen{min-height:100vh;background:var(--bg-deep);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth;}
+body{margin:0;background:var(--navy-950);color:var(--cream);font-family:var(--sans);line-height:1.5;}
+button,input,textarea,select{font:inherit;}
+button{cursor:pointer;}
+a{color:inherit;text-decoration:none;}
+:focus-visible{outline:2px solid var(--gold-bright);outline-offset:3px;}
+.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-bottom:1px solid var(--navy-border);}
+.wordmark{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--gold-bright);}
+.wordmark span{color:var(--cream);}
+.topnav{display:flex;align-items:center;gap:28px;color:var(--slate);font-size:14px;}
+.topnav a:hover{color:var(--cream);}
+.user{display:flex;align-items:center;gap:8px;padding-left:20px;border-left:1px solid var(--navy-border);color:var(--cream);}
+main{width:min(1120px,calc(100% - 80px));margin:0 auto;padding:38px 0 80px;}
+.breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:22px;color:var(--slate-dim);font-size:13px;}
+.breadcrumb a:hover{color:var(--cream);}
+.breadcrumb-current{color:var(--slate);}
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:30px;padding-bottom:26px;border-bottom:1px solid var(--navy-border);}
+.eyebrow{margin:0 0 6px;color:var(--gold-bright);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+h1{margin:0;font-family:var(--serif);font-size:36px;line-height:1.15;font-weight:600;color:var(--cream);}
+.order-description{margin:8px 0 0;color:var(--slate);font-size:14px;}
+.order-ref{margin-top:8px;color:var(--slate-dim);font-family:monospace;font-size:12px;}
+.status{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;color:var(--gold-bright);background:rgba(255,180,45,.14);font-size:12px;font-weight:600;white-space:nowrap;}
+.status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
+.layout{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(280px,.8fr);gap:24px;margin-top:28px;}
+.card{background:var(--navy-850);border:1px solid var(--navy-border);border-radius:11px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 22px 17px;border-bottom:1px solid var(--navy-border);}
+.card-title{margin:0;font-family:var(--serif);font-size:19px;font-weight:500;color:var(--cream);}
+.card-subtitle{margin:4px 0 0;color:var(--slate-dim);font-size:12px;}
+.pay-total{color:var(--gold-bright);font-family:var(--serif);font-size:20px;white-space:nowrap;}
+.progress-card{padding:25px 24px 27px;}
+.progress-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;}
+.progress-label{margin:0;color:var(--slate);font-size:13px;}
+.progress-current{margin:4px 0 0;color:var(--cream);font-family:var(--serif);font-size:22px;}
+.progress-percent{color:var(--gold-bright);font-family:var(--serif);font-size:25px;}
+.stepper{position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:0;}
+.stepper-track{position:absolute;left:12px;right:12px;top:10px;height:2px;background:var(--navy-border);}
+.stepper-progress{position:absolute;left:12px;top:10px;height:2px;background:var(--gold);}
+.step{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;}
+.step-circle{width:21px;height:21px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--navy-850);border:2px solid var(--navy-border);color:var(--navy-950);}
+.step.done .step-circle{background:var(--gold);border-color:var(--gold);}
+.step.current .step-circle{border-color:var(--gold);box-shadow:0 0 0 5px rgba(255,180,45,.15);}
+.step-name{max-width:105px;margin-top:11px;color:var(--slate-dim);font-size:11.5px;line-height:1.35;}
+.step.done .step-name,.step.current .step-name{color:var(--cream);}
+.step-date{margin-top:3px;color:var(--slate-dim);font-size:10px;}
+.step.current .step-date{color:var(--gold-bright);}
+.last-update{display:flex;gap:13px;margin-top:30px;padding-top:18px;border-top:1px dashed var(--navy-border);}
+.update-icon{width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--gold-bright);background:rgba(255,180,45,.1);}
+.update-label{margin:0 0 2px;color:var(--slate-dim);font-size:11px;}
+.update-title{margin:0;color:var(--cream);font-size:14px;font-weight:500;}
+.update-text{margin:4px 0 0;color:var(--slate);font-size:13px;}
+.action-card{border-color:rgba(255,180,45,.45);background:linear-gradient(135deg,rgba(255,180,45,.08),transparent 55%),var(--navy-850);}
+.action-body{padding:20px 22px 22px;}
+.action-label{margin:0 0 3px;color:var(--orange);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.action-title{margin:0;font-family:var(--serif);font-size:17px;font-weight:500;color:var(--cream);}
+.action-text{margin:14px 0 18px;color:var(--slate);font-size:13px;line-height:1.6;}
+.action-text b{color:var(--cream);}
+.btn{border:0;border-radius:7px;padding:10px 14px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary{background:var(--gold);color:#1a1204;}
+.btn-primary:hover{background:var(--gold-bright);}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed;}
+.btn-secondary{background:transparent;border:1px solid var(--navy-border);color:var(--cream);}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold-bright);}
+.timeline{padding:7px 22px 20px;}
+.timeline-item{position:relative;display:grid;grid-template-columns:70px 20px 1fr;gap:13px;padding:17px 0;border-bottom:1px solid var(--navy-border);}
+.timeline-item:last-child{border-bottom:0;}
+.timeline-date{padding-top:2px;color:var(--slate-dim);font-size:11px;text-align:right;}
+.timeline-marker{position:relative;display:flex;justify-content:center;}
+.timeline-marker::before{content:"";position:absolute;top:15px;bottom:-35px;width:1px;background:var(--navy-border);}
+.timeline-item:last-child .timeline-marker::before{display:none;}
+.timeline-dot{position:relative;z-index:2;width:9px;height:9px;margin-top:4px;border-radius:50%;background:var(--slate-dim);border:2px solid var(--navy-850);box-shadow:0 0 0 1px var(--navy-border);}
+.timeline-item.success .timeline-dot{background:var(--green);}
+.timeline-item.current .timeline-dot{background:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 0 5px rgba(255,180,45,.12);}
+.timeline-item.warning .timeline-dot{background:var(--orange);}
+.timeline-item.problem .timeline-dot{background:var(--red);}
+.timeline-step{margin:0 0 3px;color:var(--slate-dim);font-size:11px;text-transform:uppercase;letter-spacing:.035em;}
+.timeline-title{margin:0;color:var(--cream);font-size:14px;font-weight:500;}
+.timeline-description{margin:5px 0 0;color:var(--slate);font-size:13px;line-height:1.55;}
+.timeline-meta{display:flex;align-items:center;gap:9px;margin-top:8px;color:var(--slate-dim);font-size:10.5px;}
+.timeline-tag{padding:3px 7px;border-radius:5px;font-size:10px;}
+.tag-success{color:var(--green);background:rgba(92,184,125,.1);}
+.tag-warning{color:var(--orange);background:rgba(224,139,82,.1);}
+.tag-current{color:var(--gold-bright);background:rgba(255,180,45,.12);}
+.tag-problem{color:var(--red);background:rgba(224,82,82,.1);}
+.info-body{padding:19px 22px;}
+.info-row{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid var(--navy-border);}
+.info-row:last-child{border-bottom:0;}
+.info-label{color:var(--slate-dim);font-size:12px;}
+.info-value{color:var(--cream);font-size:12.5px;font-weight:500;text-align:right;}
+.delivery-body{padding:20px 22px;}
+.delivery-date{margin:0;color:var(--gold-bright);font-family:var(--serif);font-size:23px;}
+.delivery-line{height:1px;margin:12px 0 14px;background:repeating-linear-gradient(to right,var(--gold) 0 6px,transparent 6px 13px);opacity:.5;}
+.delivery-text{margin:0;color:var(--slate);font-size:12px;}
+.notification-list{padding:5px 0;}
+.notification-item{display:flex;gap:12px;padding:15px 22px;border-bottom:1px solid var(--navy-border);}
+.notification-item:last-child{border-bottom:0;}
+.notification-status{width:7px;height:7px;flex-shrink:0;margin-top:6px;border-radius:50%;background:var(--gold);}
+.notification-content{min-width:0;}
+.notification-title{margin:0;color:var(--cream);font-size:12.5px;font-weight:500;}
+.notification-time{margin:3px 0 0;color:var(--slate-dim);font-size:10.5px;}
+.response-card{margin-top:24px;}
+.response-body{padding:20px 22px 22px;}
+.response-text{margin:0 0 15px;color:var(--slate);font-size:13px;}
+.response-text b{color:var(--cream);}
+.response-actions{display:flex;gap:9px;flex-wrap:wrap;}
+.response-body textarea,.pay-form textarea{width:100%;min-height:90px;resize:vertical;padding:12px;background:var(--navy-900);border:1px solid var(--navy-border);border-radius:7px;color:var(--cream);margin-bottom:12px;}
+.pay-form{display:grid;gap:10px;}
+.pay-form select,.pay-form input[type="text"],.pay-form input:not([type]){background:var(--navy-900);border:1px solid var(--navy-border);border-radius:7px;padding:10px 12px;color:var(--cream);}
+.pay-form input[type="file"]{color:var(--slate);font-size:12px;}
+.tranche-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px 22px 0;}
+.tranche{background:var(--navy-900);border:1px solid var(--navy-border);border-radius:10px;padding:18px;}
+.tranche.is-paid{border-color:rgba(92,184,125,.4);}
+.tranche.is-active{border-color:rgba(255,180,45,.55);box-shadow:0 0 0 1px rgba(255,180,45,.25);}
+.tranche-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.tranche-name{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);font-weight:700;}
+.tranche-amount{font-family:var(--serif);font-size:24px;color:var(--gold-bright);margin:0 0 6px;}
+.tranche-desc{font-size:12px;color:var(--slate);margin:0;}
+.tranche-ref{font-size:11px;color:var(--slate-dim);font-family:monospace;margin:6px 0 0;}
+.pill{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:100px;background:var(--navy-800);color:var(--slate);border:1px solid var(--navy-border);white-space:nowrap;}
+.pill.ok{background:rgba(92,184,125,.12);color:var(--green);border-color:rgba(92,184,125,.35);}
+.pill.ko{background:rgba(224,82,82,.12);color:var(--red);border-color:rgba(224,82,82,.35);}
+.pill.wait{background:rgba(255,180,45,.12);color:var(--gold-bright);border-color:rgba(255,180,45,.35);}
+.addon-row{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--navy-border);font-size:13px;}
+.addon-row:last-of-type{border-bottom:0;}
+.addon-row p{margin:4px 0 0;color:var(--slate);font-size:12px;}
+.addon-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.form-status{font-size:12px;color:var(--gold-bright);}
+.loading-screen{min-height:100vh;background:var(--navy-950);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
 .loading-text{color:var(--gold);font-size:18px;}
-.error-text{color:var(--warn);font-size:18px;}
+.error-text{color:var(--red);font-size:18px;}
 .back-link{color:var(--gold);text-decoration:underline;font-size:16px;}
-
-.site-header{border-bottom:1px solid rgba(255,255,255,0.06);}
-.site-nav{display:flex;align-items:center;justify-content:space-between;padding:20px 0;}
-.logo{display:flex;align-items:center;gap:10px;font-family:var(--font-serif);font-weight:600;font-size:20px;letter-spacing:0.08em;color:var(--gold-light);text-decoration:none;}
-.logo svg{width:26px;height:26px;}
-
-.breadcrumb{display:flex;align-items:center;gap:8px;padding:28px 0 0;font-size:12px;color:var(--text-faint);}
-.breadcrumb a{color:var(--text-muted);text-decoration:none;}
-.breadcrumb a:hover{color:var(--gold-light);}
-
-.page-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px;padding:18px 0 36px;}
-.head-left .eyebrow{font-size:11px;letter-spacing:0.24em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
-.head-left .eyebrow::before{content:"";width:22px;height:1px;background:var(--gold-dim);}
-.head-left h1{font-family:var(--font-serif);font-weight:500;font-size:clamp(26px,3.4vw,34px);margin:0 0 10px;color:var(--gold-light);}
-.head-left .ref{font-family:var(--font-mono);font-size:12px;color:var(--text-faint);}
-.head-left .ref b{color:var(--text-muted);font-weight:500;}
-
-.status-pill-lg{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:100px;background:var(--input-bg);border:1px solid var(--card-border);font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);font-weight:600;}
-.status-pill-lg .dot{width:8px;height:8px;border-radius:50%;background:#8b93a7;}
-.status-pill-lg.accepted .dot{background:var(--good);}
-.status-pill-lg.production .dot{background:#5c9ad9;}
-.status-pill-lg.completed .dot{background:var(--good);}
-.status-pill-lg.draft .dot{background:var(--text-faint);}
-.status-pill-lg.pending .dot{background:var(--gold);}
-
-.action-bar{background:linear-gradient(135deg,rgba(217,165,72,0.08),rgba(217,165,72,0.02));border:1px solid rgba(217,165,72,0.22);border-radius:12px;padding:18px 24px;margin-bottom:36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
-.msg{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-muted);}
-.msg svg{width:16px;height:16px;color:var(--gold-light);flex-shrink:0;}
-.msg b{color:var(--text-cream);}
-.action-buttons{display:flex;gap:10px;flex-wrap:wrap;}
-
-.btn-gold{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:8px;border:none;background:linear-gradient(180deg,var(--gold-light),var(--gold));color:#1a1204;font-weight:700;font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:filter .2s,transform .2s;white-space:nowrap;}
-.btn-gold:hover{filter:brightness(1.06);transform:translateY(-1px);}
-.btn-gold svg{width:14px;height:14px;}
-
-.btn-outline{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:8px;border:1px solid var(--card-border);background:transparent;color:var(--text-muted);font-weight:600;font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap;text-decoration:none;}
-.btn-outline:hover{border-color:var(--gold-dim);color:var(--gold-light);}
-.btn-outline svg{width:14px;height:14px;}
-
-.quote-confirm{background:var(--good-bg);border:1px solid var(--good-border);border-radius:12px;padding:26px 28px;margin-bottom:24px;}
-.quote-confirm-top{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
-.quote-confirm-top .icon-box{width:30px;height:30px;border-radius:8px;background:rgba(92,184,125,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.quote-confirm-top .icon-box svg{width:15px;height:15px;stroke:var(--good);}
-.quote-confirm-top span{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--good);font-weight:700;}
-.quote-figures{display:flex;flex-wrap:wrap;gap:36px;margin-bottom:14px;}
-.quote-figure b{display:block;font-family:var(--font-serif);font-weight:500;font-size:26px;color:var(--text-cream);}
-.quote-figure span{font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-faint);}
-.quote-confirm-note{font-size:12.5px;color:var(--text-muted);line-height:1.6;}
-.quote-confirm-note b{color:var(--text-cream);}
-
-.panel{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:30px 30px 18px;margin-bottom:24px;}
-.panel-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:24px;}
-.panel-header h3{font-family:var(--font-serif);font-weight:500;font-size:19px;margin:0;color:var(--gold-light);}
-.panel-header .hint{font-size:12px;color:var(--text-faint);}
-
-.payment-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
-@media(max-width:700px){.payment-grid{grid-template-columns:1fr;}}
-.payment-card{background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:22px;}
-.payment-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.payment-tag{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-faint);font-weight:600;}
-.payment-status{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:100px;letter-spacing:0.03em;}
-.payment-status.paid{background:var(--good-bg);color:var(--good);border:1px solid var(--good-border);}
-.payment-status.waiting{background:var(--input-bg);color:var(--text-faint);border:1px solid var(--card-border);}
-.payment-status svg{width:10px;height:10px;}
-.payment-amount{font-family:var(--font-serif);font-weight:500;font-size:24px;color:var(--gold-light);margin-bottom:6px;}
-.payment-desc{font-size:12px;color:var(--text-faint);}
-
-.section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:8px 0 18px;}
-.section-head h2{font-family:var(--font-serif);font-weight:500;font-size:21px;margin:0;color:var(--gold-light);}
-.section-head .hint{font-size:12px;color:var(--text-faint);}
-.empty-msg{color:var(--text-muted);font-size:14px;padding:32px 0;}
-
-.pending-info{display:flex;align-items:flex-start;gap:16px;background:rgba(217,165,72,0.06);border:1px solid rgba(217,165,72,0.15);border-radius:12px;padding:22px 26px;margin-bottom:24px;}
-.pending-info-icon{width:36px;height:36px;border-radius:9px;background:rgba(217,165,72,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.pending-info-icon svg{width:18px;height:18px;stroke:var(--gold-light);}
-.pending-info-title{font-size:14px;font-weight:700;color:var(--text-cream);margin-bottom:4px;}
-.pending-info-detail{font-size:12.5px;color:var(--text-muted);line-height:1.5;}
-
-.order-card{background:var(--card);border:1px solid var(--card-border);border-radius:12px;margin-bottom:16px;overflow:hidden;}
-.order-summary{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;cursor:pointer;flex-wrap:wrap;background:transparent;border:none;color:var(--text-cream);text-align:left;width:100%;-webkit-tap-highlight-color:transparent;}
-.order-summary:hover{background:rgba(255,255,255,0.02);}
-.order-summary-left{display:flex;align-items:center;gap:14px;min-width:0;}
-.order-icon{width:38px;height:38px;border-radius:9px;background:rgba(217,165,72,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.order-icon svg{width:18px;height:18px;stroke:var(--gold-light);}
-.order-title{font-size:14.5px;font-weight:700;color:var(--text-cream);}
-.order-sub{font-size:11px;color:var(--text-faint);font-family:var(--font-mono);margin-top:3px;}
-.order-summary-right{display:flex;align-items:center;gap:22px;flex-wrap:wrap;}
-.alert-count{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--warn);font-weight:700;letter-spacing:0.03em;background:var(--warn-bg);border:1px solid var(--warn-border);padding:5px 10px;border-radius:100px;white-space:nowrap;}
-.alert-count svg{width:11px;height:11px;flex-shrink:0;}
-.alert-count.none{color:var(--good);background:var(--good-bg);border-color:var(--good-border);}
-.mini-progress{display:flex;align-items:center;gap:9px;flex-shrink:0;}
-.mini-progress .segs{display:flex;gap:3px;}
-.mini-progress .seg{width:16px;height:4px;border-radius:2px;background:var(--card-border);}
-.mini-progress .seg.filled{background:var(--gold-dim);}
-.mini-progress .seg.current{background:var(--gold-light);box-shadow:0 0 6px rgba(240,198,116,0.5);}
-.stage-label{font-size:10.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-faint);font-weight:600;white-space:nowrap;}
-.order-chevron{width:16px;height:16px;color:var(--text-faint);transition:transform .25s;flex-shrink:0;}
-.order-chevron.open{transform:rotate(180deg);}
-
-.order-body{padding:6px 24px 26px;border-top:1px solid rgba(255,255,255,0.06);}
-.order-body .panel-header{margin-top:22px;}
-
-.stepper{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:30px;position:relative;margin-bottom:24px;}
-.step{display:flex;flex-direction:column;align-items:center;text-align:center;flex:1;position:relative;z-index:2;}
-.step-dot{width:30px;height:30px;border-radius:50%;background:var(--input-bg);border:2px solid var(--card-border);display:flex;align-items:center;justify-content:center;margin-bottom:12px;transition:all .2s;}
-.step.done .step-dot{background:var(--gold-dim);border-color:var(--gold-dim);}
-.step.done .step-dot svg{width:13px;height:13px;stroke:#0f1826;}
-.step.current .step-dot{background:var(--gold);border-color:var(--gold-light);box-shadow:0 0 0 5px rgba(217,165,72,0.15);}
-.step.current .step-dot .pulse{width:8px;height:8px;border-radius:50%;background:#1a1204;animation:pulse 1.5s infinite;}
-.step-label{font-size:10.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-faint);font-weight:600;}
-.step.done .step-label,.step.current .step-label{color:var(--text-cream);}
-.stepper-line{position:absolute;top:15px;left:5%;right:5%;height:2px;background:var(--card-border);z-index:1;}
-.stepper-line-fill{position:absolute;top:15px;left:5%;height:2px;background:var(--gold-dim);z-index:1;}
-@media(max-width:700px){.stepper{flex-wrap:wrap;gap:18px 0;}.step{flex:0 0 33%;}.stepper-line,.stepper-line-fill{display:none;}}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.3);}}
-
-.checkpoint-list{display:flex;flex-direction:column;}
-.checkpoint-item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
-.checkpoint-item:last-child{border-bottom:none;}
-.cp-marker{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
-.checkpoint-item.done .cp-marker{background:var(--gold-dim);}
-.checkpoint-item.done .cp-marker svg{width:12px;height:12px;stroke:#0f1826;}
-.checkpoint-item.action .cp-marker{background:rgba(224,139,82,0.18);border:1px solid var(--warn-border);}
-.checkpoint-item.action .cp-marker .dot-pulse{width:7px;height:7px;border-radius:50%;background:var(--warn);animation:pulse 1.5s infinite;}
-.checkpoint-item.upcoming .cp-marker{background:var(--input-bg);border:1px dashed var(--card-border);}
-.checkpoint-item.upcoming{opacity:0.55;}
-.cp-body{flex:1;min-width:0;}
-.cp-title{font-size:13.5px;font-weight:700;color:var(--text-cream);margin-bottom:3px;}
-.cp-desc{font-size:12.5px;color:var(--text-muted);line-height:1.5;margin-bottom:2px;}
-.cp-meta{font-size:11px;color:var(--text-faint);}
-.cp-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
-.btn-sm-gold{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:7px;border:none;background:linear-gradient(180deg,var(--gold-light),var(--gold));color:#1a1204;font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap;}
-.btn-sm-gold:hover{filter:brightness(1.07);}
-.btn-sm-gold:disabled{opacity:0.6;cursor:not-allowed;filter:none;}
-.btn-sm-gold svg{width:12px;height:12px;}
-.btn-sm-outline{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:7px;border:1px solid var(--card-border);background:transparent;color:var(--text-muted);font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap;}
-.btn-sm-outline:hover{border-color:var(--warn);color:var(--warn);}
-.btn-sm-outline svg{width:12px;height:12px;}
-
-.highlights-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
-@media(max-width:800px){.highlights-grid{grid-template-columns:1fr;}}
-.hl-panel{border-radius:12px;padding:26px;border:1px solid;}
-.hl-panel.warn{background:var(--warn-bg);border-color:var(--warn-border);}
-.hl-panel.good{background:var(--good-bg);border-color:var(--good-border);}
-.hl-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
-.hl-head .icon-box{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.hl-panel.warn .icon-box{background:rgba(224,139,82,0.18);}
-.hl-panel.good .icon-box{background:rgba(92,184,125,0.18);}
-.hl-head .icon-box svg{width:16px;height:16px;}
-.hl-panel.warn .icon-box svg{stroke:var(--warn);}
-.hl-panel.good .icon-box svg{stroke:var(--good);}
-.hl-head h4{font-family:var(--font-serif);font-weight:500;font-size:17px;margin:0;}
-.hl-panel.warn h4{color:var(--warn);}
-.hl-panel.good h4{color:var(--good);}
-.hl-head span{font-size:11px;color:var(--text-faint);margin-left:auto;}
-.hl-empty{font-size:12px;color:var(--text-faint);}
-
-.hl-item{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
-.hl-item:last-child{border-bottom:none;}
-.hl-item .num{font-family:var(--font-mono);font-size:11px;color:var(--text-faint);flex-shrink:0;padding-top:1px;}
-.hl-item-body b{display:block;font-size:13.5px;color:var(--text-cream);font-weight:600;margin-bottom:3px;}
-.hl-item-body p{margin:0;font-size:12.5px;color:var(--text-muted);line-height:1.5;}
-.hl-item-body .impact{display:inline-block;margin-top:6px;font-size:10.5px;font-weight:700;letter-spacing:0.04em;padding:2px 8px;border-radius:5px;}
-.hl-panel.warn .impact{background:rgba(224,139,82,0.16);color:var(--warn);}
-.hl-panel.good .impact{background:rgba(92,184,125,0.16);color:var(--good);}
-
-.see-more{width:100%;margin-top:14px;padding:10px;border-radius:8px;border:1px dashed;background:transparent;font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;}
-.hl-panel.warn .see-more{border-color:var(--warn-border);color:var(--warn);}
-.hl-panel.good .see-more{border-color:var(--good-border);color:var(--good);}
-.see-more:hover{filter:brightness(1.15);}
-.see-more svg{width:12px;height:12px;transition:transform .25s;}
-.see-more.open svg{transform:rotate(180deg);}
-
-.feedback-item{display:flex;gap:14px;padding:20px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
-.feedback-item:last-child{border-bottom:none;}
-.fb-avatar{width:36px;height:36px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--gold-light),var(--gold-dim));display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-weight:600;font-size:14px;color:#1a1204;}
-.fb-body{flex:1;min-width:0;}
-.fb-top{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
-.fb-name{font-size:13.5px;font-weight:700;color:var(--text-cream);}
-.fb-date{font-size:11px;color:var(--text-faint);}
-.fb-text{font-size:13px;color:var(--text-muted);line-height:1.65;}
-
-.addon-section{margin-top:8px;}
-.addon-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 0;border-bottom:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;}
-.addon-item:last-child{border-bottom:none;}
-.addon-left b{display:block;font-size:13.5px;color:var(--text-cream);font-weight:600;margin-bottom:3px;}
-.addon-left p{margin:0;font-size:12px;color:var(--text-faint);}
-.addon-right{display:flex;align-items:center;gap:14px;flex-shrink:0;}
-.addon-price{font-family:var(--font-mono);font-size:13px;color:var(--gold-light);font-weight:500;}
-.addon-status{font-size:10px;letter-spacing:0.05em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:100px;white-space:nowrap;}
-.addon-status.included{background:var(--good-bg);color:var(--good);border:1px solid var(--good-border);}
-.addon-status.pending{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-border);}
-.addon-status.rejected{background:var(--input-bg);color:var(--text-faint);border:1px solid var(--card-border);}
-.addon-total{display:flex;justify-content:space-between;align-items:center;padding-top:16px;margin-top:6px;border-top:1px solid var(--card-border);font-size:12.5px;color:var(--text-muted);}
-.addon-total b{color:var(--gold-light);font-family:var(--font-mono);font-size:14px;}
-.addon-add-btn{width:100%;margin-top:16px;padding:12px;border-radius:8px;border:1px dashed var(--card-border);background:transparent;color:var(--text-muted);font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;}
-.addon-add-btn:hover{border-color:var(--gold-dim);color:var(--gold-light);}
-.addon-add-btn svg{width:13px;height:13px;}
-.addon-form{display:none;margin-top:14px;padding:18px;background:var(--input-bg);border:1px solid var(--card-border);border-radius:9px;}
-.addon-form.open{display:block;}
-.addon-form label{font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);font-weight:600;display:block;margin-bottom:8px;}
-.addon-form textarea{width:100%;background:var(--card);border:1px solid var(--card-border);border-radius:7px;padding:11px 13px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text-cream);resize:vertical;min-height:70px;outline:none;margin-bottom:12px;}
-.addon-form textarea:focus{border-color:var(--gold-dim);}
-.hint-sm{font-size:11px;color:var(--text-faint);margin-bottom:14px;}
-.form-actions{display:flex;gap:8px;flex-wrap:wrap;}
-.form-status{font-size:12px;color:var(--good);margin-top:12px;}
-
-.compare-table{width:100%;border-collapse:collapse;margin-bottom:10px;}
-.compare-table th{text-align:left;font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-faint);font-weight:600;padding:0 16px 14px 0;border-bottom:1px solid var(--card-border);}
-.compare-table th:first-child{width:26%;}
-.compare-table td{padding:14px 16px 14px 0;font-size:13.5px;color:var(--text-cream);border-bottom:1px solid rgba(255,255,255,0.05);vertical-align:top;}
-.compare-table td:first-child{color:var(--text-faint);font-size:11.5px;letter-spacing:0.04em;text-transform:uppercase;font-weight:600;padding-top:16px;}
-.compare-table tr:last-child td{border-bottom:none;}
-.col-active{color:var(--gold-light) !important;font-weight:600;}
-.pending-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text-faint);font-style:italic;}
-.pending-tag svg{width:12px;height:12px;}
-
-.site-footer{padding:36px 0 70px;text-align:center;font-size:12px;color:var(--text-faint);border-top:1px solid rgba(255,255,255,0.06);margin-top:40px;}
-
-.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
-@media(max-width:900px){.detail-grid{grid-template-columns:1fr 1fr;}}
-@media(max-width:600px){.detail-grid{grid-template-columns:1fr;}}
-.detail-item{background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px;}
-.detail-item .label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint);font-weight:600;margin-bottom:5px;}
-.detail-item .value{font-size:13px;color:var(--text-cream);line-height:1.5;word-break:break-word;}
-.file-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:18px;}
-.file-card{background:var(--input-bg);border:1px solid var(--card-border);border-radius:10px;overflow:hidden;transition:border-color .2s;}
-.file-card:hover{border-color:var(--gold-dim);}
-.file-card a{display:block;text-decoration:none;color:inherit;}
-.file-thumb{height:120px;background:#0b1320;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.file-thumb img{width:100%;height:100%;object-fit:cover;}
-.file-thumb.fallback{display:flex;align-items:center;justify-content:center;}
-.file-thumb.fallback::after{content:"Image";font-family:var(--font-mono);font-size:11px;color:var(--text-faint);}
-.f-icon{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--gold-dim);}
-.f-icon svg{width:30px;height:30px;}
-.file-name{padding:10px 12px;font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.file-name:hover{color:var(--gold-light);}
+@media(max-width:850px){.topbar{padding:0 22px;}.topnav a{display:none;}main{width:min(100% - 40px,700px);}.layout{grid-template-columns:1fr;}.stepper{grid-template-columns:repeat(3,1fr);gap:26px 8px;}.stepper-track,.stepper-progress{display:none;}.tranche-grid{grid-template-columns:1fr;}}
+@media(max-width:560px){.topbar{height:64px;padding:0 18px;}.wordmark{font-size:20px;}.user{display:none;}main{width:calc(100% - 30px);padding-top:25px;}.page-head{flex-direction:column;gap:15px;}h1{font-size:29px;}.status{align-self:flex-start;}.timeline-item{grid-template-columns:52px 15px 1fr;gap:8px;}}
 `;
