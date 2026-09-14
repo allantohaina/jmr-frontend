@@ -25,22 +25,10 @@ Options -Indexes
     RewriteRule ^(.*)$ out/index.html [L]
 </IfModule>
 
-# Marque les assets Next hashés (_next/static) comme immuables.
-# Pas de flag [L] : on continue vers les règles de serving ci-dessus.
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteRule ^(out/)?_next/static/ - [E=IMMUTABLE:1]
-</IfModule>
-
 <IfModule mod_headers.c>
-    # Assets hashés : le nom change à chaque build -> cache 1 an sans risque.
-    Header set Cache-Control "public, max-age=31536000, immutable" env=IMMUTABLE
-    # HTML / payloads RSC (.txt) / JSON : mêmes noms à chaque build ->
-    # toujours revalidés, sinon le navigateur garde l'ancien build après un pull.
-    <FilesMatch "\.(html|txt|json)$">
-        Header set Cache-Control "no-cache"
-    </FilesMatch>
-    <Files "sw.js">
-        Header set Cache-Control "no-cache"
-    </Files>
+    # Cache à 0 (debug) : tout est revalidé à chaque visite,
+    # le navigateur voit le nouveau build immédiatement après un pull.
+    Header set Cache-Control "no-cache, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
 </IfModule>
