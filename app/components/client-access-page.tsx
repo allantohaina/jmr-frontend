@@ -309,12 +309,16 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
         .client-form-side {
           display: flex;
           flex-direction: column;
-          justify-content: center;
           padding: 48px 60px;
           background: #1e2a38;
           max-width: 640px;
           width: 100%;
           margin: 0 auto;
+        }
+
+        .client-form-inner {
+          width: 100%;
+          margin: auto 0;
         }
 
         .client-form-badge {
@@ -381,6 +385,17 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
           margin-top: 28px;
         }
 
+        @media (min-width: 901px) {
+          .client-login-root {
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+          }
+          .client-form-side {
+            overflow-y: auto;
+          }
+        }
+
         @media (max-width: 900px) {
           .client-login-root {
             grid-template-columns: 1fr;
@@ -431,6 +446,7 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
 
         {/* RIGHT PANEL */}
         <div className="client-form-side">
+          <div className="client-form-inner">
           <div className="client-form-badge">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="1" y="8" width="2.5" height="5" rx="0.5" fill="#FFB31B" />
@@ -745,6 +761,7 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
 
           <div className="client-form-footer-note">
             Vos données restent confidentielles et ne sont jamais partagées.
+          </div>
           </div>
         </div>
       </div>
