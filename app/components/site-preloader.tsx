@@ -87,8 +87,8 @@ export function SitePreloader() {
         className="h-12 w-auto"
         draggable={false}
       />
-      <div className="h-10 w-10 rounded-full border-2 border-[#FFB42D]/25 border-t-[#FFB42D] animate-spin" />
-      <p className="text-sm tracking-widest uppercase text-[#FFB42D]/80">
+      <div className="h-10 w-10 rounded-full border-2 border-[#FFB31B]/25 border-t-[#FFB31B] animate-spin" />
+      <p className="text-sm tracking-widest uppercase text-[#FFB31B]/80">
         Chargement…
       </p>
     </div>

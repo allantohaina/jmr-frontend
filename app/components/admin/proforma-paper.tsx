@@ -168,15 +168,15 @@ export function ProformaPaper({ proforma }: { proforma: ProformaRecord }) {
         }
         .pp-brand { display: flex; gap: 12px; align-items: flex-start; }
         .pp-official-logo { height: 46px; width: auto; max-width: 230px; display: block; }
-        .pp-sub { margin: 2px 0 0; font-size: 9px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: #FFB42D; }
+        .pp-sub { margin: 2px 0 0; font-size: 9px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: #FFB31B; }
         .pp-contact { margin: 6px 0 0; font-size: 11px; color: rgba(255,255,255,.7); }
         .pp-title { text-align: right; }
-        .pp-kicker { margin: 0; font-size: 10px; font-weight: 700; letter-spacing: .26em; text-transform: uppercase; color: #FFB42D; }
+        .pp-kicker { margin: 0; font-size: 10px; font-weight: 700; letter-spacing: .26em; text-transform: uppercase; color: #FFB31B; }
         .pp-title h1 { font-family: Georgia, serif; font-size: 30px; margin: 4px 0; }
         .pp-ref { margin: 0; font-size: 12px; color: rgba(255,255,255,.75); }
         .pp-status {
           display: inline-block; margin-top: 10px; padding: 3px 12px;
-          background: #FFB42D; color: #172d42; font-size: 10px; font-weight: 800;
+          background: #FFB31B; color: #172d42; font-size: 10px; font-weight: 800;
           letter-spacing: .14em; text-transform: uppercase;
         }
         .pp-parties {
@@ -200,14 +200,14 @@ export function ProformaPaper({ proforma }: { proforma: ProformaRecord }) {
         .pp-bottom { display: grid; grid-template-columns: 1fr 250px; gap: 24px; padding: 20px 36px; }
         .pp-block { margin-bottom: 14px; font-size: 12px; color: #40566a; }
         .pp-block p { margin: 0; }
-        .pp-notes { border-left: 2px solid #FFB42D; background: rgba(244,234,212,.45); padding: 10px 12px; }
+        .pp-notes { border-left: 2px solid #FFB31B; background: rgba(244,234,212,.45); padding: 10px 12px; }
         .pp-legal { font-size: 11px; }
         .pp-totals { margin: 0; border-top: 2px solid #172d42; padding-top: 8px; font-size: 13px; }
         .pp-totals div { display: flex; justify-content: space-between; padding: 5px 0; color: #40566a; }
         .pp-totals dd { margin: 0; font-weight: 600; color: #172d42; }
         .pp-grand { background: #172d42; color: #fff !important; padding: 10px 12px !important; margin-top: 6px; font-size: 16px; }
         .pp-grand dt, .pp-grand dd { color: #fff !important; }
-        .pp-grand dd { color: #FFB42D !important; font-family: Georgia, serif; }
+        .pp-grand dd { color: #FFB31B !important; font-family: Georgia, serif; }
         .pp-acompte dd { color: #1f8457; }
         .pp-signs { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 8px 36px 24px; }
         .pp-sign-box {

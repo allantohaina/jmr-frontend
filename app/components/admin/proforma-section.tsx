@@ -147,8 +147,8 @@ export function ProformaSection({ id }: { id: string }) {
   if (isLoading) {
     return (
       <div className="px-6 md:px-12 py-10 animate-pulse">
-        <div className="h-8 w-64 bg-[#FFB42D]/10 rounded mb-4"></div>
-        <div className="h-96 bg-[#25303a] rounded-[2rem] border border-[#FFB42D]/10"></div>
+        <div className="h-8 w-64 bg-[#FFB31B]/10 rounded mb-4"></div>
+        <div className="h-96 bg-[#25303a] rounded-[2rem] border border-[#FFB31B]/10"></div>
       </div>
     );
   }
@@ -156,8 +156,8 @@ export function ProformaSection({ id }: { id: string }) {
   if (loadError || !quote) {
     return (
       <div className="px-6 md:px-12 py-10 text-center">
-        <h2 className="font-headline text-2xl text-[#FFB42D] mb-4">{loadError ?? "Devis introuvable."}</h2>
-        <Link href="/backoffice/devis" className="text-sm text-[#FFB42D]/60 underline">← Retour aux devis</Link>
+        <h2 className="font-headline text-2xl text-[#FFB31B] mb-4">{loadError ?? "Devis introuvable."}</h2>
+        <Link href="/backoffice/devis" className="text-sm text-[#FFB31B]/60 underline">← Retour aux devis</Link>
       </div>
     );
   }
@@ -169,7 +169,7 @@ export function ProformaSection({ id }: { id: string }) {
       <div style={{ maxWidth: 900, margin: "0 auto" }}>
         <Link
           href={`/backoffice/devis/edit?id=${quote.id}`}
-          style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(255,180,45,.4)", marginBottom: 14, textDecoration: "none" }}
+          style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(255,179,27,.4)", marginBottom: 14, textDecoration: "none" }}
         >
           <span aria-hidden="true">←</span> Retour au devis
         </Link>
@@ -185,14 +185,14 @@ export function ProformaSection({ id }: { id: string }) {
             type="button"
             onClick={() => window.print()}
             className="print:hidden"
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, borderRadius: 12, border: "1px solid rgba(255,180,45,.2)", background: "#25303a", padding: "10px 20px", fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#FFB42D", cursor: "pointer" }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, borderRadius: 12, border: "1px solid rgba(255,179,27,.2)", background: "#25303a", padding: "10px 20px", fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#FFB31B", cursor: "pointer" }}
           >
             <Printer style={{ height: 16, width: 16 }} /> Imprimer
           </button>
         </div>
 
         {!chiffré ? (
-          <div style={{ background: "#25303a", border: "1px solid rgba(255,180,45,.1)", borderRadius: 12, padding: "32px 24px", textAlign: "center", color: "#9aa7b4", fontSize: 14 }}>
+          <div style={{ background: "#25303a", border: "1px solid rgba(255,179,27,.1)", borderRadius: 12, padding: "32px 24px", textAlign: "center", color: "#9aa7b4", fontSize: 14 }}>
             Devis non chiffré — la proforma sera disponible une fois le devis chiffré par l&apos;atelier (onglet Tarification).
           </div>
         ) : (

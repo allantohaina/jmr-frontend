@@ -33,9 +33,9 @@ export function AuthBar() {
         style={{
           padding: "6px 12px",
           borderRadius: 8,
-          border: "1px solid rgba(255, 180, 45,0.25)",
-          background: "rgba(255, 180, 45,0.08)",
-          color: "#FFB42D",
+          border: "1px solid rgba(255, 179, 27,0.25)",
+          background: "rgba(255, 179, 27,0.08)",
+          color: "#FFB31B",
           fontSize: 12,
           fontWeight: 600,
           cursor: "pointer",

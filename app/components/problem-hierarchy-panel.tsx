@@ -64,19 +64,19 @@ const themeMap = {
     subItem: "border-[#163526]/5 bg-white",
   },
   dark: {
-    note: "border-[#FFB42D]/10 bg-[#1e2a38] text-[#FFB42D]/60",
-    title: "text-[#FFB42D]",
-    detail: "text-[#FFB42D]/65",
-    meta: "text-[#FFB42D]/30",
-    item: "border-[#FFB42D]/5 bg-[#1e2a38]",
+    note: "border-[#FFB31B]/10 bg-[#1e2a38] text-[#FFB31B]/60",
+    title: "text-[#FFB31B]",
+    detail: "text-[#FFB31B]/65",
+    meta: "text-[#FFB31B]/30",
+    item: "border-[#FFB31B]/5 bg-[#1e2a38]",
     itemBody: "bg-[#25303a]",
-    chip: "border-[#FFB42D]/10 bg-[#FFB42D]/5 text-[#FFB42D]",
-    button: "border-[#FFB42D]/10 bg-[#25303a] text-[#FFB42D] hover:bg-[#25303a]/80",
-    primaryButton: "border-[#FFB42D]/10 bg-[#FFB42D] text-[#25303a] hover:bg-[#FFB42D]",
-    composer: "border-[#FFB42D]/10 bg-[#25303a]",
-    input: "border-[#FFB42D]/10 bg-[#1e2a38] text-[#FFB42D]",
-    placeholder: "text-[#FFB42D]/35",
-    subItem: "border-[#FFB42D]/5 bg-[#1e2a38]",
+    chip: "border-[#FFB31B]/10 bg-[#FFB31B]/5 text-[#FFB31B]",
+    button: "border-[#FFB31B]/10 bg-[#25303a] text-[#FFB31B] hover:bg-[#25303a]/80",
+    primaryButton: "border-[#FFB31B]/10 bg-[#FFB31B] text-[#25303a] hover:bg-[#FFB31B]",
+    composer: "border-[#FFB31B]/10 bg-[#25303a]",
+    input: "border-[#FFB31B]/10 bg-[#1e2a38] text-[#FFB31B]",
+    placeholder: "text-[#FFB31B]/35",
+    subItem: "border-[#FFB31B]/5 bg-[#1e2a38]",
   },
 } as const;
 
@@ -136,7 +136,7 @@ function severityClasses(severity: ProblemSeverity, theme: keyof typeof themeMap
       case "success":
         return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
       default:
-        return "border-[#FFB42D]/10 bg-[#FFB42D]/5 text-[#FFB42D]";
+        return "border-[#FFB31B]/10 bg-[#FFB31B]/5 text-[#FFB31B]";
     }
   }
 
@@ -156,13 +156,13 @@ function severityClasses(severity: ProblemSeverity, theme: keyof typeof themeMap
 
 function roleChipClasses(theme: keyof typeof themeMap) {
   return theme === "dark"
-    ? "border-[#FFB42D]/10 bg-[#FFB42D]/5 text-[#FFB42D]"
+    ? "border-[#FFB31B]/10 bg-[#FFB31B]/5 text-[#FFB31B]"
     : "border-[#163526]/10 bg-white text-[#163526]";
 }
 
 function compactButtonClasses(theme: keyof typeof themeMap) {
   return theme === "dark"
-    ? "border-[#FFB42D]/10 bg-[#25303a] text-[#FFB42D] hover:bg-[#25303a]/80"
+    ? "border-[#FFB31B]/10 bg-[#25303a] text-[#FFB31B] hover:bg-[#25303a]/80"
     : "border-[#163526]/10 bg-white text-[#163526] hover:bg-[#faf9f4]";
 }
 
@@ -296,7 +296,7 @@ export function ProblemHierarchyPanel({
 
   const composerClassName =
     theme === "dark"
-      ? "border-[#FFB42D]/10 bg-[#25303a]"
+      ? "border-[#FFB31B]/10 bg-[#25303a]"
       : "border-[#163526]/10 bg-[#faf9f4]";
 
   return (
@@ -545,7 +545,7 @@ export function ProblemHierarchyPanel({
               </div>
 
               {isExpanded ? (
-                <div className={`mt-4 space-y-4 border-t pt-4 ${theme === "dark" ? "border-[#FFB42D]/10" : "border-[#163526]/10"}`}>
+                <div className={`mt-4 space-y-4 border-t pt-4 ${theme === "dark" ? "border-[#FFB31B]/10" : "border-[#163526]/10"}`}>
                   <p className={`text-sm leading-relaxed ${styles.detail}`}>{problem.detail}</p>
 
                   <div className="space-y-3">

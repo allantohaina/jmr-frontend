@@ -194,7 +194,7 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
   if (!isMounted) {
     return (
       <div style={{ minHeight: "100vh", background: "#1e2a38", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: 40, height: 40, border: "3px solid #FFB42D", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+        <div style={{ width: 40, height: 40, border: "3px solid #FFB31B", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
@@ -247,7 +247,7 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
           font-size: 11px;
           font-weight: 600;
           letter-spacing: 3px;
-          color: #FFB42D;
+          color: #FFB31B;
           margin-bottom: 16px;
         }
 
@@ -287,7 +287,7 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background: #FFB42D;
+          background: #FFB31B;
           flex-shrink: 0;
         }
 
@@ -321,13 +321,13 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: rgba(255, 180, 45, 0.1);
-          border: 1px solid rgba(255, 180, 45, 0.25);
+          background: rgba(255, 179, 27, 0.1);
+          border: 1px solid rgba(255, 179, 27, 0.25);
           border-radius: 24px;
           padding: 6px 16px;
           font-size: 12px;
           font-weight: 500;
-          color: #FFB42D;
+          color: #FFB31B;
           margin-bottom: 24px;
           width: fit-content;
         }
@@ -398,11 +398,11 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
         {/* LEFT PANEL */}
         <div className="client-panel">
           <svg className="client-thread-bg" viewBox="0 0 600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M50 100 Q200 200 150 400 Q100 600 250 800" stroke="#FFB42D" strokeWidth="1.5" strokeDasharray="8 6" fill="none" />
-            <path d="M120 50 Q300 180 220 450 Q140 720 300 850" stroke="#FFB42D" strokeWidth="1" strokeDasharray="6 8" fill="none" />
-            <path d="M400 30 Q320 250 380 480 Q440 700 350 880" stroke="#FFB42D" strokeWidth="1" strokeDasharray="10 5" fill="none" />
-            <path d="M500 120 Q420 300 480 520 Q540 740 430 870" stroke="#FFB42D" strokeWidth="1.2" strokeDasharray="5 9" fill="none" />
-            <path d="M80 200 Q250 320 180 560 Q110 800 280 900" stroke="#FFB42D" strokeWidth="0.8" strokeDasharray="4 10" fill="none" />
+            <path d="M50 100 Q200 200 150 400 Q100 600 250 800" stroke="#FFB31B" strokeWidth="1.5" strokeDasharray="8 6" fill="none" />
+            <path d="M120 50 Q300 180 220 450 Q140 720 300 850" stroke="#FFB31B" strokeWidth="1" strokeDasharray="6 8" fill="none" />
+            <path d="M400 30 Q320 250 380 480 Q440 700 350 880" stroke="#FFB31B" strokeWidth="1" strokeDasharray="10 5" fill="none" />
+            <path d="M500 120 Q420 300 480 520 Q540 740 430 870" stroke="#FFB31B" strokeWidth="1.2" strokeDasharray="5 9" fill="none" />
+            <path d="M80 200 Q250 320 180 560 Q110 800 280 900" stroke="#FFB31B" strokeWidth="0.8" strokeDasharray="4 10" fill="none" />
           </svg>
 
           <div className="client-brand-mark">
@@ -433,10 +433,10 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
         <div className="client-form-side">
           <div className="client-form-badge">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1" y="8" width="2.5" height="5" rx="0.5" fill="#FFB42D" />
-              <rect x="4.5" y="5" width="2.5" height="8" rx="0.5" fill="#FFB42D" />
-              <rect x="8" y="2.5" width="2.5" height="10.5" rx="0.5" fill="#FFB42D" />
-              <rect x="11.5" y="0.5" width="2" height="12.5" rx="0.5" fill="#FFB42D" />
+              <rect x="1" y="8" width="2.5" height="5" rx="0.5" fill="#FFB31B" />
+              <rect x="4.5" y="5" width="2.5" height="8" rx="0.5" fill="#FFB31B" />
+              <rect x="8" y="2.5" width="2.5" height="10.5" rx="0.5" fill="#FFB31B" />
+              <rect x="11.5" y="0.5" width="2" height="12.5" rx="0.5" fill="#FFB31B" />
             </svg>
             Espace client
           </div>

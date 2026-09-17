@@ -123,14 +123,14 @@ export function ConsentBanner() {
       className="fixed bottom-0 left-0 right-0 z-[120] animate-in fade-in slide-in-from-bottom-4 duration-300"
     >
       <div className="mx-auto max-w-3xl px-4 pb-4">
-        <div className="rounded-2xl border border-[#FFB42D]/25 bg-[#1e2a38] p-5 shadow-2xl">
-          <h2 className="text-base font-semibold text-[#FFB42D]">
+        <div className="rounded-2xl border border-[#FFB31B]/25 bg-[#1e2a38] p-5 shadow-2xl">
+          <h2 className="text-base font-semibold text-[#FFB31B]">
             {messages.consent.bannerTitle}
           </h2>
           <p className="mt-2 text-sm text-white/70">{messages.consent.bannerText}</p>
           <Link
             href="/confidentialite"
-            className="mt-2 inline-block text-sm text-[#FFB42D] underline underline-offset-4 hover:text-[#FFB42D]"
+            className="mt-2 inline-block text-sm text-[#FFB31B] underline underline-offset-4 hover:text-[#FFB31B]"
           >
             {messages.consent.privacyLinkText}
           </Link>
@@ -138,7 +138,7 @@ export function ConsentBanner() {
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-2 text-sm text-white/80">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" defaultChecked className="accent-[#FFB42D]" />
+                <input type="checkbox" defaultChecked className="accent-[#FFB31B]" />
                 <span>{messages.consent.cookiesLabel}</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
@@ -146,7 +146,7 @@ export function ConsentBanner() {
                   type="checkbox"
                   defaultChecked
                   disabled={!isPushSupported()}
-                  className="accent-[#FFB42D] disabled:opacity-40"
+                  className="accent-[#FFB31B] disabled:opacity-40"
                 />
                 <span>{messages.consent.notificationsLabel}</span>
               </label>
@@ -166,7 +166,7 @@ export function ConsentBanner() {
                     notifications: notifications.checked ? "accepted" : "declined",
                   });
                 }}
-                className="rounded-lg bg-[#FFB42D] px-4 py-2 text-sm font-semibold text-[#163526] transition-colors hover:bg-[#FFB42D] disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-lg bg-[#FFB31B] px-4 py-2 text-sm font-semibold text-[#163526] transition-colors hover:bg-[#FFB31B] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving ? "..." : messages.consent.accept}
               </button>
