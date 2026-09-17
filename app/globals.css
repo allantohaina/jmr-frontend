@@ -2329,13 +2329,13 @@ section[id], footer[id] { scroll-margin-top: 110px; }
 
 .about-page__visual--left {
   left: clamp(-150px, -10vw, -28px);
-  background-image: url("/sunset.jpg");
+  background-image: url("/human_images/08_salle_machines_coudre.jpg");
   background-position: 78% 50%;
 }
 
 .about-page__visual--right {
   right: clamp(-150px, -10vw, -28px);
-  background-image: url("/sunset.jpg");
+  background-image: url("/human_images/08_salle_machines_coudre.jpg");
   background-position: 22% 50%;
 }
 
@@ -2480,7 +2480,7 @@ section[id], footer[id] { scroll-margin-top: 110px; }
     top: clamp(188px, 15.8vw, 246px);
     width: clamp(240px, 19vw, 330px);
     aspect-ratio: 1 / 2;
-    background-image: url("/sunset.jpg");
+    background-image: url("/human_images/08_salle_machines_coudre.jpg");
     background-size: cover;
     background-repeat: no-repeat;
     opacity: 0.98;

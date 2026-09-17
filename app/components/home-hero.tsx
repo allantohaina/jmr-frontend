@@ -60,11 +60,11 @@ export function HomeHero() {
           contentKey="home.image-bg"
           className="home-page__hero-background-image w-full h-full object-cover"
           wrapperClassName="absolute inset-0"
-          src="/sunset.jpg"
+          src="/human_images/08_salle_machines_coudre.jpg"
           alt=""
         />
         {!shouldReduceMotion ? (
-          <HomeHeroVideo poster="/sunset.jpg" src="/video/machine.mp4" />
+          <HomeHeroVideo poster="/human_images/08_salle_machines_coudre.jpg" src="/video/machine.mp4" />
         ) : null}
         <div className="home-page__hero-overlay" aria-hidden="true" />
       </motion.div>

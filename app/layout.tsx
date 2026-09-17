@@ -60,7 +60,7 @@ export default async function RootLayout({
         <meta httpEquiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()" />
         <meta httpEquiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preload" as="image" href="/sunset.jpg" fetchPriority="high" />
+        <link rel="preload" as="image" href="/human_images/08_salle_machines_coudre.jpg" fetchPriority="high" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"

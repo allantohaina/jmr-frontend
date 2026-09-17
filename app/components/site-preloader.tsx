@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { getBackendApiUrls } from "@/app/lib/api";
 
-const PRELOAD_ASSETS = ["/sunset.jpg", "/navbar/logo-light.svg"];
+const PRELOAD_ASSETS = ["/human_images/08_salle_machines_coudre.jpg", "/navbar/logo-light.svg"];
 const MAX_WAIT_MS = 4500;
 
 function preloadImage(src: string): Promise<void> {
