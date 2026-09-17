@@ -26,7 +26,7 @@ export function EditableImage({
   contentKey,
 }: EditableImageProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { get, save } = useSiteContent();
+  const { get, save, ready } = useSiteContent();
   const [imageUrl, setImageUrl] = useState(src);
   const [isAdmin, setIsAdmin] = useState(false);
   const uploadedRef = useRef(false);
@@ -85,9 +85,15 @@ export function EditableImage({
     }
   }
 
+  // Tant que le contenu CMS n'est pas chargé, on affiche un squelette plutôt
+  // que l'image par défaut : évite le flash ancienne -> nouvelle image.
+  const waitingForContent = !!contentKey && !ready && !uploadedRef.current;
+
   return (
     <div className={`group/editable ${wrapperClassName}`}>
-      {imageUrl ? (
+      {waitingForContent ? (
+        <div className="w-full h-full animate-pulse bg-[#FFB42D]/10" aria-hidden="true" />
+      ) : imageUrl ? (
         <img src={imageUrl} alt={alt} className={className} />
       ) : (
         placeholder

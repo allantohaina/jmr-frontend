@@ -9,6 +9,7 @@ type SiteContentMap = Record<string, string>;
 type SiteContentContextValue = {
   get: (key: string, fallback: string) => string;
   save: (key: string, value: string, type?: "text" | "image") => Promise<void>;
+  ready: boolean;
 };
 
 const SiteContentContext = createContext<SiteContentContextValue | null>(null);
@@ -16,9 +17,14 @@ const SiteContentContext = createContext<SiteContentContextValue | null>(null);
 export function SiteContentProvider({ children }: { children: React.ReactNode }) {
   const { locale } = useLocale();
   const [overrides, setOverrides] = useState<SiteContentMap>({});
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+    // Filet de sécurité : ne jamais bloquer l'affichage si l'API traîne.
+    const fallbackTimer = window.setTimeout(() => {
+      if (!cancelled) setReady(true);
+    }, 2500);
     fetch(`${getBackendApiUrls()[0]}/site-contents?locale=${locale}`, {
       headers: { Accept: "application/json" },
     })
@@ -30,9 +36,14 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
           setOverrides(map as SiteContentMap);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        window.clearTimeout(fallbackTimer);
+        if (!cancelled) setReady(true);
+      });
     return () => {
       cancelled = true;
+      window.clearTimeout(fallbackTimer);
     };
   }, [locale]);
 
@@ -49,7 +60,7 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
     [overrides],
   );
 
-  const value = useMemo(() => ({ get, save }), [get, save]);
+  const value = useMemo(() => ({ get, save, ready }), [get, save, ready]);
 
   return <SiteContentContext.Provider value={value}>{children}</SiteContentContext.Provider>;
 }
