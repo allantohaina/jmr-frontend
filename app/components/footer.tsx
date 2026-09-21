@@ -46,7 +46,7 @@ export function Footer() {
   }
 
   return (
-    <footer className="site-footer-modern w-full mt-12 md:mt-20 bg-[#1e2a38] text-[#EAA100] overflow-hidden">
+    <footer className="site-footer-modern w-full mt-8 md:mt-12 bg-[#1e2a38] text-[#B9C3D0] overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-12 md:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-16 items-start">
 
@@ -64,19 +64,19 @@ export function Footer() {
                 alt="JMR Textile"
               />
             </Link>
-            <div className="font-body text-sm text-[#EAA100]/70 leading-relaxed max-w-sm">
+            <div className="font-body text-sm text-[#B9C3D0]/70 leading-relaxed max-w-sm">
               <p><EditableText contentKey="footer.description" fallback={messages.footer.description} as="span" multiline /></p>
             </div>
           </div>
 
           {/* Navigation Column */}
           <div className="lg:col-span-2">
-            <div className="font-label text-[10px] uppercase tracking-[0.3em] text-[#EAA100] font-bold mb-8">
+            <div className="font-label text-caption uppercase tracking-[0.3em] text-[#EAA100] font-bold mb-8">
               <span><EditableText contentKey="footer.navigation" fallback={messages.footer.navigation} /></span>
             </div>
             <ul className="space-y-4">
               {footerLinks.map((link) => (
-                <li key={link.key} className="font-body text-xs uppercase tracking-widest text-[#EAA100]/70">
+                <li key={link.key} className="font-body text-xs uppercase tracking-widest text-[#B9C3D0]/70">
                   <Link
                     href="/"
                     onClick={(e) => {
@@ -94,12 +94,12 @@ export function Footer() {
 
           {/* Legal Column */}
           <div className="lg:col-span-2">
-            <div className="font-label text-[10px] uppercase tracking-[0.3em] text-[#EAA100] font-bold mb-8">
+            <div className="font-label text-caption uppercase tracking-[0.3em] text-[#EAA100] font-bold mb-8">
               <span><EditableText contentKey="footer.legal" fallback={messages.footer.legal} /></span>
             </div>
             <ul className="space-y-4">
               {legalLinks.map((link) => (
-                <li key={link.labelKey} className="font-body text-xs uppercase tracking-widest text-[#EAA100]/70">
+                <li key={link.labelKey} className="font-body text-xs uppercase tracking-widest text-[#B9C3D0]/70">
                   <Link
                     href={link.fallbackUrl}
                     className="hover:text-[#EAA100] hover:translate-x-1 transition-all inline-block"
@@ -113,7 +113,7 @@ export function Footer() {
 
           {/* Social Column */}
           <div className="lg:col-span-4">
-            <div className="font-label text-[10px] uppercase tracking-[0.3em] text-[#EAA100] font-bold mb-8">
+            <div className="font-label text-caption uppercase tracking-[0.3em] text-[#EAA100] font-bold mb-8">
               <span><EditableText contentKey="footer.social" fallback={messages.footer.social} /></span>
             </div>
             <AnimeStagger as="div" className="flex gap-4 mb-12" itemSelector="a" staggerMs={80}>
@@ -141,13 +141,13 @@ export function Footer() {
         </div>
 
         {/* Bottom Line */}
-        <div className="mt-20 pt-10 border-t border-[#EAA100]/10 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="font-body text-[10px] text-[#EAA100]/40 uppercase tracking-[0.3em] text-center md:text-left">
+        <div className="mt-20 pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="font-body text-caption text-[#FFF8EC] uppercase tracking-[0.3em] text-center md:text-left">
             <span><EditableText contentKey="footer.copyright" fallback={messages.footer.copyright} /></span>
           </div>
           <div className="flex items-center gap-8">
-            <span className="w-12 h-[1px] bg-[#EAA100]/10 hidden md:block"></span>
-            <div className="font-body text-[10px] text-[#EAA100]/40 uppercase tracking-[0.3em] text-center">
+            <span className="w-12 h-[1px] bg-white/10 hidden md:block"></span>
+            <div className="font-body text-caption text-[#FFF8EC] uppercase tracking-[0.3em] text-center">
               <span><EditableText contentKey="footer.values" fallback={messages.footer.values} /></span>
             </div>
           </div>

@@ -117,14 +117,14 @@ export default function AdminBansPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Rechercher un utilisateur..."
-          className="w-full rounded-xl border border-[#EAA100]/20 bg-[#25303a] py-3 pl-10 pr-4 text-sm text-[#EAA100] placeholder-[#EAA100]/30 outline-none transition-colors focus:border-[#EAA100]"
+          className="w-full rounded-xl border border-[#EAA100]/20 bg-[#161D30] py-3 pl-10 pr-4 text-sm text-[#EAA100] placeholder-[#EAA100]/30 outline-none transition-colors focus:border-[#EAA100]"
         />
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-[#EAA100]/10">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-[#EAA100]/10 bg-[#25303a]/80 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">
+            <tr className="border-b border-[#EAA100]/10 bg-[#161D30]/80 text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">
               <th className="px-6 py-4">Utilisateur</th>
               <th className="px-6 py-4">Email</th>
               <th className="px-6 py-4">Rôle</th>
@@ -143,22 +143,22 @@ export default function AdminBansPage() {
                   </td>
                   <td className="px-6 py-4 text-[#EAA100]/70">{user.email}</td>
                   <td className="px-6 py-4">
-                    <span className="rounded-full bg-[#EAA100]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]">
+                    <span className="rounded-full bg-[#EAA100]/10 px-3 py-1 text-caption font-bold uppercase tracking-widest text-[#EAA100]">
                       {user.role}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     {isBanned ? (
-                      <span className="flex items-center gap-2 text-red-400">
+                      <span className="flex items-center gap-2 text-[#F3A3A6]">
                         <ShieldOff className="h-4 w-4" /> Banni
                         {userBan?.expires_at && (
-                          <span className="text-[10px] text-[#EAA100]/40">
+                          <span className="text-caption text-[#EAA100]/40">
                             jusqu&apos;au {new Date(userBan.expires_at).toLocaleDateString()}
                           </span>
                         )}
                       </span>
                     ) : (
-                      <span className="flex items-center gap-2 text-green-400">
+                      <span className="flex items-center gap-2 text-[#5CB87D]">
                         <Shield className="h-4 w-4" /> Actif
                       </span>
                     )}
@@ -167,19 +167,19 @@ export default function AdminBansPage() {
                     {isBanned ? (
                       <button
                         onClick={() => userBan && handleUnban(userBan.id)}
-                        className="rounded-lg border border-green-500/30 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-green-400 transition-colors hover:bg-green-500/10"
+                        className="rounded-lg border border-[#1F8457]/30 px-4 py-1.5 text-caption font-bold uppercase tracking-widest text-[#5CB87D] transition-colors hover:bg-[#1F8457]/10"
                       >
                         Réhabiliter
                       </button>
                     ) : user.role !== "admin" ? (
                       <button
                         onClick={() => setBanModal({ user })}
-                        className="rounded-lg border border-red-500/30 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-red-400 transition-colors hover:bg-red-500/10"
+                        className="rounded-lg border border-[#E05252]/30 px-4 py-1.5 text-caption font-bold uppercase tracking-widest text-[#F3A3A6] transition-colors hover:bg-[#E05252]/10"
                       >
                         Bannir
                       </button>
                     ) : (
-                      <span className="text-[10px] text-[#EAA100]/30">—</span>
+                      <span className="text-caption text-[#EAA100]/30">—</span>
                     )}
                   </td>
                 </tr>
@@ -200,7 +200,7 @@ export default function AdminBansPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl border border-[#EAA100]/20 bg-[#1e2a38] p-8 shadow-2xl">
             <div className="mb-6 flex items-center gap-3">
-              <AlertTriangle className="h-6 w-6 text-red-400" />
+              <AlertTriangle className="h-6 w-6 text-[#F3A3A6]" />
               <h3 className="font-headline text-lg text-[#EAA100]">Bannir un utilisateur</h3>
             </div>
             <p className="mb-6 text-sm text-[#EAA100]/70">
@@ -208,17 +208,17 @@ export default function AdminBansPage() {
             </p>
             <div className="space-y-4">
               <div>
-                <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Motif du ban</label>
+                <label className="mb-1 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Motif du ban</label>
                 <textarea
                   value={banReason}
                   onChange={e => setBanReason(e.target.value)}
                   rows={3}
                   placeholder="Raison du bannissement..."
-                  className="w-full rounded-xl border border-[#EAA100]/20 bg-[#25303a] px-4 py-3 text-sm text-[#EAA100] placeholder-[#EAA100]/30 outline-none transition-colors focus:border-[#EAA100]"
+                  className="w-full rounded-xl border border-[#EAA100]/20 bg-[#161D30] px-4 py-3 text-sm text-[#EAA100] placeholder-[#EAA100]/30 outline-none transition-colors focus:border-[#EAA100]"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">
+                <label className="mb-1 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">
                   Durée (minutes, laisser vide pour permanent)
                 </label>
                 <input
@@ -227,21 +227,21 @@ export default function AdminBansPage() {
                   onChange={e => setBanDuration(e.target.value)}
                   min="1"
                   placeholder="Ex: 1440 pour 24h"
-                  className="w-full rounded-xl border border-[#EAA100]/20 bg-[#25303a] px-4 py-3 text-sm text-[#EAA100] placeholder-[#EAA100]/30 outline-none transition-colors focus:border-[#EAA100]"
+                  className="w-full rounded-xl border border-[#EAA100]/20 bg-[#161D30] px-4 py-3 text-sm text-[#EAA100] placeholder-[#EAA100]/30 outline-none transition-colors focus:border-[#EAA100]"
                 />
               </div>
             </div>
             <div className="mt-8 flex justify-end gap-4">
               <button
                 onClick={() => { setBanModal(null); setBanReason(""); setBanDuration(""); }}
-                className="rounded-xl border border-[#EAA100]/20 px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60 transition-colors hover:bg-[#EAA100]/5"
+                className="rounded-xl border border-[#EAA100]/20 px-6 py-2.5 text-caption font-bold uppercase tracking-widest text-[#EAA100]/60 transition-colors hover:bg-[#EAA100]/5"
               >
                 Annuler
               </button>
               <button
                 onClick={handleBan}
                 disabled={!banReason.trim()}
-                className="rounded-xl bg-red-500/20 px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest text-red-400 transition-colors hover:bg-red-500/30 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-xl bg-[#E05252]/20 px-6 py-2.5 text-caption font-bold uppercase tracking-widest text-[#F3A3A6] transition-colors hover:bg-[#E05252]/30 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Confirmer le ban
               </button>

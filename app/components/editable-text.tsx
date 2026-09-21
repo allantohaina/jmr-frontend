@@ -141,7 +141,7 @@ export function EditableText({
         >
           A-
         </button>
-        <span className="min-w-[3rem] text-center font-mono text-[11px] text-[#EAA100]">
+        <span className="min-w-[3rem] text-center font-mono text-label text-[#EAA100]">
           {Math.round(scaleDraft * 100)}%
         </span>
         <button

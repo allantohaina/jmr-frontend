@@ -84,7 +84,7 @@ export function DailyReportForm() {
   };
 
   return (
-    <div className="bg-[#25303a] rounded-[2rem] shadow-sm border border-[#EAA100]/5 overflow-hidden">
+    <div className="bg-[#161D30] rounded-[2rem] shadow-sm border border-[#EAA100]/5 overflow-hidden">
       <div className="p-8 border-b border-[#EAA100]/10 flex justify-between items-center bg-[#1e2a38]">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-[#EAA100]/10 flex items-center justify-center">
@@ -92,7 +92,7 @@ export function DailyReportForm() {
           </div>
           <div>
             <h2 className="font-headline text-2xl text-[#EAA100]">Rapport de Production</h2>
-            <p className="text-[10px] uppercase tracking-widest text-[#EAA100]/40 font-bold">Détails de fin de session</p>
+            <p className="text-caption uppercase tracking-widest text-[#EAA100]/40 font-bold">Détails de fin de session</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -100,23 +100,23 @@ export function DailyReportForm() {
             {isSaving ? (
               <div className="animate-pulse flex items-center gap-2 text-[#EAA100]">
                 <Save className="w-3 h-3" />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Sauvegarde...</span>
+                <span className="text-caption font-bold uppercase tracking-widest">Sauvegarde...</span>
               </div>
             ) : isDirty ? (
               <div className="flex items-center gap-2 text-[#EAA100]/60">
                 <Save className="w-3 h-3" />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Modifications non sauvegardées</span>
+                <span className="text-caption font-bold uppercase tracking-widest">Modifications non sauvegardées</span>
               </div>
             ) : lastSaved ? (
               <div className="flex items-center gap-2 text-[#EAA100]">
                 <CheckCircle2 className="w-3 h-3" />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Sauvegardé à {lastSaved.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+                <span className="text-caption font-bold uppercase tracking-widest">Sauvegardé à {lastSaved.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
               </div>
             ) : null}
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-orange-500/10 rounded-full border border-orange-500/20">
             <Clock className="w-3 h-3 text-orange-400" />
-            <span className="text-[10px] font-bold text-orange-400 uppercase tracking-widest">Fin de journée</span>
+            <span className="text-caption font-bold text-orange-400 uppercase tracking-widest">Fin de journée</span>
           </div>
         </div>
       </div>
@@ -124,11 +124,11 @@ export function DailyReportForm() {
       <form onSubmit={handleSubmit} className="p-8 space-y-8">
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Détails des tâches</h3>
+            <h3 className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Détails des tâches</h3>
             <button 
               type="button" 
               onClick={addTask}
-              className="flex items-center gap-2 text-[#EAA100] hover:text-[#EAA100] text-[10px] font-bold uppercase tracking-widest transition-all"
+              className="flex items-center gap-2 text-[#EAA100] hover:text-[#EAA100] text-caption font-bold uppercase tracking-widest transition-all"
             >
               <Plus className="w-3 h-3" /> Ajouter une tâche
             </button>
@@ -157,13 +157,13 @@ export function DailyReportForm() {
                       onChange={(e) => updateTask(task.id, "progress", parseInt(e.target.value))}
                       className="flex-1 accent-[#EAA100]"
                     />
-                    <span className="text-[10px] font-bold text-[#EAA100] w-12">{task.progress}%</span>
+                    <span className="text-caption font-bold text-[#EAA100] w-12">{task.progress}%</span>
                   </div>
                 </div>
                 <button 
                   type="button"
                   onClick={() => removeTask(task.id)}
-                  className="p-4 text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-2xl transition-all"
+                  className="p-4 text-[#F3A3A6] hover:text-[#F3A3A6] hover:bg-[#E05252]/10 rounded-2xl transition-all"
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>
@@ -176,9 +176,9 @@ export function DailyReportForm() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full py-5 rounded-2xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-lg ${
+            className={`w-full py-5 rounded-2xl text-caption font-bold uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-lg ${
               isSubmitting 
-                ? "bg-green-500 text-[#1e2a38] cursor-not-allowed" 
+                ? "bg-[#1F8457] text-[#1e2a38] cursor-not-allowed" 
                 : "bg-[#EAA100] text-[#1e2a38] hover:bg-[#EAA100] active:scale-[0.98]"
             }`}
           >

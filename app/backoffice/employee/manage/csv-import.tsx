@@ -57,7 +57,7 @@ export function CSVImport({ onImported }: Props) {
           </div>
           <div>
             <h2 className="text-sm font-bold text-[#EAA100]">Import CSV</h2>
-            <p className="text-[10px] uppercase tracking-widest text-[#EAA100]/40">
+            <p className="text-caption uppercase tracking-widest text-[#EAA100]/40">
               Importez plusieurs employés d&apos;un seul coup
             </p>
           </div>
@@ -68,7 +68,7 @@ export function CSVImport({ onImported }: Props) {
           <p className="mb-2 text-sm text-[#EAA100]/60">
             {file ? file.name : "Glissez un fichier CSV ici ou cliquez pour sélectionner"}
           </p>
-          <p className="mb-4 text-[10px] uppercase tracking-widest text-[#EAA100]/30">
+          <p className="mb-4 text-caption uppercase tracking-widest text-[#EAA100]/30">
             Format: email, password, first_name, last_name, phone, role, department, position, hire_date, cin
           </p>
           <input
@@ -80,14 +80,14 @@ export function CSVImport({ onImported }: Props) {
           />
           <button
             onClick={() => fileRef.current?.click()}
-            className="rounded-lg border border-[#EAA100]/20 bg-white/5 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60 transition-colors hover:bg-white/10 hover:text-[#EAA100]"
+            className="rounded-lg border border-[#EAA100]/20 bg-white/5 px-4 py-2 text-caption font-bold uppercase tracking-widest text-[#EAA100]/60 transition-colors hover:bg-white/10 hover:text-[#EAA100]"
           >
             Sélectionner un fichier
           </button>
         </div>
 
         <div className="mb-6 rounded-lg bg-white/5 p-4">
-          <h3 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">
+          <h3 className="mb-2 text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">
             Format attendu du CSV
           </h3>
           <pre className="overflow-x-auto text-xs text-[#EAA100]/40">
@@ -95,27 +95,27 @@ export function CSVImport({ onImported }: Props) {
 ahmed@jmrtextile.com,motdepasse123,Ahmed,Benali,0600000001,worker,Production,Couteau,2024-01-15,AB123456
 sara@jmrtextile.com,securepass456,Sara,Elouardi,0600000002,worker,Coupe,Surcheuse,2024-03-20,CD789012`}
           </pre>
-          <p className="mt-2 text-[10px] text-[#EAA100]/30">
+          <p className="mt-2 text-caption text-[#EAA100]/30">
             Colonnes obligatoires: email, password, first_name, last_name. Le rôle par défaut est &quot;worker&quot;.
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">{error}</div>
+          <div className="mb-6 rounded-lg bg-[#E05252]/10 border border-[#E05252]/20 p-3 text-sm text-[#F3A3A6]">{error}</div>
         )}
 
         {result && (
           <div className="mb-6 space-y-3">
-            <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 p-3 text-sm text-blue-400">
+            <div className="rounded-lg bg-[#5C9AD9]/10 border border-blue-500/20 p-3 text-sm text-[#5C9AD9]">
               {result.message}
             </div>
             {result.created.length > 0 && (
-              <div className="rounded-lg bg-green-500/10 border border-green-500/20 p-3">
-                <p className="mb-2 text-sm font-bold text-green-400">
+              <div className="rounded-lg bg-[#1F8457]/10 border border-[#1F8457]/20 p-3">
+                <p className="mb-2 text-sm font-bold text-[#5CB87D]">
                   <CheckCircle className="mr-1 inline h-4 w-4" />
                   {result.created.length} créé(s)
                 </p>
-                <ul className="space-y-1 text-xs text-green-400/70">
+                <ul className="space-y-1 text-xs text-[#5CB87D]/70">
                   {result.created.map((c) => (
                     <li key={c.line}>Ligne {c.line}: {c.email} ({c.role})</li>
                   ))}
@@ -123,12 +123,12 @@ sara@jmrtextile.com,securepass456,Sara,Elouardi,0600000002,worker,Coupe,Surcheus
               </div>
             )}
             {result.errors.length > 0 && (
-              <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3">
-                <p className="mb-2 text-sm font-bold text-red-400">
+              <div className="rounded-lg bg-[#E05252]/10 border border-[#E05252]/20 p-3">
+                <p className="mb-2 text-sm font-bold text-[#F3A3A6]">
                   <AlertCircle className="mr-1 inline h-4 w-4" />
                   {result.errors.length} erreur(s)
                 </p>
-                <ul className="space-y-1 text-xs text-red-400/70">
+                <ul className="space-y-1 text-xs text-[#F3A3A6]/70">
                   {result.errors.map((e) => (
                     <li key={e.line}>Ligne {e.line} ({e.email}): {e.error}</li>
                   ))}

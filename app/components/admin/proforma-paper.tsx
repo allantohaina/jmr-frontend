@@ -183,7 +183,7 @@ export function ProformaPaper({ proforma }: { proforma: ProformaRecord }) {
           display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px;
           padding: 24px 36px; border-bottom: 1px solid rgba(23,45,66,.15);
         }
-        .pp-label { margin: 0 0 6px; font-size: 9px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: #b07a1a; }
+        .pp-label { margin: 0 0 6px; font-size: 9px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: #B57E03; }
         .pp-parties h2 { font-family: Georgia, serif; font-size: 19px; margin: 0 0 4px; }
         .pp-pre { white-space: pre-line; margin: 0; color: #40566a; }
         .pp-meta { margin: 4px 0 0; font-size: 12px; color: #40566a; }

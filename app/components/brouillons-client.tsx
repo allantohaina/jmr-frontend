@@ -150,14 +150,14 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
   ) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const fieldCls =
-    "w-full bg-[#1b263c] border border-[#EAA100]/15 text-[#f3efe4] font-body text-sm px-3 py-2.5 rounded-lg outline-none transition-colors focus:border-[#EAA100]/60 placeholder:text-[#f3efe4]/25";
+    "w-full bg-[#1E2A38] border border-[#EAA100]/15 text-[#FFF8EC] font-body text-sm px-3 py-2.5 rounded-lg outline-none transition-colors focus:border-[#EAA100]/60 placeholder:text-[#FFF8EC]/25";
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="font-headline text-lg text-[#EAA100]">Brouillons de devis</h2>
-          <p className="mt-1 font-mono text-[11px] text-[#EAA100]/50">
+          <h2 className="font-headline text-lg text-[#FFF8EC]">Brouillons de devis</h2>
+          <p className="mt-1 font-mono text-label text-[#8B94A3]">
             {sorted.length === 0
               ? "0 brouillon"
               : sorted.length === 1
@@ -167,7 +167,7 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
         </div>
         <button
           onClick={() => openModal(null)}
-          className="flex items-center gap-2 rounded-lg bg-[#EAA100] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#1e2a38] transition-all hover:bg-[#EAA100]"
+          className="flex items-center gap-2 rounded-lg bg-[#EAA100] px-4 py-2.5 text-caption font-bold uppercase tracking-widest text-[#1e2a38] transition-all hover:bg-[#EAA100]"
         >
           <Plus className="h-4 w-4" /> Nouveau brouillon
         </button>
@@ -189,27 +189,27 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
               className="flex flex-col gap-3 rounded-xl border border-[#EAA100]/12 bg-[#1e2a38] p-4 transition-colors hover:border-[#EAA100]/35 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0">
-                <p className="font-mono text-[10px] tracking-wider text-[#EAA100]">{d.ref}</p>
-                <p className="truncate font-headline text-base text-[#f3efe4]">
+                <p className="font-mono text-caption tracking-wider text-[#EAA100]">{d.ref}</p>
+                <p className="truncate font-headline text-base text-[#FFF8EC]">
                   {d.client || "Sans nom"}
                 </p>
-                <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-[#EAA100]/50">
+                <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-1 text-label text-[#EAA100]/50">
                   {d.produit && <span>{d.produit}</span>}
                   {d.quantite && <span>{d.quantite} pcs</span>}
                   {d.budget && <span>Budget : {d.budget} Ar</span>}
-                  <span className="font-mono text-[10px]">Modifié le {formatDate(d.updatedAt)}</span>
+                  <span className="font-mono text-caption">Modifié le {formatDate(d.updatedAt)}</span>
                 </div>
               </div>
               <div className="flex shrink-0 gap-2">
                 <button
                   onClick={() => openModal(d.id)}
-                  className="flex items-center gap-2 rounded-lg border border-[#EAA100]/15 px-3 py-2 text-[11px] text-[#EAA100]/60 transition-colors hover:border-[#EAA100]/40 hover:text-[#EAA100]"
+                  className="flex items-center gap-2 rounded-lg border border-[#EAA100]/15 px-3 py-2 text-label text-[#EAA100]/60 transition-colors hover:border-[#EAA100]/40 hover:text-[#EAA100]"
                 >
                   <Pencil className="h-3.5 w-3.5" /> Modifier
                 </button>
                 <button
                   onClick={() => setConfirmDelete(d.id)}
-                  className="flex items-center gap-2 rounded-lg border border-red-400/25 px-3 py-2 text-[11px] text-red-300 transition-colors hover:bg-red-400/10"
+                  className="flex items-center gap-2 rounded-lg border border-[#E05252]/25 px-3 py-2 text-label text-[#F3A3A6] transition-colors hover:bg-[#E05252]/10"
                 >
                   <Trash2 className="h-3.5 w-3.5" /> Supprimer
                 </button>
@@ -221,18 +221,18 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
 
       {modalOpen && (
         <div
-          className="fixed inset-0 z-[300] flex items-start justify-center overflow-y-auto bg-[#060d1a]/80 p-5 py-14 backdrop-blur-sm"
+          className="fixed inset-0 z-[300] flex items-start justify-center overflow-y-auto bg-[#0A0E19]/80 p-5 py-14 backdrop-blur-sm"
           onClick={(e) => {
             if (e.target === e.currentTarget) closeModal();
           }}
         >
-          <div className="w-full max-w-lg rounded-xl border border-[#EAA100]/15 bg-[#25303a] p-7">
+          <div className="w-full max-w-lg rounded-xl border border-[#EAA100]/15 bg-[#161D30] p-7">
             <h2 className="font-headline text-xl font-medium text-[#EAA100]">
               {editingId ? "Modifier le brouillon" : "Nouveau brouillon"}
             </h2>
             <form onSubmit={saveDraft} className="mt-6 space-y-4">
               <div>
-                <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#EAA100]/50">
+                <label className="mb-1.5 block font-mono text-caption uppercase tracking-[0.08em] text-[#EAA100]/50">
                   Client / Entreprise
                 </label>
                 <input
@@ -246,7 +246,7 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#EAA100]/50">
+                  <label className="mb-1.5 block font-mono text-caption uppercase tracking-[0.08em] text-[#EAA100]/50">
                     Type de produit
                   </label>
                   <input
@@ -258,7 +258,7 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#EAA100]/50">
+                  <label className="mb-1.5 block font-mono text-caption uppercase tracking-[0.08em] text-[#EAA100]/50">
                     Quantité
                   </label>
                   <input
@@ -273,7 +273,7 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#EAA100]/50">
+                  <label className="mb-1.5 block font-mono text-caption uppercase tracking-[0.08em] text-[#EAA100]/50">
                     Tissu / matière
                   </label>
                   <input
@@ -285,7 +285,7 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#EAA100]/50">
+                  <label className="mb-1.5 block font-mono text-caption uppercase tracking-[0.08em] text-[#EAA100]/50">
                     Budget envisagé (indicatif)
                   </label>
                   <input
@@ -295,13 +295,13 @@ export default function BrouillonsClient({ onCountChange }: BrouillonsClientProp
                     onChange={set("budget")}
                     className={fieldCls}
                   />
-                  <p className="mt-1 text-[11px] text-[#EAA100]/40">
+                  <p className="mt-1 text-label text-[#EAA100]/40">
                     Simple indication — le prix définitif est fixé par l&apos;atelier lors de la cotation.
                   </p>
                 </div>
               </div>
               <div>
-                <label className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.08em] text-[#EAA100]/50">
+                <label className="mb-1.5 block font-mono text-caption uppercase tracking-[0.08em] text-[#EAA100]/50">
                   Notes internes
                 </label>
                 <textarea

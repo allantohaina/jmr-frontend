@@ -88,7 +88,7 @@ function NavGroup({ title, icon: GroupIcon, items }: { title: string; icon: Reac
     <div className="mb-[2px]">
       <button
         onClick={() => setOpen(!open)}
-        className={`flex w-full items-center gap-[11px] rounded-md border-0 bg-transparent px-3 py-[11px] text-[12.5px] font-semibold tracking-[0.5px] transition-colors ${
+        className={`flex w-full items-center gap-[11px] rounded-md border-0 bg-transparent px-3 py-[11px] text-body font-semibold tracking-[0.5px] transition-colors ${
           open ? "text-[#EAA100]" : "text-[#7b8496] hover:bg-[#17202f] hover:text-[#ece7db]"
         }`}
       >
@@ -104,7 +104,7 @@ function NavGroup({ title, icon: GroupIcon, items }: { title: string; icon: Reac
               <Link
                 key={href}
                 href={href}
-                className={`relative flex items-center gap-2.5 rounded-[5px] px-3 py-[9px] text-[13px] transition-colors ${
+                className={`relative flex items-center gap-2.5 rounded-md px-3 py-[9px] text-body transition-colors ${
                   active
                     ? "bg-[linear-gradient(90deg,rgba(234, 161, 0,0.14),rgba(234, 161, 0,0.02))] text-[#ece7db]"
                     : "text-[#7b8496] hover:bg-[#17202f] hover:text-[#ece7db]"
@@ -166,13 +166,13 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#1e2a38] font-body text-[#EAA100] md:flex">
-      <aside className="z-50 flex w-full flex-col bg-[linear-gradient(180deg,#121a28,#0f1622)] shadow-2xl transition-all duration-300 md:fixed md:left-0 md:top-0 md:h-full md:w-64 border-r border-white/5">
+      <aside className="z-50 flex w-full flex-col bg-[linear-gradient(180deg,#161D30,#0A0E19)] shadow-2xl transition-all duration-300 md:fixed md:left-0 md:top-0 md:h-full md:w-64 border-r border-white/5">
         <div className="px-6 pt-7 pb-5 md:block">
           <div>
-            <Link href="/" className="mb-[5px] block font-brand text-[23px] font-semibold tracking-[0.5px] text-[#EAA100]">
+            <Link href="/" className="mb-[5px] block font-brand text-title-xl font-semibold tracking-[0.5px] text-[#EAA100]">
               JMR Atelier
             </Link>
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#7b8496]">
+            <p className="text-caption font-bold uppercase tracking-[0.3em] text-[#7b8496]">
               Admin Control
             </p>
           </div>
@@ -182,7 +182,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         <nav className="hidden flex-1 space-y-0 overflow-y-auto px-[14px] py-[10px] md:block">
           <Link
             href="/backoffice"
-            className={`relative flex items-center gap-2.5 rounded-[5px] px-3 py-[9px] text-[13px] transition-colors ${
+            className={`relative flex items-center gap-2.5 rounded-md px-3 py-[9px] text-body transition-colors ${
               pathname === "/backoffice"
                 ? "bg-[linear-gradient(90deg,rgba(234, 161, 0,0.14),rgba(234, 161, 0,0.02))] text-[#ece7db]"
                 : "text-[#7b8496] hover:bg-[#17202f] hover:text-[#ece7db]"
@@ -203,76 +203,76 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           <NavGroup title="Administration" icon={Shield} items={adminItems} />
         </nav>
 
-        <div className="flex gap-4 overflow-x-auto border-b border-[#EAA100]/10 bg-[#25303a] p-4 md:hidden">
+        <div className="flex gap-4 overflow-x-auto border-b border-[#EAA100]/10 bg-[#161D30] p-4 md:hidden">
           <Link href="/backoffice" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#EAA100]/5 first:bg-[#EAA100]/10">
             <div className="flex items-center gap-2">
               <LayoutDashboard className="h-4 w-4 text-[#EAA100]" />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Tableau de bord</span>
+              <span className="text-micro font-bold uppercase tracking-widest">Tableau de bord</span>
             </div>
           </Link>
           <Link href="/backoffice/client/devis" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#EAA100]/5">
             <div className="flex items-center gap-2">
               <FileText className="h-4 w-4 text-[#EAA100]" />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Devis</span>
+              <span className="text-micro font-bold uppercase tracking-widest">Devis</span>
             </div>
           </Link>
           <Link href="/backoffice/client/orders" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#EAA100]/5">
             <div className="flex items-center gap-2">
               <Package className="h-4 w-4 text-[#EAA100]" />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Commandes</span>
+              <span className="text-micro font-bold uppercase tracking-widest">Commandes</span>
             </div>
           </Link>
           <Link href="/backoffice/employee/tickets" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#EAA100]/5">
             <div className="flex items-center gap-2">
               <Wrench className="h-4 w-4 text-[#EAA100]" />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Tickets</span>
+              <span className="text-micro font-bold uppercase tracking-widest">Tickets</span>
             </div>
           </Link>
           <Link href="/backoffice/employee/tasks" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#EAA100]/5">
             <div className="flex items-center gap-2">
               <ClipboardList className="h-4 w-4 text-[#EAA100]" />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Tâches</span>
+              <span className="text-micro font-bold uppercase tracking-widest">Tâches</span>
             </div>
           </Link>
           <Link href="/backoffice/orders" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#EAA100]/5">
             <div className="flex items-center gap-2">
               <Package className="h-4 w-4 text-[#EAA100]" />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Prod.</span>
+              <span className="text-micro font-bold uppercase tracking-widest">Prod.</span>
             </div>
           </Link>
           <Link href="/backoffice/delivery-notes" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#EAA100]/5">
             <div className="flex items-center gap-2">
               <Truck className="h-4 w-4 text-[#EAA100]" />
-              <span className="text-[8px] font-bold uppercase tracking-widest">BL</span>
+              <span className="text-micro font-bold uppercase tracking-widest">BL</span>
             </div>
           </Link>
           <Link href="/backoffice/purchases" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#EAA100]/5">
             <div className="flex items-center gap-2">
               <ShoppingCart className="h-4 w-4 text-[#EAA100]" />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Achats</span>
+              <span className="text-micro font-bold uppercase tracking-widest">Achats</span>
             </div>
           </Link>
           <Link href="/backoffice/finance/invoices" className="flex-shrink-0 rounded-lg px-3 py-2 hover:bg-[#EAA100]/5">
             <div className="flex items-center gap-2">
               <Receipt className="h-4 w-4 text-[#EAA100]" />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Factures</span>
+              <span className="text-micro font-bold uppercase tracking-widest">Factures</span>
             </div>
           </Link>
         </div>
 
         <div className="mt-auto hidden border-t border-white/5 p-[14px] md:block">
           <div className="mb-1 flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-[#17202f]">
-            <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#EAA100,#EAA100)] font-brand text-[12px] font-semibold text-[#181205]">
+            <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#EAA100,#EAA100)] font-brand text-body-sm font-semibold text-[#181205]">
               {profileInitials}
             </div>
             <div>
-              <p className="text-[12.5px] font-medium text-[#ece7db]">{profileName}</p>
-              {profileRole !== "" && <p className="text-[10.5px] text-[#7b8496]">{profileRole}</p>}
+              <p className="text-body font-medium text-[#ece7db]">{profileName}</p>
+              {profileRole !== "" && <p className="text-caption text-[#7b8496]">{profileRole}</p>}
             </div>
           </div>
           <Link
             href="/backoffice/settings"
-            className="flex items-center gap-[11px] rounded-md px-3 py-2.5 text-[12.5px] font-medium tracking-[0.3px] text-[#7b8496] transition-colors hover:bg-[#17202f] hover:text-[#ece7db]"
+            className="flex items-center gap-[11px] rounded-md px-3 py-2.5 text-body font-medium tracking-[0.3px] text-[#7b8496] transition-colors hover:bg-[#17202f] hover:text-[#ece7db]"
           >
             <Settings className="h-4 w-4 shrink-0 opacity-80" />
             Paramètres
@@ -284,7 +284,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[#EAA100]/10 bg-[#1e2a38]/80 px-6 py-4 backdrop-blur-md md:px-12 md:py-6">
           <div>
             <h1 className="font-headline text-xl text-[#EAA100] md:text-2xl">Espace de Gestion</h1>
-            <p className="mt-1 text-[8px] font-bold uppercase tracking-widest text-[#EAA100]/40 md:text-[10px]">
+            <p className="mt-1 text-micro font-bold uppercase tracking-widest text-[#EAA100]/40 md:text-caption">
               Contrôle de production • Temps réel
             </p>
           </div>
@@ -293,7 +293,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
             <AdminHeaderAlerts />
             <div className="hidden h-8 w-[1px] bg-[#EAA100]/10 md:block" />
             <div className="flex items-center gap-2 md:gap-4">
-              <span className="hidden rounded-full bg-[#EAA100]/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#EAA100] md:inline-block">
+              <span className="hidden rounded-full bg-[#EAA100]/10 px-3 py-1.5 text-caption font-bold uppercase tracking-widest text-[#EAA100] md:inline-block">
                 Systeme v2.4
               </span>
               <Link href="/" className="text-[#EAA100]/60 transition-colors hover:text-[#EAA100]" aria-label="Retour au site">
@@ -303,7 +303,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
                 type="button"
                 onClick={handleSignOut}
                 disabled={isSigningOut}
-                className="inline-flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-red-400 transition-all hover:bg-red-500/20 disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-xl border border-[#E05252]/20 bg-[#E05252]/10 px-3 py-2 text-caption font-bold uppercase tracking-widest text-[#F3A3A6] transition-all hover:bg-[#E05252]/20 disabled:opacity-60"
                 title="Déconnexion"
               >
                 <LogOut className="h-4 w-4" />

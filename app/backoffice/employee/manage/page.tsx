@@ -51,7 +51,7 @@ export default function EmployeeManagePage() {
     <div className="p-6 md:p-12">
       <div className="mb-8">
         <h1 className="font-headline text-2xl text-[#EAA100]">Gestion des employés</h1>
-        <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">
+        <p className="mt-1 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">
           Créer et gérer les comptes employés
         </p>
       </div>
@@ -59,7 +59,7 @@ export default function EmployeeManagePage() {
       <div className="mb-6 flex gap-3">
         <button
           onClick={() => setTab("list")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest transition-all ${
+          className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-caption font-bold uppercase tracking-widest transition-all ${
             tab === "list" ? "bg-[#EAA100] text-[#1e2a38]" : "bg-white/5 text-[#EAA100]/60 hover:bg-white/10"
           }`}
         >
@@ -68,7 +68,7 @@ export default function EmployeeManagePage() {
         </button>
         <button
           onClick={() => setTab("create")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest transition-all ${
+          className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-caption font-bold uppercase tracking-widest transition-all ${
             tab === "create" ? "bg-[#EAA100] text-[#1e2a38]" : "bg-white/5 text-[#EAA100]/60 hover:bg-white/10"
           }`}
         >
@@ -77,7 +77,7 @@ export default function EmployeeManagePage() {
         </button>
         <button
           onClick={() => setTab("import")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest transition-all ${
+          className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-caption font-bold uppercase tracking-widest transition-all ${
             tab === "import" ? "bg-[#EAA100] text-[#1e2a38]" : "bg-white/5 text-[#EAA100]/60 hover:bg-white/10"
           }`}
         >
@@ -87,7 +87,7 @@ export default function EmployeeManagePage() {
       </div>
 
       {error && (
-        <div className="mb-6 rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400">
+        <div className="mb-6 rounded-xl bg-[#E05252]/10 border border-[#E05252]/20 p-4 text-sm text-[#F3A3A6]">
           {error}
         </div>
       )}
@@ -110,7 +110,7 @@ export default function EmployeeManagePage() {
                 </button>
               )}
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">
+            <span className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">
               {filtered.length} employé(s)
             </span>
           </div>
@@ -129,12 +129,12 @@ export default function EmployeeManagePage() {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-[#EAA100]/10 bg-white/5">
-                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Nom</th>
-                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Email</th>
-                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Rôle</th>
-                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Département</th>
-                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Poste</th>
-                    <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Téléphone</th>
+                    <th className="px-4 py-3 text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Nom</th>
+                    <th className="px-4 py-3 text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Email</th>
+                    <th className="px-4 py-3 text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Rôle</th>
+                    <th className="px-4 py-3 text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Département</th>
+                    <th className="px-4 py-3 text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Poste</th>
+                    <th className="px-4 py-3 text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Téléphone</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -145,8 +145,8 @@ export default function EmployeeManagePage() {
                       </td>
                       <td className="px-4 py-3 text-[#EAA100]/70">{emp.email}</td>
                       <td className="px-4 py-3">
-                        <span className={`inline-block rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest ${
-                          emp.role === "admin" ? "bg-[#EAA100]/20 text-[#EAA100]" : "bg-blue-500/20 text-blue-400"
+                        <span className={`inline-block rounded-full px-2.5 py-1 text-micro font-bold uppercase tracking-widest ${
+                          emp.role === "admin" ? "bg-[#EAA100]/20 text-[#EAA100]" : "bg-[#5C9AD9]/20 text-[#5C9AD9]"
                         }`}>
                           {emp.role}
                         </span>

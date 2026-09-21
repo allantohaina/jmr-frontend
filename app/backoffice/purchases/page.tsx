@@ -106,12 +106,12 @@ export default function AdminPurchasesPage() {
               placeholder="Fournisseur, article..."
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); handleSearchChange(e.target.value); }}
-              className="w-full pl-12 pr-4 py-3 bg-[#25303a] border border-[#EAA100]/10 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              className="w-full pl-12 pr-4 py-3 bg-[#161D30] border border-[#EAA100]/10 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20"
             />
           </div>
           <button 
             onClick={() => setShowForm(true)}
-            className="px-6 py-3 bg-[#163526] text-white rounded-2xl flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:bg-[#163526]/90 transition-all shadow-lg shadow-[#163526]/10"
+            className="px-6 py-3 bg-[#163526] text-white rounded-2xl flex items-center gap-2 text-caption font-bold uppercase tracking-widest hover:bg-[#163526]/90 transition-all shadow-lg shadow-[#163526]/10"
           >
             <Plus className="w-4 h-4" /> Nouvel Achat
           </button>
@@ -123,7 +123,7 @@ export default function AdminPurchasesPage() {
       )}
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-[#25303a] p-6 rounded-[2rem] border border-[#EAA100]/10 shadow-sm space-y-4">
+        <form onSubmit={handleSubmit} className="bg-[#161D30] p-6 rounded-[2rem] border border-[#EAA100]/10 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-headline text-lg text-[#EAA100]">Nouvel achat</h3>
             <button type="button" onClick={() => setShowForm(false)} className="text-[#EAA100]/40 hover:text-[#EAA100]"><X className="w-4 h-4" /></button>
@@ -140,51 +140,51 @@ export default function AdminPurchasesPage() {
             </select>
             <textarea placeholder="Description (optionnelle)" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="w-full px-4 py-3 bg-[#1e2a38] border border-[#EAA100]/10 rounded-xl text-sm" rows={1} />
           </div>
-          <button type="submit" disabled={saving} className="px-6 py-3 bg-[#163526] text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-[#163526]/90 disabled:opacity-50">
+          <button type="submit" disabled={saving} className="px-6 py-3 bg-[#163526] text-white rounded-xl text-caption font-bold uppercase tracking-widest hover:bg-[#163526]/90 disabled:opacity-50">
             {saving ? "Enregistrement..." : "Enregistrer"}
           </button>
         </form>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[#25303a] p-6 rounded-[2rem] border border-[#EAA100]/10 shadow-sm relative overflow-hidden">
-          <div className="absolute -right-4 -top-4 opacity-5"><TrendingDown className="w-24 h-24 text-red-500" /></div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-3">Total Dépenses</p>
+        <div className="bg-[#161D30] p-6 rounded-[2rem] border border-[#EAA100]/10 shadow-sm relative overflow-hidden">
+          <div className="absolute -right-4 -top-4 opacity-5"><TrendingDown className="w-24 h-24 text-[#F3A3A6]" /></div>
+          <p className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-3">Total Dépenses</p>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-headline font-bold text-[#EAA100]">{totalSpent.toLocaleString()}</span>
             <span className="text-lg font-headline text-[#EAA100]/40">Ar</span>
           </div>
         </div>
-        <div className="bg-[#25303a] p-6 rounded-[2rem] border border-[#EAA100]/10 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-3">En attente</p>
+        <div className="bg-[#161D30] p-6 rounded-[2rem] border border-[#EAA100]/10 shadow-sm">
+          <p className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-3">En attente</p>
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center"><Package className="w-5 h-5 text-orange-500" /></div>
             <span className="text-3xl font-headline font-bold text-[#EAA100]">{enAttente.length}</span>
           </div>
-          <p className="mt-2 text-[9px] font-bold text-[#EAA100]/40 uppercase tracking-widest">Valeur: {totalEnAttente.toLocaleString()} Ar</p>
+          <p className="mt-2 text-micro font-bold text-[#EAA100]/40 uppercase tracking-widest">Valeur: {totalEnAttente.toLocaleString()} Ar</p>
         </div>
         <div className="bg-[#163526] p-6 rounded-[2rem] text-white relative shadow-xl overflow-hidden">
           <div className="absolute right-0 top-0 h-full w-2 bg-orange-500"></div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-3">Total achats</p>
+          <p className="text-caption font-bold uppercase tracking-widest text-white/40 mb-3">Total achats</p>
           <p className="text-3xl font-headline font-bold text-white">{purchases.length}</p>
-          <p className="mt-2 text-[10px] uppercase font-bold text-orange-400">{purchases.length} commandes fournisseur</p>
+          <p className="mt-2 text-caption uppercase font-bold text-orange-400">{purchases.length} commandes fournisseur</p>
         </div>
       </div>
 
-      <div className="bg-[#25303a] rounded-[2.5rem] border border-[#EAA100]/10 shadow-sm overflow-hidden">
+      <div className="bg-[#161D30] rounded-[2.5rem] border border-[#EAA100]/10 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-[#EAA100]/10 flex justify-between items-center bg-[#1e2a38]/50">
           <h3 className="font-headline text-lg text-[#EAA100]">Historique des Achats</h3>
-          <span className="text-[10px] font-bold text-[#EAA100]/40">{filteredPurchases.length} résultat(s)</span>
+          <span className="text-caption font-bold text-[#EAA100]/40">{filteredPurchases.length} résultat(s)</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-[#EAA100]/10">
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Date</th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Fournisseur</th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Catégorie</th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Montant</th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Statut</th>
+                <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Date</th>
+                <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Fournisseur</th>
+                <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Catégorie</th>
+                <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Montant</th>
+                <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Statut</th>
               </tr>
             </thead>
             <tbody>
@@ -200,16 +200,16 @@ export default function AdminPurchasesPage() {
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm font-bold text-[#EAA100]">{p.fournisseur}</p>
-                      {p.description && <p className="text-[10px] text-[#EAA100]/40 italic">{p.description}</p>}
+                      {p.description && <p className="text-caption text-[#EAA100]/40 italic">{p.description}</p>}
                     </td>
                     <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-[#EAA100]/10 text-[#EAA100]/60 text-[9px] font-bold uppercase rounded-full">{p.categorie}</span>
+                      <span className="px-2 py-1 bg-[#EAA100]/10 text-[#EAA100]/60 text-micro font-bold uppercase rounded-full">{p.categorie}</span>
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm font-bold text-[#EAA100]">{p.montant.toLocaleString()} Ar</p>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 text-[9px] font-bold uppercase rounded-full ${
+                      <span className={`px-2 py-1 text-micro font-bold uppercase rounded-full ${
                         p.statut === "Payé" ? "bg-green-100 text-green-700" :
                         p.statut === "En attente" ? "bg-orange-100 text-orange-700" :
                         "bg-red-100 text-red-600"

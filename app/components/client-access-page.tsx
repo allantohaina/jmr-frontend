@@ -247,14 +247,17 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
     <div className="login-page">
       <style>{`
         .login-page {
-          min-height: 100vh;
-          min-height: 100dvh;
+          height: 100vh;
+          height: 100dvh;
+          min-height: 560px;
           background: #0A0E19;
           font-family: 'Inter', sans-serif;
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding: 28px 20px 44px;
+          justify-content: center;
+          overflow-y: auto;
+          padding: 28px 20px 32px;
           color: #f2f2f0;
         }
 
@@ -285,7 +288,7 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
         .login-lang {
           display: flex;
           gap: 2px;
-          background: #151B30;
+          background: #161D30;
           border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 999px;
           padding: 3px;
@@ -313,15 +316,26 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
         .login-card {
           width: 100%;
           max-width: 480px;
-          background: #151B30;
+          background: #161D30;
           border: 1px solid rgba(255, 255, 255, 0.07);
           border-radius: 20px;
           padding: 28px;
           box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
         }
 
+        .login-card .auth-card {
+          background: transparent;
+          border: none;
+          border-radius: 0;
+          padding: 0;
+          margin: 0;
+          max-width: 100%;
+          min-height: 0;
+          display: block;
+        }
+
         .login-card .auth-tabs {
-          background: #0B1120;
+          background: #161D30;
           border-radius: 12px;
           margin-bottom: 24px;
         }
@@ -349,7 +363,7 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
         }
 
         .login-card .auth-label {
-          color: #f2f2f0;
+          color: #FFF8EC;
           font-size: 13px;
           margin-bottom: 8px;
         }
@@ -391,7 +405,7 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
         }
 
         .login-card .auth-input::placeholder {
-          color: #9aa3b5;
+          color: #B9C3D0;
         }
 
         .login-card .auth-input:focus {
@@ -427,7 +441,7 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
           transform: translateY(-50%);
           width: 18px;
           height: 18px;
-          color: #9aa3b5;
+          color: #B9C3D0;
           pointer-events: none;
         }
 
@@ -444,7 +458,7 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
           background: none;
           border: none;
           border-radius: 8px;
-          color: #9aa3b5;
+          color: #B9C3D0;
           cursor: pointer;
         }
 
@@ -503,7 +517,7 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
         .login-card .auth-phone-prefix {
           background: #EDF0F5;
           border-color: #ffffff;
-          color: #5b6478;
+          color: #8B94A3;
           border-radius: 10px 0 0 10px;
         }
 
@@ -526,7 +540,7 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
         }
 
         .login-pro-link:hover {
-          color: #f2f2f0;
+          color: #FFF8EC;
         }
 
         .login-error {
@@ -546,11 +560,11 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
           align-items: center;
           gap: 10px;
           font-size: 12px;
-          color: #5b6478;
+          color: #8B94A3;
         }
 
         .login-foot a {
-          color: #5b6478;
+          color: #8B94A3;
           text-decoration: none;
         }
 

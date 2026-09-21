@@ -58,8 +58,8 @@ export function AttachmentUploader({ entityType, entityId, maxSizeMB = 30, onUpl
   };
 
   const getFileIcon = (mimeType: string) => {
-    if (mimeType.startsWith("image/")) return <Image className="h-5 w-5 text-green-500" />;
-    if (mimeType === "application/pdf") return <FileText className="h-5 w-5 text-red-500" />;
+    if (mimeType.startsWith("image/")) return <Image className="h-5 w-5 text-[#5CB87D]" />;
+    if (mimeType === "application/pdf") return <FileText className="h-5 w-5 text-[#F3A3A6]" />;
     return <FileText className="h-5 w-5 text-gray-500" />;
   };
 
@@ -215,7 +215,7 @@ export function AttachmentUploader({ entityType, entityId, maxSizeMB = 30, onUpl
           <p className="mt-2 text-sm font-medium text-[#EAA100]">
             {dragActive ? "Déposez les fichiers ici" : "Cliquez ou déposez pour ajouter des pièces jointes"}
           </p>
-          <p className="text-[10px] text-[#EAA100]/40 uppercase tracking-widest mt-1">
+          <p className="text-caption text-[#EAA100]/40 uppercase tracking-widest mt-1">
             JPG, PNG, WebP, PDF, CSV — Max {maxSizeMB} MB
           </p>
         </label>
@@ -227,19 +227,19 @@ export function AttachmentUploader({ entityType, entityId, maxSizeMB = 30, onUpl
         </div>
       ) : attachments.length > 0 ? (
         <div className="space-y-2">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">
+          <p className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">
             Pièces jointes ({attachments.length})
           </p>
           <div className="space-y-2">
             {attachments.map((att) => (
               <div
                 key={att.id}
-                className="flex items-center gap-3 p-3 bg-[#25303a] border border-[#EAA100]/10 rounded-xl hover:border-[#EAA100]/10/20 transition-colors"
+                className="flex items-center gap-3 p-3 bg-[#161D30] border border-[#EAA100]/10 rounded-xl hover:border-[#EAA100]/10/20 transition-colors"
               >
                 <div className="flex-shrink-0">{getFileIcon(att.mime_type)}</div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-[#EAA100] truncate">{att.original_name}</p>
-                  <p className="text-[10px] text-[#EAA100]/40 uppercase tracking-widest">
+                  <p className="text-caption text-[#EAA100]/40 uppercase tracking-widest">
                     {formatFileSize(att.file_size)} • {new Date(att.created_at).toLocaleDateString("fr-FR")}
                   </p>
                 </div>
@@ -254,7 +254,7 @@ export function AttachmentUploader({ entityType, entityId, maxSizeMB = 30, onUpl
                 </a>
                 <button
                   onClick={() => handleDelete(att.id)}
-                  className="p-2 text-red-500/60 hover:text-red-600 transition-colors"
+                  className="p-2 text-[#F3A3A6]/60 hover:text-red-600 transition-colors"
                   title="Supprimer"
                 >
                   <X className="h-4 w-4" />

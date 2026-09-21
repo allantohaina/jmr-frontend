@@ -37,7 +37,7 @@ export function AtelierCheckIn() {
   };
 
   return (
-    <div className="bg-[#25303a] rounded-[2rem] shadow-xl border border-[#EAA100]/5 overflow-hidden">
+    <div className="bg-[#161D30] rounded-[2rem] shadow-xl border border-[#EAA100]/5 overflow-hidden">
       <div className="p-8 bg-[#1e2a38] text-[#EAA100] border-b border-[#EAA100]/10">
         <div className="flex items-center gap-4 mb-2">
           <div className="w-12 h-12 rounded-2xl bg-[#EAA100]/10 flex items-center justify-center">
@@ -45,7 +45,7 @@ export function AtelierCheckIn() {
           </div>
           <div>
             <h2 className="font-headline text-2xl text-[#EAA100]">Check-in Quotidien</h2>
-            <p className="text-[10px] uppercase tracking-widest text-[#EAA100]/40 font-bold">Rapport d&apos;activité & Présence</p>
+            <p className="text-caption uppercase tracking-widest text-[#EAA100]/40 font-bold">Rapport d&apos;activité & Présence</p>
           </div>
         </div>
       </div>
@@ -55,7 +55,7 @@ export function AtelierCheckIn() {
           {/* Date & Time Section */}
           <div className="space-y-6">
             <div className="relative">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Date de l&apos;activité</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Date de l&apos;activité</label>
               <button
                 type="button"
                 onClick={() => setShowCalendar(!showCalendar)}
@@ -69,7 +69,7 @@ export function AtelierCheckIn() {
               </button>
               
               {showCalendar && (
-                <div className="absolute top-full left-0 mt-2 z-50 bg-[#25303a] shadow-2xl rounded-2xl border border-[#EAA100]/10 p-4 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute top-full left-0 mt-2 z-50 bg-[#161D30] shadow-2xl rounded-2xl border border-[#EAA100]/10 p-4 animate-in fade-in slide-in-from-top-2">
                   <DayPicker
                     mode="single"
                     selected={selectedDate}
@@ -91,7 +91,7 @@ export function AtelierCheckIn() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Heure d&apos;arrivée</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Heure d&apos;arrivée</label>
               <div className="relative">
                 <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#EAA100]/40" />
                 <input
@@ -104,14 +104,14 @@ export function AtelierCheckIn() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Statut de Disponibilité</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Statut de Disponibilité</label>
               <div className="grid grid-cols-2 gap-3">
                 {["disponible", "occupe"].map((status) => (
                   <button
                     key={status}
                     type="button"
                     onClick={() => setCheckInData({ ...checkInData, status })}
-                    className={`p-3 rounded-xl border text-[10px] font-bold uppercase tracking-widest transition-all ${
+                    className={`p-3 rounded-xl border text-caption font-bold uppercase tracking-widest transition-all ${
                       checkInData.status === status
                         ? "bg-[#EAA100] text-[#1e2a38] border-[#EAA100]"
                         : "bg-[#1e2a38] text-[#EAA100]/40 border-[#EAA100]/10 hover:bg-white/5"
@@ -119,7 +119,7 @@ export function AtelierCheckIn() {
                   >
                     {status === "disponible" ? (
                       <span className="flex items-center justify-center gap-2">
-                        <CheckCircle2 className={`w-3 h-3 ${checkInData.status === status ? "text-[#1e2a38]" : "text-green-400"}`} /> Disponible
+                        <CheckCircle2 className={`w-3 h-3 ${checkInData.status === status ? "text-[#1e2a38]" : "text-[#5CB87D]"}`} /> Disponible
                       </span>
                     ) : (
                       <span className="flex items-center justify-center gap-2">
@@ -135,7 +135,7 @@ export function AtelierCheckIn() {
           {/* Tasks Section */}
           <div className="space-y-6">
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Tâches Accomplies (Hier)</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Tâches Accomplies (Hier)</label>
               <textarea
                 value={checkInData.completedTasks}
                 onChange={(e) => setCheckInData({ ...checkInData, completedTasks: e.target.value })}
@@ -144,7 +144,7 @@ export function AtelierCheckIn() {
               />
             </div>
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Tâches Prévues (Aujourd&apos;hui)</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Tâches Prévues (Aujourd&apos;hui)</label>
               <textarea
                 value={checkInData.plannedTasks}
                 onChange={(e) => setCheckInData({ ...checkInData, plannedTasks: e.target.value })}
@@ -158,14 +158,14 @@ export function AtelierCheckIn() {
         <div className="pt-4 border-t border-[#EAA100]/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2 text-[#EAA100]/40">
             <MessageSquare className="w-4 h-4" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">Une notification sera envoyée à l&apos;admin</span>
+            <span className="text-caption font-bold uppercase tracking-widest">Une notification sera envoyée à l&apos;admin</span>
           </div>
           <button
             type="submit"
             disabled={isSubmitted}
-            className={`w-full md:w-auto px-10 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg ${
+            className={`w-full md:w-auto px-10 py-4 rounded-2xl text-caption font-bold uppercase tracking-widest transition-all shadow-lg ${
               isSubmitted 
-                ? "bg-green-500 text-[#1e2a38] cursor-not-allowed" 
+                ? "bg-[#1F8457] text-[#1e2a38] cursor-not-allowed" 
                 : "bg-[#EAA100] text-[#1e2a38] hover:bg-[#EAA100] active:scale-95"
             }`}
           >

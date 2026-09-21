@@ -133,7 +133,7 @@ export default function AtelierClient() {
     <div className="min-h-screen bg-[#1e2a38] font-body text-[#EAA100]">
       <div className="flex flex-col lg:flex-row min-h-screen">
         {/* Sidebar */}
-        <aside className="w-full lg:w-80 bg-[#25303a] text-[#EAA100] p-8 flex flex-col border-r border-[#EAA100]/10">
+        <aside className="w-full lg:w-80 bg-[#161D30] text-[#EAA100] p-8 flex flex-col border-r border-[#EAA100]/10">
           <div className="mb-12">
             <div className="flex items-center gap-4 mb-4">
               <div className="relative w-14 h-14">
@@ -150,13 +150,13 @@ export default function AtelierClient() {
               </div>
             </div>
             <div className="h-[1px] w-full bg-gradient-to-r from-[#EAA100]/40 to-transparent mb-4"></div>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[#EAA100]/40 font-bold">Excellence Textile</p>
+            <p className="text-caption uppercase tracking-[0.4em] text-[#EAA100]/40 font-bold">Excellence Textile</p>
           </div>
 
           <nav className="space-y-4 flex-1">
             <button 
               onClick={() => setCurrentView("dashboard")}
-              className={`w-full flex items-center justify-between p-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest border transition-all ${
+              className={`w-full flex items-center justify-between p-4 rounded-2xl text-caption font-bold uppercase tracking-widest border transition-all ${
                 currentView === "dashboard" ? "bg-[#EAA100]/10 border-[#EAA100]/10 text-[#EAA100]" : "hover:bg-white/5 border-transparent"
               }`}
             >
@@ -165,7 +165,7 @@ export default function AtelierClient() {
             </button>
             <button 
               onClick={() => setCurrentView("stock")}
-              className={`w-full flex items-center justify-between p-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest border transition-all ${
+              className={`w-full flex items-center justify-between p-4 rounded-2xl text-caption font-bold uppercase tracking-widest border transition-all ${
                 currentView === "stock" ? "bg-[#EAA100]/10 border-[#EAA100]/10 text-[#EAA100]" : "hover:bg-white/5 border-transparent"
               }`}
             >
@@ -174,7 +174,7 @@ export default function AtelierClient() {
             </button>
             <button 
               onClick={() => setCurrentView("tech-sheets")}
-              className={`w-full flex items-center justify-between p-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest border transition-all ${
+              className={`w-full flex items-center justify-between p-4 rounded-2xl text-caption font-bold uppercase tracking-widest border transition-all ${
                 currentView === "tech-sheets" ? "bg-[#EAA100]/10 border-[#EAA100]/10 text-[#EAA100]" : "hover:bg-white/5 border-transparent"
               }`}
             >
@@ -183,7 +183,7 @@ export default function AtelierClient() {
             </button>
             <button 
               onClick={() => setCurrentView("qc")}
-              className={`w-full flex items-center justify-between p-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest border transition-all ${
+              className={`w-full flex items-center justify-between p-4 rounded-2xl text-caption font-bold uppercase tracking-widest border transition-all ${
                 currentView === "qc" ? "bg-[#EAA100]/10 border-[#EAA100]/10 text-[#EAA100]" : "hover:bg-white/5 border-transparent"
               }`}
             >
@@ -192,7 +192,7 @@ export default function AtelierClient() {
             </button>
             <button 
               onClick={() => setCurrentView("history")}
-              className={`w-full flex items-center justify-between p-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest border transition-all ${
+              className={`w-full flex items-center justify-between p-4 rounded-2xl text-caption font-bold uppercase tracking-widest border transition-all ${
                 currentView === "history" ? "bg-[#EAA100]/10 border-[#EAA100]/10 text-[#EAA100]" : "hover:bg-white/5 border-transparent"
               }`}
             >
@@ -208,14 +208,14 @@ export default function AtelierClient() {
               </div>
               <div>
                 <p className="text-xs font-bold text-[#EAA100]">Opérateur Atelier</p>
-                <p className="text-[9px] uppercase tracking-widest text-[#EAA100]/40">Atelier Principal</p>
+                <p className="text-micro uppercase tracking-widest text-[#EAA100]/40">Atelier Principal</p>
               </div>
             </div>
             <button
               type="button"
               onClick={handleSignOut}
               disabled={isSigningOut}
-              className="w-full flex items-center gap-3 p-4 hover:bg-red-500/10 hover:text-red-400 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all disabled:opacity-60"
+              className="w-full flex items-center gap-3 p-4 hover:bg-[#E05252]/10 hover:text-[#F3A3A6] rounded-2xl text-caption font-bold uppercase tracking-widest transition-all disabled:opacity-60"
             >
               <LogOut className="w-4 h-4" /> {isSigningOut ? "Déconnexion..." : "Déconnexion"}
             </button>
@@ -236,13 +236,13 @@ export default function AtelierClient() {
                 <div className="flex justify-between items-end">
                   <div>
                     <h2 className="font-headline text-3xl text-[#EAA100]">Suivi des Lignes</h2>
-                    <p className="text-[10px] uppercase tracking-widest text-[#EAA100]/40 font-bold mt-1">État des commandes en cours</p>
+                    <p className="text-caption uppercase tracking-widest text-[#EAA100]/40 font-bold mt-1">État des commandes en cours</p>
                   </div>
                   <div className="flex gap-4">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-full text-[10px] font-bold uppercase border border-green-500/20">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-[#1F8457]/10 text-[#5CB87D] rounded-full text-caption font-bold uppercase border border-[#1F8457]/20">
                       <CheckCircle className="w-3 h-3" /> {nbTerminees} Terminé
                     </div>
-                    <div className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-400 rounded-full text-[10px] font-bold uppercase border border-red-500/20">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-[#E05252]/10 text-[#F3A3A6] rounded-full text-caption font-bold uppercase border border-[#E05252]/20">
                       <AlertTriangle className="w-3 h-3" /> {nbProblemes} Problème
                     </div>
                   </div>
@@ -255,39 +255,39 @@ export default function AtelierClient() {
                     <p className="text-sm text-[#EAA100]/40 italic md:col-span-2">Aucune commande en cours pour le moment.</p>
                   ) : (
                   productionLines.map(line => (
-                    <div key={line.id} className="bg-[#25303a] p-8 rounded-[2rem] shadow-sm border border-[#EAA100]/5 space-y-6 group hover:shadow-2xl transition-all duration-500">
+                    <div key={line.id} className="bg-[#161D30] p-8 rounded-[2rem] shadow-sm border border-[#EAA100]/5 space-y-6 group hover:shadow-2xl transition-all duration-500">
                       <div className="flex justify-between items-start">
                         <div>
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100] mb-1 block">{line.order}</span>
+                          <span className="text-caption font-bold uppercase tracking-widest text-[#EAA100] mb-1 block">{line.order}</span>
                           <h3 className="font-headline text-2xl text-[#EAA100]">{line.name}</h3>
                         </div>
                         <div className={`w-3 h-3 rounded-full ${
                           line.status === "en_cours" ? "bg-[#EAA100] animate-pulse" : 
-                          line.status === "probleme" ? "bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.4)]" : 
-                          "bg-green-500"
+                          line.status === "probleme" ? "bg-[#E05252] shadow-[0_0_10px_rgba(239,68,68,0.4)]" : 
+                          "bg-[#1F8457]"
                         }`} />
                       </div>
 
                       <div className="space-y-2">
-                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">
+                        <div className="flex justify-between text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">
                           <span>Progression de la ligne</span>
                           <span className="text-[#EAA100]">{line.progress}%</span>
                         </div>
                         <div className="h-2 w-full bg-[#EAA100]/5 rounded-full overflow-hidden">
                           <div 
-                            className={`h-full transition-all duration-700 ${line.status === "probleme" ? "bg-red-500" : "bg-[#EAA100]"}`}
+                            className={`h-full transition-all duration-700 ${line.status === "probleme" ? "bg-[#E05252]" : "bg-[#EAA100]"}`}
                             style={{ width: `${line.progress}%` }}
                           />
                         </div>
                       </div>
 
                       {line.issues.length > 0 && (
-                        <div className="p-4 bg-red-500/5 border border-red-500/10 rounded-2xl space-y-2 animate-in fade-in slide-in-from-top-2">
-                          <p className="text-[10px] font-bold text-red-400 uppercase tracking-widest flex items-center gap-2">
+                        <div className="p-4 bg-[#E05252]/5 border border-[#E05252]/10 rounded-2xl space-y-2 animate-in fade-in slide-in-from-top-2">
+                          <p className="text-caption font-bold text-[#F3A3A6] uppercase tracking-widest flex items-center gap-2">
                             <AlertTriangle className="w-3 h-3" /> Incident Reporté
                           </p>
                           {line.issues.map((issue, i) => (
-                            <p key={i} className="text-xs text-red-400/70 italic font-medium">- {issue}</p>
+                            <p key={i} className="text-xs text-[#F3A3A6]/70 italic font-medium">- {issue}</p>
                           ))}
                         </div>
                       )}
@@ -295,13 +295,13 @@ export default function AtelierClient() {
                       <div className="pt-4 grid grid-cols-2 gap-4">
                         <button 
                           onClick={() => reportIssue(line.id)}
-                          className="py-4 bg-[#25303a] border border-red-500/20 text-red-400 text-[9px] font-bold uppercase tracking-widest rounded-2xl hover:bg-red-500/10 transition-all flex items-center justify-center gap-2 group/btn"
+                          className="py-4 bg-[#161D30] border border-[#E05252]/20 text-[#F3A3A6] text-micro font-bold uppercase tracking-widest rounded-2xl hover:bg-[#E05252]/10 transition-all flex items-center justify-center gap-2 group/btn"
                         >
                           Signaler Incident
                         </button>
                         <button 
                           onClick={() => markAsFinished(line.id)}
-                          className="py-4 bg-[#EAA100] text-[#1e2a38] text-[9px] font-bold uppercase tracking-widest rounded-2xl hover:bg-[#EAA100] transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl active:scale-95"
+                          className="py-4 bg-[#EAA100] text-[#1e2a38] text-micro font-bold uppercase tracking-widest rounded-2xl hover:bg-[#EAA100] transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl active:scale-95"
                         >
                           Marquer Terminé
                         </button>

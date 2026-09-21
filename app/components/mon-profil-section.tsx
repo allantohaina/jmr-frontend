@@ -58,10 +58,21 @@ const STATUS_DOT: Record<string, string> = {
   production: "#5c9ad9",
   completed: "#5cb87d",
   pending: "#EAA100",
-  draft: "#5c6478",
+  draft: "#8B94A3",
   sent: "#8b7bd4",
   needs_info: "#EAA100",
   rejected: "#e08b52",
+};
+
+const STATUS_PCT: Record<string, number> = {
+  draft: 5,
+  pending: 33,
+  sent: 50,
+  needs_info: 45,
+  accepted: 67,
+  production: 85,
+  completed: 100,
+  rejected: 100,
 };
 
 function confirmationCountdown(deadline?: string | null): { text: string; expired: boolean; urgent: boolean } | null {
@@ -77,6 +88,17 @@ function confirmationCountdown(deadline?: string | null): { text: string; expire
 
 function quoteReference(quote: QuoteRecord) {
   return `Demande #${String(quote.id).padStart(5, "0")}`;
+}
+
+function quoteShortId(id: string | number) {
+  return String(id).substring(0, 8).toUpperCase();
+}
+
+function quoteQuantity(q: QuoteRecord | CommandeRecord | null | undefined): string | null {
+  const raw = (q as { quantite?: unknown } | null | undefined)?.quantite;
+  if (raw === null || raw === undefined || raw === "") return null;
+  const text = String(raw);
+  return /pi[eè]ces?/i.test(text) ? text : `${text} pièces`;
 }
 
 type ClientDocument = {
@@ -104,22 +126,22 @@ function quoteFiles(quote: QuoteRecord): Array<{ name: string; url: string; type
 const globalStyles = `
 :root{
   --bg:#1e2a38;
-  --card:#25303a;
+  --card:#161D30;
   --card-border:rgba(234, 161, 0,0.12);
-  --input-bg:#1b263c;
+  --input-bg:#1E2A38;
   --gold:#EAA100;
   --gold-light:#EAA100;
   --gold-dim:rgba(234, 161, 0,0.4);
-  --text-cream:#f3efe4;
+  --text-cream:#FFF8EC;
   --text-muted:rgba(234, 161, 0,0.6);
   --text-faint:rgba(234, 161, 0,0.35);
   --warn:#e08b52;
   --warn-bg:rgba(224,139,82,0.09);
   --good:#5cb87d;
   --good-bg:rgba(92,184,125,0.09);
-  --font-serif:'Fraunces','Noto Serif',serif;
-  --font-mono:'JetBrains Mono','IBM Plex Mono',monospace;
-  --font-body:'Inter','IBM Plex Sans',system-ui,sans-serif;
+  --font-serif:var(--font-brand),var(--font-noto-serif),Georgia,serif;
+  --font-mono:var(--font-jbmono),'IBM Plex Mono',monospace;
+  --font-body:var(--font-inter),var(--font-ibm-plex-sans),system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text-cream);font-family:var(--font-body);-webkit-font-smoothing:antialiased;}
@@ -127,118 +149,135 @@ body{background:var(--bg);color:var(--text-cream);font-family:var(--font-body);-
 .db-container{max-width:1100px;margin:0 auto;padding:0 40px;}
 @media(max-width:760px){.db-container{padding:0 20px;}}
 
-.db-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;padding:36px 0 28px;}
-.db-head h1{font-family:var(--font-serif);font-weight:500;font-size:clamp(26px,3.4vw,34px);margin:0;color:var(--gold-light);}
-.eyebrow{font-size:11px;letter-spacing:0.24em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
-.eyebrow::before{content:"";width:22px;height:1px;background:var(--gold-dim);}
+/* Tête de page */
+.page-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:32px;}
+.eyebrow{color:var(--gold);text-transform:uppercase;letter-spacing:.22em;font-size:10px;font-weight:700;display:flex;gap:12px;align-items:center;margin-bottom:10px;}
+.eyebrow span{width:20px;height:1px;background:var(--gold);display:inline-block;}
+.page-heading h1{font-family:var(--font-serif);font-weight:500;font-size:34px;margin:0;color:var(--text-cream);letter-spacing:-.5px;}
+.page-heading p{margin:4px 0 0;color:var(--text-muted);font-size:13px;}
+.primary-button{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:#1B2436;border:0;border-radius:8px;padding:12px 19px;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;cursor:pointer;text-decoration:none;transition:.2s;white-space:nowrap;}
+.primary-button:hover{filter:brightness(1.07);transform:translateY(-2px);box-shadow:0 8px 24px rgba(234,161,0,.25);}
+.primary-button svg{width:16px;height:16px;}
+.outline-button{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:#1B2436;border:0;border-radius:8px;padding:10px 14px;font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;cursor:pointer;text-decoration:none;transition:.2s;white-space:nowrap;}
+.outline-button:hover{filter:brightness(1.07);}
+.outline-button svg{width:15px;height:15px;}
 
-.db-banner{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:28px 32px;margin-bottom:32px;position:relative;overflow:hidden;}
-.db-banner::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 30%,rgba(234, 161, 0,0.08),transparent 60%);pointer-events:none;}
-.db-banner-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-.db-banner-eyebrow .icon{width:32px;height:32px;border-radius:8px;background:rgba(234, 161, 0,0.1);display:flex;align-items:center;justify-content:center;}
-.db-banner-eyebrow .icon svg{width:16px;height:16px;stroke:var(--gold);}
-.db-banner-eyebrow span{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);font-weight:700;}
-.db-banner h2{font-family:var(--font-serif);font-weight:500;font-size:22px;color:var(--gold-light);margin-bottom:10px;}
-.db-banner p{font-size:13px;color:var(--text-muted);line-height:1.6;}
-.db-banner p b{color:var(--text-cream);}
+/* Bandeau demande en attente */
+.request-banner{border:1px solid var(--card-border);background:var(--card);border-radius:10px;padding:23px 25px;display:flex;align-items:flex-start;gap:17px;position:relative;overflow:hidden;margin-bottom:25px;}
+.request-banner::after{content:"";position:absolute;right:-60px;top:-90px;width:220px;height:220px;border:1px solid rgba(234,161,0,.14);border-radius:50%;pointer-events:none;}
+.banner-icon{background:rgba(234,161,0,.1);color:var(--gold);border-radius:8px;padding:9px;display:flex;flex:none;}
+.banner-icon svg{width:17px;height:17px;}
+.request-banner h2{font-family:var(--font-serif);font-weight:500;font-size:18px;margin:12px 0 7px;color:var(--text-cream);}
+.request-banner p{color:var(--text-muted);font-size:11px;margin:0;line-height:1.6;}
+.request-banner p b{color:var(--text-cream);}
+.request-banner strong{color:var(--gold);font-weight:400;}
+.banner-progress{margin-left:auto;display:flex;gap:4px;padding-top:5px;flex:none;}
+.banner-progress span{height:4px;width:23px;background:var(--gold);border-radius:3px;opacity:.9;}
+.banner-progress span:nth-child(2){opacity:.45;}
+.banner-progress span:nth-child(3){opacity:.2;}
 
-.db-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:36px;}
-@media(max-width:800px){.db-metrics{grid-template-columns:1fr;}}
-.db-metric{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:24px 26px;display:flex;align-items:center;gap:18px;}
-.db-metric-icon{width:44px;height:44px;border-radius:10px;background:rgba(234, 161, 0,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.db-metric-icon svg{width:20px;height:20px;stroke:var(--gold);}
-.db-metric-value{font-family:var(--font-mono);font-size:32px;font-weight:700;color:var(--gold-light);line-height:1;}
-.db-metric-info{margin-left:auto;text-align:right;}
-.db-metric-label{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-faint);font-weight:700;margin-bottom:4px;}
-.db-metric-detail{font-size:11px;color:var(--text-muted);}
+/* Cartes de stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:0 0 27px;}
+@media(max-width:800px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-card{border:1px solid var(--card-border);background:var(--card);border-radius:9px;min-height:88px;padding:18px;display:flex;align-items:center;gap:14px;}
+.stat-icon{background:rgba(234,161,0,.1);color:var(--gold);border-radius:8px;padding:9px;display:flex;flex:none;}
+.stat-icon svg{width:19px;height:19px;}
+.stat-number{color:var(--gold);font-size:25px;font-weight:800;letter-spacing:.08em;font-family:var(--font-mono);}
+.stat-copy{margin-left:auto;text-align:right;}
+.stat-copy span{display:block;color:var(--gold);text-transform:uppercase;font-size:9px;letter-spacing:.12em;font-weight:700;}
+.stat-copy small{display:block;color:var(--text-faint);font-size:9px;margin-top:6px;}
 
-.db-grid{display:grid;grid-template-columns:1fr 340px;gap:32px;margin-bottom:48px;}
-@media(max-width:900px){.db-grid{grid-template-columns:1fr;}}
+/* Grille de contenu */
+.content-grid{display:grid;grid-template-columns:2.05fr 1fr;gap:24px;}
+@media(max-width:900px){.content-grid{grid-template-columns:1fr;}}
+.main-column,.side-column{display:flex;flex-direction:column;gap:18px;min-width:0;}
+.panel{background:var(--card);border:1px solid var(--card-border);border-radius:10px;overflow:hidden;}
+.panel-heading{padding:21px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--card-border);flex-wrap:wrap;}
+.panel-heading h2{font-family:var(--font-serif);font-weight:500;color:var(--text-cream);font-size:17px;margin:0;}
+.panel-heading p{color:var(--text-faint);font-size:10px;margin:8px 0 0;}
+.panel-intro{color:var(--text-faint);font-size:10px;margin:8px 0 0;line-height:1.6;}
 
-.db-panel{background:var(--card);border:1px solid var(--card-border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
-.db-panel-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:22px 26px;border-bottom:1px solid var(--card-border);}
-.db-panel-head h2{font-family:var(--font-serif);font-weight:500;font-size:18px;color:var(--gold-light);}
-.db-panel-head .hint{font-size:11px;color:var(--text-faint);}
+/* État vide */
+.empty-state{margin:19px;min-height:128px;border:1px dashed rgba(234,161,0,.25);border-radius:8px;width:calc(100% - 38px);color:var(--gold);background:transparent;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;cursor:pointer;font-family:inherit;transition:.2s;text-align:center;padding:20px;}
+.empty-state:hover{border-color:var(--gold);background:rgba(234,161,0,.04);}
+.empty-state svg{width:28px;height:28px;opacity:.7;}
+.empty-state strong{font-family:var(--font-serif);font-size:14px;color:var(--gold);font-weight:500;}
+.empty-state span{font-size:10px;color:var(--text-muted);}
+.empty-action{display:flex;align-items:center;color:var(--gold);margin-top:6px;font-size:10px;font-weight:700;}
+.empty-action svg{width:14px;height:14px;}
+.ghost-button,.detail-button{color:var(--gold);background:none;border:0;font-size:10px;display:inline-flex;gap:6px;align-items:center;cursor:pointer;font-family:inherit;font-weight:700;text-decoration:none;white-space:nowrap;}
+.ghost-button svg,.detail-button svg{width:14px;height:14px;}
+.ghost-button:hover,.detail-button:hover{text-decoration:underline;text-underline-offset:3px;}
+.detail-button{border:1px solid var(--card-border);border-radius:7px;padding:9px 10px;}
+.detail-button:hover{background:rgba(234,161,0,.06);text-decoration:none;border-color:var(--gold);}
 
-.db-filters{display:flex;flex-wrap:wrap;gap:12px;padding:16px 26px;border-bottom:1px solid rgba(234, 161, 0,0.06);}
+/* Lignes de devis */
+.quote-row{padding:20px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid rgba(234,161,0,0.06);}
+.quote-row:last-child{border-bottom:none;}
+.quote-main{min-width:0;flex:1;}
+.quote-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+.quote-title strong{font-size:13px;font-weight:700;color:var(--text-cream);}
+.status{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:100px;}
+.status .dot{width:6px;height:6px;border-radius:50%;}
+.quote-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:10px;color:var(--text-faint);}
+.quote-meta b{color:var(--text-muted);font-weight:600;}
+.quote-meta span{width:3px;height:3px;border-radius:50%;background:var(--text-faint);display:inline-block;}
+.quote-progress{display:flex;align-items:center;gap:10px;margin-top:12px;max-width:260px;}
+.quote-progress > div{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:9.5px;color:var(--text-faint);min-width:120px;}
+.quote-progress b{font-family:var(--font-mono);color:var(--text-muted);font-weight:600;}
+.quote-progress i{flex:1;height:5px;border-radius:100px;background:rgba(234,161,0,.1);overflow:hidden;display:block;}
+.quote-progress em{display:block;height:100%;border-radius:100px;background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+.quote-deadline{font-family:var(--font-mono);font-size:10px;margin-top:6px;font-weight:600;}
+.quote-deadline.urgent{color:var(--warn);}
+.quote-deadline.expired{color:#e05252;}
+
+/* Filtres */
+.db-filters{display:flex;flex-wrap:wrap;gap:12px;padding:16px 20px;border-bottom:1px solid rgba(234, 161, 0,0.06);}
 .db-filter{display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-faint);font-weight:600;cursor:default;}
 .db-filter .dot{width:7px;height:7px;border-radius:50%;}
 
-.db-quote-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 26px;border-bottom:1px solid rgba(234, 161, 0,0.06);transition:background .2s;}
-.db-quote-row:last-child{border-bottom:none;}
-.db-quote-row:hover{background:rgba(234, 161, 0,0.02);}
-.db-quote-left{min-width:0;flex:1;overflow:hidden;}
-.db-quote-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
-.db-quote-name{font-size:13px;font-weight:700;color:var(--text-cream);}
-.db-quote-status{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:100px;}
-.db-quote-status .dot{width:6px;height:6px;border-radius:50%;}
-.db-quote-msg{font-size:12px;color:var(--text-muted);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.db-quote-date{font-family:var(--font-mono);font-size:9.5px;color:var(--text-faint);letter-spacing:0.04em;}
-.db-draft-title{font-size:13px;font-weight:700;color:var(--text-cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:8px;min-height:17px;}
-.db-draft-progress{display:flex;align-items:center;gap:10px;max-width:220px;}
-.db-draft-progress-track{flex:1;height:5px;border-radius:100px;background:rgba(234, 161, 0,0.1);overflow:hidden;}
-.db-draft-progress-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--gold),var(--gold-light));transition:width .3s;}
-.db-draft-progress span{font-family:var(--font-mono);font-size:9.5px;color:var(--text-faint);}
-.db-quote-deadline{font-family:var(--font-mono);font-size:10px;margin-top:6px;font-weight:600;}
-.db-quote-deadline.urgent{color:var(--warn);}
-.db-quote-deadline.expired{color:#e05252;}
-.db-quote-action{flex-shrink:0;}
-.db-btn-sm{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:7px;border:1px solid var(--card-border);background:transparent;color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all .2s;text-decoration:none;}
-.db-btn-sm:hover{border-color:var(--gold);color:var(--gold-light);}
-.db-btn-sm svg{width:12px;height:12px;}
+/* Alertes */
+.alerts-list{display:flex;flex-direction:column;}
+.alert-row{display:flex;align-items:flex-start;gap:12px;padding:16px 20px;border-bottom:1px solid rgba(234, 161, 0,0.06);}
+.alert-row:last-child{border-bottom:none;}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.alert-text{font-size:12.5px;font-weight:600;color:var(--text-cream);margin-bottom:3px;}
+.alert-desc{font-size:11.5px;color:var(--text-muted);line-height:1.5;}
+.alerts-empty{text-align:center;padding:32px 20px;color:var(--text-faint);font-size:12px;}
 
-.db-btn-gold{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:8px;border:none;background:linear-gradient(180deg,var(--gold-light),var(--gold));color:#1a1204;font-weight:700;font-size:10.5px;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:filter .2s,transform .2s;white-space:nowrap;text-decoration:none;}
-.db-btn-gold:hover{filter:brightness(1.06);transform:translateY(-1px);}
+/* Historique */
+.timeline-panel h2{font-family:var(--font-serif);font-weight:500;font-size:17px;margin:0;color:var(--text-cream);}
+.timeline-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid rgba(234,161,0,0.06);}
+.timeline-item:last-child{border-bottom:none;}
+.timeline-dot{width:9px;height:9px;border-radius:50%;flex:none;margin-top:4px;border:2px solid var(--gold);background:transparent;}
+.timeline-item small{display:block;font-family:var(--font-mono);font-size:9px;color:var(--text-faint);margin-bottom:4px;letter-spacing:.04em;}
+.timeline-item strong{display:block;font-size:12.5px;font-weight:700;color:var(--text-cream);margin-bottom:3px;}
+.timeline-item strong a{color:var(--gold-light);text-decoration:none;}
+.timeline-item strong a:hover{text-decoration:underline;text-underline-offset:3px;}
+.timeline-item span{display:block;font-size:11.5px;color:var(--text-muted);line-height:1.5;}
 
-.db-see-more{width:100%;padding:14px;border:none;background:transparent;border-top:1px solid rgba(234, 161, 0,0.06);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s;}
-.db-see-more:hover{background:rgba(234, 161, 0,0.03);}
+/* Documents */
+.documents-panel > .panel-heading > svg{color:var(--gold);width:19px;height:19px;}
+.documents-panel .panel-intro{padding:0 20px;margin:14px 0;}
+.document-types{display:flex;flex-direction:column;gap:8px;padding:0 20px 8px;}
+.document-types > div,.document-types > a{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid rgba(234,161,0,.1);border-radius:8px;color:#708494;text-decoration:none;}
+.document-types > a:hover{border-color:var(--gold);}
+.document-types svg{color:var(--gold);flex:none;width:16px;height:16px;}
+.document-types span{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.document-types b{color:var(--text-cream);font-size:10px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.document-types small{color:var(--text-faint);font-size:8px;}
+.documents-empty{margin:0 20px 20px;padding:16px 14px;border:1px dashed rgba(234,161,0,.2);border-radius:8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.documents-empty svg{width:20px;height:20px;color:var(--text-faint);}
+.documents-empty strong{font-size:11px;color:var(--text-muted);}
+.documents-empty span{font-size:10px;color:var(--text-faint);line-height:1.5;}
 
-.db-empty{text-align:center;padding:40px 26px;color:var(--text-muted);font-size:13px;}
-
-.db-sidebar{display:flex;flex-direction:column;gap:24px;}
-
-.db-activity{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:26px;}
-.db-activity h2{font-family:var(--font-serif);font-weight:500;font-size:18px;color:var(--gold-light);margin-bottom:20px;}
-.db-timeline{position:relative;padding-left:28px;}
-.db-timeline::before{content:"";position:absolute;left:9px;top:4px;bottom:4px;width:1px;background:var(--card-border);}
-.db-tl-item{position:relative;padding-bottom:20px;}
-.db-tl-item:last-child{padding-bottom:0;}
-.db-tl-dot{position:absolute;left:-28px;top:2px;width:19px;height:19px;border-radius:50%;border:2px solid var(--gold);background:var(--card);display:flex;align-items:center;justify-content:center;}
-.db-tl-dot::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);}
-.db-tl-date{font-family:var(--font-mono);font-size:9.5px;color:var(--text-faint);margin-bottom:4px;letter-spacing:0.04em;}
-.db-tl-label{font-size:12.5px;font-weight:700;color:var(--text-cream);margin-bottom:3px;}
-.db-tl-detail{font-size:11.5px;color:var(--text-muted);line-height:1.5;}
-
-.db-docs{background:var(--input-bg);border:1px solid var(--card-border);border-radius:12px;padding:26px;}
-.db-docs h2{font-family:var(--font-serif);font-weight:500;font-size:18px;color:var(--gold-light);margin-bottom:14px;}
-.db-docs p{font-size:12px;color:var(--text-faint);margin-bottom:18px;}
-.db-docs-btn{width:100%;padding:12px;border-radius:8px;border:1px dashed var(--card-border);background:transparent;color:var(--text-faint);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:not-allowed;transition:all .2s;}
-.db-doc-summary{display:grid;gap:9px;margin:16px 0 18px;}
-.db-doc-summary-item{display:flex;align-items:center;gap:10px;padding:11px;border:1px solid rgba(234, 161, 0,.1);border-radius:8px;background:rgba(27,38,60,.45);}
-.db-doc-summary-count{font-family:var(--font-mono);font-size:18px;font-weight:700;color:var(--gold-light);min-width:24px;}
-.db-doc-summary-label{font-size:10px;line-height:1.35;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;}
-.db-doc-list{display:grid;gap:8px;margin-top:14px;max-height:264px;overflow-y:auto;padding-right:2px;}
-.db-doc-row{display:flex;gap:10px;align-items:center;padding:10px;border-radius:8px;background:rgba(234, 161, 0,.035);text-decoration:none;color:inherit;}
-.db-doc-row[href]:hover{background:rgba(234, 161, 0,.09);}
-.db-doc-icon{width:28px;height:32px;display:grid;place-items:center;flex:none;border-radius:6px;background:rgba(234, 161, 0,.1);color:var(--gold);font-family:var(--font-mono);font-size:8px;font-weight:800;}
-.db-doc-name{font-size:11px;font-weight:700;color:var(--text-cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.db-doc-meta{font-size:9px;color:var(--text-faint);margin-top:3px;}
-.db-doc-empty{font-size:11px;color:var(--text-faint);padding:12px 0;}
-
-.db-alerts-empty{text-align:center;padding:32px 26px;color:var(--text-faint);font-size:12px;}
-
-.db-alert-row{display:flex;align-items:flex-start;gap:12px;padding:16px 26px;border-bottom:1px solid rgba(234, 161, 0,0.06);}
-.db-alert-row:last-child{border-bottom:none;}
-.db-alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
-.db-alert-text{font-size:12.5px;font-weight:600;color:var(--text-cream);margin-bottom:3px;}
-.db-alert-desc{font-size:11.5px;color:var(--text-muted);line-height:1.5;}
-
+/* Modale */
 .db-modal-overlay{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:rgba(11,17,26,0.8);backdrop-filter:blur(4px);padding:16px;}
 @media(min-width:640px){.db-modal-overlay{align-items:center;}}
 .db-modal{width:100%;max-width:560px;background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:28px;box-shadow:0 24px 60px rgba(0,0,0,0.4);}
 .db-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:18px;border-bottom:1px solid var(--card-border);margin-bottom:20px;}
 .db-modal-head .label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-faint);font-weight:700;}
-.db-modal-head h3{font-family:var(--font-serif);font-weight:500;font-size:22px;color:var(--gold-light);margin-top:6px;}
+.db-modal-head h3{font-family:var(--font-serif);font-weight:500;font-size:22px;color:var(--text-cream);margin-top:6px;}
 .db-modal-close{background:none;border:none;color:var(--text-faint);cursor:pointer;padding:4px;transition:color .2s;}
 .db-modal-close:hover{color:var(--gold-light);}
 .db-modal-close svg{width:18px;height:18px;}
@@ -251,10 +290,23 @@ body{background:var(--bg);color:var(--text-cream);font-family:var(--font-body);-
 .db-modal-actions p.expired{color:#e05252;}
 .db-modal-actions p.urgent{color:var(--warn);}
 .db-modal-actions p.normal{color:var(--text-faint);}
-.db-modal-btn{width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(180deg,var(--gold-light),var(--gold));color:#1a1204;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:filter .2s;}
+.db-modal-btn{width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(180deg,var(--gold-light),var(--gold));color:#1B2436;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:filter .2s;}
 .db-modal-btn:hover{filter:brightness(1.06);}
 
 .site-footer{padding:36px 0 70px;text-align:center;font-size:12px;color:var(--text-faint);border-top:1px solid rgba(234, 161, 0,0.06);margin-top:40px;}
+
+/* Filtres de statuts */
+.db-empty{text-align:center;padding:40px 26px;color:var(--text-muted);font-size:13px;}
+.quote-deadline{font-family:var(--font-mono);font-size:10px;margin-top:6px;font-weight:600;}
+.quote-deadline.urgent{color:var(--warn);}
+.quote-deadline.expired{color:#e05252;}
+
+/* Lignes de documents (données live) */
+.db-doc-icon{width:28px;height:32px;display:grid;place-items:center;flex:none;border-radius:6px;background:rgba(234, 161, 0,.1);color:var(--gold);font-family:var(--font-mono);font-size:8px;font-weight:800;}
+.db-doc-row{display:flex;gap:10px;align-items:center;padding:10px;border-radius:8px;background:rgba(234, 161, 0,.035);text-decoration:none;color:inherit;}
+.db-doc-row[href]:hover{background:rgba(234, 161, 0,.09);}
+.db-doc-name{font-size:11px;font-weight:700;color:var(--text-cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.db-doc-meta{font-size:9px;color:var(--text-faint);margin-top:3px;}
 `;
 
 export function MonProfilSection({ variant = "preview", user }: MonProfilSectionProps) {
@@ -265,7 +317,6 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   const [selectedQuote, setSelectedQuote] = useState<QuoteRecord | null>(null);
   const [showAllQuotes, setShowAllQuotes] = useState(false);
   const [showAllActivity, setShowAllActivity] = useState(false);
-  const [draftFilter, setDraftFilter] = useState<string | null>(null);
   const [draftCount, setDraftCount] = useState(0);
   const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
   const [confirmingQuote, setConfirmingQuote] = useState(false);
@@ -422,8 +473,7 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
 
   if (variant === "dashboard") {
     const hasData = !isLoading && (quotes.length > 0 || commandes.length > 0 || draftCount > 0);
-    const filteredQuotes = draftFilter ? submittedQuotes.filter((q) => q.status === draftFilter) : submittedQuotes;
-    const quoteList = filteredQuotes.filter((q) => q.status !== "draft");
+    const quoteList = submittedQuotes.filter((q) => q.status !== "draft");
     const totalRows = quoteList.length;
     const rowLimit = showAllQuotes ? Number.MAX_SAFE_INTEGER : 5;
     const quoteSlice = quoteList.slice(0, rowLimit);
@@ -433,22 +483,21 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
       <section style={{ minHeight: "100vh", background: "var(--bg)" }}>
         <style>{globalStyles}</style>
 
-        <header style={{ borderBottom: "1px solid var(--card-border)" }}>
-          <div className="db-container">
-            <div className="db-head">
-              <div>
-                <div className="eyebrow">Espace Personnel</div>
-                <h1>Tableau de bord</h1>
-              </div>
-              <Link href="/demande-devis" className="db-btn-gold">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M12 5V19M5 12H19"/></svg>
-                Nouveau devis
-              </Link>
+        <div className="db-container">
+          <div className="page-heading">
+            <div>
+              <div className="eyebrow"><span />Espace personnel</div>
+              <h1>Tableau de bord</h1>
+              <p>Bienvenue dans votre atelier numérique.</p>
             </div>
+            <Link href="/demande-devis" className="primary-button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M12 5V19M5 12H19" /></svg>
+              Nouveau devis
+            </Link>
           </div>
-        </header>
+        </div>
 
-        <main className="db-container" style={{ paddingTop: 32 }}>
+        <main className="db-container">
           {error && (
             <div style={{ background: "rgba(224,82,82,0.08)", border: "1px solid rgba(224,82,82,0.2)", borderRadius: 12, padding: 18, color: "#e05252", fontSize: 13, marginBottom: 28 }} role="alert">
               {error}
@@ -460,218 +509,208 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
               <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(234, 161, 0,0.08)", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.8" style={{ width: 28, height: 28 }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
               </div>
-              <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "var(--gold-light)", marginBottom: 10 }}>Pas encore de demande</h2>
+              <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "var(--text-cream)", marginBottom: 10 }}>Pas encore de demande</h2>
               <p style={{ color: "var(--text-muted)", fontSize: 13, maxWidth: 400, margin: "0 auto 28px", lineHeight: 1.6 }}>
                 Vous n&apos;avez pas encore soumis de demande de devis. Commencez dès maintenant pour suivre vos projets textile.
               </p>
-              <Link href="/demande-devis" className="db-btn-gold">Faire un devis</Link>
+              <Link href="/demande-devis" className="primary-button">Faire un devis</Link>
             </div>
           ) : (
             <>
               {latestPendingQuote && (
-                <div className="db-banner">
-                  <div className="db-banner-eyebrow">
-                    <div className="icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
-                    </div>
-                    <span>Demande en attente</span>
+                <section className="request-banner" aria-label="Demande en attente">
+                  <div className="banner-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M22 2 11 13" /><path d="M22 2 15 22l-4-9-9-4z" /></svg>
                   </div>
-                  <h2>Votre demande a bien été reçue.</h2>
-                  <p>
-                    {quoteReference(latestPendingQuote)}{latestPendingQuote.name ? ` — ${latestPendingQuote.name}` : ""} envoyée le {formatDate(latestPendingQuote.created_at ?? "")}.
-                    Notre équipe vous répondra sous <b>2 à 3 jours ouvrés</b>.
-                  </p>
-                </div>
+                  <div>
+                    <div className="eyebrow gold">Demande en attente</div>
+                    <h2>Votre demande a bien été reçue.</h2>
+                    <p>
+                      Demande <strong>#{quoteShortId(latestPendingQuote.id)}</strong> — {latestPendingQuote.name ? `${latestPendingQuote.name} envoyée` : "envoyée"} le {formatDate(latestPendingQuote.created_at ?? "")}.
+                      Notre équipe vous répondra sous <b>2 à 3 jours ouvrés.</b>
+                    </p>
+                  </div>
+                  <div className="banner-progress" aria-hidden="true"><span /><span /><span /></div>
+                </section>
               )}
 
-              <div className="db-metrics">
+              <div className="stats-grid" aria-label="Résumé de l'activité">
                 {[
-                  { label: "Commandes en cours", value: String(activeCommandes.length).padStart(2, "0"), detail: activeCommandes.length > 0 ? `${activeCommandes[0].numero} — ${activeCommandes[0].statut_production}` : "Aucune commande active", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01M17 12h.01M7 12h.01"/></svg> },
-                  { label: "Brouillons", value: String(draftCount).padStart(2, "0"), detail: draftCount > 0 ? `${draftCount} devis non envoyé${draftCount > 1 ? "s" : ""} à finaliser` : "Aucun brouillon", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> },
-                  { label: "Notifications", value: String(alertCount).padStart(2, "0"), detail: alertCount > 0 ? `${alertCount} devis nécessitant votre attention` : "Aucune notification", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg> },
-                  { label: "Points fidélité", value: pointsSolde === null ? ".." : pointsSolde.toLocaleString("fr-FR"), detail: pointsSolde === null ? "Programme fidélité" : "1 FCFA dépensé = 1 point", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> },
+                  { label: "Commandes en cours", value: String(activeCommandes.length).padStart(2, "0"), detail: activeCommandes.length > 0 ? `${activeCommandes[0].numero} — ${activeCommandes[0].statut_production}` : "Aucune commande active", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="6" width="20" height="12" rx="2" /><path d="M12 12h.01M17 12h.01M7 12h.01" /></svg> },
+                  { label: "Brouillons", value: String(draftCount).padStart(2, "0"), detail: draftCount > 0 ? `${draftCount} devis non envoyé${draftCount > 1 ? "s" : ""} à finaliser` : "Aucun brouillon", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg> },
+                  { label: "Notifications", value: String(alertCount).padStart(2, "0"), detail: alertCount > 0 ? `${alertCount} devis nécessitant votre attention` : "Aucune notification", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" /></svg> },
+                  { label: "Points fidélité", value: pointsSolde === null ? ".." : pointsSolde.toLocaleString("fr-FR"), detail: pointsSolde === null ? "Programme fidélité" : "1 FCFA dépensé = 1 point", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg> },
                 ].map((m, i) => (
-                  <div className="db-metric" key={i}>
-                    <div className="db-metric-icon">{m.icon}</div>
-                    <div className="db-metric-value">{isLoading ? ".." : m.value}</div>
-                    <div className="db-metric-info">
-                      <div className="db-metric-label">{m.label}</div>
-                      <div className="db-metric-detail">{m.detail}</div>
-                    </div>
-                  </div>
+                  <article className="stat-card" key={i}>
+                    <div className="stat-icon">{m.icon}</div>
+                    <div className="stat-number">{isLoading ? ".." : m.value}</div>
+                    <div className="stat-copy"><span>{m.label}</span><small>{m.detail}</small></div>
+                  </article>
                 ))}
               </div>
 
-              <div className="db-grid">
-                <div>
-                  <div className="db-panel">
-                    <div style={{ padding: 26 }}>
+              <div className="content-grid">
+                <div className="main-column">
+                  <section className="panel drafts-panel">
+                    <div style={{ padding: "20px" }}>
                       <BrouillonsClient onCountChange={setDraftCount} />
                     </div>
-                  </div>
+                  </section>
 
-                  <div className="db-panel">
-                    <div className="db-panel-head">
-                      <h2>Mes devis</h2>
-                      <span className="hint">{totalRows} devis</span>
-                    </div>
-                    <div className="db-filters">
-                      {[{ s: null, l: "Tous" }, { s: "pending", l: "En attente" }, { s: "sent", l: "Envoyé" }, { s: "needs_info", l: "À préciser" }, { s: "accepted", l: "Accepté" }, { s: "production", l: "Production" }, { s: "rejected", l: "Annulé" }].map((f) => (
-                        <button key={f.s ?? "all"} onClick={() => setDraftFilter(f.s)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-                          <span className="db-filter" style={{ color: draftFilter === f.s ? "var(--gold-light)" : undefined }}>
-                            <span className="dot" style={{ background: f.s ? (STATUS_DOT[f.s] ?? "var(--gold-dim)") : "var(--text-faint)" }} />
-                            {f.l}
-                          </span>
-                        </button>
-                      ))}
+                  <section className="panel quotes-panel">
+                    <div className="panel-heading">
+                      <div><h2>Mes devis</h2><p>{totalRows} devis actif{totalRows > 1 ? "s" : ""}</p></div>
+                      <button className="ghost-button" onClick={() => setShowAllQuotes((v) => !v)}>
+                        {showAllQuotes ? "Voir moins" : "Voir tout"}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg>
+                      </button>
                     </div>
                     {isLoading ? (
                       <div className="db-empty">Chargement...</div>
                     ) : totalRows === 0 ? (
-                      <div className="db-empty">
-                        <p style={{ marginBottom: 16 }}>Aucun devis pour le moment</p>
-                        <Link href="/demande-devis" className="db-btn-gold" style={{ fontSize: 10 }}>Faire une demande</Link>
-                      </div>
+                      <button className="empty-state" onClick={() => window.location.assign("/demande-devis")}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg>
+                        <strong>Aucun brouillon pour l&apos;instant</strong>
+                        <span>Créez un brouillon pour préparer un devis avant de l&apos;envoyer.</span>
+                        <span className="empty-action">Créer mon premier devis
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg>
+                        </span>
+                      </button>
                     ) : (
                       <>
-                        {quoteSlice.map((q) => (
-                          <div className="db-quote-row" key={q.id}>
-                            <div className="db-quote-left">
-                              <div className="db-quote-top">
-                                <span className="db-quote-name">{q.name ?? "Client"}</span>
-                                <span className="db-quote-status" style={{ background: `${STATUS_DOT[q.status ?? ""] ?? "var(--gold-dim)"}18`, color: STATUS_DOT[q.status ?? ""] ?? "var(--gold)" }}>
-                                  <span className="dot" style={{ background: STATUS_DOT[q.status ?? ""] ?? "var(--gold-dim)" }} />
-                                  {quoteStatusLabel(q.status)}
-                                </span>
+                        {quoteSlice.map((q) => {
+                          const pct = STATUS_PCT[q.status ?? ""] ?? 10;
+                          const tone = STATUS_DOT[q.status ?? ""] ?? "var(--gold-dim)";
+                          const qty = quoteQuantity(q);
+                          return (
+                            <div className="quote-row" key={q.id}>
+                              <div className="quote-main">
+                                <div className="quote-title">
+                                  <strong>{q.name ?? "Client"}</strong>
+                                  <span className="status" style={{ background: `${tone}18`, color: tone }}>
+                                    <span className="dot" style={{ background: tone }} />
+                                    {quoteStatusLabel(q.status)}
+                                  </span>
+                                </div>
+                                <p className="quote-meta">
+                                  Devis <b>#{quoteShortId(q.id)}</b><span />
+                                  {qty ?? "Quantité à préciser"}<span />
+                                  {q.tissu ?? "Matière à préciser"}
+                                </p>
+                                <div className="quote-progress">
+                                  <div><span>Avancement</span><b>{pct}%</b></div>
+                                  <i><em style={{ width: `${pct}%` }} /></i>
+                                </div>
+                                {q.status === "sent" && (() => {
+                                  const cd = confirmationCountdown(q.confirmation_deadline);
+                                  if (!cd) return null;
+                                  return <div className={`quote-deadline ${cd.expired ? "expired" : cd.urgent ? "urgent" : ""}`}>{cd.expired ? "Délai expiré" : `Confirmer dans ${cd.text}`}</div>;
+                                })()}
                               </div>
-                              <div className="db-quote-msg">{q.message}</div>
-                              {q.status === "sent" && (() => {
-                                const cd = confirmationCountdown(q.confirmation_deadline);
-                                if (!cd) return null;
-                                return <div className={`db-quote-deadline ${cd.expired ? "expired" : cd.urgent ? "urgent" : ""}`}>{cd.expired ? "Délai expiré" : `Confirmer dans ${cd.text}`}</div>;
-                              })()}
-                            </div>
-                            <div className="db-quote-action">
-                              <Link href={`/mon-profil/devis/detail?id=${q.id}`} className="db-btn-sm">
-                                Détail
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                              <Link href={`/mon-profil/devis/detail?id=${q.id}`} className="detail-button">
+                                Ouvrir
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg>
                               </Link>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                         {hasMoreRows && (
-                          <button className="db-see-more" onClick={() => setShowAllQuotes(!showAllQuotes)}>
-                            {showAllQuotes ? "Voir moins" : `Voir plus (${totalRows - 5} autres)`}
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 12, height: 12, transform: showAllQuotes ? "rotate(180deg)" : undefined, transition: "transform .2s" }}><path d="M6 9L12 15L18 9"/></svg>
+                          <button className="ghost-button" style={{ margin: "4px auto 16px" }} onClick={() => setShowAllQuotes((v) => !v)}>
+                            Voir plus ({totalRows - 5} autres)
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: showAllQuotes ? "rotate(180deg)" : undefined, transition: "transform .2s" }}><path d="M6 9L12 15L18 9" /></svg>
                           </button>
                         )}
                       </>
                     )}
-                  </div>
+                  </section>
 
-                  <div className="db-panel">
-                    <div className="db-panel-head">
-                      <h2>Dernières alertes</h2>
-                      <span className="hint">{alertCount} alerte{alertCount !== 1 ? "s" : ""}</span>
-                    </div>
+                  <section className="panel alerts-panel">
+                    <div className="panel-heading"><div><h2>Dernières alertes</h2><p>{alertCount} alerte{alertCount !== 1 ? "s" : ""}</p></div></div>
                     {isLoading ? (
                       <div className="db-empty">Chargement...</div>
                     ) : alertCount === 0 ? (
-                      <div className="db-alerts-empty">Aucune alerte pour le moment</div>
+                      <div className="alerts-empty">Aucune alerte pour le moment</div>
                     ) : (
-                      submittedQuotes.filter((q) => q.status === "sent" || q.status === "production" || q.status === "needs_info").slice(0, 8).map((q) => (
-                        <div className="db-alert-row" key={q.id}>
-                          <div className="db-alert-dot" style={{ background: q.status === "production" ? "var(--warn)" : q.status === "needs_info" ? "var(--gold)" : "var(--gold-dim)" }} />
-                          <div>
-                            <div className="db-alert-text">{q.status === "production" ? "En production" : q.status === "needs_info" ? "À préciser" : "Devis envoyé"}</div>
-                            <div className="db-alert-desc">{q.name} — {q.message?.slice(0, 100)}</div>
+                      <div className="alerts-list">
+                        {submittedQuotes.filter((q) => q.status === "sent" || q.status === "production" || q.status === "needs_info").slice(0, 8).map((q) => (
+                          <div className="alert-row" key={q.id}>
+                            <div className="alert-dot" style={{ background: q.status === "production" ? "var(--warn)" : q.status === "needs_info" ? "var(--gold)" : "var(--gold-dim)" }} />
+                            <div>
+                              <div className="alert-text">{q.status === "production" ? "En production" : q.status === "needs_info" ? "À préciser" : "Devis envoyé"}</div>
+                              <div className="alert-desc">{q.name} — {q.message?.slice(0, 100)}</div>
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        ))}
+                      </div>
                     )}
-                  </div>
+                  </section>
                 </div>
 
-                <div className="db-sidebar">
-                  <div className="db-activity">
-                    <h2>Historique</h2>
-                    <p style={{ fontSize: 11.5, color: "var(--text-faint)", marginBottom: 20, lineHeight: 1.5 }}>
-                      Tout ce que vous avez fait : demandes, devis reçus, confirmations et commandes.
-                    </p>
+                <aside className="side-column">
+                  <section className="panel timeline-panel">
+                    <div className="panel-heading"><div><h2>Historique</h2></div></div>
+                    <p className="panel-intro" style={{ padding: "0 20px" }}>Tout ce que vous avez fait : demandes, devis reçus, confirmations et commandes.</p>
                     {isLoading ? (
-                      <p style={{ color: "var(--text-faint)", fontSize: 12 }}>Chargement...</p>
+                      <p style={{ color: "var(--text-faint)", fontSize: 12, padding: "0 20px 20px" }}>Chargement...</p>
                     ) : historyItems.length === 0 ? (
-                      <p style={{ color: "var(--text-faint)", fontSize: 12 }}>Aucune activité pour le moment</p>
+                      <p style={{ color: "var(--text-faint)", fontSize: 12, padding: "0 20px 20px" }}>Aucune activité pour le moment</p>
                     ) : (
                       <>
-                        <div className="db-timeline">
+                        <div className="timeline-list" style={{ padding: "6px 20px 0" }}>
                           {activitySlice.map((item) => (
-                            <div className="db-tl-item" key={item.key}>
-                              <div className="db-tl-dot" style={{ borderColor: item.tone }} />
-                              <div className="db-tl-date">{formatDate(item.date)}</div>
-                              {item.href ? (
-                                <Link href={item.href} style={{ textDecoration: "none" }}>
-                                  <div className="db-tl-label" style={{ color: "var(--gold-light)" }}>{item.label} →</div>
-                                  <div className="db-tl-detail">{item.detail}</div>
-                                </Link>
-                              ) : (
-                                <>
-                                  <div className="db-tl-label">{item.label}</div>
-                                  <div className="db-tl-detail">{item.detail}</div>
-                                </>
-                              )}
+                            <div className="timeline-item" key={item.key}>
+                              <div className="timeline-dot" style={{ borderColor: item.tone }} />
+                              <div>
+                                <small>{formatDate(item.date)}</small>
+                                {item.href ? (
+                                  <strong><Link href={item.href} style={{ textDecoration: "none", color: "inherit" }}>{item.label} →</Link></strong>
+                                ) : (
+                                  <strong>{item.label}</strong>
+                                )}
+                                <span>{item.detail}</span>
+                              </div>
                             </div>
                           ))}
                         </div>
                         {hasMoreActivity && (
-                          <button
-                            className="db-see-more"
-                            style={{ marginTop: 8 }}
-                            onClick={() => setShowAllActivity(!showAllActivity)}
-                          >
-                            {showAllActivity ? "Voir moins" : `Voir plus (${historyItems.length - 6} autres)`}
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 12, height: 12, transform: showAllActivity ? "rotate(180deg)" : undefined, transition: "transform .2s" }}><path d="M6 9L12 15L18 9"/></svg>
+                          <button className="text-link" style={{ margin: "4px 20px 16px" }} onClick={() => setShowAllActivity(!showAllActivity)}>
+                            {showAllActivity ? "Voir moins" : `Voir l'historique (${historyItems.length - 6} autres)`}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg>
                           </button>
                         )}
                       </>
                     )}
-                  </div>
+                  </section>
 
-                  <div className="db-docs">
-                    <h2>Documents</h2>
-                    <p>Suivez vos documents reçus et les décisions de l&apos;atelier.</p>
-                    <div className="db-doc-summary">
-                      <div className="db-doc-summary-item">
-                        <span className="db-doc-summary-count">{String(sentQuotes.length).padStart(2, "0")}</span>
-                        <span className="db-doc-summary-label">Devis envoyés<br />en attente</span>
-                      </div>
-                      <div className="db-doc-summary-item">
-                        <span className="db-doc-summary-count">{String(underReviewQuotes.length).padStart(2, "0")}</span>
-                        <span className="db-doc-summary-label">Demandes reçues<br />en cours d&apos;étude</span>
-                      </div>
-                      <div className="db-doc-summary-item">
-                        <span className="db-doc-summary-count">{String(approvedQuotes.length).padStart(2, "0")}</span>
-                        <span className="db-doc-summary-label">Devis validés<br />et étudiés</span>
-                      </div>
+                  <section className="panel documents-panel">
+                    <div className="panel-heading">
+                      <div><h2>Documents</h2><p>Vos fichiers officiels</p></div>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg>
                     </div>
-                    <div className="db-doc-list" aria-label="Archives des documents">
-                      {documents.length === 0 ? (
-                        <div className="db-doc-empty">Les bons de commande, devis validés et PDF reçus apparaîtront ici.</div>
-                      ) : documents.slice(0, 12).map((document) => {
-                        const content = <>
-                          <span className="db-doc-icon">{document.kind === "pdf" ? "PDF" : document.kind === "devis" ? "DEV" : "BC"}</span>
-                          <span style={{ minWidth: 0 }}>
-                            <span className="db-doc-name">{document.label}</span>
-                            <span className="db-doc-meta">{document.detail}{document.date ? ` · ${formatDate(document.date)}` : ""}</span>
-                          </span>
-                        </>;
-                        return document.href ? (
-                          <a className="db-doc-row" href={document.href} key={document.id} target={document.href.startsWith("http") ? "_blank" : undefined} rel={document.href.startsWith("http") ? "noreferrer" : undefined}>{content}</a>
-                        ) : <div className="db-doc-row" key={document.id}>{content}</div>;
-                      })}
+                    <p className="panel-intro">Retrouvez ici les PDF transmis par notre atelier.</p>
+                    <div className="document-types">
+                      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg><span><b>Devis PDF</b><small>Document de chiffrage</small></span></div>
+                      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg><span><b>Facture proforma</b><small>En attente de création</small></span></div>
+                      <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg><span><b>Bon de commande</b><small>En attente de création</small></span></div>
                     </div>
-                  </div>
-                </div>
+                    {documents.length === 0 ? (
+                      <div className="documents-empty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M15 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg>
+                        <strong>Aucun document disponible</strong>
+                        <span>Les PDF apparaîtront ici dès qu&apos;ils seront transmis par l&apos;atelier.</span>
+                      </div>
+                    ) : (
+                      <div className="document-types" style={{ paddingTop: 0 }}>
+                        {documents.slice(0, 12).map((document) => {
+                          const content = <><span className="db-doc-icon">{document.kind === "pdf" ? "PDF" : document.kind === "devis" ? "DEV" : "BC"}</span><span style={{ minWidth: 0 }}><b className="db-doc-name">{document.label}</b><small className="db-doc-meta">{document.detail}{document.date ? ` · ${formatDate(document.date)}` : ""}</small></span></>;
+                          return document.href ? (
+                            <a className="db-doc-row" href={document.href} key={document.id} target={document.href.startsWith("http") ? "_blank" : undefined} rel={document.href.startsWith("http") ? "noreferrer" : undefined}>{content}</a>
+                          ) : <div className="db-doc-row" key={document.id}>{content}</div>;
+                        })}
+                      </div>
+                    )}
+                  </section>
+                </aside>
               </div>
             </>
           )}

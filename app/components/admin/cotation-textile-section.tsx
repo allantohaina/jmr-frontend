@@ -293,52 +293,52 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Colonne gauche : Paramètres */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#EAA100]/10 shadow-sm space-y-6">
+            <div className="bg-[#161D30] rounded-2xl p-6 md:p-8 border border-[#EAA100]/10 shadow-sm space-y-6">
               <h3 className="font-headline text-xl text-[#EAA100] flex items-center gap-2">
                 <Calculator className="h-5 w-5 text-orange-500" />
                 Paramètres de calcul
               </h3>
 
               <div className="rounded-2xl border border-[#EAA100]/10 bg-[#1e2a38] p-4 space-y-3">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Client</p>
+                <p className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Client</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40">Nom *</label>
+                    <label className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40">Nom *</label>
                     <input
                       required
                       value={clientName}
                       onChange={(e) => setClientName(e.target.value)}
-                      className="w-full bg-[#25303a] border-none p-3 rounded-xl text-xs font-bold text-[#EAA100] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                      className="w-full bg-[#161D30] border-none p-3 rounded-xl text-xs font-bold text-[#EAA100] outline-none focus:ring-2 focus:ring-[#163526]/10"
                       placeholder="Nom du client"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40">Email *</label>
+                    <label className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40">Email *</label>
                     <input
                       required
                       type="email"
                       value={clientEmail}
                       onChange={(e) => setClientEmail(e.target.value)}
-                      className="w-full bg-[#25303a] border-none p-3 rounded-xl text-xs font-bold text-[#EAA100] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                      className="w-full bg-[#161D30] border-none p-3 rounded-xl text-xs font-bold text-[#EAA100] outline-none focus:ring-2 focus:ring-[#163526]/10"
                       placeholder="email@exemple.com"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40">Téléphone</label>
+                    <label className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40">Téléphone</label>
                     <input
                       value={clientPhone}
                       onChange={(e) => setClientPhone(e.target.value)}
-                      className="w-full bg-[#25303a] border-none p-3 rounded-xl text-xs font-bold text-[#EAA100] outline-none focus:ring-2 focus:ring-[#163526]/10"
+                      className="w-full bg-[#161D30] border-none p-3 rounded-xl text-xs font-bold text-[#EAA100] outline-none focus:ring-2 focus:ring-[#163526]/10"
                       placeholder="+261 XX XXX XX"
                     />
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40">Description du besoin</label>
+                  <label className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40">Description du besoin</label>
                   <textarea
                     value={clientMessage}
                     onChange={(e) => setClientMessage(e.target.value)}
-                    className="w-full bg-[#25303a] border-none p-3 rounded-xl text-xs font-bold text-[#EAA100] outline-none focus:ring-2 focus:ring-[#163526]/10 h-16"
+                    className="w-full bg-[#161D30] border-none p-3 rounded-xl text-xs font-bold text-[#EAA100] outline-none focus:ring-2 focus:ring-[#163526]/10 h-16"
                     placeholder="Description du projet..."
                   />
                 </div>
@@ -346,12 +346,12 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
 
               <div className="rounded-xl border border-[#EAA100]/20 bg-[#EAA100]/10 p-4">
                 <p className="text-xs font-bold text-[#EAA100]">Flux cohérent : Demande → Cotation (calcul interne) → Devis (envoyé au client) → Commande</p>
-                <p className="text-[11px] text-[#EAA100]/60 mt-1">Essentiels impératifs : <span className="text-[#EAA100]">Produit, Conso, Prix matière, Quantité</span> pour cotation ; <span className="text-[#EAA100]">Montant, Acompte 30%, Solde 70%, Délai</span> pour devis.</p>
+                <p className="text-label text-[#EAA100]/60 mt-1">Essentiels impératifs : <span className="text-[#EAA100]">Produit, Conso, Prix matière, Quantité</span> pour cotation ; <span className="text-[#EAA100]">Montant, Acompte 30%, Solde 70%, Délai</span> pour devis.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Fiche produit *</label>
+                  <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Fiche produit *</label>
                   <select
                     value={formData.produit_id || ""}
                     onChange={(e) => handleProduitChange(e.target.value)}
@@ -366,7 +366,7 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Matière fournie par</label>
+                  <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Matière fournie par</label>
                   <select
                     value={formData.matiere_fournie_par}
                     onChange={(e) => handleChange("matiere_fournie_par", e.target.value)}
@@ -378,7 +378,7 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Conso tissu unitaire (m)</label>
+                  <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Conso tissu unitaire (m)</label>
                   <input
                     type="number"
                     step="0.001"
@@ -389,7 +389,7 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Taux de chute (%)</label>
+                  <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Taux de chute (%)</label>
                   <input
                     type="number"
                     step="0.1"
@@ -400,7 +400,7 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Niveau difficulté</label>
+                  <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Niveau difficulté</label>
                   <input
                     type="number"
                     step="0.1"
@@ -411,7 +411,7 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Prix matière par mètre (Ar)</label>
+                  <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Prix matière par mètre (Ar)</label>
                   <input
                     type="number"
                     step="0.01"
@@ -423,7 +423,7 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Coût MO par pièce (Ar)</label>
+                  <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Coût MO par pièce (Ar)</label>
                   <input
                     type="number"
                     step="0.01"
@@ -434,7 +434,7 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Frais généraux (%)</label>
+                  <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Frais généraux (%)</label>
                   <input
                     type="number"
                     step="0.1"
@@ -445,7 +445,7 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Quantité commandée</label>
+                  <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Quantité commandée</label>
                   <input
                     type="number"
                     value={formData.quantite_commandee}
@@ -453,14 +453,14 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
                     className="w-full bg-[#1e2a38] border-none p-3 rounded-xl text-xs font-bold text-[#EAA100] outline-none focus:ring-2 focus:ring-[#163526]/10"
                   />
                   {moqAlert && (
-                    <p className="text-[9px] text-red-600 font-bold uppercase tracking-widest mt-1">
+                    <p className="text-micro text-red-600 font-bold uppercase tracking-widest mt-1">
                       ⚠ MOQ: {selectedProduit.moq} pièces minimum
                     </p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Statut</label>
+                  <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Statut</label>
                   <select
                     value={formData.status}
                     onChange={(e) => handleChange("status", e.target.value)}
@@ -511,14 +511,14 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
 
                 <div className="pt-4 space-y-3">
                   <div className="bg-white/10 rounded-xl p-4">
-                    <p className="text-[10px] text-white/40 uppercase tracking-widest mb-1">Prix unitaire calculé</p>
+                    <p className="text-caption text-white/40 uppercase tracking-widest mb-1">Prix unitaire calculé</p>
                     <p className="font-headline text-2xl font-bold text-orange-400">{calculs.prix_unitaire_calcule.toLocaleString()} Ar</p>
                   </div>
 
                   <div className="bg-orange-500/20 rounded-xl p-4 border border-orange-400/30">
-                    <p className="text-[10px] text-orange-200 uppercase tracking-widest mb-1">Prix total</p>
+                    <p className="text-caption text-orange-200 uppercase tracking-widest mb-1">Prix total</p>
                     <p className="font-headline text-3xl font-bold text-orange-400">{calculs.prix_total_calcule.toLocaleString()} Ar</p>
-                    <p className="text-[10px] text-orange-200/60 mt-1">pour {formData.quantite_commandee} pièces</p>
+                    <p className="text-caption text-orange-200/60 mt-1">pour {formData.quantite_commandee} pièces</p>
                   </div>
                 </div>
               </div>
@@ -527,7 +527,7 @@ export function CotationTextileSection({ quoteId, clientId, initialName, initial
             <button
               type="submit"
               disabled={isSaving}
-              className="w-full py-4 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-4 bg-[#163526] text-white font-bold text-caption uppercase tracking-widest rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <Save className="h-4 w-4" />
               {isSaving ? "Enregistrement..." : "Enregistrer la cotation"}

@@ -29,7 +29,7 @@ export function MobileNavBar() {
             <span className="material-symbols-outlined text-2xl leading-none block" style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}>
               {item.icon}
             </span>
-            <span className="text-[10px] uppercase tracking-wider font-bold font-label leading-none">
+            <span className="text-caption uppercase tracking-wider font-bold font-label leading-none">
               {item.label}
             </span>
           </Link>

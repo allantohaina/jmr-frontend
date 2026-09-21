@@ -6,8 +6,8 @@ import { authAPI, type UserProfile } from "@/app/lib/api";
 import { Users, Clock, CheckCircle, AlertTriangle, Loader } from "lucide-react";
 
 const statusIcon: Record<string, React.ReactNode> = {
-  present: <CheckCircle className="h-4 w-4 text-green-400" />,
-  absent: <AlertTriangle className="h-4 w-4 text-red-400" />,
+  present: <CheckCircle className="h-4 w-4 text-[#5CB87D]" />,
+  absent: <AlertTriangle className="h-4 w-4 text-[#F3A3A6]" />,
   pause: <Clock className="h-4 w-4 text-yellow-400" />,
 };
 
@@ -40,7 +40,7 @@ export default function BackofficeProductionPage() {
     <div className="space-y-8">
       <ProductionWorkflowBoard />
 
-      <section className="rounded-2xl border border-[#EAA100]/10 bg-[#25303a] p-6">
+      <section className="rounded-2xl border border-[#EAA100]/10 bg-[#161D30] p-6">
         <button
           onClick={() => setShowEmployees(!showEmployees)}
           className="flex w-full items-center justify-between"
@@ -64,7 +64,7 @@ export default function BackofficeProductionPage() {
               </div>
             )}
             {error && (
-              <p className="py-4 text-center text-sm text-red-400">{error}</p>
+              <p className="py-4 text-center text-sm text-[#F3A3A6]">{error}</p>
             )}
             {!loading && !error && employees.length === 0 && (
               <p className="py-4 text-center text-sm text-[#EAA100]/50">Aucun employé inscrit.</p>
@@ -73,12 +73,12 @@ export default function BackofficeProductionPage() {
               employees.map((emp) => (
                 <div key={emp.id} className="flex items-center justify-between rounded-xl bg-[#1e2a38] px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <CheckCircle className="h-4 w-4 text-[#5CB87D]" />
                     <div>
                       <p className="text-sm font-semibold text-[#EAA100]">
                         {emp.first_name} {emp.last_name}
                       </p>
-                      <p className="text-[10px] text-[#EAA100]/50">{emp.email}</p>
+                      <p className="text-caption text-[#EAA100]/50">{emp.email}</p>
                     </div>
                   </div>
                 </div>

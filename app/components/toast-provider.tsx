@@ -42,14 +42,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               key={toast.id}
               className="pointer-events-auto animate-toast-up"
             >
-              <div className={`flex items-center gap-4 p-5 rounded-[1.5rem] shadow-2xl border min-w-[320px] max-w-md bg-[#25303a] backdrop-blur-md ${
+              <div className={`flex items-center gap-4 p-5 rounded-2xl shadow-2xl border min-w-[320px] max-w-md bg-[#161D30] backdrop-blur-md ${
                 toast.type === "success" ? "border-[#EAA100]/30" :
-                toast.type === "error" ? "border-red-500/30" :
+                toast.type === "error" ? "border-[#E05252]/30" :
                 toast.type === "warning" ? "border-orange-500/30" : "border-[#EAA100]/30"
               }`}>
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
                   toast.type === "success" ? "bg-[#EAA100]/10 text-[#EAA100]" :
-                  toast.type === "error" ? "bg-red-500/10 text-red-400" :
+                  toast.type === "error" ? "bg-[#E05252]/10 text-[#F3A3A6]" :
                   toast.type === "warning" ? "bg-orange-500/10 text-orange-400" : "bg-[#EAA100]/10 text-[#EAA100]"
                 }`}>
                   {toast.type === "success" && <CheckCircle2 className="w-5 h-5" />}

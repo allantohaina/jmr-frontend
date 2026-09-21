@@ -204,7 +204,7 @@ export function DemandesClientSection() {
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="flex items-center gap-2 px-6 py-3 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#163526]/90 transition-all"
+          className="flex items-center gap-2 px-6 py-3 bg-[#163526] text-white font-bold text-caption uppercase tracking-widest rounded-xl hover:bg-[#163526]/90 transition-all"
         >
           <Plus className="h-4 w-4" /> Nouvelle demande
         </button>
@@ -220,11 +220,11 @@ export function DemandesClientSection() {
       )}
 
       {showForm && (
-        <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#EAA100]/10 shadow-sm">
+        <div className="bg-[#161D30] rounded-2xl p-6 md:p-8 border border-[#EAA100]/10 shadow-sm">
           <h3 className="font-headline text-xl text-[#EAA100] mb-6">{editingId ? "Modifier" : "Créer"} une demande</h3>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Nom du client *</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Nom du client *</label>
               <input
                 required
                 value={formData.nom_client}
@@ -235,7 +235,7 @@ export function DemandesClientSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Entreprise</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Entreprise</label>
               <input
                 value={formData.entreprise}
                 onChange={(e) => setFormData({ ...formData, entreprise: e.target.value })}
@@ -245,7 +245,7 @@ export function DemandesClientSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Email</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Email</label>
               <input
                 type="email"
                 value={formData.email}
@@ -256,7 +256,7 @@ export function DemandesClientSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Téléphone</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Téléphone</label>
               <input
                 value={formData.telephone}
                 onChange={(e) => setFormData({ ...formData, telephone: e.target.value })}
@@ -266,7 +266,7 @@ export function DemandesClientSection() {
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Description du besoin *</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Description du besoin *</label>
               <textarea
                 required
                 value={formData.description}
@@ -277,7 +277,7 @@ export function DemandesClientSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Statut</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Statut</label>
               <select
                 value={formData.statut}
                 onChange={(e) => setFormData({ ...formData, statut: e.target.value })}
@@ -293,14 +293,14 @@ export function DemandesClientSection() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="flex-1 py-3 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#163526]/90 transition-all disabled:opacity-50"
+                className="flex-1 py-3 bg-[#163526] text-white font-bold text-caption uppercase tracking-widest rounded-xl hover:bg-[#163526]/90 transition-all disabled:opacity-50"
               >
                 {isSaving ? "Enregistrement..." : editingId ? "Mettre à jour" : "Créer"}
               </button>
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-6 py-3 border border-[#EAA100]/10 text-[#EAA100] font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#EAA100]/10 transition-all"
+                className="px-6 py-3 border border-[#EAA100]/10 text-[#EAA100] font-bold text-caption uppercase tracking-widest rounded-xl hover:bg-[#EAA100]/10 transition-all"
               >
                 Annuler
               </button>
@@ -317,22 +317,22 @@ export function DemandesClientSection() {
       ) : null}
 
       {isLoading ? (
-        <div className="flex items-center justify-center rounded-2xl border border-[#EAA100]/10 bg-[#25303a] py-16">
+        <div className="flex items-center justify-center rounded-2xl border border-[#EAA100]/10 bg-[#161D30] py-16">
           <Loader2 className="mr-3 h-5 w-5 animate-spin text-[#EAA100]/50" />
           Chargement...
         </div>
       ) : (
-        <div className="bg-[#25303a] rounded-2xl border border-[#EAA100]/10 shadow-sm overflow-hidden">
+        <div className="bg-[#161D30] rounded-2xl border border-[#EAA100]/10 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="border-b border-[#EAA100]/10 bg-[#EAA100]/10">
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Client</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Contact</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Description</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Statut</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Date réception</th>
-                  <th className="px-6 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Actions</th>
+                  <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Client</th>
+                  <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Contact</th>
+                  <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Description</th>
+                  <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Statut</th>
+                  <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Date réception</th>
+                  <th className="px-6 py-4 text-right text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EAA100]/10">
@@ -359,13 +359,13 @@ demandes.map((d) => (
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-xs text-[#EAA100]">{d.email || "—"}</p>
-                        <p className="text-[10px] text-[#EAA100]/40">{d.telephone || "—"}</p>
+                        <p className="text-caption text-[#EAA100]/40">{d.telephone || "—"}</p>
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-xs text-[#EAA100]/60 line-clamp-2 max-w-xs">{d.description}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border ${getStatusColor(d.statut)}`}>
+                        <span className={`px-3 py-1 rounded-full text-micro font-bold uppercase tracking-widest border ${getStatusColor(d.statut)}`}>
                           {d.statut}
                         </span>
                       </td>
@@ -384,7 +384,7 @@ demandes.map((d) => (
                           {d.statut !== "Refusée" && d.statut !== "Convertie en cotation" && (
                             <button
                               onClick={(e) => { e.stopPropagation(); handleConvertToQuote(d); }}
-                              className="p-2 rounded-lg border border-green-500/20 bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors"
+                              className="p-2 rounded-lg border border-[#1F8457]/20 bg-[#1F8457]/10 text-[#5CB87D] hover:bg-[#1F8457]/20 transition-colors"
                               title="Convertir en cotation"
                             >
                               <span className="material-symbols-outlined text-sm">transform</span>
@@ -393,7 +393,7 @@ demandes.map((d) => (
                           {d.statut !== "Refusée" && (
                             <button
                               onClick={(e) => { e.stopPropagation(); handleRefuse(d.id); }}
-                              className="p-2 rounded-lg border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+                              className="p-2 rounded-lg border border-[#E05252]/20 bg-[#E05252]/10 text-[#F3A3A6] hover:bg-[#E05252]/20 transition-colors"
                               title="Refuser"
                             >
                               <XCircle className="h-4 w-4" />
@@ -411,7 +411,7 @@ demandes.map((d) => (
       )}
 
       {selectedDemandeId && (
-         <div className="bg-[#25303a] rounded-2xl border border-[#EAA100]/10 shadow-sm overflow-hidden mt-6">
+         <div className="bg-[#161D30] rounded-2xl border border-[#EAA100]/10 shadow-sm overflow-hidden mt-6">
            <div className="p-6 border-b border-[#EAA100]/10 flex justify-between items-center">
              <div>
                <h3 className="font-headline text-xl text-[#EAA100]">Détails de la demande</h3>

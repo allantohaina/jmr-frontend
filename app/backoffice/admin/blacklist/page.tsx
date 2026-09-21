@@ -83,7 +83,7 @@ export default function AdminBlacklistPage() {
         </div>
         <button
           onClick={() => setShowAdd(true)}
-          className="flex items-center gap-2 rounded-xl bg-[#EAA100]/10 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#EAA100] transition-colors hover:bg-[#EAA100]/20"
+          className="flex items-center gap-2 rounded-xl bg-[#EAA100]/10 px-5 py-2.5 text-caption font-bold uppercase tracking-widest text-[#EAA100] transition-colors hover:bg-[#EAA100]/20"
         >
           <Plus className="h-4 w-4" /> Ajouter
         </button>
@@ -92,7 +92,7 @@ export default function AdminBlacklistPage() {
       <div className="overflow-x-auto rounded-xl border border-[#EAA100]/10">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-[#EAA100]/10 bg-[#25303a]/80 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">
+            <tr className="border-b border-[#EAA100]/10 bg-[#161D30]/80 text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">
               <th className="px-6 py-4">Email</th>
               <th className="px-6 py-4">IP</th>
               <th className="px-6 py-4">Motif</th>
@@ -106,13 +106,13 @@ export default function AdminBlacklistPage() {
                 <td className="px-6 py-4 font-medium text-[#EAA100]">{entry.email || "—"}</td>
                 <td className="px-6 py-4 text-[#EAA100]/70">{entry.ip_address || "—"}</td>
                 <td className="px-6 py-4 text-[#EAA100]/60">{entry.reason || "—"}</td>
-                <td className="px-6 py-4 text-[#EAA100]/40 text-[10px]">
+                <td className="px-6 py-4 text-[#EAA100]/40 text-caption">
                   {new Date(entry.created_at).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4">
                   <button
                     onClick={() => handleDelete(entry.id)}
-                    className="flex items-center gap-1 rounded-lg border border-red-500/30 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-red-400 transition-colors hover:bg-red-500/10"
+                    className="flex items-center gap-1 rounded-lg border border-[#E05252]/30 px-3 py-1.5 text-caption font-bold uppercase tracking-widest text-[#F3A3A6] transition-colors hover:bg-[#E05252]/10"
                   >
                     <Trash2 className="h-3 w-3" /> Retirer
                   </button>
@@ -139,47 +139,47 @@ export default function AdminBlacklistPage() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Email</label>
+                <label className="mb-1 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Email</label>
                 <input
                   type="email"
                   value={newEmail}
                   onChange={e => setNewEmail(e.target.value)}
                   placeholder="email@exemple.com"
-                  className="w-full rounded-xl border border-[#EAA100]/20 bg-[#25303a] px-4 py-3 text-sm text-[#EAA100] placeholder-[#EAA100]/30 outline-none transition-colors focus:border-[#EAA100]"
+                  className="w-full rounded-xl border border-[#EAA100]/20 bg-[#161D30] px-4 py-3 text-sm text-[#EAA100] placeholder-[#EAA100]/30 outline-none transition-colors focus:border-[#EAA100]"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Adresse IP</label>
+                <label className="mb-1 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Adresse IP</label>
                 <input
                   type="text"
                   value={newIp}
                   onChange={e => setNewIp(e.target.value)}
                   placeholder="192.168.1.1"
-                  className="w-full rounded-xl border border-[#EAA100]/20 bg-[#25303a] px-4 py-3 text-sm text-[#EAA100] placeholder-[#EAA100]/30 outline-none transition-colors focus:border-[#EAA100]"
+                  className="w-full rounded-xl border border-[#EAA100]/20 bg-[#161D30] px-4 py-3 text-sm text-[#EAA100] placeholder-[#EAA100]/30 outline-none transition-colors focus:border-[#EAA100]"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Motif (optionnel)</label>
+                <label className="mb-1 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Motif (optionnel)</label>
                 <input
                   type="text"
                   value={newReason}
                   onChange={e => setNewReason(e.target.value)}
                   placeholder="Raison du blocage..."
-                  className="w-full rounded-xl border border-[#EAA100]/20 bg-[#25303a] px-4 py-3 text-sm text-[#EAA100] placeholder-[#EAA100]/30 outline-none transition-colors focus:border-[#EAA100]"
+                  className="w-full rounded-xl border border-[#EAA100]/20 bg-[#161D30] px-4 py-3 text-sm text-[#EAA100] placeholder-[#EAA100]/30 outline-none transition-colors focus:border-[#EAA100]"
                 />
               </div>
             </div>
             <div className="mt-8 flex justify-end gap-4">
               <button
                 onClick={() => { setShowAdd(false); setNewEmail(""); setNewIp(""); setNewReason(""); }}
-                className="rounded-xl border border-[#EAA100]/20 px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60 transition-colors hover:bg-[#EAA100]/5"
+                className="rounded-xl border border-[#EAA100]/20 px-6 py-2.5 text-caption font-bold uppercase tracking-widest text-[#EAA100]/60 transition-colors hover:bg-[#EAA100]/5"
               >
                 Annuler
               </button>
               <button
                 onClick={handleAdd}
                 disabled={!newEmail && !newIp}
-                className="rounded-xl bg-[#EAA100]/20 px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#EAA100] transition-colors hover:bg-[#EAA100]/30 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-xl bg-[#EAA100]/20 px-6 py-2.5 text-caption font-bold uppercase tracking-widest text-[#EAA100] transition-colors hover:bg-[#EAA100]/30 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Ajouter
               </button>

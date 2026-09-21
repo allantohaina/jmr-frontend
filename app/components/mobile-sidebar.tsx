@@ -122,7 +122,7 @@ export function MobileSidebar({ isStaff, userFirstName }: MobileDrawerProps) {
           {(isStaff || userFirstName) && (
             <>
               <div className="my-6 border-t border-[#EAA100]/10" />
-              <p className="mb-3 px-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">
+              <p className="mb-3 px-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">
                 Administration
               </p>
               <ul className="space-y-1">
@@ -168,7 +168,7 @@ export function MobileSidebar({ isStaff, userFirstName }: MobileDrawerProps) {
               </Link>
             ))}
           </div>
-          <p className="mt-6 text-center text-[10px] text-[#EAA100]/30">
+          <p className="mt-6 text-center text-caption text-[#EAA100]/30">
             JMR Textile &mdash; Tous droits réservés
           </p>
         </div>

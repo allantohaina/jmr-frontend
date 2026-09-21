@@ -161,7 +161,7 @@ export default function MobileMenu({
       >
         {/* HEADER */}
         <header className="mobile-menu__header w-full flex items-center justify-between px-5 pt-5 pb-3">
-          <span className="mobile-menu__brand font-bold uppercase tracking-[0.15em] text-[13px]">
+          <span className="mobile-menu__brand font-bold uppercase tracking-[0.15em] text-body">
             {brandFallbackText}
           </span>
           <button
@@ -202,7 +202,7 @@ export default function MobileMenu({
                   style={GOLD_FILTER}
                   className={`${ICON_CLASS} mobile-menu__icon !w-[42px] !h-[42px]`}
                 />
-                <span className="mobile-menu__link-text text-[15px] font-semibold tracking-wide">{label}</span>
+                <span className="mobile-menu__link-text text-title-sm font-semibold tracking-wide">{label}</span>
               </Link>
             );
           })}
@@ -216,7 +216,7 @@ export default function MobileMenu({
               type="button"
               onClick={handleLocaleToggle}
               title={messages.navbar.languageTitle}
-              className="mobile-menu__btn-lang flex-1 inline-flex items-center justify-center gap-2 px-2 py-2 h-[52px] rounded-xl border text-[13px] font-bold tracking-[0.15em] transition-colors"
+              className="mobile-menu__btn-lang flex-1 inline-flex items-center justify-center gap-2 px-2 py-2 h-[52px] rounded-xl border text-body font-bold tracking-[0.15em] transition-colors"
             >
               <Image
                 src="/navbar/navbar-language.svg"
@@ -237,7 +237,7 @@ export default function MobileMenu({
               type="button"
               onClick={() => { closeImmediately(); onSignOut?.(); }}
               disabled={isSigningOut}
-              className="mobile-menu__btn-logout inline-flex items-center justify-center gap-2 px-4 py-3 min-h-[52px] rounded-xl border font-bold text-[14px] tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              className="mobile-menu__btn-logout inline-flex items-center justify-center gap-2 px-4 py-3 min-h-[52px] rounded-xl border font-bold text-body-lg tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-60"
             >
               <span
                 aria-hidden="true"

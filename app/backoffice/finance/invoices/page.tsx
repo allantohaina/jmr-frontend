@@ -132,13 +132,13 @@ export default function InvoicesPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="rounded-xl bg-[#25303a] p-4 border border-green-500/20">
-          <p className="text-xs text-green-400 uppercase tracking-widest font-bold">Payées</p>
-          <p className="text-2xl font-bold text-green-400 mt-1">{Math.round(totalPaid).toLocaleString("fr-FR")} Ar</p>
+        <div className="rounded-xl bg-[#161D30] p-4 border border-[#1F8457]/20">
+          <p className="text-xs text-[#5CB87D] uppercase tracking-widest font-bold">Payées</p>
+          <p className="text-2xl font-bold text-[#5CB87D] mt-1">{Math.round(totalPaid).toLocaleString("fr-FR")} Ar</p>
         </div>
-        <div className="rounded-xl bg-[#25303a] p-4 border border-red-500/20">
-          <p className="text-xs text-red-400 uppercase tracking-widest font-bold">Impayées</p>
-          <p className="text-2xl font-bold text-red-400 mt-1">{Math.round(totalUnpaid).toLocaleString("fr-FR")} Ar</p>
+        <div className="rounded-xl bg-[#161D30] p-4 border border-[#E05252]/20">
+          <p className="text-xs text-[#F3A3A6] uppercase tracking-widest font-bold">Impayées</p>
+          <p className="text-2xl font-bold text-[#F3A3A6] mt-1">{Math.round(totalUnpaid).toLocaleString("fr-FR")} Ar</p>
         </div>
       </div>
 
@@ -147,8 +147,8 @@ export default function InvoicesPage() {
           <button
             key={f}
             onClick={() => onFilterChange(f)}
-            className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${
-              filter === f ? "bg-[#EAA100] text-[#1e2a38]" : "bg-[#25303a] text-[#EAA100]/60 hover:bg-[#EAA100]/10"
+            className={`px-4 py-2 rounded-lg text-caption font-bold uppercase tracking-widest transition-colors ${
+              filter === f ? "bg-[#EAA100] text-[#1e2a38]" : "bg-[#161D30] text-[#EAA100]/60 hover:bg-[#EAA100]/10"
             }`}
           >
             {f === "all" ? "Toutes" : f === "paid" ? "Payées" : "Impayées"}
@@ -166,7 +166,7 @@ export default function InvoicesPage() {
             <button
               key={String(inv.id)}
               onClick={() => selectInvoice(selectedId === inv.id ? null : inv.id)}
-              className="w-full text-left rounded-xl bg-[#25303a] p-4 border border-[#EAA100]/10 hover:border-[#EAA100]/40 transition-colors"
+              className="w-full text-left rounded-xl bg-[#161D30] p-4 border border-[#EAA100]/10 hover:border-[#EAA100]/40 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0">
@@ -177,8 +177,8 @@ export default function InvoicesPage() {
                   </div>
                 </div>
                 <div className="text-right shrink-0 ml-4">
-                  <p className={`font-bold ${inv.status === "paid" ? "text-green-400" : "text-yellow-400"}`}>{Math.round(inv.amount).toLocaleString("fr-FR")} Ar</p>
-                  <p className="text-[9px] uppercase tracking-widest text-[#EAA100]/40 mt-0.5">
+                  <p className={`font-bold ${inv.status === "paid" ? "text-[#5CB87D]" : "text-yellow-400"}`}>{Math.round(inv.amount).toLocaleString("fr-FR")} Ar</p>
+                  <p className="text-micro uppercase tracking-widest text-[#EAA100]/40 mt-0.5">
                     {inv.status === "paid" ? "Payée" : inv.status === "partial" ? "Partielle" : "En attente"}
                   </p>
                 </div>
@@ -190,21 +190,21 @@ export default function InvoicesPage() {
 
       {selected && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#0b1320]/70 p-0 sm:p-6 backdrop-blur-sm print:static print:bg-transparent print:p-0 print:backdrop-blur-0"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#0A0E19]/70 p-0 sm:p-6 backdrop-blur-sm print:static print:bg-transparent print:p-0 print:backdrop-blur-0"
           role="presentation"
           onMouseDown={(e) => { if (e.target === e.currentTarget) selectInvoice(null); }}
         >
           <div className="relative w-full max-w-[920px] max-h-[96vh] overflow-y-auto bg-transparent sm:rounded-2xl print:max-h-none print:overflow-visible">
             <div className="sticky top-0 z-20 flex items-center justify-between gap-3 bg-[#1e2a38]/95 px-4 py-3 sm:px-6 sm:py-4 backdrop-blur border-b border-[#EAA100]/15 print:hidden">
               <div>
-                <p className="text-[9px] font-bold uppercase tracking-[.22em] text-[#EAA100]/45">Facture ouverte</p>
+                <p className="text-micro font-bold uppercase tracking-[.22em] text-[#EAA100]/45">Facture ouverte</p>
                 <h2 className="font-headline text-lg text-[#EAA100]">{selected.ref}</h2>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={printSelected}
-                  className="inline-flex items-center gap-2 rounded-lg border border-[#EAA100]/40 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[#EAA100] hover:bg-[#EAA100]/15 transition"
+                  className="inline-flex items-center gap-2 rounded-lg border border-[#EAA100]/40 px-3 py-2 text-caption font-bold uppercase tracking-widest text-[#EAA100] hover:bg-[#EAA100]/15 transition"
                 >
                   <Printer className="h-4 w-4" /> Imprimer
                 </button>

@@ -66,7 +66,7 @@ export function PaiementSection({ id }: { id: string }) {
   return (
     <section
       aria-labelledby="paiement-title"
-      className="mx-auto max-w-2xl rounded-[2rem] border border-[#EAA100]/5 bg-[#25303a] p-5 shadow-sm sm:p-8 md:rounded-[2.5rem] md:p-10"
+      className="mx-auto max-w-2xl rounded-[2rem] border border-[#EAA100]/5 bg-[#161D30] p-5 shadow-sm sm:p-8 md:rounded-[2.5rem] md:p-10"
     >
       <header className="mb-8">
         <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EAA100]/10 text-[#EAA100]">
@@ -84,8 +84,8 @@ export function PaiementSection({ id }: { id: string }) {
         <div
           className={`mb-6 flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm ${
             notice.tone === "success"
-              ? "border-green-400/20 bg-green-400/10 text-green-100"
-              : "border-red-400/20 bg-red-400/10 text-red-100"
+              ? "border-[#1F8457]/20 bg-[#1F8457]/10 text-green-100"
+              : "border-[#E05252]/20 bg-[#E05252]/10 text-red-100"
           }`}
           role="alert"
         >
@@ -97,7 +97,7 @@ export function PaiementSection({ id }: { id: string }) {
       <form className="space-y-6" onSubmit={handleSubmit}>
         <div className="space-y-4">
           <label className="block">
-            <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">
+            <span className="mb-2 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">
               Methode de paiement
             </span>
             <div className="relative">
@@ -115,7 +115,7 @@ export function PaiementSection({ id }: { id: string }) {
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">
+            <span className="mb-2 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">
               Reference de la transaction
             </span>
             <input
@@ -128,12 +128,12 @@ export function PaiementSection({ id }: { id: string }) {
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">
+            <span className="mb-2 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">
               Preuve de paiement
             </span>
             <input
               accept=".pdf,.png,.jpg,.jpeg,.webp"
-              className="h-14 w-full cursor-pointer rounded-2xl border border-[#EAA100]/10 bg-[#1e2a38] px-4 py-3 text-[#EAA100] transition-all file:mr-4 file:rounded-full file:border-0 file:bg-[#EAA100]/10 file:px-4 file:py-1 file:text-[10px] file:font-bold file:uppercase file:text-[#EAA100] hover:file:bg-[#EAA100]/20"
+              className="h-14 w-full cursor-pointer rounded-2xl border border-[#EAA100]/10 bg-[#1e2a38] px-4 py-3 text-[#EAA100] transition-all file:mr-4 file:rounded-full file:border-0 file:bg-[#EAA100]/10 file:px-4 file:py-1 file:text-caption file:font-bold file:uppercase file:text-[#EAA100] hover:file:bg-[#EAA100]/20"
               name="proof_of_payment"
               required
               type="file"
@@ -142,7 +142,7 @@ export function PaiementSection({ id }: { id: string }) {
         </div>
 
         <button
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#EAA100] py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#1e2a38] shadow-lg transition-all hover:bg-[#EAA100] disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#EAA100] py-4 text-caption font-bold uppercase tracking-[0.2em] text-[#1e2a38] shadow-lg transition-all hover:bg-[#EAA100] disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isSubmitting}
           type="submit"
         >

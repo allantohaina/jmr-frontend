@@ -70,13 +70,13 @@ export default function ExportsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {EXPORTS.map((e) => (
-          <div key={e.key} className="bg-[#25303a] rounded-2xl border border-[#EAA100]/10 p-6 shadow-sm flex flex-col">
+          <div key={e.key} className="bg-[#161D30] rounded-2xl border border-[#EAA100]/10 p-6 shadow-sm flex flex-col">
             <p className="font-headline text-lg text-[#EAA100]">{e.label}</p>
             <p className="text-xs text-[#EAA100]/50 mt-1 flex-1">{e.desc}</p>
             <button
               onClick={() => download(e.key, e.label)}
               disabled={busy !== null}
-              className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-[#163526] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#EAA100] hover:bg-[#1e4234] transition-colors disabled:opacity-50"
+              className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-[#163526] px-4 py-2.5 text-caption font-bold uppercase tracking-widest text-[#EAA100] hover:bg-[#1e4234] transition-colors disabled:opacity-50"
             >
               {busy === e.key ? <Loader className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}
               Télécharger CSV

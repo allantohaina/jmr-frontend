@@ -108,8 +108,8 @@ export default function PaymentsPage() {
       </div>
 
       {/* Preuves en attente — l'admin doit vérifier l'image avant que la tranche passe à Payé */}
-      <section className="rounded-xl bg-[#25303a] p-4 border border-[#EAA100]/20">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60 mb-1">
+      <section className="rounded-xl bg-[#161D30] p-4 border border-[#EAA100]/20">
+        <p className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/60 mb-1">
           Preuves à vérifier ({pending.length})
         </p>
         <p className="text-xs text-[#EAA100]/50 mb-3">
@@ -139,14 +139,14 @@ export default function PaymentsPage() {
                     <button
                       onClick={() => review(p.id, "verified")}
                       disabled={reviewingId === p.id}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-500/15 text-green-400 text-[10px] font-bold uppercase tracking-widest hover:bg-green-500/25 disabled:opacity-50"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#1F8457]/15 text-[#5CB87D] text-caption font-bold uppercase tracking-widest hover:bg-[#1F8457]/25 disabled:opacity-50"
                     >
                       <CheckCircle className="h-3.5 w-3.5" /> Valider
                     </button>
                     <button
                       onClick={() => review(p.id, "rejected")}
                       disabled={reviewingId === p.id}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-500/15 text-red-400 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/25 disabled:opacity-50"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#E05252]/15 text-[#F3A3A6] text-caption font-bold uppercase tracking-widest hover:bg-[#E05252]/25 disabled:opacity-50"
                     >
                       <XCircle className="h-3.5 w-3.5" /> Rejeter
                     </button>
@@ -156,7 +156,7 @@ export default function PaymentsPage() {
                   value={reviewingId === p.id ? reviewNote : reviewNote}
                   onChange={(e) => setReviewNote(e.target.value)}
                   placeholder="Motif du rejet (obligatoire si rejet)"
-                  className="mt-2 w-full rounded-lg border border-[#EAA100]/10 bg-[#25303a] px-3 py-2 text-xs text-[#EAA100] placeholder:text-[#EAA100]/30"
+                  className="mt-2 w-full rounded-lg border border-[#EAA100]/10 bg-[#161D30] px-3 py-2 text-xs text-[#EAA100] placeholder:text-[#EAA100]/30"
                 />
               </div>
             ))}
@@ -166,7 +166,7 @@ export default function PaymentsPage() {
 
       <div className="flex gap-2">
         {[null, "payé", "acompte"].map((s) => (
-          <button key={s || "all"} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === s || (!statusFilter && !s) ? "bg-[#EAA100] text-[#1e2a38]" : "bg-[#25303a] text-[#EAA100]/60 hover:bg-[#EAA100]/10"}`}>
+          <button key={s || "all"} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-caption font-bold uppercase tracking-widest transition-colors ${statusFilter === s || (!statusFilter && !s) ? "bg-[#EAA100] text-[#1e2a38]" : "bg-[#161D30] text-[#EAA100]/60 hover:bg-[#EAA100]/10"}`}>
             {s === "payé" ? "Payés" : s === "acompte" ? "Acomptes" : "Tous"}
           </button>
         ))}
@@ -180,7 +180,7 @@ export default function PaymentsPage() {
         <p className="text-sm text-[#EAA100]/50">Aucun paiement avec ce statut.</p>
       ) : (
         <div className="space-y-3">{filteredPayments.map((p, i) => (
-          <div key={i} className="rounded-xl bg-[#25303a] p-4 border border-[#EAA100]/10">
+          <div key={i} className="rounded-xl bg-[#161D30] p-4 border border-[#EAA100]/10">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-semibold text-[#EAA100]">{p.ref}</p>
@@ -188,7 +188,7 @@ export default function PaymentsPage() {
               </div>
               <div className="text-right">
                 <p className="font-bold text-[#EAA100]">{p.amount} €</p>
-                <span className={`text-[10px] font-bold uppercase tracking-widest ${p.status === "payé" ? "text-green-400" : "text-yellow-400"}`}>{p.status}</span>
+                <span className={`text-caption font-bold uppercase tracking-widest ${p.status === "payé" ? "text-[#5CB87D]" : "text-yellow-400"}`}>{p.status}</span>
               </div>
             </div>
           </div>

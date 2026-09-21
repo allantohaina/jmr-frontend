@@ -189,7 +189,7 @@ export function ProduitsSection() {
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="flex items-center gap-2 px-6 py-3 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#163526]/90 transition-all"
+          className="flex items-center gap-2 px-6 py-3 bg-[#163526] text-white font-bold text-caption uppercase tracking-widest rounded-xl hover:bg-[#163526]/90 transition-all"
         >
           <Plus className="h-4 w-4" /> Nouveau produit
         </button>
@@ -205,11 +205,11 @@ export function ProduitsSection() {
       )}
 
       {showForm && (
-        <div className="bg-[#25303a] rounded-2xl p-6 md:p-8 border border-[#EAA100]/10 shadow-sm">
+        <div className="bg-[#161D30] rounded-2xl p-6 md:p-8 border border-[#EAA100]/10 shadow-sm">
           <h3 className="font-headline text-xl text-[#EAA100] mb-6">{editingId ? "Modifier" : "Créer"} un produit</h3>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Nom du produit *</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Nom du produit *</label>
               <input
                 required
                 value={formData.nom}
@@ -220,7 +220,7 @@ export function ProduitsSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Catégorie</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Catégorie</label>
               <input
                 value={formData.categorie}
                 onChange={(e) => setFormData({ ...formData, categorie: e.target.value })}
@@ -230,7 +230,7 @@ export function ProduitsSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Conso tissu unitaire (m) *</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Conso tissu unitaire (m) *</label>
               <input
                 required
                 type="number"
@@ -243,7 +243,7 @@ export function ProduitsSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Conso par taille (JSON)</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Conso par taille (JSON)</label>
               <input
                 value={formData.conso_tissu_par_taille}
                 onChange={(e) => setFormData({ ...formData, conso_tissu_par_taille: e.target.value })}
@@ -253,7 +253,7 @@ export function ProduitsSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Niveau difficulté défaut *</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Niveau difficulté défaut *</label>
               <input
                 required
                 type="number"
@@ -266,7 +266,7 @@ export function ProduitsSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">MOQ *</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">MOQ *</label>
               <input
                 required
                 type="number"
@@ -278,7 +278,7 @@ export function ProduitsSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Coût matière défaut (Ar/m) *</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Coût matière défaut (Ar/m) *</label>
               <input
                 required
                 type="number"
@@ -291,7 +291,7 @@ export function ProduitsSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Coût MO par pièce (Ar) *</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Coût MO par pièce (Ar) *</label>
               <input
                 required
                 type="number"
@@ -304,7 +304,7 @@ export function ProduitsSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Frais généraux (%) *</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Frais généraux (%) *</label>
               <input
                 required
                 type="number"
@@ -317,7 +317,7 @@ export function ProduitsSection() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Photo URL</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Photo URL</label>
               <input
                 value={formData.photo_url}
                 onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
@@ -327,7 +327,7 @@ export function ProduitsSection() {
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Description</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -340,14 +340,14 @@ export function ProduitsSection() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="flex-1 py-3 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#163526]/90 transition-all disabled:opacity-50"
+                className="flex-1 py-3 bg-[#163526] text-white font-bold text-caption uppercase tracking-widest rounded-xl hover:bg-[#163526]/90 transition-all disabled:opacity-50"
               >
                 {isSaving ? "Enregistrement..." : editingId ? "Mettre à jour" : "Créer"}
               </button>
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-6 py-3 border border-[#EAA100]/10 text-[#EAA100] font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#EAA100]/10 transition-all"
+                className="px-6 py-3 border border-[#EAA100]/10 text-[#EAA100] font-bold text-caption uppercase tracking-widest rounded-xl hover:bg-[#EAA100]/10 transition-all"
               >
                 Annuler
               </button>
@@ -364,22 +364,22 @@ export function ProduitsSection() {
       ) : null}
 
       {isLoading ? (
-        <div className="flex items-center justify-center rounded-2xl border border-[#EAA100]/10 bg-[#25303a] py-16">
+        <div className="flex items-center justify-center rounded-2xl border border-[#EAA100]/10 bg-[#161D30] py-16">
           <Loader2 className="mr-3 h-5 w-5 animate-spin text-[#EAA100]/50" />
           Chargement...
         </div>
       ) : (
-        <div className="bg-[#25303a] rounded-2xl border border-[#EAA100]/10 shadow-sm overflow-hidden">
+        <div className="bg-[#161D30] rounded-2xl border border-[#EAA100]/10 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="border-b border-[#EAA100]/10 bg-[#EAA100]/10">
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Nom</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Catégorie</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Conso tissu</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Difficulté</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">MOQ</th>
-                  <th className="px-6 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Actions</th>
+                  <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Nom</th>
+                  <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Catégorie</th>
+                  <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Conso tissu</th>
+                  <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Difficulté</th>
+                  <th className="px-6 py-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">MOQ</th>
+                  <th className="px-6 py-4 text-right text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EAA100]/10">
@@ -443,7 +443,7 @@ produits.map((p) => (
        )}
 
        {selectedProduitId && (
-         <div className="bg-[#25303a] rounded-2xl border border-[#EAA100]/10 shadow-sm overflow-hidden mt-6">
+         <div className="bg-[#161D30] rounded-2xl border border-[#EAA100]/10 shadow-sm overflow-hidden mt-6">
            <div className="p-6 border-b border-[#EAA100]/10 flex justify-between items-center">
              <div>
                <h3 className="font-headline text-xl text-[#EAA100]">Détails du produit</h3>

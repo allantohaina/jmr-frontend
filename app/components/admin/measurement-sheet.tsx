@@ -17,7 +17,7 @@ function MeasureGrid({ labels, measures, inputCls, onChange }: MeasureGridProps)
     <div className="grid grid-cols-1 gap-px border border-[#172d42]/15 bg-[#172d42]/15 sm:grid-cols-2 lg:grid-cols-3">
       {labels.map((label) => (
         <div key={label} className="flex items-center justify-between gap-2.5 bg-[#fffdf8] px-4 py-3">
-          <label className="flex-1 text-[12.5px] text-[#40566a]">{label}</label>
+          <label className="flex-1 text-body text-[#40566a]">{label}</label>
           <div className="flex items-baseline gap-1">
             <input
               type="number"
@@ -26,7 +26,7 @@ function MeasureGrid({ labels, measures, inputCls, onChange }: MeasureGridProps)
               onChange={(e) => onChange(label, e.target.value)}
               className={inputCls}
             />
-            <span className="text-[10.5px] text-[#6f8292]">cm</span>
+            <span className="text-caption text-[#6f8292]">cm</span>
           </div>
         </div>
       ))}
@@ -70,9 +70,9 @@ export function MeasurementSheet() {
   const advanceNum = parseFloat(pay.advance.replace(/\s/g, "")) || 0;
   const resteNum = priceNum - advanceNum;
 
-  const fieldCls = "w-full border-none border-b border-[#172d42]/25 bg-transparent px-0 py-0.5 pb-1 font-mono text-[13.5px] text-[#172d42] focus:outline-none focus:border-[#172d42]";
-  const idFieldCls = "flex-1 border-none bg-transparent px-0 py-0.5 pb-1 text-[13.5px] focus:outline-none";
-  const measureInputCls = "w-14 text-right border-none border-b border-[#172d42]/25 bg-transparent px-0 py-0.5 pb-0.5 font-mono text-[13.5px] font-semibold text-[#172d42] focus:outline-none focus:border-[#172d42]";
+  const fieldCls = "w-full border-none border-b border-[#172d42]/25 bg-transparent px-0 py-0.5 pb-1 font-mono text-body-lg text-[#172d42] focus:outline-none focus:border-[#172d42]";
+  const idFieldCls = "flex-1 border-none bg-transparent px-0 py-0.5 pb-1 text-body-lg focus:outline-none";
+  const measureInputCls = "w-14 text-right border-none border-b border-[#172d42]/25 bg-transparent px-0 py-0.5 pb-0.5 font-mono text-body-lg font-semibold text-[#172d42] focus:outline-none focus:border-[#172d42]";
 
   const haut = ["Dos", "Épaule", "Poitrine", "Longueur manche", "Tour manche", "Poignet", "Longueur taille", "Col", "Pinces"];
   const bas = ["Tour de taille", "Bassin", "Cuisse", "Genoux", "Longueur pantalon", "Bas", "Longueur jupe", "Ceinture"];
@@ -84,7 +84,7 @@ export function MeasurementSheet() {
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex items-center gap-2 rounded border border-[#172d42] bg-[#172d42] px-4 py-2 text-[12.5px] font-medium text-white transition-colors hover:bg-[#16294a]"
+          className="inline-flex items-center gap-2 rounded border border-[#172d42] bg-[#172d42] px-4 py-2 text-body font-medium text-white transition-colors hover:bg-[#16294a]"
         >
           <Printer className="h-4 w-4" /> Aperçu impression / PDF
         </button>
@@ -98,17 +98,17 @@ export function MeasurementSheet() {
         {/* EN-TETE */}
         <div className="flex flex-wrap items-start justify-between gap-6 border-b-2 border-[#172d42] px-8 py-6 md:px-11 md:py-9">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-[#172d42]/25 text-[17px] font-bold text-[#172d42]">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-[#172d42]/25 text-title font-bold text-[#172d42]">
               J
             </div>
             <div>
-              <div className="text-[17px] font-bold text-[#172d42]">JMR Textile</div>
-              <div className="mt-0.5 text-[11px] text-[#6f8292]">Atelier de confection — Madagascar</div>
+              <div className="text-title font-bold text-[#172d42]">JMR Textile</div>
+              <div className="mt-0.5 text-label text-[#6f8292]">Atelier de confection — Madagascar</div>
             </div>
           </div>
           <div className="text-right">
-            <div className="mb-1.5 text-[19px] font-bold uppercase tracking-[0.02em] text-[#172d42]">Fiche de mesures</div>
-            <div className="text-[11.5px] text-[#6f8292]">Couture sur mesure — mixte</div>
+            <div className="mb-1.5 text-title-lg font-bold uppercase tracking-[0.02em] text-[#172d42]">Fiche de mesures</div>
+            <div className="text-label text-[#6f8292]">Couture sur mesure — mixte</div>
           </div>
         </div>
 
@@ -121,7 +121,7 @@ export function MeasurementSheet() {
             { label: "Contact", input: <input type="text" placeholder="Téléphone" value={idContact} onChange={(e) => setIdContact(e.target.value)} className={idFieldCls} /> },
           ].map(({ label, input }, i) => (
             <div key={label} className={`border-[#172d42]/15 px-5 py-4 lg:border-r last:border-r-0 ${i > 0 ? "border-t lg:border-t-0" : ""} ${i === 2 ? "lg:border-t-0" : ""}`}>
-              <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f8292]">{label}</label>
+              <label className="mb-1.5 block text-caption font-semibold uppercase tracking-[0.08em] text-[#6f8292]">{label}</label>
               {input}
             </div>
           ))}
@@ -129,7 +129,7 @@ export function MeasurementSheet() {
 
         {/* HAUT DU CORPS */}
         <div className="px-8 py-7 md:px-11">
-          <div className="section-title mb-4 flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[#172d42]">
+          <div className="section-title mb-4 flex items-center gap-2.5 text-label font-bold uppercase tracking-[0.1em] text-[#172d42]">
             Haut du corps
             <span className="h-px flex-1 bg-[#172d42]/15" />
           </div>
@@ -138,7 +138,7 @@ export function MeasurementSheet() {
 
         {/* BAS DU CORPS */}
         <div className="border-t border-[#172d42]/15 px-8 py-7 md:px-11">
-          <div className="section-title mb-4 flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[#172d42]">
+          <div className="section-title mb-4 flex items-center gap-2.5 text-label font-bold uppercase tracking-[0.1em] text-[#172d42]">
             Bas du corps
             <span className="h-px flex-1 bg-[#172d42]/15" />
           </div>
@@ -147,45 +147,45 @@ export function MeasurementSheet() {
 
         {/* PIECES SPECIFIQUES */}
         <div className="border-t border-[#172d42]/15 px-8 py-7 md:px-11">
-          <div className="section-title mb-4 flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[#172d42]">
+          <div className="section-title mb-4 flex items-center gap-2.5 text-label font-bold uppercase tracking-[0.1em] text-[#172d42]">
             Pièces spécifiques
             <span className="h-px flex-1 bg-[#172d42]/15" />
           </div>
           <MeasureGrid labels={specifiques} measures={measures} inputCls={measureInputCls} onChange={setMeasure} />
           <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f8292]">Modèle souhaité</label>
-              <input type="text" placeholder="Ex. robe portefeuille, manches longues" value={modele} onChange={(e) => setModele(e.target.value)} className="w-full rounded border border-[#172d42]/25 bg-transparent px-2.5 py-2 text-[13px] text-[#172d42] focus:border-[#172d42] focus:outline-none" />
+              <label className="mb-1.5 block text-caption font-semibold uppercase tracking-[0.08em] text-[#6f8292]">Modèle souhaité</label>
+              <input type="text" placeholder="Ex. robe portefeuille, manches longues" value={modele} onChange={(e) => setModele(e.target.value)} className="w-full rounded border border-[#172d42]/25 bg-transparent px-2.5 py-2 text-body text-[#172d42] focus:border-[#172d42] focus:outline-none" />
             </div>
             <div>
-              <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f8292]">Remarques</label>
-              <textarea placeholder="Détails ou précisions supplémentaires" value={remarques} onChange={(e) => setRemarques(e.target.value)} className="min-h-[56px] w-full resize-y rounded border border-[#172d42]/25 bg-transparent px-2.5 py-2 text-[13px] text-[#172d42] focus:border-[#172d42] focus:outline-none" />
+              <label className="mb-1.5 block text-caption font-semibold uppercase tracking-[0.08em] text-[#6f8292]">Remarques</label>
+              <textarea placeholder="Détails ou précisions supplémentaires" value={remarques} onChange={(e) => setRemarques(e.target.value)} className="min-h-[56px] w-full resize-y rounded border border-[#172d42]/25 bg-transparent px-2.5 py-2 text-body text-[#172d42] focus:border-[#172d42] focus:outline-none" />
             </div>
           </div>
         </div>
 
         {/* TISSUS & ECHANTILLONS */}
         <div className="border-t border-[#172d42]/15 px-8 py-7 md:px-11">
-          <div className="section-title mb-4 flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[#172d42]">
+          <div className="section-title mb-4 flex items-center gap-2.5 text-label font-bold uppercase tracking-[0.1em] text-[#172d42]">
             Tissus &amp; échantillons
             <span className="h-px flex-1 bg-[#172d42]/15" />
           </div>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between border-b border-[#172d42]/15 pb-2">
-                <label className="text-[12.5px] text-[#40566a]">Nombre de pagnes</label>
-                <input type="number" placeholder="0" value={nbPagnes} onChange={(e) => setNbPagnes(e.target.value)} className="w-[120px] border-none bg-transparent text-right font-mono text-[13px] text-[#172d42] focus:outline-none" />
+                <label className="text-body text-[#40566a]">Nombre de pagnes</label>
+                <input type="number" placeholder="0" value={nbPagnes} onChange={(e) => setNbPagnes(e.target.value)} className="w-[120px] border-none bg-transparent text-right font-mono text-body text-[#172d42] focus:outline-none" />
               </div>
               <div className="flex items-center justify-between border-b border-[#172d42]/15 pb-2">
-                <label className="text-[12.5px] text-[#40566a]">Tissus déposés</label>
-                <input type="text" placeholder="Ex. 3 coupons coton" value={tissusDeposes} onChange={(e) => setTissusDeposes(e.target.value)} className="w-[120px] border-none bg-transparent text-right font-mono text-[13px] text-[#172d42] focus:outline-none" />
+                <label className="text-body text-[#40566a]">Tissus déposés</label>
+                <input type="text" placeholder="Ex. 3 coupons coton" value={tissusDeposes} onChange={(e) => setTissusDeposes(e.target.value)} className="w-[120px] border-none bg-transparent text-right font-mono text-body text-[#172d42] focus:outline-none" />
               </div>
             </div>
             <label className="flex min-h-[120px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-[#172d42]/25 px-4 py-4 text-center text-[#6f8292] transition-colors hover:border-[#172d42] hover:text-[#172d42]">
               {swatches.length === 0 ? (
                 <>
-                  <div className="text-[11.5px]">Échantillons tissus</div>
-                  <span className="text-[11.5px]">cliquer pour ajouter une photo</span>
+                  <div className="text-label">Échantillons tissus</div>
+                  <span className="text-label">cliquer pour ajouter une photo</span>
                 </>
               ) : (
                 <div className="flex flex-wrap justify-center gap-1.5">
@@ -201,7 +201,7 @@ export function MeasurementSheet() {
 
         {/* PAIEMENT */}
         <div className="border-t border-[#172d42]/15 px-8 py-7 md:px-11">
-          <div className="section-title mb-4 flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[#172d42]">
+          <div className="section-title mb-4 flex items-center gap-2.5 text-label font-bold uppercase tracking-[0.1em] text-[#172d42]">
             Paiement
             <span className="h-px flex-1 bg-[#172d42]/15" />
           </div>
@@ -212,25 +212,25 @@ export function MeasurementSheet() {
               { label: "Reste", value: resteNum > 0 ? `${resteNum}` : "", onChange: () => {}, placeholder: "0 Ar", remainder: true },
             ].map(({ label, value, onChange, placeholder, remainder }) => (
               <div key={label} className={`px-4 py-3.5 ${remainder ? "bg-[#faf6ec]" : "bg-[#fffdf8]"}`}>
-                <label className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f8292]">{label}</label>
+                <label className="mb-2 block text-caption font-semibold uppercase tracking-[0.08em] text-[#6f8292]">{label}</label>
                 <input
                   type="text"
                   placeholder={placeholder}
                   value={value}
                   onChange={(e) => onChange(e.target.value)}
-                  className={`w-full border-none bg-transparent font-mono text-[15px] font-semibold focus:outline-none ${remainder ? "text-[#172d42]" : "text-[#172d42]"}`}
+                  className={`w-full border-none bg-transparent font-mono text-title-sm font-semibold focus:outline-none ${remainder ? "text-[#172d42]" : "text-[#172d42]"}`}
                 />
               </div>
             ))}
           </div>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div className="flex items-center justify-between border-b border-[#172d42]/15 pb-2">
-              <label className="text-[12.5px] text-[#40566a]">Retrait le</label>
-              <input type="date" value={retraitDate} onChange={(e) => setRetraitDate(e.target.value)} className="border-none bg-transparent text-right font-mono text-[13px] text-[#172d42] focus:outline-none" />
+              <label className="text-body text-[#40566a]">Retrait le</label>
+              <input type="date" value={retraitDate} onChange={(e) => setRetraitDate(e.target.value)} className="border-none bg-transparent text-right font-mono text-body text-[#172d42] focus:outline-none" />
             </div>
             <div className="flex items-center justify-between border-b border-[#172d42]/15 pb-2">
-              <label className="text-[12.5px] text-[#40566a]">Soldé le</label>
-              <input type="date" value={soldeDate} onChange={(e) => setSoldeDate(e.target.value)} className="border-none bg-transparent text-right font-mono text-[13px] text-[#172d42] focus:outline-none" />
+              <label className="text-body text-[#40566a]">Soldé le</label>
+              <input type="date" value={soldeDate} onChange={(e) => setSoldeDate(e.target.value)} className="border-none bg-transparent text-right font-mono text-body text-[#172d42] focus:outline-none" />
             </div>
           </div>
         </div>
@@ -238,17 +238,17 @@ export function MeasurementSheet() {
         {/* SIGNATURE */}
         <div className="grid grid-cols-1 gap-6 border-t border-[#172d42]/15 px-8 py-7 md:grid-cols-2 md:px-11">
           <div className="flex min-h-[90px] flex-col justify-between border border-[#172d42]/15 p-4.5">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#6f8292]">Pris par</span>
-            <span className="text-[11px] italic text-[#6f8292]">Signature du membre de l&apos;atelier</span>
+            <span className="text-label font-semibold uppercase tracking-[0.06em] text-[#6f8292]">Pris par</span>
+            <span className="text-label italic text-[#6f8292]">Signature du membre de l&apos;atelier</span>
           </div>
           <div className="flex min-h-[90px] flex-col justify-between border-[1.5px] border-[#172d42] p-4.5">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#172d42]">Signature du client</span>
-            <span className="text-[11px] italic text-[#6f8292]">Confirme l&apos;exactitude des mesures prises</span>
+            <span className="text-label font-semibold uppercase tracking-[0.06em] text-[#172d42]">Signature du client</span>
+            <span className="text-label italic text-[#6f8292]">Confirme l&apos;exactitude des mesures prises</span>
           </div>
         </div>
 
         {/* PIED */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#172d42]/15 px-8 py-4 text-[11px] text-[#6f8292] md:px-11">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#172d42]/15 px-8 py-4 text-label text-[#6f8292] md:px-11">
           <span>JMR Textile © 2026 — Atelier de confection, Madagascar</span>
           <span className="font-mono">fiche de mesures</span>
         </div>

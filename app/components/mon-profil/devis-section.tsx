@@ -29,7 +29,7 @@ export function DevisSection({ quotes }: { quotes: QuoteRecord[] }) {
   }
 
   return (
-    <section className="bg-[#25303a] rounded-[2.5rem] border border-[#EAA100]/5 shadow-sm overflow-hidden" aria-labelledby="devis-title">
+    <section className="bg-[#161D30] rounded-[2.5rem] border border-[#EAA100]/5 shadow-sm overflow-hidden" aria-labelledby="devis-title">
       <header className="px-10 py-8 border-b border-[#EAA100]/5 flex justify-between items-center">
         <h2 className="font-headline text-2xl text-[#EAA100] font-bold" id="devis-title">
           Mes devis
@@ -41,10 +41,10 @@ export function DevisSection({ quotes }: { quotes: QuoteRecord[] }) {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-[#EAA100]/10">
-                <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Message</th>
-                <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Statut</th>
-                <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Montant</th>
-                <th className="p-4 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">Actions</th>
+                <th className="p-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Message</th>
+                <th className="p-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Statut</th>
+                <th className="p-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Montant</th>
+                <th className="p-4 text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EAA100]/5">
@@ -53,7 +53,7 @@ export function DevisSection({ quotes }: { quotes: QuoteRecord[] }) {
                   <td className="p-4 text-[#EAA100] text-sm">{quote.message ?? "-"}</td>
                   <td className="p-4">
                     <div className="space-y-1">
-                      <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                      <span className={`inline-block px-3 py-1 rounded-full text-caption font-bold uppercase tracking-widest ${
                         quote.status === 'accepted' || quote.status === 'production' 
                         ? 'bg-[#EAA100] text-[#1e2a38]' 
                         : 'bg-[#EAA100]/10 text-[#EAA100]'
@@ -61,7 +61,7 @@ export function DevisSection({ quotes }: { quotes: QuoteRecord[] }) {
                         {formatQuoteStatusLabel(quote.status)}
                       </span>
                       {quote.status === "accepted" || quote.status === "production" ? (
-                        <p className="text-[10px] text-[#EAA100]/40 leading-tight max-w-[200px] mt-2">
+                        <p className="text-caption text-[#EAA100]/40 leading-tight max-w-[200px] mt-2">
                           Version signee et verrouillee. Les corrections ou ajouts passent par une nouvelle demande.
                         </p>
                       ) : null}
@@ -72,13 +72,13 @@ export function DevisSection({ quotes }: { quotes: QuoteRecord[] }) {
                     {quote.status === "sent" ? (
                       <div className="flex gap-3">
                         <button 
-                          className="px-4 py-2 bg-[#EAA100] text-[#1e2a38] text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-[#EAA100] transition-all shadow-lg shadow-[#EAA100]/10" 
+                          className="px-4 py-2 bg-[#EAA100] text-[#1e2a38] text-caption font-bold uppercase tracking-widest rounded-lg hover:bg-[#EAA100] transition-all shadow-lg shadow-[#EAA100]/10" 
                           onClick={() => acceptQuote(quote.id)}
                         >
                           Accepter
                         </button>
                         <button 
-                          className="px-4 py-2 bg-transparent border border-[#EAA100]/20 text-[#EAA100] text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-[#EAA100]/10 transition-all" 
+                          className="px-4 py-2 bg-transparent border border-[#EAA100]/20 text-[#EAA100] text-caption font-bold uppercase tracking-widest rounded-lg hover:bg-[#EAA100]/10 transition-all" 
                           onClick={() => rejectQuote(quote.id)}
                         >
                           Refuser

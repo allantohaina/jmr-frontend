@@ -51,8 +51,8 @@ function SharedDevisContent() {
 
   if (error || !quote) return (
     <div className="min-h-screen bg-[#1e2a38] flex flex-col items-center justify-center gap-4 px-6">
-      <AlertTriangle className="h-12 w-12 text-red-400" />
-      <p className="text-red-400 font-bold text-sm">Devis introuvable ou lien invalide.</p>
+      <AlertTriangle className="h-12 w-12 text-[#F3A3A6]" />
+      <p className="text-[#F3A3A6] font-bold text-sm">Devis introuvable ou lien invalide.</p>
     </div>
   );
 
@@ -61,15 +61,15 @@ function SharedDevisContent() {
   // Tant que le devis n'est pas envoyé au client, aucun paiement n'est possible.
   const isSent = ["sent", "accepted", "production", "completed"].includes(String(quote.status ?? ""));
   const StatusIcon = balancePaid && isSent ? CheckCircle : depositPaid && isSent ? Clock : Clock;
-  const statusColor = balancePaid && isSent ? "text-green-400" : depositPaid && isSent ? "text-yellow-400" : "text-[#EAA100]";
+  const statusColor = balancePaid && isSent ? "text-[#5CB87D]" : depositPaid && isSent ? "text-yellow-400" : "text-[#EAA100]";
   const statusLabel = !isSent ? "Non envoyé" : balancePaid ? "Payé" : depositPaid ? "Acompte versé" : "En attente de paiement";
 
   return (
     <div className="min-h-screen bg-[#1e2a38] flex items-center justify-center p-6">
-      <div className="w-full max-w-md rounded-[2rem] bg-[#25303a] border border-[#EAA100]/10 p-8 shadow-2xl space-y-6">
+      <div className="w-full max-w-md rounded-[2rem] bg-[#161D30] border border-[#EAA100]/10 p-8 shadow-2xl space-y-6">
         <div className="flex items-center justify-between">
           <span className="font-headline text-xl text-[#EAA100]">Devis</span>
-          <span className="text-[9px] text-[#EAA100]/40 font-bold uppercase tracking-widest">#{quote.id.slice(0, 8)}</span>
+          <span className="text-micro text-[#EAA100]/40 font-bold uppercase tracking-widest">#{quote.id.slice(0, 8)}</span>
         </div>
 
         <div className="flex items-center gap-3">
@@ -79,21 +79,21 @@ function SharedDevisContent() {
 
         <div className="space-y-4">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Client</p>
+            <p className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Client</p>
             <p className="text-sm font-semibold text-[#EAA100]">{quote.name}</p>
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Catégorie</p>
+            <p className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Catégorie</p>
             <p className="text-sm font-semibold text-[#EAA100] capitalize">{quote.category}</p>
           </div>
           {quote.amount && (
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Montant</p>
+              <p className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Montant</p>
               <p className="text-2xl font-bold text-[#EAA100]">{parseFloat(quote.amount).toFixed(2)} €</p>
             </div>
           )}
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Date</p>
+            <p className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Date</p>
             <p className="text-sm text-[#EAA100]/70">{new Date(quote.created_at).toLocaleDateString("fr-FR")}</p>
           </div>
         </div>
@@ -101,9 +101,9 @@ function SharedDevisContent() {
         <div className="h-px bg-[#EAA100]/10" />
 
         <div className="flex gap-2">
-          {isSent && depositPaid && <span className="flex-1 text-center py-2 rounded-lg bg-green-500/10 text-green-400 text-[9px] font-bold uppercase tracking-widest">Acompte reçu</span>}
-          {isSent && balancePaid && <span className="flex-1 text-center py-2 rounded-lg bg-green-500/10 text-green-400 text-[9px] font-bold uppercase tracking-widest">Solde payé</span>}
-          {!isSent && <span className="flex-1 text-center py-2 rounded-lg bg-[#EAA100]/10 text-[#EAA100]/70 text-[9px] font-bold uppercase tracking-widest">Devis non envoyé — paiement impossible</span>}
+          {isSent && depositPaid && <span className="flex-1 text-center py-2 rounded-lg bg-[#1F8457]/10 text-[#5CB87D] text-micro font-bold uppercase tracking-widest">Acompte reçu</span>}
+          {isSent && balancePaid && <span className="flex-1 text-center py-2 rounded-lg bg-[#1F8457]/10 text-[#5CB87D] text-micro font-bold uppercase tracking-widest">Solde payé</span>}
+          {!isSent && <span className="flex-1 text-center py-2 rounded-lg bg-[#EAA100]/10 text-[#EAA100]/70 text-micro font-bold uppercase tracking-widest">Devis non envoyé — paiement impossible</span>}
         </div>
       </div>
     </div>

@@ -69,11 +69,11 @@ const themeMap = {
     detail: "text-[#EAA100]/65",
     meta: "text-[#EAA100]/30",
     item: "border-[#EAA100]/5 bg-[#1e2a38]",
-    itemBody: "bg-[#25303a]",
+    itemBody: "bg-[#161D30]",
     chip: "border-[#EAA100]/10 bg-[#EAA100]/5 text-[#EAA100]",
-    button: "border-[#EAA100]/10 bg-[#25303a] text-[#EAA100] hover:bg-[#25303a]/80",
-    primaryButton: "border-[#EAA100]/10 bg-[#EAA100] text-[#25303a] hover:bg-[#EAA100]",
-    composer: "border-[#EAA100]/10 bg-[#25303a]",
+    button: "border-[#EAA100]/10 bg-[#161D30] text-[#EAA100] hover:bg-[#161D30]/80",
+    primaryButton: "border-[#EAA100]/10 bg-[#EAA100] text-[#161D30] hover:bg-[#EAA100]",
+    composer: "border-[#EAA100]/10 bg-[#161D30]",
     input: "border-[#EAA100]/10 bg-[#1e2a38] text-[#EAA100]",
     placeholder: "text-[#EAA100]/35",
     subItem: "border-[#EAA100]/5 bg-[#1e2a38]",
@@ -128,7 +128,7 @@ function severityClasses(severity: ProblemSeverity, theme: keyof typeof themeMap
   if (theme === "dark") {
     switch (severity) {
       case "critical":
-        return "border-red-400/20 bg-red-400/10 text-red-100";
+        return "border-[#E05252]/20 bg-[#E05252]/10 text-red-100";
       case "warning":
         return "border-amber-400/20 bg-amber-400/10 text-amber-100";
       case "info":
@@ -162,7 +162,7 @@ function roleChipClasses(theme: keyof typeof themeMap) {
 
 function compactButtonClasses(theme: keyof typeof themeMap) {
   return theme === "dark"
-    ? "border-[#EAA100]/10 bg-[#25303a] text-[#EAA100] hover:bg-[#25303a]/80"
+    ? "border-[#EAA100]/10 bg-[#161D30] text-[#EAA100] hover:bg-[#161D30]/80"
     : "border-[#163526]/10 bg-white text-[#163526] hover:bg-[#faf9f4]";
 }
 
@@ -296,7 +296,7 @@ export function ProblemHierarchyPanel({
 
   const composerClassName =
     theme === "dark"
-      ? "border-[#EAA100]/10 bg-[#25303a]"
+      ? "border-[#EAA100]/10 bg-[#161D30]"
       : "border-[#163526]/10 bg-[#faf9f4]";
 
   return (
@@ -304,7 +304,7 @@ export function ProblemHierarchyPanel({
       <div className={`rounded-2xl border px-4 py-4 ${styles.note}`}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-1">
-            <p className={`text-[10px] font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
+            <p className={`text-caption font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
               Problemes
             </p>
             {noteLines.map((line) => (
@@ -318,7 +318,7 @@ export function ProblemHierarchyPanel({
             <button
               type="button"
               onClick={() => setComposerOpen((current) => !current)}
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition ${styles.primaryButton}`}
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-caption font-bold uppercase tracking-widest transition ${styles.primaryButton}`}
             >
               <span className="material-symbols-outlined text-sm">add_circle</span>
               Probleme
@@ -331,7 +331,7 @@ export function ProblemHierarchyPanel({
         <div className={`rounded-2xl border p-4 ${composerClassName}`}>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className={`text-[10px] font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
+              <p className={`text-caption font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
                 Nouveau probleme
               </p>
               <p className={`mt-1 text-sm ${styles.detail}`}>
@@ -341,7 +341,7 @@ export function ProblemHierarchyPanel({
             <button
               type="button"
               onClick={() => setComposerOpen(false)}
-              className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[10px] font-bold uppercase tracking-widest transition ${compactButtonClasses(theme)}`}
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-caption font-bold uppercase tracking-widest transition ${compactButtonClasses(theme)}`}
             >
               <span className="material-symbols-outlined text-sm">close</span>
               Fermer
@@ -350,7 +350,7 @@ export function ProblemHierarchyPanel({
 
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <label className="space-y-2 md:col-span-1">
-              <span className={`text-[10px] font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
+              <span className={`text-caption font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
                 Titre
               </span>
               <input
@@ -365,7 +365,7 @@ export function ProblemHierarchyPanel({
             </label>
 
             <label className="space-y-2 md:col-span-1">
-              <span className={`text-[10px] font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
+              <span className={`text-caption font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
                 Poste concerne
               </span>
               <input
@@ -380,7 +380,7 @@ export function ProblemHierarchyPanel({
             </label>
 
             <label className="space-y-2 md:col-span-2">
-              <span className={`text-[10px] font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
+              <span className={`text-caption font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
                 Resume client
               </span>
               <input
@@ -395,7 +395,7 @@ export function ProblemHierarchyPanel({
             </label>
 
             <label className="space-y-2 md:col-span-2">
-              <span className={`text-[10px] font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
+              <span className={`text-caption font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
                 Detail
               </span>
               <textarea
@@ -410,7 +410,7 @@ export function ProblemHierarchyPanel({
             </label>
 
             <label className="space-y-2">
-              <span className={`text-[10px] font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
+              <span className={`text-caption font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
                 Niveau
               </span>
               <select
@@ -432,7 +432,7 @@ export function ProblemHierarchyPanel({
             </label>
 
             <label className="flex items-center justify-between gap-3 rounded-2xl border px-4 py-4 md:col-span-1 bg-white/70 text-[#163526]">
-              <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#163526]/60">
+              <span className="text-caption font-bold uppercase tracking-[0.24em] text-[#163526]/60">
                 Validation client
               </span>
               <input
@@ -454,7 +454,7 @@ export function ProblemHierarchyPanel({
             <button
               type="button"
               onClick={addMainProblem}
-              className="inline-flex items-center gap-2 rounded-full bg-orange-500 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-white transition hover:bg-orange-600"
+              className="inline-flex items-center gap-2 rounded-full bg-orange-500 px-4 py-2 text-caption font-bold uppercase tracking-widest text-white transition hover:bg-orange-600"
             >
               <span className="material-symbols-outlined text-sm">add_circle</span>
               Ajouter
@@ -462,7 +462,7 @@ export function ProblemHierarchyPanel({
             <button
               type="button"
               onClick={resetMainDraft}
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition ${compactButtonClasses(theme)}`}
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-caption font-bold uppercase tracking-widest transition ${compactButtonClasses(theme)}`}
             >
               <span className="material-symbols-outlined text-sm">restart_alt</span>
               Reinitialiser
@@ -483,7 +483,7 @@ export function ProblemHierarchyPanel({
                   <div className="flex flex-wrap items-center gap-2">
                     <h4 className={`text-sm font-bold sm:text-base ${styles.title}`}>{problem.title}</h4>
                     <span
-                      className={`rounded-full border px-3 py-1 text-[9px] font-bold uppercase tracking-widest ${severityClasses(
+                      className={`rounded-full border px-3 py-1 text-micro font-bold uppercase tracking-widest ${severityClasses(
                         problem.severity,
                         theme,
                       )}`}
@@ -491,23 +491,23 @@ export function ProblemHierarchyPanel({
                       {severityLabel(problem.severity)}
                     </span>
                     {problem.requiresClientValidation ? (
-                      <span className={`rounded-full border px-3 py-1 text-[9px] font-bold uppercase tracking-widest ${styles.chip}`}>
+                      <span className={`rounded-full border px-3 py-1 text-micro font-bold uppercase tracking-widest ${styles.chip}`}>
                         Validation client
                       </span>
                     ) : null}
                     {problem.lockedForClient ? (
-                      <span className={`rounded-full border px-3 py-1 text-[9px] font-bold uppercase tracking-widest ${styles.chip}`}>
+                      <span className={`rounded-full border px-3 py-1 text-micro font-bold uppercase tracking-widest ${styles.chip}`}>
                         Signe
                       </span>
                     ) : null}
                   </div>
-                  <p className={`text-[10px] font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
+                  <p className={`text-caption font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
                     {problem.date}
                   </p>
                 </div>
 
                 {problem.owner ? (
-                  <span className={`rounded-full border px-3 py-1 text-[9px] font-bold uppercase tracking-widest ${roleChipClasses(theme)}`}>
+                  <span className={`rounded-full border px-3 py-1 text-micro font-bold uppercase tracking-widest ${roleChipClasses(theme)}`}>
                     {problem.owner}
                   </span>
                 ) : null}
@@ -519,7 +519,7 @@ export function ProblemHierarchyPanel({
                 <button
                   type="button"
                   onClick={() => toggleProblem(problem.id)}
-                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition ${compactButtonClasses(theme)}`}
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-caption font-bold uppercase tracking-widest transition ${compactButtonClasses(theme)}`}
                 >
                   <span className="material-symbols-outlined text-sm">
                     {isExpanded ? "expand_less" : "expand_more"}
@@ -536,7 +536,7 @@ export function ProblemHierarchyPanel({
                         current.includes(problem.id) ? current : [...current, problem.id],
                       );
                     }}
-                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition ${compactButtonClasses(theme)}`}
+                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-caption font-bold uppercase tracking-widest transition ${compactButtonClasses(theme)}`}
                   >
                     <span className="material-symbols-outlined text-sm">add_circle</span>
                     Sous-probleme
@@ -550,10 +550,10 @@ export function ProblemHierarchyPanel({
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-3">
-                      <p className={`text-[10px] font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
+                      <p className={`text-caption font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
                         Sous-problemes
                       </p>
-                      <span className={`text-[10px] font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
+                      <span className={`text-caption font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
                         {problem.subProblems.length}
                       </span>
                     </div>
@@ -572,7 +572,7 @@ export function ProblemHierarchyPanel({
                               </div>
                               {subProblem.owner ? (
                                 <span
-                                  className={`rounded-full border px-3 py-1 text-[9px] font-bold uppercase tracking-widest ${roleChipClasses(theme)}`}
+                                  className={`rounded-full border px-3 py-1 text-micro font-bold uppercase tracking-widest ${roleChipClasses(theme)}`}
                                 >
                                   {subProblem.owner}
                                 </span>
@@ -590,7 +590,7 @@ export function ProblemHierarchyPanel({
                     <div className={`rounded-2xl border p-4 ${composerClassName}`}>
                       <div className="grid gap-3 md:grid-cols-2">
                         <label className="space-y-2 md:col-span-1">
-                          <span className={`text-[10px] font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
+                          <span className={`text-caption font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
                             Sous-probleme
                           </span>
                           <input
@@ -605,7 +605,7 @@ export function ProblemHierarchyPanel({
                         </label>
 
                         <label className="space-y-2 md:col-span-1">
-                          <span className={`text-[10px] font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
+                          <span className={`text-caption font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
                             Poste concerne
                           </span>
                           <input
@@ -620,7 +620,7 @@ export function ProblemHierarchyPanel({
                         </label>
 
                         <label className="space-y-2 md:col-span-2">
-                          <span className={`text-[10px] font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
+                          <span className={`text-caption font-bold uppercase tracking-[0.24em] ${styles.meta}`}>
                             Detail
                           </span>
                           <textarea
@@ -639,7 +639,7 @@ export function ProblemHierarchyPanel({
                         <button
                           type="button"
                           onClick={() => addSubProblem(problem.id)}
-                          className="inline-flex items-center gap-2 rounded-full bg-orange-500 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-white transition hover:bg-orange-600"
+                          className="inline-flex items-center gap-2 rounded-full bg-orange-500 px-4 py-2 text-caption font-bold uppercase tracking-widest text-white transition hover:bg-orange-600"
                         >
                           <span className="material-symbols-outlined text-sm">add_circle</span>
                           Ajouter
@@ -650,7 +650,7 @@ export function ProblemHierarchyPanel({
                             setActiveSubComposerId(null);
                             resetSubDraft();
                           }}
-                          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition ${compactButtonClasses(theme)}`}
+                          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-caption font-bold uppercase tracking-widest transition ${compactButtonClasses(theme)}`}
                         >
                           <span className="material-symbols-outlined text-sm">close</span>
                           Fermer
@@ -670,7 +670,7 @@ export function ProblemHierarchyPanel({
           <button
             type="button"
             onClick={() => setShowAllMajorProblems((current) => !current)}
-            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition ${compactButtonClasses(theme)}`}
+            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-caption font-bold uppercase tracking-widest transition ${compactButtonClasses(theme)}`}
           >
             <span className="material-symbols-outlined text-sm">
               {showAllMajorProblems ? "expand_less" : "expand_more"}

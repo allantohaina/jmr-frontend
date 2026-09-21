@@ -51,7 +51,7 @@ function PaymentView() {
       <header className="border-b border-[#EAA100]/10">
         <div className="mx-auto max-w-lg px-6 py-6 flex items-center justify-between">
           <Link href="/" className="font-headline text-2xl text-[#EAA100]">JMR Atelier</Link>
-          <Link href="/" className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#EAA100]/60 hover:text-[#EAA100]">← Accueil</Link>
+          <Link href="/" className="text-caption font-bold uppercase tracking-[0.2em] text-[#EAA100]/60 hover:text-[#EAA100]">← Accueil</Link>
         </div>
       </header>
 
@@ -66,8 +66,8 @@ function PaymentView() {
           </div>
         ) : lien && lien.etat === "déjà payé" ? (
           <div className="rounded-2xl border border-green-700/30 bg-green-900/10 p-8 text-center">
-            <CheckCircle2 className="mx-auto h-12 w-12 text-green-400" />
-            <h1 className="font-headline text-2xl text-green-300 mt-4">Déjà payé</h1>
+            <CheckCircle2 className="mx-auto h-12 w-12 text-[#5CB87D]" />
+            <h1 className="font-headline text-2xl text-[#5CB87D] mt-4">Déjà payé</h1>
             <p className="text-sm text-[#EAA100]/60 mt-2">Ce paiement a déjà été enregistré. Merci !</p>
             <p className="text-xs text-[#EAA100]/40 mt-4">Commande {lien.commande_numero} · {fmt(lien.montant)}</p>
           </div>
@@ -79,13 +79,13 @@ function PaymentView() {
           </div>
         ) : paid && lien ? (
           <div className="rounded-2xl border border-green-700/30 bg-green-900/10 p-8 text-center">
-            <CheckCircle2 className="mx-auto h-12 w-12 text-green-400" />
-            <h1 className="font-headline text-2xl text-green-300 mt-4">Paiement enregistré</h1>
+            <CheckCircle2 className="mx-auto h-12 w-12 text-[#5CB87D]" />
+            <h1 className="font-headline text-2xl text-[#5CB87D] mt-4">Paiement enregistré</h1>
             <p className="text-sm text-[#EAA100]/60 mt-2">Merci pour votre confiance. Votre paiement a bien été pris en compte.</p>
             <p className="text-xs text-[#EAA100]/40 mt-4">Commande {lien.commande_numero} · {fmt(lien.montant)}</p>
           </div>
         ) : lien ? (
-          <div className="rounded-2xl border border-[#EAA100]/15 bg-[#25303a] p-8">
+          <div className="rounded-2xl border border-[#EAA100]/15 bg-[#161D30] p-8">
             <div className="flex items-center gap-3">
               <CreditCard className="h-8 w-8 text-[#EAA100]" />
               <h1 className="font-headline text-2xl text-[#EAA100]">Paiement en ligne</h1>
@@ -110,12 +110,12 @@ function PaymentView() {
             <button
               onClick={pay}
               disabled={paying}
-              className="mt-8 w-full rounded-xl bg-[#EAA100] px-6 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#1a1204] hover:brightness-105 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+              className="mt-8 w-full rounded-xl bg-[#EAA100] px-6 py-4 text-label font-bold uppercase tracking-[0.2em] text-[#1B2436] hover:brightness-105 disabled:opacity-50 inline-flex items-center justify-center gap-2"
             >
               {paying ? <Loader className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
               Confirmer le paiement de {fmt(lien.montant)}
             </button>
-            <p className="text-center text-[10px] text-[#EAA100]/40 mt-4">
+            <p className="text-center text-caption text-[#EAA100]/40 mt-4">
               Le règlement est enregistré dans votre dossier. Un reçu est disponible auprès de l&apos;atelier.
             </p>
           </div>

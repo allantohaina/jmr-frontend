@@ -11,10 +11,10 @@ export function AiSearchPill() {
         <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
           smart_toy
         </span>
-        <span className="font-label text-[11px] text-primary uppercase tracking-widest font-bold">
+        <span className="font-label text-label text-primary uppercase tracking-widest font-bold">
           Recherche par IA
         </span>
-        <span className="bg-primary text-surface text-[8px] font-bold px-2 py-0.5 rounded-full -mt-4 -mr-4">
+        <span className="bg-primary text-surface text-micro font-bold px-2 py-0.5 rounded-full -mt-4 -mr-4">
           NOUVEAU
         </span>
       </button>

@@ -68,21 +68,21 @@ export function WorkerForm({ onCreated }: Props) {
           </div>
           <div>
             <h2 className="text-sm font-bold text-[#EAA100]">Créer un employé</h2>
-            <p className="text-[10px] uppercase tracking-widest text-[#EAA100]/40">Remplissez les informations ci-dessous</p>
+            <p className="text-caption uppercase tracking-widest text-[#EAA100]/40">Remplissez les informations ci-dessous</p>
           </div>
         </div>
 
         {error && (
-          <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">{error}</div>
+          <div className="mb-6 rounded-lg bg-[#E05252]/10 border border-[#E05252]/20 p-3 text-sm text-[#F3A3A6]">{error}</div>
         )}
         {success && (
-          <div className="mb-6 rounded-lg bg-green-500/10 border border-green-500/20 p-3 text-sm text-green-400">{success}</div>
+          <div className="mb-6 rounded-lg bg-[#1F8457]/10 border border-[#1F8457]/20 p-3 text-sm text-[#5CB87D]">{success}</div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Prénom *</label>
+              <label className="mb-1.5 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Prénom *</label>
               <input
                 type="text"
                 required
@@ -92,7 +92,7 @@ export function WorkerForm({ onCreated }: Props) {
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Nom *</label>
+              <label className="mb-1.5 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Nom *</label>
               <input
                 type="text"
                 required
@@ -104,7 +104,7 @@ export function WorkerForm({ onCreated }: Props) {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Email *</label>
+            <label className="mb-1.5 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Email *</label>
             <input
               type="email"
               required
@@ -116,7 +116,7 @@ export function WorkerForm({ onCreated }: Props) {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Mot de passe *</label>
+            <label className="mb-1.5 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Mot de passe *</label>
             <input
               type="password"
               required
@@ -130,7 +130,7 @@ export function WorkerForm({ onCreated }: Props) {
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Rôle</label>
+              <label className="mb-1.5 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Rôle</label>
               <select
                 value={form.role}
                 onChange={(e) => update("role", e.target.value as "admin" | "worker")}
@@ -141,7 +141,7 @@ export function WorkerForm({ onCreated }: Props) {
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Téléphone</label>
+              <label className="mb-1.5 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Téléphone</label>
               <input
                 type="tel"
                 value={form.phone}
@@ -153,7 +153,7 @@ export function WorkerForm({ onCreated }: Props) {
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Département</label>
+              <label className="mb-1.5 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Département</label>
               <input
                 type="text"
                 value={form.department}
@@ -163,7 +163,7 @@ export function WorkerForm({ onCreated }: Props) {
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Poste</label>
+              <label className="mb-1.5 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Poste</label>
               <input
                 type="text"
                 value={form.position}
@@ -176,7 +176,7 @@ export function WorkerForm({ onCreated }: Props) {
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">Date d&apos;embauche</label>
+              <label className="mb-1.5 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">Date d&apos;embauche</label>
               <input
                 type="date"
                 value={form.hire_date}
@@ -185,7 +185,7 @@ export function WorkerForm({ onCreated }: Props) {
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60">CIN</label>
+              <label className="mb-1.5 block text-caption font-bold uppercase tracking-widest text-[#EAA100]/60">CIN</label>
               <input
                 type="text"
                 value={form.cin}

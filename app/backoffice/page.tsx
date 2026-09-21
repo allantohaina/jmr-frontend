@@ -96,22 +96,22 @@ function StatCard({
     gold: "text-[#EAA100] bg-[#EAA100]/10 border-[#EAA100]/20",
     success: "text-[#1f8457] bg-[#1f8457]/10 border-[#1f8457]/20",
     destructive: "text-[#b14255] bg-[#b14255]/10 border-[#b14255]/20",
-    muted: "text-[#9aa7b4] bg-[#26313d] border-[#EAA100]/10",
+    muted: "text-[#B9C3D0] bg-[#161D30] border-[#EAA100]/10",
   };
   return (
-    <div className="rounded-xl border border-[#EAA100]/10 bg-[#25303a] p-4">
+    <div className="rounded-xl border border-[#EAA100]/10 bg-[#161D30] p-4">
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">
+        <span className="text-label font-semibold uppercase tracking-[0.14em] text-[#B9C3D0]">
           {label}
         </span>
         <span className={`flex size-8 items-center justify-center rounded-lg border ${toneMap[tone]}`}>
           <Icon className="size-4" />
         </span>
       </div>
-      <p className="font-headline text-3xl font-semibold tabular-nums text-[#f3e9d6]">{value}</p>
-      <p className="mt-1 text-xs text-[#9aa7b4]">{hint}</p>
+      <p className="font-headline text-3xl font-semibold tabular-nums text-[#FFF8EC]">{value}</p>
+      <p className="mt-1 text-xs text-[#B9C3D0]">{hint}</p>
       {typeof progress === "number" && (
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#26313d]">
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#161D30]">
           <div
             className="h-full rounded-full bg-[#EAA100] transition-all"
             style={{ width: `${progress}%` }}
@@ -281,10 +281,10 @@ export default function AdminDashboardPage() {
             <LayoutDashboard className="size-5" />
           </div>
           <div>
-            <h2 className="font-headline text-2xl font-semibold tracking-tight text-[#f3e9d6]">
+            <h2 className="font-headline text-2xl font-semibold tracking-tight text-[#FFF8EC]">
               Tableau de Bord
             </h2>
-            <p className="text-sm text-[#9aa7b4]">
+            <p className="text-sm text-[#B9C3D0]">
               Contrôle de production ·{" "}
               {new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
             </p>
@@ -292,12 +292,12 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="rounded-md border border-[#EAA100]/15 bg-[#25303a] px-2.5 py-1.5 font-mono text-[11px] text-[#9aa7b4]">
+          <span className="rounded-md border border-[#EAA100]/15 bg-[#161D30] px-2.5 py-1.5 font-mono text-label text-[#B9C3D0]">
             v2.4
           </span>
           <Link
             href="/backoffice/orders"
-            className="inline-flex items-center gap-2 rounded-lg border border-[#EAA100]/25 bg-[#EAA100]/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-widest text-[#EAA100] transition-colors hover:bg-[#EAA100]/20"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#EAA100]/25 bg-[#EAA100]/10 px-4 py-2 text-label font-semibold uppercase tracking-widest text-[#EAA100] transition-colors hover:bg-[#EAA100]/20"
           >
             Gérer les Commandes
             <ArrowRight className="size-3.5" />
@@ -341,59 +341,59 @@ export default function AdminDashboardPage() {
       {/* KPI supplémentaires : stock, satisfaction, relationnel */}
       {extraStats && (
         <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <div className="rounded-xl border border-[#EAA100]/10 bg-[#25303a] p-4">
+          <div className="rounded-xl border border-[#EAA100]/10 bg-[#161D30] p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">Stock atelier</span>
+              <span className="text-label font-semibold uppercase tracking-[0.14em] text-[#B9C3D0]">Stock atelier</span>
               <span className="flex size-8 items-center justify-center rounded-lg border border-[#EAA100]/20 bg-[#EAA100]/10 text-[#EAA100]">
                 <Package className="size-4" />
               </span>
             </div>
-            <p className="font-headline text-2xl font-semibold tabular-nums text-[#f3e9d6]">
+            <p className="font-headline text-2xl font-semibold tabular-nums text-[#FFF8EC]">
               {Number(extraStats.stock?.matieres ?? 0)}
             </p>
-            <p className="mt-1 text-xs text-[#9aa7b4]">
+            <p className="mt-1 text-xs text-[#B9C3D0]">
               {Number(extraStats.stock?.alertes ?? 0)} matière(s) sous seuil
             </p>
           </div>
-          <div className="rounded-xl border border-[#EAA100]/10 bg-[#25303a] p-4">
+          <div className="rounded-xl border border-[#EAA100]/10 bg-[#161D30] p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">Satisfaction</span>
+              <span className="text-label font-semibold uppercase tracking-[0.14em] text-[#B9C3D0]">Satisfaction</span>
               <span className="flex size-8 items-center justify-center rounded-lg border border-[#1f8457]/20 bg-[#1f8457]/10 text-[#1f8457]">
                 <Star className="size-4" />
               </span>
             </div>
-            <p className="font-headline text-2xl font-semibold tabular-nums text-[#f3e9d6]">
+            <p className="font-headline text-2xl font-semibold tabular-nums text-[#FFF8EC]">
               {Number(extraStats.satisfaction?.note_moyenne ?? 0).toFixed(1)} / 5
             </p>
-            <p className="mt-1 text-xs text-[#9aa7b4]">
+            <p className="mt-1 text-xs text-[#B9C3D0]">
               {Number(extraStats.satisfaction?.nb_avis ?? 0)} avis publiés
             </p>
           </div>
-          <div className="rounded-xl border border-[#EAA100]/10 bg-[#25303a] p-4">
+          <div className="rounded-xl border border-[#EAA100]/10 bg-[#161D30] p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">Paiements en attente</span>
+              <span className="text-label font-semibold uppercase tracking-[0.14em] text-[#B9C3D0]">Paiements en attente</span>
               <span className="flex size-8 items-center justify-center rounded-lg border border-[#b14255]/20 bg-[#b14255]/10 text-[#b14255]">
                 <Wallet className="size-4" />
               </span>
             </div>
-            <p className="font-headline text-2xl font-semibold tabular-nums text-[#f3e9d6]">
+            <p className="font-headline text-2xl font-semibold tabular-nums text-[#FFF8EC]">
               {Number(extraStats.finance?.paiements_attente ?? 0)}
             </p>
-            <p className="mt-1 text-xs text-[#9aa7b4]">
+            <p className="mt-1 text-xs text-[#B9C3D0]">
               {Number(extraStats.finance?.liens_paiement ?? 0)} lien(s) généré(s)
             </p>
           </div>
-          <div className="rounded-xl border border-[#EAA100]/10 bg-[#25303a] p-4">
+          <div className="rounded-xl border border-[#EAA100]/10 bg-[#161D30] p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">Clients fidélisés</span>
+              <span className="text-label font-semibold uppercase tracking-[0.14em] text-[#B9C3D0]">Clients fidélisés</span>
               <span className="flex size-8 items-center justify-center rounded-lg border border-[#EAA100]/20 bg-[#EAA100]/10 text-[#EAA100]">
                 <Users className="size-4" />
               </span>
             </div>
-            <p className="font-headline text-2xl font-semibold tabular-nums text-[#f3e9d6]">
+            <p className="font-headline text-2xl font-semibold tabular-nums text-[#FFF8EC]">
               {Number(extraStats.relationnel?.clients_points ?? 0)}
             </p>
-            <p className="mt-1 text-xs text-[#9aa7b4]">
+            <p className="mt-1 text-xs text-[#B9C3D0]">
               {Number(extraStats.relationnel?.total_points ?? 0).toLocaleString("fr-FR")} points actifs
             </p>
           </div>
@@ -402,24 +402,24 @@ export default function AdminDashboardPage() {
 
       {/* Financial overview + treasury */}
       <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="rounded-xl border border-[#EAA100]/10 bg-[#25303a] p-5 md:p-6 lg:col-span-2">
+        <div className="rounded-xl border border-[#EAA100]/10 bg-[#161D30] p-5 md:p-6 lg:col-span-2">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h3 className="font-headline text-lg font-semibold tracking-tight text-[#f3e9d6]">
+              <h3 className="font-headline text-lg font-semibold tracking-tight text-[#FFF8EC]">
                 Bilan Financier Mensuel
               </h3>
-              <p className="text-xs text-[#9aa7b4]">
+              <p className="text-xs text-[#B9C3D0]">
                 Ventes vs Dépenses · Derniers 6 mois
               </p>
             </div>
             <div className="flex items-center gap-5">
               <div className="flex items-center gap-2">
                 <span className="size-2.5 rounded-full bg-[#EAA100]" />
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]">Ventes</span>
+                <span className="text-caption font-semibold uppercase tracking-widest text-[#B9C3D0]">Ventes</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="size-2.5 rounded-full bg-[#EAA100]" />
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]">Dépenses</span>
+                <span className="text-caption font-semibold uppercase tracking-widest text-[#B9C3D0]">Dépenses</span>
               </div>
             </div>
           </div>
@@ -442,13 +442,13 @@ export default function AdminDashboardPage() {
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#9aa7b4", fontSize: 11, fontWeight: 600 }}
+                  tick={{ fill: "#B9C3D0", fontSize: 11, fontWeight: 600 }}
                   dy={10}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#9aa7b4", fontSize: 11, fontWeight: 600 }}
+                  tick={{ fill: "#B9C3D0", fontSize: 11, fontWeight: 600 }}
                   tickFormatter={(value) => `${(value / 1000).toLocaleString("fr-FR")}k€`}
                   width={60}
                 />
@@ -456,11 +456,11 @@ export default function AdminDashboardPage() {
                   contentStyle={{
                     borderRadius: "0.75rem",
                     border: "1px solid rgba(236,204,144,0.15)",
-                    background: "#26313d",
+                    background: "#161D30",
                     boxShadow: "0 20px 50px rgba(0,0,0,0.4)",
                     padding: "0.75rem 1rem",
                   }}
-                  labelStyle={{ fontWeight: 700, marginBottom: "0.5rem", color: "#f3e9d6" }}
+                  labelStyle={{ fontWeight: 700, marginBottom: "0.5rem", color: "#FFF8EC" }}
                   itemStyle={{ color: "#EAA100", fontSize: 12 }}
                 />
                 <Area
@@ -484,31 +484,31 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-[#EAA100]/15 bg-gradient-to-b from-[#2b3744] to-[#25303a] p-5 md:p-6">
+        <div className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-[#EAA100]/15 bg-gradient-to-b from-[#2b3744] to-[#161D30] p-5 md:p-6">
           <div className="absolute right-0 top-0 h-full w-1 bg-[#EAA100]" />
           <div>
-            <p className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9aa7b4]">
+            <p className="mb-4 flex items-center gap-2 text-label font-semibold uppercase tracking-[0.14em] text-[#B9C3D0]">
               <Wallet className="size-4 text-[#EAA100]" />
               Trésorerie
             </p>
             <div className="space-y-4">
               <div className="flex items-baseline justify-between gap-2">
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]">Acomptes</span>
-                <span className="font-headline text-2xl font-semibold tabular-nums text-[#f3e9d6]">
+                <span className="text-caption font-semibold uppercase tracking-widest text-[#B9C3D0]">Acomptes</span>
+                <span className="font-headline text-2xl font-semibold tabular-nums text-[#FFF8EC]">
                   {dashboardData.acomptes.toLocaleString("fr-FR")}
-                  <span className="ml-1 font-headline text-sm text-[#9aa7b4]">Ar</span>
+                  <span className="ml-1 font-headline text-sm text-[#B9C3D0]">Ar</span>
                 </span>
               </div>
               <div className="flex items-baseline justify-between gap-2 border-t border-[#EAA100]/10 pt-4">
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]">Soldes</span>
+                <span className="text-caption font-semibold uppercase tracking-widest text-[#B9C3D0]">Soldes</span>
                 <span className="font-headline text-2xl font-semibold tabular-nums text-[#EAA100]">
                   {dashboardData.soldes.toLocaleString("fr-FR")}
-                  <span className="ml-1 font-headline text-sm text-[#9aa7b4]">Ar</span>
+                  <span className="ml-1 font-headline text-sm text-[#B9C3D0]">Ar</span>
                 </span>
               </div>
             </div>
           </div>
-          <div className="mt-6 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-[#EAA100]/80">
+          <div className="mt-6 flex items-center gap-2 text-caption font-semibold uppercase tracking-widest text-[#EAA100]/80">
             <ShieldCheck className="size-3.5" />
             Paiement en 2 tranches actif
           </div>
@@ -517,13 +517,13 @@ export default function AdminDashboardPage() {
 
       {/* Visitors & exchange */}
       <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-[#EAA100]/10 bg-[#25303a] p-5 md:p-6">
+        <div className="rounded-xl border border-[#EAA100]/10 bg-[#161D30] p-5 md:p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="flex items-center gap-2 font-headline text-lg font-semibold tracking-tight text-[#f3e9d6]">
+            <h3 className="flex items-center gap-2 font-headline text-lg font-semibold tracking-tight text-[#FFF8EC]">
               <Users className="size-4 text-[#EAA100]" />
               Visiteurs Anonymes
             </h3>
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-[#1f8457]/25 bg-[#1f8457]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-[#1f8457]">
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-[#1f8457]/25 bg-[#1f8457]/10 px-2.5 py-1 text-caption font-semibold uppercase tracking-widest text-[#1f8457]">
               <span className="relative flex size-1.5">
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-current opacity-60" />
                 <span className="relative inline-flex size-1.5 rounded-full bg-current" />
@@ -533,29 +533,29 @@ export default function AdminDashboardPage() {
           </div>
           {visitors.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 px-4 py-12 text-center">
-              <Users className="size-8 text-[#9aa7b4]/40" />
-              <p className="text-sm text-[#9aa7b4]">Aucun visiteur enregistré pour le moment.</p>
+              <Users className="size-8 text-[#B9C3D0]/40" />
+              <p className="text-sm text-[#B9C3D0]">Aucun visiteur enregistré pour le moment.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {visitors.map((v) => (
                 <div
                   key={v.id}
-                  className="flex items-center justify-between rounded-lg border border-[#EAA100]/5 bg-[#26313d] p-3.5"
+                  className="flex items-center justify-between rounded-lg border border-[#EAA100]/5 bg-[#161D30] p-3.5"
                 >
                   <div className="flex items-center gap-3">
                     <span
                       className={`size-2 rounded-full ${
                         v.status === "online"
                           ? "bg-[#1f8457] shadow-[0_0_8px_rgba(31,132,87,0.5)]"
-                          : "bg-[#9aa7b4]/40"
+                          : "bg-[#B9C3D0]/40"
                       }`}
                     />
-                    <span className="text-sm font-medium text-[#f3e9d6]">{v.pseudonym}</span>
+                    <span className="text-sm font-medium text-[#FFF8EC]">{v.pseudonym}</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]">{v.page}</p>
-                    <p className="text-[9px] font-semibold uppercase text-[#9aa7b4]/50">{v.duration}</p>
+                    <p className="text-caption font-semibold uppercase tracking-widest text-[#B9C3D0]">{v.page}</p>
+                    <p className="text-micro font-semibold uppercase text-[#B9C3D0]/50">{v.duration}</p>
                   </div>
                 </div>
               ))}
@@ -570,27 +570,27 @@ export default function AdminDashboardPage() {
       <section className="mb-6 space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h3 className="font-headline text-xl font-semibold tracking-tight text-[#f3e9d6]">
+            <h3 className="font-headline text-xl font-semibold tracking-tight text-[#FFF8EC]">
               Commandes Actives
             </h3>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-[#9aa7b4]">
+            <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-[#B9C3D0]">
               Flux de production en temps réel
             </p>
           </div>
           <div className="flex flex-wrap gap-2.5">
             <button
               onClick={() => setFilterActive(!filterActive)}
-              className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-[11px] font-semibold uppercase tracking-widest transition-all ${
+              className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-label font-semibold uppercase tracking-widest transition-all ${
                 filterActive
                   ? "border-[#EAA100]/40 bg-[#EAA100]/15 text-[#EAA100]"
-                  : "border-[#EAA100]/15 bg-[#25303a] text-[#9aa7b4] hover:bg-[#EAA100]/10 hover:text-[#f3e9d6]"
+                  : "border-[#EAA100]/15 bg-[#161D30] text-[#B9C3D0] hover:bg-[#EAA100]/10 hover:text-[#FFF8EC]"
               }`}
             >
               {filterActive ? "Filtres actifs" : "Filtrer"}
             </button>
             <Link
               href="/backoffice/orders"
-              className="inline-flex items-center gap-2 rounded-lg bg-[#EAA100] px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest text-[#171b22] transition-all hover:bg-[#EAA100]/90"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#EAA100] px-4 py-2.5 text-label font-bold uppercase tracking-widest text-[#1B2436] transition-all hover:bg-[#EAA100]/90"
             >
               <Package className="size-3.5" />
               Gérer les Commandes
@@ -598,8 +598,8 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-xl border border-[#EAA100]/10 bg-[#25303a]">
-          <div className="hidden grid-cols-[1fr_auto_auto_auto] items-center gap-4 border-b border-[#EAA100]/10 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#9aa7b4] md:grid">
+        <div className="overflow-hidden rounded-xl border border-[#EAA100]/10 bg-[#161D30]">
+          <div className="hidden grid-cols-[1fr_auto_auto_auto] items-center gap-4 border-b border-[#EAA100]/10 px-5 py-3 text-label font-semibold uppercase tracking-wider text-[#B9C3D0] md:grid">
             <span>Client & Modèle</span>
             <span className="w-36">Statut</span>
             <span className="w-48">Progression</span>
@@ -608,14 +608,14 @@ export default function AdminDashboardPage() {
 
           <div className="divide-y divide-[#EAA100]/10">
             {isLoading ? (
-              <div className="flex items-center justify-center gap-3 px-6 py-16 text-sm text-[#9aa7b4]">
+              <div className="flex items-center justify-center gap-3 px-6 py-16 text-sm text-[#B9C3D0]">
                 <span className="size-4 animate-spin rounded-full border-2 border-[#EAA100]/30 border-t-[#EAA100]" />
                 Chargement…
               </div>
             ) : commandes.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
-                <ClipboardList className="size-8 text-[#9aa7b4]/40" />
-                <p className="text-sm italic text-[#9aa7b4]">Aucune commande pour le moment.</p>
+                <ClipboardList className="size-8 text-[#B9C3D0]/40" />
+                <p className="text-sm italic text-[#B9C3D0]">Aucune commande pour le moment.</p>
               </div>
             ) : (
               commandes.slice(0, 8).map((c: CommandeRow) => {
@@ -625,14 +625,14 @@ export default function AdminDashboardPage() {
                   <div
                     key={c.id}
                     onClick={() => router.push(`/backoffice/orders?id=${c.id}`)}
-                    className="grid cursor-pointer grid-cols-1 items-center gap-4 px-5 py-4 transition-colors hover:bg-[#26313d] md:grid-cols-[1fr_auto_auto_auto]"
+                    className="grid cursor-pointer grid-cols-1 items-center gap-4 px-5 py-4 transition-colors hover:bg-[#161D30] md:grid-cols-[1fr_auto_auto_auto]"
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#EAA100]/10 bg-[#26313d] text-[#EAA100]">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#EAA100]/10 bg-[#161D30] text-[#EAA100]">
                         <ClipboardList className="size-4" />
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-[#f3e9d6]">
+                        <p className="truncate text-sm font-medium text-[#FFF8EC]">
                           {c.client_first_name || c.client_email || "Client"}
                           {c.client_id && clientsMap[c.client_id] && (
                             <PrivilegeBadge
@@ -642,7 +642,7 @@ export default function AdminDashboardPage() {
                             />
                           )}
                         </p>
-                        <p className="truncate text-[11px] uppercase tracking-wider text-[#9aa7b4]">
+                        <p className="truncate text-label uppercase tracking-wider text-[#B9C3D0]">
                           {c.designation || "Sans désignation"}
                         </p>
                       </div>
@@ -650,7 +650,7 @@ export default function AdminDashboardPage() {
 
                     <div className="md:w-36">
                       <span
-                        className={`inline-flex rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-widest ${
+                        className={`inline-flex rounded-full border px-3 py-1 text-caption font-semibold uppercase tracking-widest ${
                           c.statut_production === "Livrée"
                             ? "border-[#1f8457]/25 bg-[#1f8457]/10 text-[#1f8457]"
                             : enRetard
@@ -663,11 +663,11 @@ export default function AdminDashboardPage() {
                     </div>
 
                     <div className="flex flex-col gap-1.5 md:w-48">
-                      <div className="flex justify-between text-[10px] font-semibold uppercase tracking-wide text-[#9aa7b4]">
+                      <div className="flex justify-between text-caption font-semibold uppercase tracking-wide text-[#B9C3D0]">
                         <span>{c.pieces_produites} / {c.quantite} pièces</span>
                         <span className="text-[#EAA100]">{pct}%</span>
                       </div>
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#26313d]">
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#161D30]">
                         <div
                           className="h-full rounded-full bg-[#EAA100] transition-all"
                           style={{ width: `${pct}%` }}
@@ -677,12 +677,12 @@ export default function AdminDashboardPage() {
 
                     <div className="md:w-28 md:text-right">
                       {enRetard ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-md border border-[#b14255]/25 bg-[#b14255]/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-[#b14255]">
+                        <span className="inline-flex items-center gap-1.5 rounded-md border border-[#b14255]/25 bg-[#b14255]/10 px-3 py-1.5 text-caption font-semibold uppercase tracking-widest text-[#b14255]">
                           <AlertTriangle className="size-3.5" />
                           En retard
                         </span>
                       ) : (
-                        <span className="text-[10px] font-semibold uppercase tracking-widest text-[#9aa7b4]/40">
+                        <span className="text-caption font-semibold uppercase tracking-widest text-[#B9C3D0]/40">
                           RAS
                         </span>
                       )}
@@ -702,13 +702,13 @@ export default function AdminDashboardPage() {
           className="group relative flex flex-col justify-between overflow-hidden rounded-xl bg-gradient-to-br from-[#2b3744] to-[#1a2530] p-6 md:col-span-2 md:p-8"
         >
           <div className="relative z-10">
-            <h4 className="font-headline text-2xl font-semibold italic text-[#f3e9d6]">
+            <h4 className="font-headline text-2xl font-semibold italic text-[#FFF8EC]">
               Excellence Technique
             </h4>
-            <p className="mt-3 max-w-xs text-sm leading-relaxed text-[#9aa7b4]">
+            <p className="mt-3 max-w-xs text-sm leading-relaxed text-[#B9C3D0]">
               98.4% des commandes passent le contrôle qualité au premier essai ce mois-ci.
             </p>
-            <span className="mt-6 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#EAA100] transition-colors group-hover:text-[#f3e9d6]">
+            <span className="mt-6 inline-flex items-center gap-2 text-caption font-semibold uppercase tracking-[0.2em] text-[#EAA100] transition-colors group-hover:text-[#FFF8EC]">
               Suivi de Production
               <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </span>
@@ -718,13 +718,13 @@ export default function AdminDashboardPage() {
           </div>
         </Link>
 
-        <div className="flex flex-col justify-between rounded-xl border border-[#EAA100]/10 bg-[#25303a] p-6">
+        <div className="flex flex-col justify-between rounded-xl border border-[#EAA100]/10 bg-[#161D30] p-6">
           <AlertTriangle className="size-8 text-[#EAA100]" />
           <div>
-            <p className="font-headline text-4xl font-bold tabular-nums text-[#f3e9d6]">
+            <p className="font-headline text-4xl font-bold tabular-nums text-[#FFF8EC]">
               {String(dashboardData.commandesEnRetard).padStart(2, "0")}
             </p>
-            <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9aa7b4]">
+            <p className="mt-2 text-caption font-semibold uppercase tracking-[0.2em] text-[#B9C3D0]">
               Alertes de production
             </p>
           </div>

@@ -343,6 +343,8 @@ export function Navbar({
 
   // La clochette s'anime quand une nouvelle notification arrive
   const prevUnread = useRef(unreadNotifications);
+  const profileBtnRef = useRef<HTMLButtonElement | null>(null);
+  const notifBtnRef = useRef<HTMLButtonElement | null>(null);
   useEffect(() => {
     const previous = prevUnread.current;
     prevUnread.current = unreadNotifications;
@@ -356,6 +358,24 @@ export function Navbar({
       ease: "inOutSine",
     });
   }, [unreadNotifications]);
+
+  // DSFR menu déroulant : Escape ferme le panneau et rend le focus au déclencheur
+  useEffect(() => {
+    if (!isProfileOpen && !isNotifOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== "Escape") return;
+      if (isProfileOpen) {
+        setIsProfileOpen(false);
+        profileBtnRef.current?.focus();
+      }
+      if (isNotifOpen) {
+        setIsNotifOpen(false);
+        notifBtnRef.current?.focus();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isProfileOpen, isNotifOpen]);
 
   useEffect(() => {
     if (pathname !== "/") {
@@ -483,7 +503,8 @@ export function Navbar({
                     className={`site-nav__link${isCurrent ? " is-current" : ""}`}
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                     aria-expanded={isProfileOpen}
-                    aria-haspopup="true"
+                    aria-haspopup="menu"
+                    ref={profileBtnRef}
                   >
                     <Image
                       className="site-nav__icon"
@@ -495,15 +516,17 @@ export function Navbar({
                     />
                     <div className="flex items-center gap-1">
                       <span>{label}</span>
-                      <span className={`material-symbols-outlined text-[14px] transition-transform duration-200 ${isProfileOpen ? "rotate-180" : ""}`}>expand_more</span>
+                      <span className={`material-symbols-outlined text-body-lg transition-transform duration-200 ${isProfileOpen ? "rotate-180" : ""}`}>expand_more</span>
                     </div>
                   </button>
 
                   {isProfileOpen && (
-                    <div className="absolute top-full right-0 mt-2 w-48 bg-[#25303a] border border-[#EAA100]/20 rounded-xl shadow-xl py-2 z-[110] animate-in fade-in zoom-in-95 duration-200">
+                    <div role="menu" aria-label={label} className="absolute right-0 top-[calc(100%+10px)] z-[130] w-60 max-w-[calc(100vw-1.5rem)] origin-top-right rounded-2xl border border-[#EAA100]/20 bg-[#161D30] p-2 shadow-2xl">
+                      <span aria-hidden="true" className="absolute -top-[5px] right-8 h-2.5 w-2.5 rotate-45 border-l border-t border-[#EAA100]/20 bg-[#161D30]" />
                       <Link
                         href="/mon-profil"
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#EAA100] transition-colors"
+                        role="menuitem"
+                        className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-[#EAA100] transition-colors hover:bg-[#EAA100]/10"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         <span className="material-symbols-outlined text-xl">person</span>
@@ -512,19 +535,21 @@ export function Navbar({
                       {effectiveUserRole === "admin" && (
                         <Link
                           href="/backoffice"
-                          className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#EAA100] transition-colors"
+                          role="menuitem"
+                          className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-[#EAA100] transition-colors hover:bg-[#EAA100]/10"
                           onClick={() => setIsProfileOpen(false)}
                         >
                           <span className="material-symbols-outlined text-xl">admin_panel_settings</span>
                           {messages.navbar.administration}
                         </Link>
                       )}
-                      <div className="h-px bg-[#EAA100]/20 mx-2 my-1"></div>
+                      <div className="mx-2 my-1 h-px bg-[#EAA100]/10"></div>
                       <button
                         type="button"
+                        role="menuitem"
                         onClick={handleSignOut}
                         disabled={isSigningOut}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#2a1a1a] text-sm font-medium text-[#ff6b6b] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                        className="flex w-full items-center gap-3 rounded-xl bg-transparent px-4 py-3 text-sm font-medium text-[#E05252] transition-colors hover:bg-[#E05252]/10 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         <span className="material-symbols-outlined text-xl">logout</span>
                         {isSigningOut ? messages.navbar.signingOut : messages.navbar.signOut}
@@ -573,6 +598,8 @@ export function Navbar({
                 title="Notifications"
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
                 aria-expanded={isNotifOpen}
+                aria-haspopup="dialog"
+                ref={notifBtnRef}
               >
                 <span className="relative inline-flex">
                   <Image
@@ -585,7 +612,7 @@ export function Navbar({
                     loading="lazy"
                   />
                   {unreadNotifications > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#EAA100] px-1 text-[10px] font-bold leading-none text-[#1e2a38]">
+                    <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#EAA100] px-1 text-caption font-bold leading-none text-[#1e2a38]">
                       {unreadNotifications > 9 ? "9+" : unreadNotifications}
                     </span>
                   )}
@@ -594,7 +621,8 @@ export function Navbar({
               </button>
 
               {isNotifOpen && (
-                <div className="absolute top-full right-0 mt-2 w-80 bg-[#25303a] border border-[#EAA100]/20 rounded-xl shadow-xl py-4 px-4 z-[110] animate-in fade-in zoom-in-95 duration-200">
+                <div role="dialog" aria-label={messages.notifications.bellTitle} className="absolute right-0 top-[calc(100%+10px)] z-[130] w-80 max-w-[calc(100vw-1.5rem)] origin-top-right rounded-2xl border border-[#EAA100]/20 bg-[#161D30] p-4 shadow-2xl">
+                  <span aria-hidden="true" className="absolute -top-[5px] right-8 h-2.5 w-2.5 rotate-45 border-l border-t border-[#EAA100]/20 bg-[#161D30]" />
                   <h3 className="text-sm font-semibold text-[#EAA100] mb-3">{messages.notifications.bellTitle}</h3>
 
                   {isPushSupported() && (
@@ -681,7 +709,7 @@ export function Navbar({
 
         <button
           type="button"
-          className="max-[900px]:flex max-[900px]:items-center max-[900px]:justify-center hidden h-10 w-10 rounded-xl transition-colors hover:bg-[#EAA100]/10"
+          className="max-[900px]:flex max-[900px]:items-center max-[900px]:justify-center hidden h-10 w-10 rounded-xl bg-transparent transition-colors hover:bg-[#EAA100]/10"
           onClick={handleToggleBurger}
           aria-label="Menu"
           aria-expanded={isMenuOpen}

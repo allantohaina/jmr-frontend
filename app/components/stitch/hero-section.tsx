@@ -6,6 +6,7 @@ import { EditableImage } from "@/app/components/editable-image";
 import { EditableText } from "@/app/components/editable-text";
 import { useLocale } from "@/app/components/locale-provider";
 import { scrollToSection } from "@/app/lib/scroll";
+import { AnimeReveal, AnimeStagger } from "@/app/components/anime-reveal";
 
 export function HeroSection() {
   const { messages } = useLocale();
@@ -16,17 +17,17 @@ export function HeroSection() {
       <div className="absolute -bottom-20 -left-20 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
       
       <div className="grid lg:grid-cols-12 gap-8 md:gap-12 items-center relative z-10">
-        <div className="lg:col-span-7">
+        <AnimeStagger as="div" className="lg:col-span-7" itemSelector=":scope > *" staggerMs={90} y={26}>
           <div className="mb-4 md:mb-6 flex items-center gap-3">
             <span className="w-10 md:w-12 h-[1px] bg-primary"></span>
-            <span className="font-label text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-primary font-bold">
+            <span className="font-label text-caption md:text-label uppercase tracking-[0.2em] text-primary font-bold">
               <EditableText contentKey="hero.eyebrow" fallback={messages.hero.eyebrow} />
             </span>
           </div>
-          <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-light tracking-tight md:tracking-tight text-primary leading-[1.1] mb-6 md:mb-8">
+          <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-light tracking-tight md:tracking-tight text-[#FFF8EC] leading-[1.1] mb-6 md:mb-8">
             <EditableText contentKey="hero.title" fallback={messages.hero.title} as="span" multiline />
           </h1>
-          <p className="font-body text-base md:text-lg text-on-surface-variant max-w-xl mb-8 md:mb-10 leading-relaxed">
+          <p className="font-body text-base md:text-lg text-[#B9C3D0] max-w-xl mb-8 md:mb-10 leading-relaxed">
             <EditableText contentKey="hero.description" fallback={messages.hero.description} as="span" multiline />
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
@@ -37,9 +38,9 @@ export function HeroSection() {
               <EditableText contentKey="hero.secondaryCta" fallback={messages.hero.secondaryCta} />
             </Link>
           </div>
-        </div>
-        <div className="lg:col-span-5 relative">
-          <div className="aspect-[4/5] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-2xl relative z-0 border-2 md:border-4 border-primary/25">
+        </AnimeStagger>
+        <AnimeReveal as="div" className="lg:col-span-5 relative" y={30} duration={900} delay={250}>
+          <div className="aspect-[4/5] rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl relative z-0 border-2 md:border-4 border-primary/25">
             <EditableImage
               contentKey="hero.image-main"
               className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
@@ -54,8 +55,8 @@ export function HeroSection() {
               src="/human_images/07_coupe_machine_denim.jpg"
               alt="Vue détaillée de la couture professionnelle sur un tissu durable"
             />
-          </div>
-        </div>
+            </div>
+        </AnimeReveal>
       </div>
     </section>
   );

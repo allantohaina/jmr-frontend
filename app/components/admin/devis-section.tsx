@@ -93,7 +93,7 @@ const TABS: TabDef[] = [
     subtitle: "Non envoyés",
     icon: FilePenLine,
     color: "text-[#EAA100]/60",
-    bg: "bg-[#25303a] border-[#EAA100]/10",
+    bg: "bg-[#161D30] border-[#EAA100]/10",
     match: (q) => q.status === "draft",
   },
   {
@@ -132,7 +132,7 @@ function formatQuoteStatusLabel(status?: string | null) {  switch (status) {
 function statusBadgeClass(status?: string | null): string {
   switch (status) {
     case "draft":
-      return "bg-[#25303a] text-[#EAA100]/70 border-[#EAA100]/10 border";
+      return "bg-[#161D30] text-[#EAA100]/70 border-[#EAA100]/10 border";
     case "sent":
       return "bg-amber-50 text-amber-700 border-amber-200 border";
     case "accepted":
@@ -312,7 +312,7 @@ export function DevisSection() {
               className={`text-left rounded-2xl border px-4 py-4 transition-all ${
                 isActive
                   ? `${tab.bg} ${tab.color} shadow-sm`
-                  : "bg-[#25303a] border-[#EAA100]/10 text-[#EAA100]/60 hover:bg-[#25303a]/80 hover:border-[#EAA100]/20"
+                  : "bg-[#161D30] border-[#EAA100]/10 text-[#EAA100]/60 hover:bg-[#161D30]/80 hover:border-[#EAA100]/20"
               }`}
             >
               <div className="flex items-center justify-between">
@@ -322,7 +322,7 @@ export function DevisSection() {
                   }`}
                 />
                 <span
-                  className={`text-[11px] font-bold rounded-full px-2 py-0.5 ${
+                  className={`text-label font-bold rounded-full px-2 py-0.5 ${
                     isActive ? `${tab.bg} ${tab.color}` : "bg-[#1e2a38] text-[#EAA100]/60"
                   }`}
                 >
@@ -330,13 +330,13 @@ export function DevisSection() {
                 </span>
               </div>
               <p
-                className={`mt-3 text-[11px] font-bold uppercase tracking-widest ${
+                className={`mt-3 text-label font-bold uppercase tracking-widest ${
                   isActive ? tab.color : "text-[#EAA100]/70"
                 }`}
               >
                 {tab.label}
               </p>
-              <p className="mt-0.5 text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/30">
+              <p className="mt-0.5 text-micro font-bold uppercase tracking-widest text-[#EAA100]/30">
                 {tab.subtitle}
               </p>
             </button>
@@ -345,7 +345,7 @@ export function DevisSection() {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center rounded-[2rem] border border-[#EAA100]/10 bg-[#25303a] py-10 md:py-16 text-[#EAA100]/50">
+        <div className="flex items-center justify-center rounded-[2rem] border border-[#EAA100]/10 bg-[#161D30] py-10 md:py-16 text-[#EAA100]/50">
           <Loader2 className="mr-3 h-5 w-5 animate-spin" />
           Chargement des devis...
         </div>
@@ -357,7 +357,7 @@ export function DevisSection() {
               displayedQuotes.map((quote) => (
                 <article
                   key={quote.id}
-                  className="rounded-2xl border border-[#EAA100]/10 bg-[#25303a] p-5 shadow-sm"
+                  className="rounded-2xl border border-[#EAA100]/10 bg-[#161D30] p-5 shadow-sm"
                 >
                   <div className="mb-4 flex items-start justify-between gap-4">
                     <div className="min-w-0">
@@ -367,12 +367,12 @@ export function DevisSection() {
                       <p className="truncate text-xs text-[#EAA100]/60">
                         {quote.email || "—"}
                       </p>
-                      <p className="truncate text-[10px] text-[#EAA100]/40">
+                      <p className="truncate text-caption text-[#EAA100]/40">
                         {quote.phone || "—"}
                       </p>
                     </div>
                     <span
-                      className={`shrink-0 rounded-full border px-3 py-1 text-[9px] font-bold uppercase tracking-widest ${statusBadgeClass(
+                      className={`shrink-0 rounded-full border px-3 py-1 text-micro font-bold uppercase tracking-widest ${statusBadgeClass(
                         quote.status
                       )}`}
                     >
@@ -399,7 +399,7 @@ export function DevisSection() {
                   <div className="mt-5 flex flex-wrap items-center gap-3">
                     <Link
                       href={`/backoffice/devis/edit?id=${quote.id}`}
-                      className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-orange-500"
+                      className="inline-flex items-center gap-2 text-caption font-bold uppercase tracking-widest text-orange-500"
                     >
                       Gérer <ChevronRight className="h-4 w-4" />
                     </Link>
@@ -407,7 +407,7 @@ export function DevisSection() {
                       <button
                         onClick={() => convertToCommande(quote)}
                         disabled={convertingId === quote.id}
-                        className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#EAA100] hover:text-[#EAA100] disabled:opacity-50"
+                        className="inline-flex items-center gap-2 text-caption font-bold uppercase tracking-widest text-[#EAA100] hover:text-[#EAA100] disabled:opacity-50"
                       >
                         {convertingId === quote.id ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -419,7 +419,7 @@ export function DevisSection() {
                       <button
                         onClick={() => deleteDraft(quote)}
                         disabled={deletingId === quote.id}
-                        className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-red-500 hover:text-red-600 disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 text-caption font-bold uppercase tracking-widest text-[#F3A3A6] hover:text-red-600 disabled:opacity-50"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                         Supprimer
@@ -429,7 +429,7 @@ export function DevisSection() {
                 </article>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-[#EAA100]/10 bg-[#25303a] p-8 text-center">
+              <div className="rounded-2xl border border-dashed border-[#EAA100]/10 bg-[#161D30] p-8 text-center">
                 <FileText className="mx-auto mb-3 h-8 w-8 text-[#EAA100]/20" />
                 <p className="text-sm italic text-[#EAA100]/40">
                   Aucun devis dans cette section.
@@ -439,27 +439,27 @@ export function DevisSection() {
           </div>
 
           {/* Desktop: tableau */}
-          <div className="hidden overflow-hidden rounded-[2rem] border border-[#EAA100]/10 bg-[#25303a] shadow-sm md:block">
+          <div className="hidden overflow-hidden rounded-[2rem] border border-[#EAA100]/10 bg-[#161D30] shadow-sm md:block">
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr className="border-b border-[#EAA100]/10 bg-[#1e2a38]">
-                    <th className="px-8 py-6 font-label text-[10px] font-bold uppercase tracking-[0.2em] text-[#EAA100]/40">
+                    <th className="px-8 py-6 font-label text-caption font-bold uppercase tracking-[0.2em] text-[#EAA100]/40">
                       Client
                     </th>
-                    <th className="px-8 py-6 font-label text-[10px] font-bold uppercase tracking-[0.2em] text-[#EAA100]/40">
+                    <th className="px-8 py-6 font-label text-caption font-bold uppercase tracking-[0.2em] text-[#EAA100]/40">
                       Contact
                     </th>
-                    <th className="px-8 py-6 font-label text-[10px] font-bold uppercase tracking-[0.2em] text-[#EAA100]/40">
+                    <th className="px-8 py-6 font-label text-caption font-bold uppercase tracking-[0.2em] text-[#EAA100]/40">
                       Objet
                     </th>
-                    <th className="px-8 py-6 font-label text-[10px] font-bold uppercase tracking-[0.2em] text-[#EAA100]/40">
+                    <th className="px-8 py-6 font-label text-caption font-bold uppercase tracking-[0.2em] text-[#EAA100]/40">
                       Montant
                     </th>
-                    <th className="px-8 py-6 font-label text-[10px] font-bold uppercase tracking-[0.2em] text-[#EAA100]/40">
+                    <th className="px-8 py-6 font-label text-caption font-bold uppercase tracking-[0.2em] text-[#EAA100]/40">
                       Statut
                     </th>
-                    <th className="px-8 py-6 text-right font-label text-[10px] font-bold uppercase tracking-[0.2em] text-[#EAA100]/40">
+                    <th className="px-8 py-6 text-right font-label text-caption font-bold uppercase tracking-[0.2em] text-[#EAA100]/40">
                       Actions
                     </th>
                   </tr>
@@ -476,7 +476,7 @@ export function DevisSection() {
                             {quote.titre || quote.name || "—"}
                           </p>
                           {quote.created_at ? (
-                            <p className="text-[10px] text-[#EAA100]/40 mt-0.5">
+                            <p className="text-caption text-[#EAA100]/40 mt-0.5">
                               Créé le{" "}
                               {new Date(
                                 quote.created_at
@@ -488,7 +488,7 @@ export function DevisSection() {
                           <p className="text-xs text-[#EAA100]">
                             {quote.email || "—"}
                           </p>
-                          <p className="text-[10px] text-[#EAA100]/40">
+                          <p className="text-caption text-[#EAA100]/40">
                             {quote.phone || "—"}
                           </p>
                         </td>
@@ -510,7 +510,7 @@ export function DevisSection() {
                           ) : (
                             <Link
                               href={`/backoffice/devis/edit?id=${quote.id}`}
-                              className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/70 hover:text-[#EAA100]"
+                              className="inline-flex items-center gap-1 text-caption font-bold uppercase tracking-widest text-[#EAA100]/70 hover:text-[#EAA100]"
                             >
                               Voir détail
                               <ChevronRight className="h-3.5 w-3.5" />
@@ -519,7 +519,7 @@ export function DevisSection() {
                         </td>
                         <td className="px-8 py-6">
                           <span
-                            className={`rounded-full border px-3 py-1 text-[9px] font-bold uppercase tracking-widest ${statusBadgeClass(
+                            className={`rounded-full border px-3 py-1 text-micro font-bold uppercase tracking-widest ${statusBadgeClass(
                               quote.status
                             )}`}
                           >
@@ -532,7 +532,7 @@ export function DevisSection() {
                               <button
                                 onClick={() => convertToCommande(quote)}
                                 disabled={convertingId === quote.id}
-                                className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-[#EAA100] hover:text-[#EAA100] disabled:opacity-50"
+                                className="inline-flex items-center gap-1 text-caption font-bold uppercase tracking-widest text-[#EAA100] hover:text-[#EAA100] disabled:opacity-50"
                               >
                                 {convertingId === quote.id ? (
                                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -544,7 +544,7 @@ export function DevisSection() {
                               <button
                                 onClick={() => deleteDraft(quote)}
                                 disabled={deletingId === quote.id}
-                                className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 disabled:opacity-50"
+                                className="inline-flex items-center gap-1 text-caption font-bold uppercase tracking-widest text-[#F3A3A6] hover:text-[#F3A3A6] disabled:opacity-50"
                                 title="Supprimer le brouillon"
                               >
                                 {deletingId === quote.id ? (
@@ -556,7 +556,7 @@ export function DevisSection() {
                             )}
                             <Link
                               href={`/backoffice/devis/edit?id=${quote.id}`}
-                              className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-[#EAA100] hover:text-[#EAA100]"
+                              className="inline-flex items-center gap-1 text-caption font-bold uppercase tracking-widest text-[#EAA100] hover:text-[#EAA100]"
                             >
                               Gérer
                               <ChevronRight className="h-3.5 w-3.5" />

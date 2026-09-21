@@ -148,7 +148,7 @@ export function ProformaSection({ id }: { id: string }) {
     return (
       <div className="px-6 md:px-12 py-10 animate-pulse">
         <div className="h-8 w-64 bg-[#EAA100]/10 rounded mb-4"></div>
-        <div className="h-96 bg-[#25303a] rounded-[2rem] border border-[#EAA100]/10"></div>
+        <div className="h-96 bg-[#161D30] rounded-[2rem] border border-[#EAA100]/10"></div>
       </div>
     );
   }
@@ -176,8 +176,8 @@ export function ProformaSection({ id }: { id: string }) {
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
           <div>
-            <h1 style={{ fontSize: 22, fontWeight: 600, margin: "0 0 4px", color: "#f3e9d6" }}>Facture proforma</h1>
-            <div style={{ fontSize: 13, color: "#9aa7b4" }}>
+            <h1 style={{ fontSize: 22, fontWeight: 600, margin: "0 0 4px", color: "#FFF8EC" }}>Facture proforma</h1>
+            <div style={{ fontSize: 13, color: "#B9C3D0" }}>
               Proforma PRO-{String(quote.id).slice(0, 8).toUpperCase()} · Devis DEV-{String(quote.id).slice(0, 8).toUpperCase()} · {quote.name || "Client sans nom"}
             </div>
           </div>
@@ -185,14 +185,14 @@ export function ProformaSection({ id }: { id: string }) {
             type="button"
             onClick={() => window.print()}
             className="print:hidden"
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, borderRadius: 12, border: "1px solid rgba(234, 161, 0,.2)", background: "#25303a", padding: "10px 20px", fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#EAA100", cursor: "pointer" }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, borderRadius: 12, border: "1px solid rgba(234, 161, 0,.2)", background: "#161D30", padding: "10px 20px", fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "#EAA100", cursor: "pointer" }}
           >
             <Printer style={{ height: 16, width: 16 }} /> Imprimer
           </button>
         </div>
 
         {!chiffré ? (
-          <div style={{ background: "#25303a", border: "1px solid rgba(234, 161, 0,.1)", borderRadius: 12, padding: "32px 24px", textAlign: "center", color: "#9aa7b4", fontSize: 14 }}>
+          <div style={{ background: "#161D30", border: "1px solid rgba(234, 161, 0,.1)", borderRadius: 12, padding: "32px 24px", textAlign: "center", color: "#B9C3D0", fontSize: 14 }}>
             Devis non chiffré — la proforma sera disponible une fois le devis chiffré par l&apos;atelier (onglet Tarification).
           </div>
         ) : (

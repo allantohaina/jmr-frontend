@@ -43,7 +43,7 @@ export default function ComplaintsPage() {
 
       <div className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#EAA100]/30" />
-        <input value={search} onChange={(e) => { setSearch(e.target.value); handleSearchChange(e.target.value); }} placeholder="Rechercher par nom, email..." className="w-full rounded-xl bg-[#25303a] pl-11 pr-4 py-3 text-sm text-[#EAA100] placeholder:text-[#EAA100]/30 outline-none border border-[#EAA100]/10 focus:border-[#EAA100]/30" />
+        <input value={search} onChange={(e) => { setSearch(e.target.value); handleSearchChange(e.target.value); }} placeholder="Rechercher par nom, email..." className="w-full rounded-xl bg-[#161D30] pl-11 pr-4 py-3 text-sm text-[#EAA100] placeholder:text-[#EAA100]/30 outline-none border border-[#EAA100]/10 focus:border-[#EAA100]/30" />
       </div>
 
       {loading ? (
@@ -53,7 +53,7 @@ export default function ComplaintsPage() {
       ) : (
         <div className="space-y-3">
           {filtered.map((c) => (
-            <div key={c.id} className="rounded-xl bg-[#25303a] p-4 border border-[#EAA100]/10">
+            <div key={c.id} className="rounded-xl bg-[#161D30] p-4 border border-[#EAA100]/10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EAA100]/20 text-[#EAA100] text-xs font-bold">
@@ -71,7 +71,7 @@ export default function ComplaintsPage() {
                     <p className="text-xs text-[#EAA100]/50">ID: {c.id?.toString().slice(0, 8)}…</p>
                   </div>
                 </div>
-                <span className="text-[10px] text-[#EAA100]/50">{c.email}</span>
+                <span className="text-caption text-[#EAA100]/50">{c.email}</span>
               </div>
             </div>
           ))}

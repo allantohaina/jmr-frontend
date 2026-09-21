@@ -13,6 +13,7 @@ export * from './editable-text';
 export * from './footer';
 export * from './home-hero-video';
 export * from './home-hero';
+export * from './home-showcase';
 export * from './locale-provider';
 export * from './mon-profil-section';
 export * from './navbar';

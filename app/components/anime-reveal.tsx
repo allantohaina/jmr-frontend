@@ -333,3 +333,96 @@ export function AnimeGrow({
     </div>
   );
 }
+
+type AnimeCountUpProps = {
+  children: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+  /** Durée en ms */
+  duration?: number;
+  /** Easing anime.js */
+  ease?: string;
+};
+
+/**
+ * Compte de 0 jusqu'au nombre trouvé dans le texte (ex. "100%")
+ * quand l'élément entre dans le viewport. Compatible CMS : le texte
+ * d'origine est préservé, seul le nombre défile. Sans chiffre :
+ * simple fondu.
+ *
+ * @example
+ * <AnimeCountUp className="stat">100%</AnimeCountUp>
+ */
+export function AnimeCountUp({
+  children,
+  className,
+  style,
+  duration = 1400,
+  ease = "outExpo",
+}: AnimeCountUpProps) {
+  const ref = useRef<HTMLSpanElement | null>(null);
+
+  useIsomorphicLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || shouldSkipAnimation()) return;
+
+    const original = el.textContent ?? "";
+    const match = original.match(/\d[\d\s]*/);
+
+    const play = () => animation.play();
+    let animation: { play: () => void; revert: () => void };
+
+    if (!match) {
+      set(el, { opacity: 0 });
+      animation = animate(el, {
+        opacity: [0, 1],
+        duration: 600,
+        ease,
+        autoplay: false,
+      });
+    } else {
+      const target = parseInt(match[0].replace(/\s/g, ""), 10);
+      const counter = { v: 0 };
+      el.textContent = original.replace(match[0], "0");
+      animation = animate(counter, {
+        v: target,
+        duration,
+        ease,
+        autoplay: false,
+        onUpdate: () => {
+          el.textContent = original.replace(match[0], String(Math.round(counter.v)));
+        },
+      });
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      play();
+      return () => {
+        animation.revert();
+      };
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          play();
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.4 },
+    );
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      animation.revert();
+    };
+  }, [duration, ease]);
+
+  return (
+    <span ref={ref} className={className} style={style}>
+      {children}
+    </span>
+  );
+}

@@ -22,7 +22,7 @@ const roleConfig = {
     subtitle: "Espace de gestion JMR Textile",
     icon: "/analytics_chart.svg",
     redirect: "/backoffice",
-    gradient: "from-[#1a2332] to-[#25303a]",
+    gradient: "from-[#1E2A38] to-[#161D30]",
     accent: "#EAA100",
   },
   worker: {
@@ -30,7 +30,7 @@ const roleConfig = {
     subtitle: "Espace production JMR Textile",
     icon: "/icone-production.svg",
     redirect: "/atelier",
-    gradient: "from-[#1a2332] to-[#25303a]",
+    gradient: "from-[#1E2A38] to-[#161D30]",
     accent: "#EAA100",
   },
 };
@@ -102,7 +102,7 @@ export default function StaffLoginPage() {
 
   if (!isMounted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#1a2332]">
+      <div className="flex min-h-screen items-center justify-center bg-[#1E2A38]">
         <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#EAA100]">Chargement...</span>
       </div>
     );
@@ -123,7 +123,7 @@ export default function StaffLoginPage() {
           />
           <div className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-4 py-2 mb-4">
             <Image src={config.icon} alt="" width={18} height={18} unoptimized className="opacity-80" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">
+            <span className="text-caption font-bold uppercase tracking-[0.2em] text-white/60">
               {config.title}
             </span>
           </div>
@@ -135,14 +135,14 @@ export default function StaffLoginPage() {
 
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
           {error && (
-            <div className="mb-6 rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400" role="alert">
+            <div className="mb-6 rounded-xl bg-[#E05252]/10 border border-[#E05252]/20 p-4 text-sm text-[#F3A3A6]" role="alert">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="staff-email" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">
+              <label htmlFor="staff-email" className="mb-2 block text-caption font-bold uppercase tracking-[0.2em] text-white/50">
                 Email
               </label>
               <input
@@ -158,7 +158,7 @@ export default function StaffLoginPage() {
             </div>
 
             <div>
-              <label htmlFor="staff-password" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">
+              <label htmlFor="staff-password" className="mb-2 block text-caption font-bold uppercase tracking-[0.2em] text-white/50">
                 Mot de passe
               </label>
               <input
@@ -176,20 +176,20 @@ export default function StaffLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-lg bg-[#EAA100] py-4 text-xs font-bold uppercase tracking-[0.3em] text-[#1a2332] shadow-lg shadow-[#EAA100]/20 transition-all duration-200 hover:bg-[#EAA100] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-lg bg-[#EAA100] py-4 text-xs font-bold uppercase tracking-[0.3em] text-[#1E2A38] shadow-lg shadow-[#EAA100]/20 transition-all duration-200 hover:bg-[#EAA100] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLoading ? "Connexion..." : "Se connecter"}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <Link href="/" className="text-[11px] text-white/30 hover:text-white/50 transition-colors">
+            <Link href="/" className="text-label text-white/30 hover:text-white/50 transition-colors">
               ← Retour au site
             </Link>
           </div>
         </div>
 
-        <p className="mt-8 text-center text-[10px] text-white/20 uppercase tracking-[0.15em]">
+        <p className="mt-8 text-center text-caption text-white/20 uppercase tracking-[0.15em]">
           JMR Textile &copy; {new Date().getFullYear()}
         </p>
       </div>

@@ -34,7 +34,7 @@ export function DocumentPreview({ file }: { file: FileAttachment }) {
           </PdfDocument>
         </Suspense>
       )}
-      {pages ? <p className="px-2 pt-2 text-[10px] font-bold uppercase tracking-widest text-[#163526]/45">PDF · {pages} page{pages > 1 ? "s" : ""}</p> : null}
+      {pages ? <p className="px-2 pt-2 text-caption font-bold uppercase tracking-widest text-[#163526]/45">PDF · {pages} page{pages > 1 ? "s" : ""}</p> : null}
     </div>
   );
 }
@@ -60,7 +60,7 @@ export function CsvPreview({ file }: { file: File }) {
       {error ? <p className="mt-2 text-xs text-red-600">{error}</p> : null}
       {rows.length > 0 ? (
         <div className="mt-3 overflow-x-auto">
-          <table className="min-w-full text-left text-[11px] text-[#163526]/70">
+          <table className="min-w-full text-left text-label text-[#163526]/70">
             <tbody>{rows.map((row, index) => <tr key={index} className="border-t border-[#163526]/10">{row.map((cell, cellIndex) => <td key={cellIndex} className="px-2 py-1.5">{cell}</td>)}</tr>)}</tbody>
           </table>
         </div>

@@ -59,7 +59,7 @@ export function AtelierQC() {
 
   return (
     <div className="max-w-4xl mx-auto animate-in fade-in duration-500">
-      <div className="bg-[#25303a] rounded-[2.5rem] shadow-xl border border-[#EAA100]/5 overflow-hidden">
+      <div className="bg-[#161D30] rounded-[2.5rem] shadow-xl border border-[#EAA100]/5 overflow-hidden">
         <div className="p-10 bg-[#EAA100] text-[#1e2a38] flex justify-between items-center">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-[#1e2a38]/10 flex items-center justify-center">
@@ -67,11 +67,11 @@ export function AtelierQC() {
             </div>
             <div>
               <h2 className="font-headline text-3xl">Contrôle Qualité</h2>
-              <p className="text-[10px] uppercase tracking-widest font-bold opacity-80">Validation finale avant expédition</p>
+              <p className="text-caption uppercase tracking-widest font-bold opacity-80">Validation finale avant expédition</p>
             </div>
           </div>
           <div className="text-right hidden md:block">
-            <p className="text-[10px] uppercase tracking-widest font-bold opacity-60">Progression</p>
+            <p className="text-caption uppercase tracking-widest font-bold opacity-60">Progression</p>
             <p className="text-3xl font-headline font-bold">{Math.round(progress)}%</p>
           </div>
         </div>
@@ -79,7 +79,7 @@ export function AtelierQC() {
         <form onSubmit={handleSubmit} className="p-10 space-y-10">
           <div className="space-y-6">
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-3 block">Numéro de Commande / Lot</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-3 block">Numéro de Commande / Lot</label>
               <input
                 type="text"
                 value={orderId}
@@ -90,7 +90,7 @@ export function AtelierQC() {
             </div>
 
             <div className="space-y-3">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-3 block">Checklist de Vérification</label>
+              <label className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-3 block">Checklist de Vérification</label>
               <div className="grid md:grid-cols-2 gap-4">
                 {steps.map(step => (
                   <button
@@ -99,12 +99,12 @@ export function AtelierQC() {
                     onClick={() => toggleStep(step.id)}
                     className={`flex items-center gap-4 p-5 rounded-2xl border transition-all text-left ${
                       step.checked 
-                        ? "bg-green-500/10 border-green-500/20 text-green-400 shadow-sm" 
+                        ? "bg-[#1F8457]/10 border-[#1F8457]/20 text-[#5CB87D] shadow-sm" 
                         : "bg-[#1e2a38] border-[#EAA100]/5 text-[#EAA100]/40 hover:border-[#EAA100]/20"
                     }`}
                   >
                     {step.checked ? (
-                      <CheckSquare className="w-6 h-6 text-green-400 flex-shrink-0" />
+                      <CheckSquare className="w-6 h-6 text-[#5CB87D] flex-shrink-0" />
                     ) : (
                       <Square className="w-6 h-6 opacity-20 flex-shrink-0" />
                     )}
@@ -114,12 +114,12 @@ export function AtelierQC() {
               </div>
             </div>
 
-            <div className="p-6 bg-blue-500/5 border border-blue-500/10 rounded-2xl flex gap-4">
-              <Camera className="w-6 h-6 text-blue-400 flex-shrink-0" />
+            <div className="p-6 bg-[#5C9AD9]/5 border border-[#5C9AD9]/10 rounded-2xl flex gap-4">
+              <Camera className="w-6 h-6 text-[#5C9AD9] flex-shrink-0" />
               <div>
-                <p className="text-sm font-bold text-blue-100 mb-1">Preuve visuelle requise</p>
-                <p className="text-xs text-blue-200/60">Prenez une photo du produit fini avec son étiquette pour les archives de l&apos;atelier.</p>
-                <button type="button" className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-blue-600 transition-colors">
+                <p className="text-sm font-bold text-[#D6E9F4] mb-1">Preuve visuelle requise</p>
+                <p className="text-xs text-[#D6E9F4]/60">Prenez une photo du produit fini avec son étiquette pour les archives de l&apos;atelier.</p>
+                <button type="button" className="mt-4 px-6 py-2 bg-[#5C9AD9] text-white rounded-xl text-caption font-bold uppercase tracking-widest hover:brightness-110 transition-colors">
                   Téléverser Photo
                 </button>
               </div>
@@ -129,14 +129,14 @@ export function AtelierQC() {
           <div className="pt-10 border-t border-[#EAA100]/10 flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2 text-[#EAA100]/40">
               <AlertCircle className="w-4 h-4" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">Le rapport sera archivé et visible par l&apos;admin</span>
+              <span className="text-caption font-bold uppercase tracking-widest">Le rapport sera archivé et visible par l&apos;admin</span>
             </div>
             <button
               type="submit"
               disabled={isSubmitting || progress < 100}
-              className={`w-full md:w-auto px-12 py-5 rounded-2xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-lg ${
+              className={`w-full md:w-auto px-12 py-5 rounded-2xl text-caption font-bold uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-lg ${
                 progress === 100 
-                  ? "bg-green-600 text-white hover:bg-green-700 active:scale-[0.98]" 
+                  ? "bg-[#1F8457] text-white hover:bg-green-700 active:scale-[0.98]" 
                   : "bg-white/5 text-white/20 cursor-not-allowed border border-white/10"
               }`}
             >

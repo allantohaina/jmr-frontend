@@ -178,7 +178,7 @@ export default function AdminCommandesPage() {
           <p className="text-[#EAA100]/40 text-xs font-bold uppercase tracking-widest mt-1">Suivi production · Atelier JMR</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">
+          <span className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40">
             {commandesEnCours.length} en cours
           </span>
         </div>
@@ -194,15 +194,15 @@ export default function AdminCommandesPage() {
         {STATUTS_PRODUCTION.map((s) => {
           const count = commandes.filter((c) => c.statut_production === s).length;
           return (
-            <div key={s} className="bg-[#25303a] rounded-2xl border border-[#EAA100]/10 p-4 shadow-sm">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">{s}</p>
+            <div key={s} className="bg-[#161D30] rounded-2xl border border-[#EAA100]/10 p-4 shadow-sm">
+              <p className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">{s}</p>
               <p className="text-2xl font-headline font-bold text-[#EAA100]">{count}</p>
             </div>
           );
         })}
       </div>
 
-      <div className="bg-[#25303a] rounded-[2rem] overflow-hidden shadow-sm border border-[#EAA100]/10">
+      <div className="bg-[#161D30] rounded-[2rem] overflow-hidden shadow-sm border border-[#EAA100]/10">
         <div className="p-6 border-b border-[#EAA100]/10">
           <h3 className="font-headline text-lg text-[#EAA100]">Toutes les commandes</h3>
         </div>
@@ -219,13 +219,13 @@ export default function AdminCommandesPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-1">
                       <span className="font-mono text-xs text-[#EAA100]/40">{c.numero}</span>
-                      <span className={`px-2 py-0.5 text-[9px] font-bold uppercase rounded-full border ${
+                      <span className={`px-2 py-0.5 text-micro font-bold uppercase rounded-full border ${
                         c.statut_production === "Livrée" ? "bg-green-50 text-green-700 border-green-100" :
                         c.statut_production === "Prête" ? "bg-blue-50 text-blue-700 border-blue-100" :
                         enRetard(c) ? "bg-red-50 text-red-600 border-red-100" :
                         "bg-orange-50 text-orange-600 border-orange-100"
                       }`}>{c.statut_production}</span>
-                      {enRetard(c) && <span className="text-[9px] text-red-500 font-bold">EN RETARD</span>}
+                      {enRetard(c) && <span className="text-micro text-[#F3A3A6] font-bold">EN RETARD</span>}
                     </div>
                     <p className="text-sm font-bold text-[#EAA100] truncate">
                       {c.client_first_name || c.client_email || "Client"} — {c.designation || "Sans désignation"}
@@ -237,7 +237,7 @@ export default function AdminCommandesPage() {
                         />
                       )}
                     </p>
-                    <div className="flex items-center gap-4 mt-1 text-[10px] text-[#EAA100]/40 font-medium">
+                    <div className="flex items-center gap-4 mt-1 text-caption text-[#EAA100]/40 font-medium">
                       <span>Qté: {c.quantite}</span>
                       <span>Produites: {c.pieces_produites}</span>
                       {c.date_livraison_prevue && <span>Livr. prévue: {c.date_livraison_prevue}</span>}
@@ -270,19 +270,19 @@ export default function AdminCommandesPage() {
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={() => { selectCommande(selectedId === c.id ? null : c.id); setShowDoc(false); }}
-                      className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100] hover:underline"
+                      className="text-micro font-bold uppercase tracking-widest text-[#EAA100] hover:underline"
                     >
                       {selectedId === c.id ? "Fermer" : "Détails"}
                     </button>
                     <button
                       onClick={() => { selectCommande(c.id); setShowDoc(true); }}
-                      className="rounded-lg border border-[#EAA100]/15 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-[#EAA100] hover:border-[#EAA100] hover:text-[#EAA100] transition-colors"
+                      className="rounded-lg border border-[#EAA100]/15 px-3 py-1.5 text-micro font-bold uppercase tracking-widest text-[#EAA100] hover:border-[#EAA100] hover:text-[#EAA100] transition-colors"
                     >
                       Bon de commande
                     </button>
                     <button
                       onClick={() => openActions(c)}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#163526] px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-[#EAA100] hover:bg-[#1e4234] transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#163526] px-3 py-1.5 text-micro font-bold uppercase tracking-widest text-[#EAA100] hover:bg-[#1e4234] transition-colors"
                     >
                       <CreditCard className="h-3 w-3" /> Paiement
                     </button>
@@ -293,7 +293,7 @@ export default function AdminCommandesPage() {
                   <div className="px-6 pb-5 pt-0 border-t border-[#EAA100]/10 bg-[#1e2a38]/50">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 text-sm">
                       <div>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Client</p>
+                        <p className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Client</p>
                         <p className="font-medium text-[#EAA100]">
                           {c.client_first_name || c.client_email || "—"}
                           {c.client_id && clientsMap[c.client_id] && (
@@ -306,23 +306,23 @@ export default function AdminCommandesPage() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Désignation</p>
+                        <p className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Désignation</p>
                         <p className="text-[#EAA100]">{c.designation || "—"}</p>
                       </div>
                       <div>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Pièces produites</p>
+                        <p className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Pièces produites</p>
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-[#EAA100]">{c.pieces_produites}</span>
                           <span className="text-[#EAA100]/40">/ {c.quantite}</span>
                         </div>
                       </div>
                       <div>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Date livraison prévue</p>
+                        <p className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Date livraison prévue</p>
                         <p className="text-[#EAA100]">{c.date_livraison_prevue || "—"}</p>
                       </div>
                       {c.notes && (
                         <div className="col-span-full">
-                          <p className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Notes</p>
+                          <p className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Notes</p>
                           <p className="text-[#EAA100]/70 text-xs italic">{c.notes}</p>
                         </div>
                       )}
@@ -340,21 +340,21 @@ export default function AdminCommandesPage() {
 
       {selectedCommande && showDoc && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#0b1320]/70 p-0 sm:p-6 backdrop-blur-sm print:static print:bg-transparent print:p-0 print:backdrop-blur-0"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#0A0E19]/70 p-0 sm:p-6 backdrop-blur-sm print:static print:bg-transparent print:p-0 print:backdrop-blur-0"
           role="presentation"
           onMouseDown={(e) => { if (e.target === e.currentTarget) setShowDoc(false); }}
         >
           <div className="relative w-full max-w-[920px] max-h-[96vh] overflow-y-auto bg-transparent sm:rounded-2xl print:max-h-none print:overflow-visible">
             <div className="sticky top-0 z-20 flex items-center justify-between gap-3 bg-[#163526]/95 px-4 py-3 sm:px-6 sm:py-4 backdrop-blur border-b border-[#EAA100]/15 print:hidden">
               <div>
-                <p className="text-[9px] font-bold uppercase tracking-[.22em] text-[#EAA100]/45">Bon de commande</p>
+                <p className="text-micro font-bold uppercase tracking-[.22em] text-[#EAA100]/45">Bon de commande</p>
                 <h2 className="font-headline text-lg text-[#EAA100]">{selectedCommande.numero}</h2>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="inline-flex items-center gap-2 rounded-lg border border-[#EAA100]/40 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[#EAA100] hover:bg-[#EAA100]/15 transition"
+                  className="inline-flex items-center gap-2 rounded-lg border border-[#EAA100]/40 px-3 py-2 text-caption font-bold uppercase tracking-widest text-[#EAA100] hover:bg-[#EAA100]/15 transition"
                 >
                   <Printer className="h-4 w-4" /> Imprimer
                 </button>
@@ -396,14 +396,14 @@ export default function AdminCommandesPage() {
 
       {actionsCommande && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0b1320]/70 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0A0E19]/70 p-4 backdrop-blur-sm"
           role="presentation"
           onMouseDown={(e) => { if (e.target === e.currentTarget) setActionsCommande(null); }}
         >
-          <div className="relative w-full max-w-lg bg-[#25303a] rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-lg bg-[#161D30] rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <p className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40">Actions commande</p>
+                <p className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40">Actions commande</p>
                 <h3 className="font-headline text-lg text-[#EAA100]">{actionsCommande.numero}</h3>
                 <p className="text-xs text-[#EAA100]/50 mt-1">{actionsCommande.designation || "—"} · {Number(actionsCommande.total).toLocaleString("fr-FR")} Ar</p>
               </div>
@@ -412,7 +412,7 @@ export default function AdminCommandesPage() {
 
             <div className="space-y-4">
               <div className="rounded-xl bg-[#1e2a38] border border-[#EAA100]/10 p-4">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2">Lien de paiement client</p>
+                <p className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2">Lien de paiement client</p>
                 {!lienGenere ? (
                   <div className="flex gap-2">
                     <input
@@ -422,7 +422,7 @@ export default function AdminCommandesPage() {
                       placeholder="Montant (Ar)"
                       className="flex-1 rounded-lg border border-[#EAA100]/15 px-3 py-2 text-sm text-[#EAA100]"
                     />
-                    <button onClick={generateLien} disabled={busyAction} className="inline-flex items-center gap-1 rounded-lg bg-[#163526] px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-[#EAA100] disabled:opacity-50">
+                    <button onClick={generateLien} disabled={busyAction} className="inline-flex items-center gap-1 rounded-lg bg-[#163526] px-4 py-2 text-micro font-bold uppercase tracking-widest text-[#EAA100] disabled:opacity-50">
                       {busyAction ? <Loader className="h-3 w-3 animate-spin" /> : <CreditCard className="h-3 w-3" />} Générer
                     </button>
                   </div>
@@ -430,7 +430,7 @@ export default function AdminCommandesPage() {
                   <div className="space-y-2">
                     <p className="text-xs text-[#EAA100]/70">Lien créé · {Number(lienGenere.montant).toLocaleString("fr-FR")} Ar</p>
                     <div className="flex items-center gap-2">
-                      <input readOnly value={lienGenere.url || ""} className="flex-1 rounded-lg border border-[#EAA100]/15 px-3 py-2 text-xs text-[#EAA100]/70 bg-[#25303a]" />
+                      <input readOnly value={lienGenere.url || ""} className="flex-1 rounded-lg border border-[#EAA100]/15 px-3 py-2 text-xs text-[#EAA100]/70 bg-[#161D30]" />
                       <button onClick={() => copyLien(lienGenere.url || "")} className="rounded-lg border border-[#EAA100]/15 px-3 py-2 text-[#EAA100] hover:border-[#EAA100]">
                         {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
                       </button>
@@ -441,7 +441,7 @@ export default function AdminCommandesPage() {
               </div>
 
               <div className="rounded-xl bg-[#1e2a38] border border-[#EAA100]/10 p-4">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2">Reçu de paiement (PDF)</p>
+                <p className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2">Reçu de paiement (PDF)</p>
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
@@ -469,7 +469,7 @@ export default function AdminCommandesPage() {
                         alert(e instanceof Error ? e.message : "Erreur PDF");
                       }
                     }}
-                    className="inline-flex items-center gap-1 rounded-lg border border-[#EAA100]/15 px-3 py-2 text-[9px] font-bold uppercase tracking-widest text-[#EAA100] hover:border-[#EAA100] hover:text-[#EAA100]"
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#EAA100]/15 px-3 py-2 text-micro font-bold uppercase tracking-widest text-[#EAA100] hover:border-[#EAA100] hover:text-[#EAA100]"
                   >
                     <Receipt className="h-3 w-3" /> Télécharger / voir le reçu
                   </button>
@@ -477,9 +477,9 @@ export default function AdminCommandesPage() {
               </div>
 
               <div className="rounded-xl bg-[#1e2a38] border border-[#EAA100]/10 p-4">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2">QR code de suivi</p>
+                <p className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2">QR code de suivi</p>
                 {!qrUrl ? (
-                  <button onClick={showQr} disabled={busyAction} className="inline-flex items-center gap-1 rounded-lg bg-[#163526] px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-[#EAA100] disabled:opacity-50">
+                  <button onClick={showQr} disabled={busyAction} className="inline-flex items-center gap-1 rounded-lg bg-[#163526] px-4 py-2 text-micro font-bold uppercase tracking-widest text-[#EAA100] disabled:opacity-50">
                     {busyAction ? <Loader className="h-3 w-3 animate-spin" /> : <QrCode className="h-3 w-3" />} Afficher le QR
                   </button>
                 ) : (
@@ -491,7 +491,7 @@ export default function AdminCommandesPage() {
                         href={safeUrl(qrUrl) || undefined}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100] hover:underline"
+                        className="text-micro font-bold uppercase tracking-widest text-[#EAA100] hover:underline"
                       >
                         Ouvrir la page de suivi →
                       </a>
@@ -510,7 +510,7 @@ export default function AdminCommandesPage() {
 function LinkComponent({ to, label }: { to: string; label: string }) {
   const href = safeUrl(to);
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="inline-block text-[9px] font-bold uppercase tracking-widest text-[#EAA100] hover:underline">
+    <a href={href} target="_blank" rel="noopener noreferrer" className="inline-block text-micro font-bold uppercase tracking-widest text-[#EAA100] hover:underline">
       {label} →
     </a>
   );

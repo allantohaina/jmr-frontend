@@ -50,19 +50,19 @@ export default function TasksPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="rounded-xl bg-[#25303a] p-4 border border-green-500/20">
-          <p className="text-xs text-green-400 uppercase tracking-widest font-bold">Présents</p>
-          <p className="text-3xl font-bold text-green-400 mt-1">{presentCount}</p>
+        <div className="rounded-xl bg-[#161D30] p-4 border border-[#1F8457]/20">
+          <p className="text-xs text-[#5CB87D] uppercase tracking-widest font-bold">Présents</p>
+          <p className="text-3xl font-bold text-[#5CB87D] mt-1">{presentCount}</p>
         </div>
-        <div className="rounded-xl bg-[#25303a] p-4 border border-red-500/20">
-          <p className="text-xs text-red-400 uppercase tracking-widest font-bold">Absents</p>
-          <p className="text-3xl font-bold text-red-400 mt-1">{employees.length - presentCount}</p>
+        <div className="rounded-xl bg-[#161D30] p-4 border border-[#E05252]/20">
+          <p className="text-xs text-[#F3A3A6] uppercase tracking-widest font-bold">Absents</p>
+          <p className="text-3xl font-bold text-[#F3A3A6] mt-1">{employees.length - presentCount}</p>
         </div>
       </div>
 
       <div className="flex gap-2">
         {[null, "present", "absent"].map((s) => (
-          <button key={s || "all"} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === s || (!statusFilter && !s) ? "bg-[#EAA100] text-[#1e2a38]" : "bg-[#25303a] text-[#EAA100]/60 hover:bg-[#EAA100]/10"}`}>
+          <button key={s || "all"} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-caption font-bold uppercase tracking-widest transition-colors ${statusFilter === s || (!statusFilter && !s) ? "bg-[#EAA100] text-[#1e2a38]" : "bg-[#161D30] text-[#EAA100]/60 hover:bg-[#EAA100]/10"}`}>
             {s === "present" ? "Présents" : s === "absent" ? "Absents" : "Tous"}
           </button>
         ))}
@@ -77,9 +77,9 @@ export default function TasksPage() {
       ) : (
         <div className="space-y-3">
           {filteredEmployees.map((e) => (
-            <div key={e.id} className="rounded-xl bg-[#25303a] p-4 border border-[#EAA100]/10 flex items-center justify-between">
+            <div key={e.id} className="rounded-xl bg-[#161D30] p-4 border border-[#EAA100]/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className={`h-3 w-3 rounded-full ${e.present ? "bg-green-400" : "bg-red-400"}`} />
+                <span className={`h-3 w-3 rounded-full ${e.present ? "bg-[#1F8457]" : "bg-[#E05252]"}`} />
                 <div>
                   <p className="font-semibold text-[#EAA100]">{e.first_name} {e.last_name}</p>
                   <p className="text-xs text-[#EAA100]/50">{e.email}</p>
@@ -88,7 +88,7 @@ export default function TasksPage() {
               <button
                 onClick={() => togglePresent(e.id, e.present)}
                 disabled={togglingId === e.id}
-                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50 ${e.present ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" : "bg-green-500/20 text-green-400 hover:bg-green-500/30"}`}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-caption font-bold uppercase tracking-widest transition-colors disabled:opacity-50 ${e.present ? "bg-[#E05252]/20 text-[#F3A3A6] hover:bg-[#E05252]/30" : "bg-[#1F8457]/20 text-[#5CB87D] hover:bg-[#1F8457]/30"}`}
               >
                 {togglingId === e.id ? <LoaderIcon className="h-3 w-3 animate-spin" /> : e.present ? <XCircle className="h-3 w-3" /> : <CheckCircle className="h-3 w-3" />}
                 {e.present ? "Absent" : "Présent"}

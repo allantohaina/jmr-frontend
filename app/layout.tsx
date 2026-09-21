@@ -1,4 +1,14 @@
 import type { Metadata } from "next";
+import {
+  Fraunces,
+  IBM_Plex_Sans,
+  Inter,
+  JetBrains_Mono,
+  Manrope,
+  Noto_Serif,
+  Playfair_Display,
+  Sora,
+} from "next/font/google";
 import "./globals.css";
 import {
   ScrollReveal,
@@ -35,6 +45,67 @@ export const viewport = {
   viewportFit: "cover",
 } as const;
 
+const manrope = Manrope({
+  subsets: ["latin", "latin-ext"],
+  weight: ["200", "300", "400", "500", "600"],
+  variable: "--font-manrope",
+});
+
+const notoSerif = Noto_Serif({
+  subsets: ["latin", "latin-ext"],
+  weight: ["300", "400", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-noto-serif",
+});
+
+const ibmPlexSans = IBM_Plex_Sans({
+  subsets: ["latin", "latin-ext"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-ibm-plex-sans",
+});
+
+const sora = Sora({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-sora",
+});
+
+const inter = Inter({
+  subsets: ["latin", "latin-ext"],
+  weight: "variable",
+  variable: "--font-inter",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-playfair",
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin", "latin-ext"],
+  weight: "variable",
+  axes: ["opsz"],
+  variable: "--font-brand",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500"],
+  variable: "--font-jbmono",
+});
+
+const fontVariables = [
+  manrope.variable,
+  notoSerif.variable,
+  ibmPlexSans.variable,
+  sora.variable,
+  inter.variable,
+  playfair.variable,
+  fraunces.variable,
+  jetbrainsMono.variable,
+].join(" ");
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -49,6 +120,7 @@ export default async function RootLayout({
     <html
       lang={initialLocale}
       data-theme="dark"
+      className={fontVariables}
       style={{ colorScheme: "dark" }}
       suppressHydrationWarning
     >
@@ -59,13 +131,8 @@ export default async function RootLayout({
         <meta httpEquiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
         <meta httpEquiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()" />
         <meta httpEquiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preload" as="image" href="/human_images/08_salle_machines_coudre.jpg" fetchPriority="high" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Inter:wght@100..900&family=Manrope:wght@200;300;400;500;600&family=Noto+Serif:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Playfair+Display:wght@400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap"
-        />
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"

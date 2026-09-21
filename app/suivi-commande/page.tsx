@@ -114,7 +114,7 @@ export default function SuiviCommandePage() {
       <header className="border-b border-[#EAA100]/10">
         <div className="mx-auto max-w-3xl px-6 py-6 flex items-center justify-between">
           <Link href="/" className="font-headline text-2xl text-[#EAA100]">JMR Atelier</Link>
-          <Link href="/" className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#EAA100]/60 hover:text-[#EAA100]">← Retour au site</Link>
+          <Link href="/" className="text-caption font-bold uppercase tracking-[0.2em] text-[#EAA100]/60 hover:text-[#EAA100]">← Retour au site</Link>
         </div>
       </header>
 
@@ -126,30 +126,30 @@ export default function SuiviCommandePage() {
 
         <form onSubmit={lookup} className="mt-10 space-y-4">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#EAA100]/50">Numéro de commande</label>
+            <label className="text-caption font-bold uppercase tracking-[0.2em] text-[#EAA100]/50">Numéro de commande</label>
             <input
               value={numero}
               onChange={(e) => setNumero(e.target.value)}
               placeholder="ex : CMD-AB12CD34"
               required
-              className="mt-2 w-full rounded-xl border border-[#EAA100]/20 bg-[#25303a] px-4 py-3 text-sm text-[#EAA100] placeholder:text-[#EAA100]/30 focus:border-[#EAA100] focus:outline-none"
+              className="mt-2 w-full rounded-xl border border-[#EAA100]/20 bg-[#161D30] px-4 py-3 text-sm text-[#EAA100] placeholder:text-[#EAA100]/30 focus:border-[#EAA100] focus:outline-none"
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#EAA100]/50">Email utilisé lors de la commande</label>
+            <label className="text-caption font-bold uppercase tracking-[0.2em] text-[#EAA100]/50">Email utilisé lors de la commande</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="vous@exemple.com"
               required
-              className="mt-2 w-full rounded-xl border border-[#EAA100]/20 bg-[#25303a] px-4 py-3 text-sm text-[#EAA100] placeholder:text-[#EAA100]/30 focus:border-[#EAA100] focus:outline-none"
+              className="mt-2 w-full rounded-xl border border-[#EAA100]/20 bg-[#161D30] px-4 py-3 text-sm text-[#EAA100] placeholder:text-[#EAA100]/30 focus:border-[#EAA100] focus:outline-none"
             />
           </div>
           <button
             type="submit"
             disabled={isLoading}
-            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#EAA100] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#1a1204] hover:brightness-105 disabled:opacity-50"
+            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#EAA100] px-6 py-3 text-label font-bold uppercase tracking-[0.2em] text-[#1B2436] hover:brightness-105 disabled:opacity-50"
           >
             {isLoading ? <Loader className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
             Suivre ma commande
@@ -342,20 +342,20 @@ export default function SuiviCommandePage() {
 
 const resultStyles = `
 .suivi-scope{
-  --navy-950:#0f1826;
-  --navy-900:#1b263c;
+  --navy-950:#161D30;
+  --navy-900:#1E2A38;
   --navy-850:#1e2a38;
   --navy-border:#2b3852;
   --gold:#EAA100;
-  --gold-bright:#FFC964;
-  --cream:#f3efe4;
+  --gold-bright:#EAA100;
+  --cream:#FFF8EC;
   --slate:#8b93a7;
-  --slate-dim:#5c6478;
+  --slate-dim:#8B94A3;
   --green:#5cb87d;
   --orange:#e08b52;
   --red:#e05252;
-  --serif:'Fraunces',Georgia,serif;
-  --sans:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --serif:var(--font-brand),Georgia,serif;
+  --sans:var(--font-inter),-apple-system,BlinkMacSystemFont,sans-serif;
   background:var(--navy-950);
   color:var(--cream);
   font-family:var(--sans);
@@ -410,7 +410,7 @@ const resultStyles = `
 .suivi-scope .action-title{margin:0;font-family:var(--serif);font-size:17px;font-weight:500;color:var(--cream);}
 .suivi-scope .action-text{margin:14px 0 18px;color:var(--slate);font-size:13px;line-height:1.6;}
 .suivi-scope .btn{border:0;border-radius:7px;padding:10px 14px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:8px;}
-.suivi-scope .btn-primary{background:var(--gold);color:#1a1204;}
+.suivi-scope .btn-primary{background:var(--gold);color:#1B2436;}
 .suivi-scope .btn-primary:hover{background:var(--gold-bright);}
 .suivi-scope .btn-secondary{background:transparent;border:1px solid var(--navy-border);color:var(--cream);}
 .suivi-scope .btn-secondary:hover{border-color:var(--gold);color:var(--gold-bright);}

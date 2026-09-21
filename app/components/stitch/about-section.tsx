@@ -4,6 +4,7 @@ import React from "react";
 import { EditableImage } from "@/app/components/editable-image";
 import { EditableText } from "@/app/components/editable-text";
 import { useLocale } from "@/app/components/locale-provider";
+import { AnimeCountUp } from "@/app/components/anime-reveal";
 
 export function AboutSection() {
   const { messages } = useLocale();
@@ -36,32 +37,32 @@ export function AboutSection() {
           </div>
         </div>
         <div className="order-1 lg:order-2">
-          <span className="font-body text-[10px] md:text-[11px] uppercase tracking-[0.3em] text-primary/60 mb-3 md:mb-4 block font-bold">
+          <span className="font-body text-caption md:text-label uppercase tracking-[0.3em] text-primary/60 mb-3 md:mb-4 block font-bold">
             <EditableText contentKey="about.eyebrow" fallback={messages.about.eyebrow} />
           </span>
-          <h2 className="font-headline text-3xl md:text-4xl lg:text-5xl text-primary mb-6 md:mb-8 leading-tight">
+          <h2 className="font-headline text-3xl md:text-4xl lg:text-5xl text-[#FFF8EC] mb-6 md:mb-8 leading-tight">
             <EditableText contentKey="about.title" fallback={messages.about.title} as="span" multiline />
           </h2>
-          <p className="font-body text-on-surface-variant text-base md:text-lg leading-relaxed mb-4 md:mb-6">
+          <p className="font-body text-[#B9C3D0] text-base md:text-lg leading-relaxed mb-4 md:mb-6">
             <EditableText contentKey="about.p1" fallback={messages.about.p1} as="span" multiline />
           </p>
-          <p className="font-body text-on-surface-variant text-base md:text-lg leading-relaxed mb-8 md:mb-10">
+          <p className="font-body text-[#B9C3D0] text-base md:text-lg leading-relaxed mb-8 md:mb-10">
             <EditableText contentKey="about.p2" fallback={messages.about.p2} as="span" multiline />
           </p>
           <div className="grid grid-cols-3 gap-4 sm:flex sm:items-center sm:gap-6 md:gap-8">
             <div className="group/stat text-center sm:text-left">
-              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors"><EditableText contentKey="about.stat1" fallback={messages.about.stat1} /></p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1"><EditableText contentKey="about.stat1Label" fallback={messages.about.stat1Label} /></p>
+              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors"><AnimeCountUp><EditableText contentKey="about.stat1" fallback={messages.about.stat1} /></AnimeCountUp></p>
+              <p className="text-micro md:text-caption uppercase tracking-widest text-[#8B94A3] font-bold mt-1"><EditableText contentKey="about.stat1Label" fallback={messages.about.stat1Label} /></p>
             </div>
             <div className="hidden sm:block w-[1px] h-12 bg-outline-variant/30 shrink-0"></div>
             <div className="group/stat text-center sm:text-left">
-              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors"><EditableText contentKey="about.stat2" fallback={messages.about.stat2} /></p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1"><EditableText contentKey="about.stat2Label" fallback={messages.about.stat2Label} /></p>
+              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors"><AnimeCountUp><EditableText contentKey="about.stat2" fallback={messages.about.stat2} /></AnimeCountUp></p>
+              <p className="text-micro md:text-caption uppercase tracking-widest text-[#8B94A3] font-bold mt-1"><EditableText contentKey="about.stat2Label" fallback={messages.about.stat2Label} /></p>
             </div>
             <div className="hidden sm:block w-[1px] h-12 bg-outline-variant/30 shrink-0"></div>
             <div className="group/stat text-center sm:text-left">
-              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors"><EditableText contentKey="about.stat3" fallback={messages.about.stat3} /></p>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1"><EditableText contentKey="about.stat3Label" fallback={messages.about.stat3Label} /></p>
+              <p className="text-2xl md:text-3xl font-headline text-primary group-hover/stat:text-secondary transition-colors"><AnimeCountUp><EditableText contentKey="about.stat3" fallback={messages.about.stat3} /></AnimeCountUp></p>
+              <p className="text-micro md:text-caption uppercase tracking-widest text-[#8B94A3] font-bold mt-1"><EditableText contentKey="about.stat3Label" fallback={messages.about.stat3Label} /></p>
             </div>
           </div>
         </div>

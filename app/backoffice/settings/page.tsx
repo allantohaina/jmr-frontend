@@ -38,27 +38,27 @@ export default function AdminSettingsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-[#25303a] p-8 rounded-2xl border border-[#EAA100]/10 shadow-sm space-y-6">
+        <div className="bg-[#161D30] p-8 rounded-2xl border border-[#EAA100]/10 shadow-sm space-y-6">
           <h3 className="font-headline text-xl text-[#EAA100]">Profil de l&apos;Atelier</h3>
           <div className="space-y-4">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Nom de l&apos;établissement</p>
+              <p className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Nom de l&apos;établissement</p>
               <p className="text-[#EAA100] font-bold">JMR Textile - Atelier de Production</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Localisation</p>
+              <p className="text-caption font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">Localisation</p>
               <p className="text-[#EAA100]">Antananarivo, Madagascar</p>
             </div>
             <button
               onClick={() => alert("Interface d'édition du profil en cours de chargement...")}
-              className="text-orange-500 font-bold text-[10px] uppercase tracking-widest hover:underline transition-all"
+              className="text-orange-500 font-bold text-caption uppercase tracking-widest hover:underline transition-all"
             >
               Modifier les informations
             </button>
           </div>
         </div>
 
-        <div className="bg-[#25303a] p-8 rounded-2xl border border-[#EAA100]/10 shadow-sm space-y-6">
+        <div className="bg-[#161D30] p-8 rounded-2xl border border-[#EAA100]/10 shadow-sm space-y-6">
           <h3 className="font-headline text-xl text-[#EAA100]">Sécurité & Accès</h3>
           <div className="space-y-4">
             <div
@@ -67,7 +67,7 @@ export default function AdminSettingsPage() {
             >
               <div>
                 <p className="text-sm font-bold text-[#EAA100]">Double Authentification</p>
-                <p className="text-[10px] text-[#EAA100]/40 uppercase font-bold tracking-widest">Recommandé pour la sécurité</p>
+                <p className="text-caption text-[#EAA100]/40 uppercase font-bold tracking-widest">Recommandé pour la sécurité</p>
               </div>
               <div className={`w-12 h-6 rounded-full relative transition-colors ${tfaEnabled ? 'bg-orange-500/20' : 'bg-gray-200'}`}>
                 <div className={`absolute top-1 w-4 h-4 rounded-full shadow-sm transition-all duration-300 ${tfaEnabled ? 'right-1 bg-orange-500' : 'left-1 bg-gray-400'}`}></div>
@@ -75,7 +75,7 @@ export default function AdminSettingsPage() {
             </div>
             <button
               onClick={() => alert("Gestion des administrateurs réservée au super-admin.")}
-              className="w-full py-4 border border-[#EAA100]/10 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-[#EAA100]/10 transition-all active:scale-95"
+              className="w-full py-4 border border-[#EAA100]/10 rounded-xl text-caption font-bold uppercase tracking-widest hover:bg-[#EAA100]/10 transition-all active:scale-95"
             >
               Gérer les administrateurs
             </button>
@@ -84,9 +84,9 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Zone danger */}
-      <div className="bg-[#25303a] p-8 rounded-2xl border border-red-200 shadow-sm space-y-6">
+      <div className="bg-[#161D30] p-8 rounded-2xl border border-red-200 shadow-sm space-y-6">
         <div className="flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-red-500" />
+          <AlertTriangle className="h-5 w-5 text-[#F3A3A6]" />
           <h3 className="font-headline text-xl text-red-600">Zone Danger</h3>
         </div>
         <p className="text-sm text-[#EAA100]/60">
@@ -106,7 +106,7 @@ export default function AdminSettingsPage() {
         {!showConfirm ? (
           <button
             onClick={() => setShowConfirm(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-red-100 transition-all active:scale-95"
+            className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-caption font-bold uppercase tracking-widest hover:bg-red-100 transition-all active:scale-95"
           >
             <Trash2 className="h-4 w-4" />
             Supprimer les données de test
@@ -114,7 +114,7 @@ export default function AdminSettingsPage() {
         ) : (
           <div className="p-4 bg-red-50 rounded-xl border border-red-200 space-y-4">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+              <AlertTriangle className="h-5 w-5 text-[#F3A3A6] shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-bold text-red-700">Confirmez votre identité</p>
                 <p className="text-xs text-red-600 mt-1">Entrez votre mot de passe admin pour supprimer toutes les données de test. Cette action est irréversible.</p>
@@ -125,21 +125,21 @@ export default function AdminSettingsPage() {
               value={adminPassword}
               onChange={(e) => setAdminPassword(e.target.value)}
               placeholder="Mot de passe administrateur"
-              className="w-full px-4 py-3 bg-[#25303a] border border-red-200 rounded-xl text-sm text-[#EAA100] placeholder:text-red-300 outline-none focus:border-red-400 transition-colors"
+              className="w-full px-4 py-3 bg-[#161D30] border border-red-200 rounded-xl text-sm text-[#EAA100] placeholder:text-[#F3A3A6] outline-none focus:border-[#E05252] transition-colors"
               onKeyDown={(e) => { if (e.key === "Enter" && adminPassword.trim()) handleTruncate(); }}
               autoFocus
             />
             <div className="flex items-center gap-3 justify-end">
               <button
                 onClick={() => { setShowConfirm(false); setAdminPassword(""); }}
-                className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded-lg border border-gray-200 hover:bg-gray-50 transition-all"
+                className="px-4 py-2 text-caption font-bold uppercase tracking-widest rounded-lg border border-gray-200 hover:bg-gray-50 transition-all"
               >
                 Annuler
               </button>
               <button
                 onClick={handleTruncate}
                 disabled={truncating || !adminPassword.trim()}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-red-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-4 py-2 bg-[#B14255] text-white rounded-lg text-caption font-bold uppercase tracking-widest hover:bg-red-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {truncating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
                 {truncating ? "Suppression..." : "Confirmer la suppression"}

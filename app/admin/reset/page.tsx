@@ -92,7 +92,7 @@ export default function AdminResetPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#1a2332] flex items-center justify-center px-4">
+      <div className="min-h-screen bg-[#1E2A38] flex items-center justify-center px-4">
         <div className="w-full max-w-sm">
           <h1 className="text-xl font-bold text-white text-center mb-6">Admin Reset Tool</h1>
           <form onSubmit={handleAuth} className="space-y-4">
@@ -107,23 +107,23 @@ export default function AdminResetPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-lg bg-[#EAA100] py-3 text-xs font-bold uppercase tracking-widest text-[#1a2332] disabled:opacity-60"
+              className="w-full rounded-lg bg-[#EAA100] py-3 text-xs font-bold uppercase tracking-widest text-[#1E2A38] disabled:opacity-60"
             >
               {isLoading ? "Vérification..." : "Accéder"}
             </button>
           </form>
-          {message && <p className="mt-4 text-center text-sm text-red-400">{message}</p>}
+          {message && <p className="mt-4 text-center text-sm text-[#F3A3A6]">{message}</p>}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#1a2332] px-4 py-12">
+    <div className="min-h-screen bg-[#1E2A38] px-4 py-12">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-white">Réinitialiser un mot de passe</h1>
-          <button type="button" onClick={handleSignOut} disabled={isSigningOut} className="inline-flex items-center gap-2 rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-red-400 hover:bg-red-500/20 disabled:opacity-60"><LogOut className="h-4 w-4" />{isSigningOut ? "Déconnexion…" : "Déconnexion"}</button>
+          <button type="button" onClick={handleSignOut} disabled={isSigningOut} className="inline-flex items-center gap-2 rounded-xl border border-[#E05252]/25 bg-[#E05252]/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#F3A3A6] hover:bg-[#E05252]/20 disabled:opacity-60"><LogOut className="h-4 w-4" />{isSigningOut ? "Déconnexion…" : "Déconnexion"}</button>
         </div>
 
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8">
@@ -142,10 +142,10 @@ export default function AdminResetPage() {
               >
                 <span className="font-medium">{u.first_name} {u.last_name}</span>
                 <span className="ml-2 text-xs opacity-50">{u.email}</span>
-                <span className={`ml-2 text-[10px] uppercase px-2 py-0.5 rounded-full ${
-                  u.role === "admin" ? "bg-red-500/20 text-red-400" :
-                  u.role === "worker" ? "bg-blue-500/20 text-blue-400" :
-                  "bg-green-500/20 text-green-400"
+                <span className={`ml-2 text-caption uppercase px-2 py-0.5 rounded-full ${
+                  u.role === "admin" ? "bg-[#E05252]/20 text-[#F3A3A6]" :
+                  u.role === "worker" ? "bg-[#5C9AD9]/20 text-[#5C9AD9]" :
+                  "bg-[#1F8457]/20 text-[#5CB87D]"
                 }`}>
                   {u.role}
                 </span>
@@ -172,7 +172,7 @@ export default function AdminResetPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-lg bg-[#EAA100] py-3 text-xs font-bold uppercase tracking-widest text-[#1a2332] disabled:opacity-60"
+                className="w-full rounded-lg bg-[#EAA100] py-3 text-xs font-bold uppercase tracking-widest text-[#1E2A38] disabled:opacity-60"
               >
                 {isLoading ? "Réinitialisation..." : "Réinitialiser le mot de passe"}
               </button>
@@ -181,7 +181,7 @@ export default function AdminResetPage() {
         )}
 
         {message && (
-          <p className={`mt-4 text-sm text-center ${message.startsWith("✓") ? "text-green-400" : "text-red-400"}`}>
+          <p className={`mt-4 text-sm text-center ${message.startsWith("✓") ? "text-[#5CB87D]" : "text-[#F3A3A6]"}`}>
             {message}
           </p>
         )}

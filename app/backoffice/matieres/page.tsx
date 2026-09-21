@@ -98,7 +98,7 @@ export default function MatieresPage() {
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#163526] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#EAA100] hover:bg-[#1e4234] transition-colors"
+          className="inline-flex items-center gap-2 rounded-xl bg-[#163526] px-4 py-2.5 text-caption font-bold uppercase tracking-widest text-[#EAA100] hover:bg-[#1e4234] transition-colors"
         >
           <Plus className="h-4 w-4" /> Nouvelle matière
         </button>
@@ -111,13 +111,13 @@ export default function MatieresPage() {
           <AlertTriangle className="h-5 w-5 shrink-0" />
           <div>
             <p className="font-bold uppercase tracking-widest mb-1">{alertes.length} matière(s) sous le seuil minimum</p>
-            <p className="text-red-600/80">{alertes.map((a) => a.nom).join(", ")}</p>
+            <p className="text-[#E05252]/80">{alertes.map((a) => a.nom).join(", ")}</p>
           </div>
         </div>
       )}
 
       {showForm && (
-        <div className="bg-[#25303a] rounded-2xl border border-[#EAA100]/10 p-6 shadow-sm">
+        <div className="bg-[#161D30] rounded-2xl border border-[#EAA100]/10 p-6 shadow-sm">
           <h3 className="font-headline text-lg text-[#EAA100] mb-4">Ajouter une matière</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input value={form.nom} onChange={(e) => setForm({ ...form, nom: e.target.value })} placeholder="Nom *" className="rounded-xl border border-[#EAA100]/15 px-4 py-2.5 text-sm text-[#EAA100]" />
@@ -131,24 +131,24 @@ export default function MatieresPage() {
             <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Description" className="rounded-xl border border-[#EAA100]/15 px-4 py-2.5 text-sm text-[#EAA100] md:col-span-3" />
           </div>
           <div className="flex gap-3 mt-4">
-            <button onClick={createMatiere} disabled={saving || !form.nom} className="rounded-xl bg-[#EAA100] px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#EAA100] hover:brightness-105 disabled:opacity-50">
+            <button onClick={createMatiere} disabled={saving || !form.nom} className="rounded-xl bg-[#EAA100] px-5 py-2.5 text-caption font-bold uppercase tracking-widest text-[#EAA100] hover:brightness-105 disabled:opacity-50">
               {saving ? "Enregistrement..." : "Créer"}
             </button>
-            <button onClick={() => setShowForm(false)} className="rounded-xl border border-[#EAA100]/15 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]">Annuler</button>
+            <button onClick={() => setShowForm(false)} className="rounded-xl border border-[#EAA100]/15 px-5 py-2.5 text-caption font-bold uppercase tracking-widest text-[#EAA100]">Annuler</button>
           </div>
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {[["Références", matieres.length], ["Alertes stock", alertes.length], ["Stock total", matieres.reduce((s, m) => s + Number(m.stock_actuel ?? 0), 0).toLocaleString("fr-FR")], ["Fournisseurs", new Set(matieres.map((m) => m.fournisseur).filter(Boolean)).size]].map(([label, value]) => (
-          <div key={label} className="bg-[#25303a] rounded-2xl border border-[#EAA100]/10 p-4 shadow-sm">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">{label}</p>
+          <div key={label} className="bg-[#161D30] rounded-2xl border border-[#EAA100]/10 p-4 shadow-sm">
+            <p className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40 mb-1">{label}</p>
             <p className="text-2xl font-headline font-bold text-[#EAA100]">{value}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-[#25303a] rounded-[2rem] overflow-hidden shadow-sm border border-[#EAA100]/10">
+      <div className="bg-[#161D30] rounded-[2rem] overflow-hidden shadow-sm border border-[#EAA100]/10">
         <div className="p-6 border-b border-[#EAA100]/10">
           <h3 className="font-headline text-lg text-[#EAA100]">Catalogue des matières</h3>
         </div>
@@ -163,18 +163,18 @@ export default function MatieresPage() {
                 <button onClick={() => openDetail(m)} className="flex-1 min-w-0 text-left">
                   <p className="text-sm font-bold text-[#EAA100] truncate">
                     {m.nom}
-                    {m.alerte && <span className="ml-2 px-2 py-0.5 text-[9px] font-bold uppercase rounded-full bg-red-50 text-red-600 border border-red-100">Stock bas</span>}
+                    {m.alerte && <span className="ml-2 px-2 py-0.5 text-micro font-bold uppercase rounded-full bg-red-50 text-red-600 border border-red-100">Stock bas</span>}
                   </p>
-                  <p className="text-[10px] text-[#EAA100]/40 font-medium mt-0.5">
+                  <p className="text-caption text-[#EAA100]/40 font-medium mt-0.5">
                     {fmt(m.stock_actuel)} {m.unite} · Seuil {fmt(m.stock_seuil)} {m.unite} · {Number(m.prix_unite).toLocaleString("fr-FR")} Ar/m
                     {m.fournisseur ? ` · ${m.fournisseur}` : ""}
                   </p>
                 </button>
                 <div className="flex items-center gap-2 shrink-0">
-                  <button onClick={() => { setDetail(m); setMouvement({ matiere_id: m.id, type: "entree", quantite: "0", motif: "" }); }} className="inline-flex items-center gap-1 rounded-lg border border-[#EAA100]/15 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-[#EAA100] hover:border-[#EAA100] hover:text-[#EAA100]">
+                  <button onClick={() => { setDetail(m); setMouvement({ matiere_id: m.id, type: "entree", quantite: "0", motif: "" }); }} className="inline-flex items-center gap-1 rounded-lg border border-[#EAA100]/15 px-3 py-1.5 text-micro font-bold uppercase tracking-widest text-[#EAA100] hover:border-[#EAA100] hover:text-[#EAA100]">
                     <Plus className="h-3 w-3" /> Entrée
                   </button>
-                  <button onClick={() => { setDetail(m); setMouvement({ matiere_id: m.id, type: "sortie", quantite: "0", motif: "" }); }} className="inline-flex items-center gap-1 rounded-lg border border-[#EAA100]/15 px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-[#EAA100] hover:border-[#EAA100] hover:text-[#EAA100]">
+                  <button onClick={() => { setDetail(m); setMouvement({ matiere_id: m.id, type: "sortie", quantite: "0", motif: "" }); }} className="inline-flex items-center gap-1 rounded-lg border border-[#EAA100]/15 px-3 py-1.5 text-micro font-bold uppercase tracking-widest text-[#EAA100] hover:border-[#EAA100] hover:text-[#EAA100]">
                     <Minus className="h-3 w-3" /> Sortie
                   </button>
                 </div>
@@ -185,12 +185,12 @@ export default function MatieresPage() {
       </div>
 
       {detail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0b1320]/70 p-4 backdrop-blur-sm" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setDetail(null); }}>
-          <div className="relative w-full max-w-lg bg-[#25303a] rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0A0E19]/70 p-4 backdrop-blur-sm" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setDetail(null); }}>
+          <div className="relative w-full max-w-lg bg-[#161D30] rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="font-headline text-lg text-[#EAA100]">{detail.nom}</h3>
-                <p className="text-[10px] text-[#EAA100]/40 font-medium">
+                <p className="text-caption text-[#EAA100]/40 font-medium">
                   Stock actuel : <span className="font-bold text-[#EAA100]">{fmt(detail.stock_actuel)} {detail.unite}</span> · Seuil : {fmt(detail.stock_seuil)}
                 </p>
               </div>
@@ -198,10 +198,10 @@ export default function MatieresPage() {
             </div>
 
             <div className="rounded-xl bg-[#1e2a38] border border-[#EAA100]/10 p-4 mb-4">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2">Nouveau mouvement</p>
+              <p className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2">Nouveau mouvement</p>
               <div className="flex gap-2 mb-2">
                 {["entree", "sortie", "ajustement"].map((t) => (
-                  <button key={t} onClick={() => setMouvement({ ...mouvement, type: t })} className={`rounded-lg px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest transition-colors ${mouvement.type === t ? "bg-[#EAA100] text-[#EAA100]" : "bg-[#25303a] border border-[#EAA100]/15 text-[#EAA100]"}`}>
+                  <button key={t} onClick={() => setMouvement({ ...mouvement, type: t })} className={`rounded-lg px-3 py-1.5 text-micro font-bold uppercase tracking-widest transition-colors ${mouvement.type === t ? "bg-[#EAA100] text-[#EAA100]" : "bg-[#161D30] border border-[#EAA100]/15 text-[#EAA100]"}`}>
                     {t}
                   </button>
                 ))}
@@ -209,13 +209,13 @@ export default function MatieresPage() {
               <div className="flex gap-2">
                 <input type="number" value={mouvement.quantite} onChange={(e) => setMouvement({ ...mouvement, quantite: e.target.value })} placeholder="Quantité" className="flex-1 rounded-lg border border-[#EAA100]/15 px-3 py-2 text-sm text-[#EAA100]" />
                 <input value={mouvement.motif} onChange={(e) => setMouvement({ ...mouvement, motif: e.target.value })} placeholder="Motif" className="flex-1 rounded-lg border border-[#EAA100]/15 px-3 py-2 text-sm text-[#EAA100]" />
-                <button onClick={submitMouvement} disabled={saving} className="rounded-lg bg-[#163526] px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-[#EAA100] disabled:opacity-50">
+                <button onClick={submitMouvement} disabled={saving} className="rounded-lg bg-[#163526] px-4 py-2 text-micro font-bold uppercase tracking-widest text-[#EAA100] disabled:opacity-50">
                   OK
                 </button>
               </div>
             </div>
 
-            <p className="text-[9px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2">Historique des mouvements</p>
+            <p className="text-micro font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2">Historique des mouvements</p>
             {mouvements.length === 0 ? (
               <p className="text-xs text-[#EAA100]/40 italic">Aucun mouvement enregistré.</p>
             ) : (
@@ -225,7 +225,7 @@ export default function MatieresPage() {
                     <span className={`font-bold ${mv.type === "entree" ? "text-green-600" : mv.type === "sortie" ? "text-red-600" : "text-[#EAA100]"}`}>
                       {mv.type} · {fmt(mv.quantite)} {detail.unite}
                     </span>
-                    <span className="text-[10px] text-[#EAA100]/40">{mv.motif || ""} · {(mv.created_at || "").slice(0, 10)}</span>
+                    <span className="text-caption text-[#EAA100]/40">{mv.motif || ""} · {(mv.created_at || "").slice(0, 10)}</span>
                   </div>
                 ))}
               </div>

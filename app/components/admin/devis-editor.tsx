@@ -113,25 +113,25 @@ export function DevisEditor() {
         <button
           type="button"
           onClick={addLine}
-          className="inline-flex items-center gap-2 rounded border border-[#172d42]/25 bg-[#fffdf8] px-4 py-2 text-[12.5px] font-medium text-[#40566a] transition-colors hover:border-[#6f8292] hover:text-[#172d42]"
+          className="inline-flex items-center gap-2 rounded border border-[#172d42]/25 bg-[#fffdf8] px-4 py-2 text-body font-medium text-[#40566a] transition-colors hover:border-[#6f8292] hover:text-[#172d42]"
         >
           <Plus className="h-4 w-4" /> + Ligne prestation
         </button>
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex items-center gap-2 rounded border border-[#172d42] bg-[#172d42] px-4 py-2 text-[12.5px] font-medium text-white transition-colors hover:bg-[#16294a]"
+          className="inline-flex items-center gap-2 rounded border border-[#172d42] bg-[#172d42] px-4 py-2 text-body font-medium text-white transition-colors hover:bg-[#16294a]"
         >
           <Printer className="h-4 w-4" /> Aperçu impression / PDF
         </button>
         <button
           type="button"
           onClick={exportJson}
-          className="inline-flex items-center gap-2 rounded border border-[#172d42]/25 bg-[#fffdf8] px-4 py-2 text-[12.5px] font-medium text-[#40566a] transition-colors hover:border-[#6f8292] hover:text-[#172d42]"
+          className="inline-flex items-center gap-2 rounded border border-[#172d42]/25 bg-[#fffdf8] px-4 py-2 text-body font-medium text-[#40566a] transition-colors hover:border-[#6f8292] hover:text-[#172d42]"
         >
           Exporter JSON
         </button>
-        <span className="inline-flex items-center gap-2 rounded border border-[#172d42]/15 bg-[#faf6ec] px-3 py-1.5 font-mono text-[11px] text-[#6f8292]">
+        <span className="inline-flex items-center gap-2 rounded border border-[#172d42]/15 bg-[#faf6ec] px-3 py-1.5 font-mono text-label text-[#6f8292]">
           {isLoading || !eurToMga ? (
             "Taux de change…"
           ) : (
@@ -153,24 +153,24 @@ export function DevisEditor() {
         <div className="flex flex-wrap items-start justify-between gap-6 border-b-2 border-[#172d42] px-8 py-7 md:px-12 md:py-10">
           <div className="flex items-center gap-3.5">
             <label
-              className="relative flex h-[52px] w-[52px] shrink-0 cursor-pointer items-center justify-center border border-[#172d42]/25 text-xl font-bold text-[#172d42] transition-all hover:after:absolute hover:after:inset-0 hover:after:flex hover:after:items-center hover:after:justify-center hover:after:bg-[#172d42]/80 hover:after:content-['changer_le_logo'] hover:after:text-center hover:after:px-1 hover:after:py-0.5 hover:after:text-[9px] hover:after:font-normal hover:after:text-white"
+              className="relative flex h-[52px] w-[52px] shrink-0 cursor-pointer items-center justify-center border border-[#172d42]/25 text-xl font-bold text-[#172d42] transition-all hover:after:absolute hover:after:inset-0 hover:after:flex hover:after:items-center hover:after:justify-center hover:after:bg-[#172d42]/80 hover:after:content-['changer_le_logo'] hover:after:text-center hover:after:px-1 hover:after:py-0.5 hover:after:text-micro hover:after:font-normal hover:after:text-white"
               style={logo ? { backgroundImage: `url(${logo})`, backgroundSize: "cover", backgroundPosition: "center", color: "transparent" } : undefined}
             >
               J
               <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={onLogoChange} />
             </label>
             <div>
-              <Editable as="div" initial="JMR Textile" placeholder="Nom atelier" className="text-[19px] font-bold tracking-[-0.01em] text-[#172d42]" />
-              <Editable as="div" initial="Atelier de confection — Madagascar" placeholder="Accroche / activité" className="mt-0.5 text-[11.5px] text-[#6f8292]" />
+              <Editable as="div" initial="JMR Textile" placeholder="Nom atelier" className="text-title-lg font-bold tracking-[-0.01em] text-[#172d42]" />
+              <Editable as="div" initial="Atelier de confection — Madagascar" placeholder="Accroche / activité" className="mt-0.5 text-label text-[#6f8292]" />
             </div>
           </div>
           <div className="text-right">
-            <Editable as="div" initial="Devis" className="mb-2 text-[22px] font-bold uppercase tracking-[0.02em] text-[#172d42]" />
-            <div className="flex items-center justify-end gap-1.5 text-[13px] text-[#40566a]">
+            <Editable as="div" initial="Devis" className="mb-2 text-title-xl font-bold uppercase tracking-[0.02em] text-[#172d42]" />
+            <div className="flex items-center justify-end gap-1.5 text-body text-[#40566a]">
               <span className="text-[#6f8292]">N°</span>
               <span className="font-mono font-semibold text-[#172d42]">généré par la BDD</span>
             </div>
-            <div className="mt-2 space-y-1.5 text-[12.5px] leading-6 text-[#6f8292]">
+            <div className="mt-2 space-y-1.5 text-body leading-6 text-[#6f8292]">
               <div className="flex items-center justify-end gap-1.5">
                 Émis le <span className="font-mono text-xs text-[#40566a]">auto</span>
               </div>
@@ -184,32 +184,32 @@ export function DevisEditor() {
         {/* PARTIES */}
         <div className="grid grid-cols-1 border-b border-[#172d42]/15 md:grid-cols-2">
           <div className="border-b border-[#172d42]/15 px-8 py-6 md:border-b-0 md:border-r md:px-12 md:py-7">
-            <Editable as="div" initial="Émis par" className="mb-2.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-[#6f8292]" />
-            <Editable as="div" initial="JMR Textile" placeholder="Nom de l'atelier" className="mb-1.5 min-h-[20px] text-[15px] font-semibold text-[#172d42]" />
-            <Editable as="div" initial="Atelier de confection haut de gamme&#10;Antananarivo, Madagascar&#10;contact@jmrtextile.com" placeholder="Adresse, ville" className="min-h-[20px] text-[13px] leading-[1.8] whitespace-pre-line text-[#40566a]" />
+            <Editable as="div" initial="Émis par" className="mb-2.5 text-caption font-semibold uppercase tracking-[0.1em] text-[#6f8292]" />
+            <Editable as="div" initial="JMR Textile" placeholder="Nom de l'atelier" className="mb-1.5 min-h-[20px] text-title-sm font-semibold text-[#172d42]" />
+            <Editable as="div" initial="Atelier de confection haut de gamme&#10;Antananarivo, Madagascar&#10;contact@jmrtextile.com" placeholder="Adresse, ville" className="min-h-[20px] text-body leading-[1.8] whitespace-pre-line text-[#40566a]" />
           </div>
           <div className="px-8 py-6 md:px-12 md:py-7">
-            <Editable as="div" initial="Destinataire" className="mb-2.5 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-[#6f8292]" />
-            <Editable as="div" initial="" placeholder="Nom du client" className="mb-1.5 min-h-[20px] text-[15px] font-semibold text-[#172d42]" />
-            <Editable as="div" initial="" placeholder="Email, téléphone" className="min-h-[20px] text-[13px] leading-[1.8] whitespace-pre-line text-[#40566a]" />
+            <Editable as="div" initial="Destinataire" className="mb-2.5 text-caption font-semibold uppercase tracking-[0.1em] text-[#6f8292]" />
+            <Editable as="div" initial="" placeholder="Nom du client" className="mb-1.5 min-h-[20px] text-title-sm font-semibold text-[#172d42]" />
+            <Editable as="div" initial="" placeholder="Email, téléphone" className="min-h-[20px] text-body leading-[1.8] whitespace-pre-line text-[#40566a]" />
           </div>
         </div>
 
         {/* TABLEAU */}
         <div className="px-8 pt-8 md:px-12">
           <div className="mb-3.5 flex items-center justify-between">
-            <Editable as="span" initial="Détail de la prestation" className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-[#6f8292]" />
+            <Editable as="span" initial="Détail de la prestation" className="text-caption font-semibold uppercase tracking-[0.1em] text-[#6f8292]" />
             <button
               type="button"
               onClick={addLine}
-              className="rounded border border-[#172d42]/25 px-2.5 py-1 text-[11px] font-medium text-[#172d42] transition-colors hover:border-[#172d42] hover:bg-[#faf6ec]"
+              className="rounded border border-[#172d42]/25 px-2.5 py-1 text-label font-medium text-[#172d42] transition-colors hover:border-[#172d42] hover:bg-[#faf6ec]"
             >
               + ajouter une ligne
             </button>
           </div>
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b-[1.5px] border-[#172d42] text-[11px] font-semibold uppercase tracking-[0.04em] text-[#6f8292]">
+              <tr className="border-b-[1.5px] border-[#172d42] text-label font-semibold uppercase tracking-[0.04em] text-[#6f8292]">
                 <th className="w-[48%] py-2.5 pl-1 pr-1 text-left">
                   <Editable as="span" initial="Désignation" />
                 </th>
@@ -227,7 +227,7 @@ export function DevisEditor() {
             </thead>
             <tbody>
               {lines.map((line) => (
-                <tr key={line.id} className="border-b border-[#172d42]/10 align-top text-[13.5px]">
+                <tr key={line.id} className="border-b border-[#172d42]/10 align-top text-body-lg">
                   <td className="py-3.5 pr-1">
                     <Editable
                       as="div"
@@ -239,7 +239,7 @@ export function DevisEditor() {
                       as="div"
                       initial=""
                       placeholder="Détail, précisions"
-                      className="min-h-[16px] text-[12.5px] leading-[1.5] text-[#6f8292]"
+                      className="min-h-[16px] text-body leading-[1.5] text-[#6f8292]"
                     />
                   </td>
                   <td className="py-3.5 pr-1 text-right">
@@ -248,7 +248,7 @@ export function DevisEditor() {
                       value={Number.isFinite(line.qty) ? line.qty : 0}
                       min={0}
                       onChange={(e) => updateLine(line.id, "qty", parseFloat(e.target.value) || 0)}
-                      className="num-input w-[70px] rounded-[3px] border-none bg-transparent p-0.5 text-right font-mono text-[13px] text-[#40566a] transition-colors hover:bg-[#faf6ec] focus:bg-[#faf6ec] focus:outline-none focus:ring-1 focus:ring-[#172d42]"
+                      className="num-input w-[70px] rounded border-none bg-transparent p-0.5 text-right font-mono text-body text-[#40566a] transition-colors hover:bg-[#faf6ec] focus:bg-[#faf6ec] focus:outline-none focus:ring-1 focus:ring-[#172d42]"
                     />
                   </td>
                   <td className="py-3.5 pr-1 text-right">
@@ -257,10 +257,10 @@ export function DevisEditor() {
                       value={Number.isFinite(line.price) ? line.price : 0}
                       min={0}
                       onChange={(e) => updateLine(line.id, "price", parseFloat(e.target.value) || 0)}
-                      className="num-input w-[70px] rounded-[3px] border-none bg-transparent p-0.5 text-right font-mono text-[13px] text-[#40566a] transition-colors hover:bg-[#faf6ec] focus:bg-[#faf6ec] focus:outline-none focus:ring-1 focus:ring-[#172d42]"
+                      className="num-input w-[70px] rounded border-none bg-transparent p-0.5 text-right font-mono text-body text-[#40566a] transition-colors hover:bg-[#faf6ec] focus:bg-[#faf6ec] focus:outline-none focus:ring-1 focus:ring-[#172d42]"
                     />
                   </td>
-                  <td className="whitespace-nowrap py-3.5 pr-1 text-right font-mono text-[13px] font-semibold text-[#172d42]">
+                  <td className="whitespace-nowrap py-3.5 pr-1 text-right font-mono text-body font-semibold text-[#172d42]">
                     {fmtPlain(line.qty * line.price)}
                   </td>
                   <td className="py-3.5">
@@ -282,11 +282,11 @@ export function DevisEditor() {
         {/* TOTAUX */}
         <div className="flex justify-end px-8 py-5 md:px-12 md:py-8">
           <div className="w-full max-w-[300px]">
-            <div className="flex items-center justify-between py-2 text-[13px] text-[#40566a]">
+            <div className="flex items-center justify-between py-2 text-body text-[#40566a]">
               <Editable as="span" initial="Sous-total" />
               <span className="font-mono">{fmt(totals.subtotal)}</span>
             </div>
-            <div className="flex items-center justify-between py-2 text-[13px] text-[#40566a]">
+            <div className="flex items-center justify-between py-2 text-body text-[#40566a]">
               <Editable as="span" initial="Remise (%)" />
               <input
                 type="number"
@@ -294,10 +294,10 @@ export function DevisEditor() {
                 min={0}
                 max={100}
                 onChange={(e) => setDiscountPct(parseFloat(e.target.value) || 0)}
-                className="w-[110px] rounded-[3px] border-none bg-transparent p-0.5 text-right font-mono text-[13px] text-[#40566a] transition-colors hover:bg-[#faf6ec] focus:bg-[#faf6ec] focus:outline-none focus:ring-1 focus:ring-[#172d42]"
+                className="w-[110px] rounded border-none bg-transparent p-0.5 text-right font-mono text-body text-[#40566a] transition-colors hover:bg-[#faf6ec] focus:bg-[#faf6ec] focus:outline-none focus:ring-1 focus:ring-[#172d42]"
               />
             </div>
-            <div className="flex items-center justify-between py-2 text-[13px] text-[#40566a]">
+            <div className="flex items-center justify-between py-2 text-body text-[#40566a]">
               <Editable as="span" initial="TVA (%)" />
               <input
                 type="number"
@@ -305,15 +305,15 @@ export function DevisEditor() {
                 min={0}
                 max={100}
                 onChange={(e) => setVatPct(parseFloat(e.target.value) || 0)}
-                className="w-[110px] rounded-[3px] border-none bg-transparent p-0.5 text-right font-mono text-[13px] text-[#40566a] transition-colors hover:bg-[#faf6ec] focus:bg-[#faf6ec] focus:outline-none focus:ring-1 focus:ring-[#172d42]"
+                className="w-[110px] rounded border-none bg-transparent p-0.5 text-right font-mono text-body text-[#40566a] transition-colors hover:bg-[#faf6ec] focus:bg-[#faf6ec] focus:outline-none focus:ring-1 focus:ring-[#172d42]"
               />
             </div>
             <div className="mt-1.5 flex items-baseline justify-between border-t-2 border-[#172d42] pt-3.5">
-              <Editable as="span" initial="Total TTC" className="text-[14px] font-bold text-[#172d42]" />
-              <span className="font-mono text-[22px] font-bold text-[#172d42]">{fmt(totals.grand)}</span>
+              <Editable as="span" initial="Total TTC" className="text-body-lg font-bold text-[#172d42]" />
+              <span className="font-mono text-title-xl font-bold text-[#172d42]">{fmt(totals.grand)}</span>
             </div>
             {eurToMga ? (
-              <p className="mt-1 text-right font-mono text-[11px] text-[#6f8292]">≈ {fmtPlain(totals.grand / eurToMga)} EUR</p>
+              <p className="mt-1 text-right font-mono text-label text-[#6f8292]">≈ {fmtPlain(totals.grand / eurToMga)} EUR</p>
             ) : null}
           </div>
         </div>
@@ -321,16 +321,16 @@ export function DevisEditor() {
         {/* CONDITIONS */}
         <div className="grid grid-cols-1 gap-7 border-t border-[#172d42]/15 bg-[#faf6ec] px-8 py-7 md:grid-cols-2 md:px-12">
           <div>
-            <Editable as="h4" initial="Conditions de paiement" className="mb-2 text-[12.5px] font-bold tracking-[0.01em] text-[#172d42]" />
-            <ul contentEditable suppressContentEditableWarning data-placeholder="Modifie les conditions" className="list-none p-0 text-[12.5px] leading-[1.9] text-[#40566a]">
+            <Editable as="h4" initial="Conditions de paiement" className="mb-2 text-body font-bold tracking-[0.01em] text-[#172d42]" />
+            <ul contentEditable suppressContentEditableWarning data-placeholder="Modifie les conditions" className="list-none p-0 text-body leading-[1.9] text-[#40566a]">
               <li>— Acompte à la commande</li>
               <li>— Solde à la livraison</li>
               <li>— Paiement par virement ou Mobile Money</li>
             </ul>
           </div>
           <div>
-            <Editable as="h4" initial="Délais et livraison" className="mb-2 text-[12.5px] font-bold tracking-[0.01em] text-[#172d42]" />
-            <ul contentEditable suppressContentEditableWarning data-placeholder="Modifie les délais" className="list-none p-0 text-[12.5px] leading-[1.9] text-[#40566a]">
+            <Editable as="h4" initial="Délais et livraison" className="mb-2 text-body font-bold tracking-[0.01em] text-[#172d42]" />
+            <ul contentEditable suppressContentEditableWarning data-placeholder="Modifie les délais" className="list-none p-0 text-body leading-[1.9] text-[#40566a]">
               <li>— Production après acompte</li>
               <li>— Livraison à définir avec le client</li>
               <li>— Échantillon validé avant lancement série</li>
@@ -341,17 +341,17 @@ export function DevisEditor() {
         {/* SIGNATURE */}
         <div className="grid grid-cols-1 gap-7 border-t border-[#172d42]/15 px-8 py-7 md:grid-cols-2 md:px-12">
           <div className="flex min-h-[100px] flex-col justify-between border border-[#172d42]/15 p-4.5">
-            <Editable as="span" initial="Pour JMR Textile" className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#6f8292]" />
-            <Editable as="span" initial="Signature et cachet de l'atelier" className="text-[11px] italic text-[#6f8292]" />
+            <Editable as="span" initial="Pour JMR Textile" className="text-label font-semibold uppercase tracking-[0.06em] text-[#6f8292]" />
+            <Editable as="span" initial="Signature et cachet de l'atelier" className="text-label italic text-[#6f8292]" />
           </div>
           <div className="flex min-h-[100px] flex-col justify-between border-[1.5px] border-[#172d42] p-4.5">
-            <Editable as="span" initial="Bon pour accord" className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#172d42]" />
-            <Editable as="span" initial="Signature précédée de la mention manuscrite « Bon pour accord »" className="text-[11px] italic text-[#6f8292]" />
+            <Editable as="span" initial="Bon pour accord" className="text-label font-semibold uppercase tracking-[0.06em] text-[#172d42]" />
+            <Editable as="span" initial="Signature précédée de la mention manuscrite « Bon pour accord »" className="text-label italic text-[#6f8292]" />
           </div>
         </div>
 
         {/* PIED */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#172d42]/15 px-8 py-4 text-[11px] text-[#6f8292] md:px-12">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#172d42]/15 px-8 py-4 text-label text-[#6f8292] md:px-12">
           <Editable as="span" initial="JMR Textile © 2026 — Atelier de confection, Madagascar" />
           <span className="font-mono">réf. générée à l&apos;envoi</span>
         </div>

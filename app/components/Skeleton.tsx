@@ -23,7 +23,7 @@ export function Skeleton({
   
   return (
     <div 
-      className={`animate-pulse bg-[#25303a] ${roundedClasses[rounded]} ${className}`}
+      className={`animate-pulse bg-[#161D30] ${roundedClasses[rounded]} ${className}`}
       style={{ width, height }}
     />
   );
@@ -32,7 +32,7 @@ export function Skeleton({
 // Pre-made skeleton for profile cards
 export function ProfileSkeleton() {
   return (
-    <div className="bg-[#25303a] p-10 rounded-[2rem] border border-[#EAA100]/5 shadow-sm">
+    <div className="bg-[#161D30] p-10 rounded-[2rem] border border-[#EAA100]/5 shadow-sm">
       <div className="flex items-center gap-4 mb-8">
         <Skeleton width="80px" height="80px" rounded="full" />
         <div className="space-y-2">
@@ -52,7 +52,7 @@ export function ProfileSkeleton() {
 // Pre-made skeleton for cards
 export function CardSkeleton() {
   return (
-    <div className="bg-[#25303a] p-6 rounded-[2rem] border border-[#EAA100]/5 shadow-sm space-y-4">
+    <div className="bg-[#161D30] p-6 rounded-[2rem] border border-[#EAA100]/5 shadow-sm space-y-4">
       <Skeleton width="60px" height="60px" rounded="xl" />
       <Skeleton width="150px" height="24px" />
       <Skeleton height="48px" />
@@ -90,7 +90,7 @@ export function PageSkeleton() {
             <CardSkeleton />
           </div>
           <div className="lg:col-span-2">
-            <div className="bg-[#25303a] rounded-[2.5rem] border border-[#EAA100]/5 p-8 space-y-6">
+            <div className="bg-[#161D30] rounded-[2.5rem] border border-[#EAA100]/5 p-8 space-y-6">
               {[1, 2, 3, 4, 5].map(i => (
                 <Skeleton key={i} height="60px" />
               ))}

@@ -146,10 +146,10 @@ export function ProformaEditor({
         .pe-line { display: grid; grid-template-columns: 2fr 1.4fr .6fr .6fr 1fr .7fr auto auto; gap: 8px; align-items: end; background: rgba(30,42,56,.6); border: 1px solid rgba(234, 161, 0,.08); border-radius: 12px; padding: 10px; }
         .pe-line .span2 { grid-column: span 1; }
         .pe-line-total { font-size: 13px; font-weight: 700; color: #EAA100; padding-bottom: 10px; white-space: nowrap; }
-        .pe-del { background: rgba(255,80,80,.12); border: 1px solid rgba(255,80,80,.3); color: #ff8080; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 18px; }
+        .pe-del { background: rgba(243,163,166,.12); border: 1px solid rgba(243,163,166,.3); color: #F3A3A6; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 18px; }
         .pe-totals { display: flex; flex-wrap: wrap; gap: 8px 20px; background: #1e2a38; border: 1px solid rgba(234, 161, 0,.12); border-radius: 12px; padding: 12px 16px; font-size: 13px; color: rgba(234, 161, 0,.75); }
         .pe-totals .grand { color: #EAA100; font-size: 15px; }
-        .pe-error { color: #ff8080; font-size: 13px; margin: 0; }
+        .pe-error { color: #F3A3A6; font-size: 13px; margin: 0; }
         .pe-actions { display: flex; justify-content: flex-end; gap: 10px; }
         .pe-btn { background: #EAA100; color: #1e2a38; border: 0; border-radius: 12px; padding: 12px 22px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
         .pe-btn:disabled { opacity: .5; cursor: not-allowed; }

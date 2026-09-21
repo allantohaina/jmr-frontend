@@ -602,7 +602,7 @@ export function ProductionWorkflowBoard() {
         <div className="mx-auto max-w-7xl px-6 py-8 lg:px-10">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-3 text-white">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em] text-orange-300">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-caption font-bold uppercase tracking-[0.24em] text-orange-300">
                 <GitBranch className="h-3.5 w-3.5" />
                 Workflow de production
               </div>
@@ -617,7 +617,7 @@ export function ProductionWorkflowBoard() {
               <button
                 onClick={addStep}
                 disabled={!selectedWorkflow}
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#173428] transition hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white px-4 py-2 text-caption font-bold uppercase tracking-widest text-[#173428] transition hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Plus className="h-4 w-4" />
                 Etape
@@ -625,7 +625,7 @@ export function ProductionWorkflowBoard() {
               <button
                 onClick={persistWorkflow}
                 disabled={!selectedWorkflow || isSaving || !hasUnsavedChanges}
-                className="inline-flex items-center gap-2 rounded-full bg-orange-500 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-full bg-orange-500 px-4 py-2 text-caption font-bold uppercase tracking-widest text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSaving ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Enregistrer
@@ -644,7 +644,7 @@ export function ProductionWorkflowBoard() {
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/45">
+                      <p className="text-caption font-bold uppercase tracking-[0.24em] text-white/45">
                         {card.label}
                       </p>
                       <p className="mt-2 text-3xl font-headline text-white">{card.value}</p>
@@ -673,7 +673,7 @@ export function ProductionWorkflowBoard() {
             <div className="space-y-6">
               <div className="flex flex-col gap-4 rounded-3xl border border-[#173428]/10 bg-white p-6 shadow-sm lg:flex-row lg:items-end lg:justify-between">
                 <div className="space-y-2">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                  <p className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                     Processus
                   </p>
                   <div className="flex flex-wrap items-center gap-3">
@@ -681,7 +681,7 @@ export function ProductionWorkflowBoard() {
                         <button
                           key={workflow.id}
                           onClick={() => setSelectedWorkflowId(workflow.id)}
-                        className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition ${
+                        className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-caption font-bold uppercase tracking-widest transition ${
                           workflow.id === selectedWorkflowId
                             ? "border-[#173428] bg-[#173428] text-white"
                             : "border-[#173428]/10 bg-[#f8f4eb] text-[#173428]/70 hover:border-[#173428]/20"
@@ -695,7 +695,7 @@ export function ProductionWorkflowBoard() {
                     <button
                       onClick={createWorkflow}
                       disabled={isSaving}
-                      className="inline-flex items-center gap-2 rounded-full border border-dashed border-orange-300 bg-orange-50 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-orange-700 transition hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex items-center gap-2 rounded-full border border-dashed border-orange-300 bg-orange-50 px-4 py-2 text-caption font-bold uppercase tracking-widest text-orange-700 transition hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <Plus className="h-3.5 w-3.5" />
                       Nouveau
@@ -705,7 +705,7 @@ export function ProductionWorkflowBoard() {
 
                 <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[420px]">
                   <label className="space-y-2">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                    <span className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                       Nom du processus
                     </span>
                     <input
@@ -718,7 +718,7 @@ export function ProductionWorkflowBoard() {
                     />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                    <span className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                       Project ID
                     </span>
                     <input
@@ -738,7 +738,7 @@ export function ProductionWorkflowBoard() {
                 <div className="rounded-3xl border border-dashed border-[#173428]/15 bg-white p-8 shadow-sm">
                   <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div className="space-y-2">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                      <p className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                         Aucun processus selectionne
                       </p>
                       <h3 className="font-headline text-2xl text-[#173428]">Créez votre premier workflow</h3>
@@ -749,7 +749,7 @@ export function ProductionWorkflowBoard() {
                     <button
                       onClick={createWorkflow}
                       disabled={isSaving}
-                      className="inline-flex items-center gap-2 rounded-full bg-[#173428] px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-white transition hover:bg-[#173428]/90 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex items-center gap-2 rounded-full bg-[#173428] px-5 py-3 text-caption font-bold uppercase tracking-widest text-white transition hover:bg-[#173428]/90 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <Plus className="h-4 w-4 text-orange-300" />
                       Creer le processus
@@ -802,16 +802,16 @@ export function ProductionWorkflowBoard() {
                             <div className="space-y-2">
                               <div className="flex flex-wrap items-center gap-2">
                                 <h3 className="font-headline text-2xl text-[#173428]">{step.title}</h3>
-                                <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${stepTone}`}>
+                                <span className={`rounded-full border px-3 py-1 text-caption font-bold uppercase tracking-widest ${stepTone}`}>
                                   {getStatusLabel(step.display_status ?? step.status)}
                                 </span>
                                 {step.key_step ? (
-                                  <span className="rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-orange-700">
+                                  <span className="rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-caption font-bold uppercase tracking-widest text-orange-700">
                                     Etape cle
                                   </span>
                                 ) : null}
                                 {hasClientValidation ? (
-                                  <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-sky-700">
+                                  <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-caption font-bold uppercase tracking-widest text-sky-700">
                                     Validation client
                                   </span>
                                 ) : null}
@@ -826,7 +826,7 @@ export function ProductionWorkflowBoard() {
                             <button
                               onClick={() => transitionWorkflow("complete_step", step.id)}
                               disabled={isTransitioning || isValidated || isWaitingValidation}
-                              className="inline-flex items-center gap-2 rounded-full border border-[#173428]/10 bg-[#173428] px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-white transition hover:bg-[#173428]/90 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="inline-flex items-center gap-2 rounded-full border border-[#173428]/10 bg-[#173428] px-4 py-2 text-caption font-bold uppercase tracking-widest text-white transition hover:bg-[#173428]/90 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               <PlayCircle className="h-4 w-4 text-orange-300" />
                               {primaryLabel}
@@ -835,7 +835,7 @@ export function ProductionWorkflowBoard() {
                               <button
                                 onClick={() => transitionWorkflow("approve_step", step.id)}
                                 disabled={isTransitioning}
-                                className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-green-700 transition hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-caption font-bold uppercase tracking-widest text-green-700 transition hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-50"
                               >
                                 <CheckCircle2 className="h-4 w-4" />
                                 Valider
@@ -850,7 +850,7 @@ export function ProductionWorkflowBoard() {
                                   })
                                 }
                                 disabled={isTransitioning}
-                                className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-caption font-bold uppercase tracking-widest text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
                               >
                                 <XCircle className="h-4 w-4" />
                                 Rejeter
@@ -859,7 +859,7 @@ export function ProductionWorkflowBoard() {
                             <button
                               onClick={() => removeStep(step.id)}
                               disabled={isTransitioning}
-                              className="inline-flex items-center gap-2 rounded-full border border-[#173428]/10 bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#173428]/70 transition hover:border-red-200 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="inline-flex items-center gap-2 rounded-full border border-[#173428]/10 bg-white px-4 py-2 text-caption font-bold uppercase tracking-widest text-[#173428]/70 transition hover:border-red-200 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               <Trash2 className="h-4 w-4" />
                               Supprimer
@@ -870,7 +870,7 @@ export function ProductionWorkflowBoard() {
                         <div className="mt-6 grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
                           <div className="space-y-4">
                             <label className="space-y-2">
-                              <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                              <span className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                                 Intitule
                               </span>
                               <input
@@ -881,7 +881,7 @@ export function ProductionWorkflowBoard() {
                             </label>
 
                             <label className="space-y-2">
-                              <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                              <span className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                                 Objectif / utilite
                               </span>
                               <textarea
@@ -894,7 +894,7 @@ export function ProductionWorkflowBoard() {
 
                             <div className="grid gap-4 md:grid-cols-2">
                               <label className="space-y-2">
-                                <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                                <span className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                                   Responsables
                                 </span>
                                 <input
@@ -908,7 +908,7 @@ export function ProductionWorkflowBoard() {
                               </label>
 
                               <label className="space-y-2">
-                                <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                                <span className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                                   Validation
                                 </span>
                                 <input
@@ -919,7 +919,7 @@ export function ProductionWorkflowBoard() {
                                   placeholder="user, client, worker, admin"
                                   className="w-full rounded-2xl border border-[#173428]/10 bg-[#f8f4eb] px-4 py-3 text-sm font-medium outline-none focus:border-orange-400"
                                 />
-                                <p className="text-[10px] leading-relaxed text-[#173428]/45">
+                                <p className="text-caption leading-relaxed text-[#173428]/45">
                                   Utilisez <span className="font-bold text-[#173428]">user</span> ou{" "}
                                   <span className="font-bold text-[#173428]">client</span> pour une validation
                                   client obligatoire.
@@ -931,7 +931,7 @@ export function ProductionWorkflowBoard() {
                           <div className="space-y-4">
                             <div className="grid gap-3 sm:grid-cols-2">
                               <label className="flex items-center justify-between gap-3 rounded-2xl border border-[#173428]/10 bg-[#f8f4eb] px-4 py-4">
-                                <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/55">
+                                <span className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/55">
                                   Etape cle
                                 </span>
                                 <input
@@ -944,7 +944,7 @@ export function ProductionWorkflowBoard() {
                                 />
                               </label>
                               <label className="flex items-center justify-between gap-3 rounded-2xl border border-[#173428]/10 bg-[#f8f4eb] px-4 py-4">
-                                <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/55">
+                                <span className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/55">
                                   Validation requise
                                 </span>
                                 <input
@@ -959,7 +959,7 @@ export function ProductionWorkflowBoard() {
                             </div>
 
                             <div className="rounded-2xl border border-[#173428]/10 bg-[#f8f4eb] p-4">
-                              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                              <div className="flex items-center gap-2 text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                                 <GitBranch className="h-4 w-4 text-orange-500" />
                                 Dependances
                               </div>
@@ -978,7 +978,7 @@ export function ProductionWorkflowBoard() {
                                           <p className="truncate text-sm font-semibold text-[#173428]">
                                             {candidate.title}
                                           </p>
-                                          <p className="truncate text-[10px] uppercase tracking-widest text-[#173428]/40">
+                                          <p className="truncate text-caption uppercase tracking-widest text-[#173428]/40">
                                             {candidate.display_status ?? candidate.status}
                                           </p>
                                         </div>
@@ -1000,7 +1000,7 @@ export function ProductionWorkflowBoard() {
                             </div>
 
                             <label className="space-y-2">
-                              <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                              <span className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                                 Notes / corrections
                               </span>
                               <textarea
@@ -1013,7 +1013,7 @@ export function ProductionWorkflowBoard() {
                             </label>
 
                             <label className="space-y-2">
-                              <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                              <span className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                                 Notes internes
                               </span>
                               <textarea
@@ -1028,7 +1028,7 @@ export function ProductionWorkflowBoard() {
                         </div>
 
                         <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-[#173428]/10 pt-5">
-                          <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#173428]/45">
+                          <div className="flex flex-wrap items-center gap-2 text-caption font-bold uppercase tracking-widest text-[#173428]/45">
                             <Users className="h-4 w-4 text-orange-500" />
                             <span>{joinList(step.roles) || "Aucun responsable"}</span>
                             <ChevronRight className="h-4 w-4" />
@@ -1037,18 +1037,18 @@ export function ProductionWorkflowBoard() {
 
                           <div className="ml-auto flex flex-wrap items-center gap-2">
                             {step.is_current ? (
-                              <span className="inline-flex items-center gap-2 rounded-full border border-[#173428]/10 bg-[#173428]/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#173428]/70">
+                              <span className="inline-flex items-center gap-2 rounded-full border border-[#173428]/10 bg-[#173428]/5 px-3 py-1 text-caption font-bold uppercase tracking-widest text-[#173428]/70">
                                 <Clock3 className="h-3.5 w-3.5" />
                                 Etape courante
                               </span>
                             ) : null}
                             {step.is_ready ? (
-                              <span className="inline-flex items-center gap-2 rounded-full border border-green-100 bg-green-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-green-700">
+                              <span className="inline-flex items-center gap-2 rounded-full border border-green-100 bg-green-50 px-3 py-1 text-caption font-bold uppercase tracking-widest text-green-700">
                                 <ArrowRight className="h-3.5 w-3.5" />
                                 Prete
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-600">
+                              <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-caption font-bold uppercase tracking-widest text-slate-600">
                                 <CircleDashed className="h-3.5 w-3.5" />
                                 Bloquee
                               </span>
@@ -1066,19 +1066,19 @@ export function ProductionWorkflowBoard() {
               <div className="rounded-3xl border border-[#173428]/10 bg-white p-6 shadow-sm">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                    <p className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                       Resume du flux
                     </p>
                     <h3 className="mt-2 font-headline text-2xl text-[#173428]">{activeWorkflowName}</h3>
                   </div>
-                  <div className={`rounded-2xl border px-3 py-2 text-[10px] font-bold uppercase tracking-widest ${getStatusTone(selectedWorkflow?.status ?? "draft")}`}>
+                  <div className={`rounded-2xl border px-3 py-2 text-caption font-bold uppercase tracking-widest ${getStatusTone(selectedWorkflow?.status ?? "draft")}`}>
                     {getStatusLabel(selectedWorkflow?.status ?? "draft")}
                   </div>
                 </div>
 
                 <div className="mt-6 space-y-4">
                   <div>
-                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                    <div className="flex items-center justify-between text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                       <span>Progression</span>
                       <span>{progress}%</span>
                     </div>
@@ -1092,13 +1092,13 @@ export function ProductionWorkflowBoard() {
 
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded-2xl border border-[#173428]/10 bg-[#f8f4eb] p-4">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">Etape courante</p>
+                      <p className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">Etape courante</p>
                       <p className="mt-2 font-semibold text-[#173428]">
                         {currentStep?.title ?? "Aucune"}
                       </p>
                     </div>
                     <div className="rounded-2xl border border-[#173428]/10 bg-[#f8f4eb] p-4">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">Derniere validation</p>
+                      <p className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">Derniere validation</p>
                       <p className="mt-2 font-semibold text-[#173428]">
                         {lastValidatedStep?.title ?? "Aucune"}
                       </p>
@@ -1113,7 +1113,7 @@ export function ProductionWorkflowBoard() {
                     <RotateCcw className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                    <p className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                       Rollback majeur
                     </p>
                     <h3 className="font-headline text-xl text-[#173428]">Reprise structurelle</h3>
@@ -1122,7 +1122,7 @@ export function ProductionWorkflowBoard() {
 
                 <div className="mt-5 space-y-4">
                   <label className="space-y-2">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                    <span className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                       Etapes a refaire
                     </span>
                     <div className="space-y-2">
@@ -1133,7 +1133,7 @@ export function ProductionWorkflowBoard() {
                         >
                           <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-[#173428]">{step.title}</p>
-                            <p className="truncate text-[10px] uppercase tracking-widest text-[#173428]/40">
+                            <p className="truncate text-caption uppercase tracking-widest text-[#173428]/40">
                               {step.display_status ?? step.status}
                             </p>
                           </div>
@@ -1154,7 +1154,7 @@ export function ProductionWorkflowBoard() {
                   </label>
 
                   <label className="space-y-2">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                    <span className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                       Raison du rollback
                     </span>
                     <textarea
@@ -1167,7 +1167,7 @@ export function ProductionWorkflowBoard() {
                   </label>
 
                   <label className="space-y-2">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                    <span className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                       Roles impactes
                     </span>
                     <input
@@ -1189,7 +1189,7 @@ export function ProductionWorkflowBoard() {
                       })
                     }
                     disabled={isTransitioning || !rollbackReason.trim() || !Object.values(rollbackTargets).some(Boolean)}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#173428] px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-white transition hover:bg-[#173428]/90 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#173428] px-5 py-4 text-caption font-bold uppercase tracking-widest text-white transition hover:bg-[#173428]/90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <RotateCcw className="h-4 w-4 text-orange-300" />
                     Lancer le rollback
@@ -1203,7 +1203,7 @@ export function ProductionWorkflowBoard() {
                     <ListChecks className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">
+                    <p className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">
                       Historique
                     </p>
                     <h3 className="font-headline text-xl text-[#173428]">Actions recentes</h3>
@@ -1227,7 +1227,7 @@ export function ProductionWorkflowBoard() {
                             <p className="text-sm font-semibold text-[#173428]">
                               {historyLabel(entry.action)}
                             </p>
-                            <span className="text-[10px] uppercase tracking-widest text-[#173428]/40">
+                            <span className="text-caption uppercase tracking-widest text-[#173428]/40">
                               {entry.created_at}
                             </span>
                           </div>
@@ -1248,7 +1248,7 @@ export function ProductionWorkflowBoard() {
                       <AlertTriangle className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-orange-700/60">
+                      <p className="text-caption font-bold uppercase tracking-[0.24em] text-orange-700/60">
                         Dernier rollback
                       </p>
                       <h3 className="font-headline text-xl text-orange-900">Rattrapage en cours</h3>
@@ -1285,7 +1285,7 @@ export function ProductionWorkflowBoard() {
                 <ShieldCheck className="h-5 w-5 text-orange-300" />
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#173428]/45">Etat</p>
+                <p className="text-caption font-bold uppercase tracking-[0.24em] text-[#173428]/45">Etat</p>
                 <p className="font-semibold text-[#173428]">
                   {selectedWorkflow.status} {hasUnsavedChanges ? " - modifications en attente" : ""}
                 </p>
@@ -1293,11 +1293,11 @@ export function ProductionWorkflowBoard() {
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#173428]/10 bg-[#f8f4eb] px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#173428]/70">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#173428]/10 bg-[#f8f4eb] px-4 py-2 text-caption font-bold uppercase tracking-widest text-[#173428]/70">
                 <Users className="h-3.5 w-3.5" />
                 {joinList(selectedSteps.flatMap((step) => step.roles).slice(0, 4)) || "Aucun role"}
               </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#173428]/10 bg-[#f8f4eb] px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#173428]/70">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#173428]/10 bg-[#f8f4eb] px-4 py-2 text-caption font-bold uppercase tracking-widest text-[#173428]/70">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 {selectedSteps.filter((step) => step.key_step).length} etapes cle
               </span>

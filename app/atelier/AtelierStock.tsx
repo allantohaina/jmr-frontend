@@ -104,7 +104,7 @@ export function AtelierStock() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="font-headline text-3xl text-[#EAA100]">Gestion des Stocks</h2>
-          <p className="text-[10px] uppercase tracking-widest text-[#EAA100]/40 font-bold mt-1">Inventaire des matières premières</p>
+          <p className="text-caption uppercase tracking-widest text-[#EAA100]/40 font-bold mt-1">Inventaire des matières premières</p>
         </div>
         <div className="relative w-full md:w-64">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#EAA100]/40" />
@@ -126,40 +126,40 @@ export function AtelierStock() {
         ) : (
         <>
         {filteredItems.map(item => (
-          <div key={item.id} className="bg-[#25303a] p-6 rounded-[2rem] border border-[#EAA100]/5 shadow-sm hover:shadow-2xl transition-all group">
+          <div key={item.id} className="bg-[#161D30] p-6 rounded-[2rem] border border-[#EAA100]/5 shadow-sm hover:shadow-2xl transition-all group">
             <div className="flex justify-between items-start mb-4">
               <div className={`p-3 rounded-xl ${
-                item.category === "tissu" ? "bg-blue-500/10 text-blue-400" :
+                item.category === "tissu" ? "bg-[#5C9AD9]/10 text-[#5C9AD9]" :
                 item.category === "fil" ? "bg-purple-500/10 text-purple-400" :
                 "bg-[#EAA100]/10 text-[#EAA100]"
               }`}>
                 <Package className="w-5 h-5" />
               </div>
               {item.quantity < item.minThreshold && (
-                <div className="flex items-center gap-1 px-3 py-1 bg-red-500/10 text-red-400 rounded-full text-[9px] font-bold uppercase animate-pulse border border-red-500/20">
+                <div className="flex items-center gap-1 px-3 py-1 bg-[#E05252]/10 text-[#F3A3A6] rounded-full text-micro font-bold uppercase animate-pulse border border-[#E05252]/20">
                   <AlertTriangle className="w-3 h-3" /> Stock Bas
                 </div>
               )}
             </div>
 
             <h3 className="font-headline text-xl text-[#EAA100] mb-1">{item.name}</h3>
-            <p className="text-[10px] uppercase tracking-widest text-[#EAA100]/40 font-bold mb-6">{item.category}</p>
+            <p className="text-caption uppercase tracking-widest text-[#EAA100]/40 font-bold mb-6">{item.category}</p>
 
             <div className="flex items-center justify-between bg-[#1e2a38] p-4 rounded-2xl">
               <div>
-                <p className="text-[9px] uppercase tracking-widest text-[#EAA100]/40 font-bold">Quantité</p>
+                <p className="text-micro uppercase tracking-widest text-[#EAA100]/40 font-bold">Quantité</p>
                 <p className="text-lg font-bold text-[#EAA100]">{item.quantity} <span className="text-xs font-medium opacity-60">{item.unit}</span></p>
               </div>
               <div className="flex gap-2">
                 <button 
                   onClick={() => updateQuantity(item.id, -1)}
-                  className="w-10 h-10 rounded-xl bg-[#25303a] border border-[#EAA100]/10 text-[#EAA100] flex items-center justify-center hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                  className="w-10 h-10 rounded-xl bg-[#161D30] border border-[#EAA100]/10 text-[#EAA100] flex items-center justify-center hover:bg-[#E05252]/10 hover:text-[#F3A3A6] transition-colors"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
                 <button 
                   onClick={() => updateQuantity(item.id, 1)}
-                  className="w-10 h-10 rounded-xl bg-[#25303a] border border-[#EAA100]/10 text-[#EAA100] flex items-center justify-center hover:bg-green-500/10 hover:text-green-400 transition-colors"
+                  className="w-10 h-10 rounded-xl bg-[#161D30] border border-[#EAA100]/10 text-[#EAA100] flex items-center justify-center hover:bg-[#1F8457]/10 hover:text-[#5CB87D] transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                 </button>

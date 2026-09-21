@@ -75,23 +75,23 @@ export default function WorkerLoginPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Inter:wght@300;400;500;600&display=swap');
+        
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
           --bg-deep: #1e2a38;
-          --bg-panel: #141e2e;
+          --bg-panel: #161D30;
           --gold: #EAA100;
           --gold-light: #EAA100;
-          --text-cream: #f3efe4;
+          --text-cream: #FFF8EC;
           --text-muted: #8b93a7;
         }
 
         .worker-login-root {
           min-height: 100vh;
           background: var(--bg-deep);
-          font-family: 'Inter', sans-serif;
+          font-family: var(--font-inter), system-ui, sans-serif;
           display: grid;
           grid-template-columns: 1fr 1fr;
         }
@@ -136,7 +136,7 @@ export default function WorkerLoginPage() {
         }
 
         .copy-section h2 {
-          font-family: 'Fraunces', serif;
+          font-family: var(--font-brand), Georgia, serif;
           font-size: 32px;
           font-weight: 300;
           line-height: 1.35;
@@ -206,7 +206,7 @@ export default function WorkerLoginPage() {
         }
 
         .form-side h3 {
-          font-family: 'Fraunces', serif;
+          font-family: var(--font-brand), Georgia, serif;
           font-size: 28px;
           font-weight: 600;
           color: var(--text-cream);
@@ -242,7 +242,7 @@ export default function WorkerLoginPage() {
           border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 10px;
           color: var(--text-cream);
-          font-family: 'Inter', sans-serif;
+          font-family: var(--font-inter), system-ui, sans-serif;
           font-size: 14px;
           outline: none;
           transition: border-color 0.3s, box-shadow 0.3s;
@@ -270,7 +270,7 @@ export default function WorkerLoginPage() {
           border-radius: 10px;
           padding: 12px 16px;
           margin-bottom: 20px;
-          color: #f87171;
+          color: #F3A3A6;
           font-size: 13px;
           line-height: 1.5;
         }
@@ -282,7 +282,7 @@ export default function WorkerLoginPage() {
           border: none;
           border-radius: 10px;
           color: #1e2a38;
-          font-family: 'Inter', sans-serif;
+          font-family: var(--font-inter), system-ui, sans-serif;
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;

@@ -1,0 +1,252 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,9818,e=>{"use strict";var r=e.i(43476),t=e.i(71645),o=e.i(22016);e.i(47624);var a=e.i(21140),i=e.i(34461),n=e.i(51617),s=e.i(12732);function l(){let[e,l]=(0,t.useState)(""),[d,p]=(0,t.useState)(""),[c,x]=(0,t.useState)(""),[m,g]=(0,t.useState)(!1),[u,h]=(0,t.useState)(!1);function f(){let e=new URLSearchParams(window.location.search);return(0,i.getSafeRedirectPath)(e.get("next"))??null}(0,t.useEffect)(()=>{h(!0),(0,a.getToken)()&&(window.location.href=f()||"/atelier")},[]);let b=async r=>{if(r.preventDefault(),x(""),!n.loginRateLimiter.check("worker-login").allowed)return void x("Trop de tentatives. Veuillez réessayer plus tard.");g(!0);try{let r=new FormData;r.append("intent","login"),r.append("email",e),r.append("password",d);let t=f();t&&r.append("next",t);let o=await (0,a.authenticateWithForm)(r);o?.user?.role==="worker"||o?.user?.role==="admin"?window.location.href=t||"/atelier":x("Accès non autorisé. Vous devez être opérateur.")}catch(e){x("Email ou mot de passe incorrect.")}finally{g(!1)}};return u?(0,r.jsxs)(r.Fragment,{children:[(0,r.jsx)("style",{children:`
+        
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+          --bg-deep: #1e2a38;
+          --bg-panel: #161D30;
+          --gold: #EAA100;
+          --gold-light: #EAA100;
+          --text-cream: #FFF8EC;
+          --text-muted: #8b93a7;
+        }
+
+        .worker-login-root {
+          min-height: 100vh;
+          background: var(--bg-deep);
+          font-family: var(--font-inter), system-ui, sans-serif;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .panel {
+          position: relative;
+          background: var(--bg-panel);
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 48px;
+          overflow: hidden;
+        }
+
+        .thread-bg {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          opacity: 0.15;
+        }
+
+        .brand-mark {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+
+        .copy-section {
+          position: relative;
+          z-index: 1;
+          margin-top: auto;
+        }
+
+        .copy-section .eyebrow {
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 3px;
+          color: var(--gold);
+          margin-bottom: 16px;
+        }
+
+        .copy-section h2 {
+          font-family: var(--font-brand), Georgia, serif;
+          font-size: 32px;
+          font-weight: 300;
+          line-height: 1.35;
+          color: var(--text-cream);
+          margin-bottom: 20px;
+        }
+
+        .copy-section p {
+          font-size: 14px;
+          line-height: 1.7;
+          color: var(--text-muted);
+          max-width: 420px;
+        }
+
+        .panel-footer {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          gap: 24px;
+          margin-top: 48px;
+        }
+
+        .panel-footer span {
+          font-size: 11px;
+          letter-spacing: 1px;
+          color: var(--text-muted);
+          text-transform: uppercase;
+        }
+
+        .form-side {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 60px;
+          background: var(--bg-deep);
+        }
+
+        .form-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(59, 155, 143, 0.1);
+          border: 1px solid rgba(59, 155, 143, 0.2);
+          border-radius: 24px;
+          padding: 6px 16px;
+          font-size: 12px;
+          font-weight: 500;
+          color: var(--gold);
+          margin-bottom: 24px;
+          width: fit-content;
+          letter-spacing: 1px;
+        }
+
+        .back-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          color: var(--text-muted);
+          text-decoration: none;
+          font-size: 13px;
+          margin-bottom: 32px;
+          transition: color 0.2s;
+        }
+
+        .back-link:hover {
+          color: var(--text-cream);
+        }
+
+        .form-side h3 {
+          font-family: var(--font-brand), Georgia, serif;
+          font-size: 28px;
+          font-weight: 600;
+          color: var(--text-cream);
+          margin-bottom: 6px;
+        }
+
+        .form-side .subtitle {
+          font-size: 11px;
+          font-weight: 500;
+          letter-spacing: 3px;
+          color: var(--text-muted);
+          margin-bottom: 40px;
+        }
+
+        .form-group {
+          margin-bottom: 20px;
+        }
+
+        .form-group label {
+          display: block;
+          font-size: 12px;
+          font-weight: 500;
+          letter-spacing: 1px;
+          color: var(--text-muted);
+          margin-bottom: 8px;
+          text-transform: uppercase;
+        }
+
+        .form-group input {
+          width: 100%;
+          padding: 14px 16px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 10px;
+          color: var(--text-cream);
+          font-family: var(--font-inter), system-ui, sans-serif;
+          font-size: 14px;
+          outline: none;
+          transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus {
+          border-color: var(--gold);
+          box-shadow: 0 0 0 3px rgba(234, 161, 0, 0.12);
+          animation: stitchPulse 0.6s ease;
+        }
+
+        .form-group input::placeholder {
+          color: rgba(139, 147, 167, 0.5);
+        }
+
+        @keyframes stitchPulse {
+          0% { box-shadow: 0 0 0 0 rgba(234, 161, 0, 0.3); }
+          50% { box-shadow: 0 0 0 6px rgba(234, 161, 0, 0.08); }
+          100% { box-shadow: 0 0 0 3px rgba(234, 161, 0, 0.12); }
+        }
+
+        .error-box {
+          background: rgba(220, 53, 69, 0.1);
+          border: 1px solid rgba(220, 53, 69, 0.25);
+          border-radius: 10px;
+          padding: 12px 16px;
+          margin-bottom: 20px;
+          color: #F3A3A6;
+          font-size: 13px;
+          line-height: 1.5;
+        }
+
+        .submit-btn {
+          width: 100%;
+          padding: 14px;
+          background: var(--gold);
+          border: none;
+          border-radius: 10px;
+          color: #1e2a38;
+          font-family: var(--font-inter), system-ui, sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.2s, transform 0.1s;
+          margin-top: 8px;
+        }
+
+        .submit-btn:hover {
+          background: var(--gold-light);
+        }
+
+        .submit-btn:active {
+          transform: scale(0.98);
+        }
+
+        .submit-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .form-footer-note {
+          text-align: center;
+          font-size: 12px;
+          color: var(--text-muted);
+          margin-top: 28px;
+        }
+
+        @media (max-width: 900px) {
+          .worker-login-root {
+            grid-template-columns: 1fr;
+          }
+          .panel {
+            display: none;
+          }
+          .form-side {
+            padding: 32px 24px;
+          }
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}),(0,r.jsxs)("div",{className:"worker-login-root",children:[(0,r.jsx)(s.AuthBar,{}),(0,r.jsxs)("div",{className:"panel",children:[(0,r.jsxs)("svg",{className:"thread-bg",viewBox:"0 0 600 900",fill:"none",xmlns:"http://www.w3.org/2000/svg",children:[(0,r.jsx)("path",{d:"M50 100 Q200 200 150 400 Q100 600 250 800",stroke:"#EAA100",strokeWidth:"1.5",strokeDasharray:"8 6",fill:"none"}),(0,r.jsx)("path",{d:"M120 50 Q300 180 220 450 Q140 720 300 850",stroke:"#EAA100",strokeWidth:"1",strokeDasharray:"6 8",fill:"none"}),(0,r.jsx)("path",{d:"M400 30 Q320 250 380 480 Q440 700 350 880",stroke:"#EAA100",strokeWidth:"1",strokeDasharray:"10 5",fill:"none"}),(0,r.jsx)("path",{d:"M500 120 Q420 300 480 520 Q540 740 430 870",stroke:"#EAA100",strokeWidth:"1.2",strokeDasharray:"5 9",fill:"none"}),(0,r.jsx)("path",{d:"M80 200 Q250 320 180 560 Q110 800 280 900",stroke:"#EAA100",strokeWidth:"0.8",strokeDasharray:"4 10",fill:"none"})]}),(0,r.jsx)("div",{className:"brand-mark",children:(0,r.jsx)("img",{src:"/navbar/logo-dark.svg",alt:"JMR Textile",style:{height:40,width:"auto"}})}),(0,r.jsxs)("div",{className:"copy-section",children:[(0,r.jsx)("div",{className:"eyebrow",children:"ESPACE ATELIER"}),(0,r.jsx)("h2",{children:"La précision d'un atelier, au service de chaque opérateur."}),(0,r.jsx)("p",{children:"Commandes, tissage et finition : accédez à votre espace de production avec la même exigence que celle transmise à chaque pièce cousue à Madagascar."})]}),(0,r.jsxs)("div",{className:"panel-footer",children:[(0,r.jsx)("span",{children:"Sécurisé"}),(0,r.jsx)("span",{children:"Production"}),(0,r.jsx)("span",{children:"© 2026"})]})]}),(0,r.jsxs)("div",{className:"form-side",children:[(0,r.jsxs)("div",{className:"form-badge",children:[(0,r.jsxs)("svg",{width:"14",height:"14",viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round",children:[(0,r.jsx)("path",{d:"M12 20h9"}),(0,r.jsx)("path",{d:"M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"})]}),"Atelier"]}),(0,r.jsx)(o.default,{href:"/",className:"back-link",children:"← Retour au site"}),(0,r.jsx)("h3",{children:"Espace atelier"}),(0,r.jsx)("div",{className:"subtitle",children:"CONNEXION SÉCURISÉE"}),(0,r.jsxs)("form",{onSubmit:b,children:[(0,r.jsxs)("div",{className:"form-group",children:[(0,r.jsx)("label",{htmlFor:"email",children:"Adresse email"}),(0,r.jsx)("input",{id:"email",type:"email",placeholder:"votre@email.com",value:e,onChange:e=>l(e.target.value),required:!0,autoComplete:"email"})]}),(0,r.jsxs)("div",{className:"form-group",children:[(0,r.jsx)("label",{htmlFor:"password",children:"Mot de passe"}),(0,r.jsx)("input",{id:"password",type:"password",placeholder:"••••••••",value:d,onChange:e=>p(e.target.value),required:!0,autoComplete:"current-password"})]}),c&&(0,r.jsx)("div",{className:"error-box",children:c}),(0,r.jsx)("button",{type:"submit",className:"submit-btn",disabled:m,children:m?"Connexion en cours...":"Se connecter"})]}),(0,r.jsx)("div",{className:"form-footer-note",children:"Accès réservé aux opérateurs de production"})]})]})]}):(0,r.jsxs)("div",{style:{minHeight:"100vh",background:"#1e2a38",display:"flex",alignItems:"center",justifyContent:"center"},children:[(0,r.jsx)("div",{style:{width:40,height:40,border:"3px solid #EAA100",borderTopColor:"transparent",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}),(0,r.jsx)("style",{children:"@keyframes spin { to { transform: rotate(360deg); } }"})]})}e.s(["default",()=>l])}]);
