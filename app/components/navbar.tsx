@@ -4,7 +4,8 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { animate, set, stagger } from "animejs";
 import { scrollToSection } from "@/app/lib/scroll";
 import { safeUrl } from "@/app/lib/utils";
 
@@ -320,6 +321,42 @@ export function Navbar({
     return () => window.removeEventListener("mobile-menu-swipe-open", handleSwipeOpen);
   }, []);
 
+  // Entrée en cascade des items de navigation (anime.js)
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const items = Array.from(
+      document.querySelectorAll<HTMLElement>(".site-nav__menu > .site-nav__item"),
+    );
+    if (items.length === 0) return;
+    set(items, { opacity: 0 });
+    const entrance = animate(items, {
+      opacity: [0, 1],
+      y: [-10, 0],
+      duration: 500,
+      delay: stagger(60),
+      ease: "outExpo",
+      autoplay: false,
+    });
+    entrance.play();
+    return () => { entrance.revert(); };
+  }, []);
+
+  // La clochette s'anime quand une nouvelle notification arrive
+  const prevUnread = useRef(unreadNotifications);
+  useEffect(() => {
+    const previous = prevUnread.current;
+    prevUnread.current = unreadNotifications;
+    if (unreadNotifications <= previous || unreadNotifications === 0) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const bell = document.querySelector(".site-nav__item--notif .site-nav__icon");
+    if (!bell) return;
+    animate(bell, {
+      rotate: [0, -14, 12, -8, 6, 0],
+      duration: 700,
+      ease: "inOutSine",
+    });
+  }, [unreadNotifications]);
+
   useEffect(() => {
     if (pathname !== "/") {
       return;
@@ -463,10 +500,10 @@ export function Navbar({
                   </button>
 
                   {isProfileOpen && (
-                    <div className="absolute top-full right-0 mt-2 w-48 bg-[#25303a] border border-[#FFB31B]/20 rounded-xl shadow-xl py-2 z-[110] animate-in fade-in zoom-in-95 duration-200">
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-[#25303a] border border-[#EAA100]/20 rounded-xl shadow-xl py-2 z-[110] animate-in fade-in zoom-in-95 duration-200">
                       <Link
                         href="/mon-profil"
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#FFB31B] transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#EAA100] transition-colors"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         <span className="material-symbols-outlined text-xl">person</span>
@@ -475,14 +512,14 @@ export function Navbar({
                       {effectiveUserRole === "admin" && (
                         <Link
                           href="/backoffice"
-                          className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#FFB31B] transition-colors"
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-[#1e2a38] text-sm font-medium text-[#EAA100] transition-colors"
                           onClick={() => setIsProfileOpen(false)}
                         >
                           <span className="material-symbols-outlined text-xl">admin_panel_settings</span>
                           {messages.navbar.administration}
                         </Link>
                       )}
-                      <div className="h-px bg-[#FFB31B]/20 mx-2 my-1"></div>
+                      <div className="h-px bg-[#EAA100]/20 mx-2 my-1"></div>
                       <button
                         type="button"
                         onClick={handleSignOut}
@@ -548,7 +585,7 @@ export function Navbar({
                     loading="lazy"
                   />
                   {unreadNotifications > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FFB31B] px-1 text-[10px] font-bold leading-none text-[#1e2a38]">
+                    <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#EAA100] px-1 text-[10px] font-bold leading-none text-[#1e2a38]">
                       {unreadNotifications > 9 ? "9+" : unreadNotifications}
                     </span>
                   )}
@@ -557,8 +594,8 @@ export function Navbar({
               </button>
 
               {isNotifOpen && (
-                <div className="absolute top-full right-0 mt-2 w-80 bg-[#25303a] border border-[#FFB31B]/20 rounded-xl shadow-xl py-4 px-4 z-[110] animate-in fade-in zoom-in-95 duration-200">
-                  <h3 className="text-sm font-semibold text-[#FFB31B] mb-3">{messages.notifications.bellTitle}</h3>
+                <div className="absolute top-full right-0 mt-2 w-80 bg-[#25303a] border border-[#EAA100]/20 rounded-xl shadow-xl py-4 px-4 z-[110] animate-in fade-in zoom-in-95 duration-200">
+                  <h3 className="text-sm font-semibold text-[#EAA100] mb-3">{messages.notifications.bellTitle}</h3>
 
                   {isPushSupported() && (
                     <div className="mb-3 rounded-lg bg-[#1e2a38] p-3">
@@ -644,13 +681,13 @@ export function Navbar({
 
         <button
           type="button"
-          className="max-[900px]:flex max-[900px]:items-center max-[900px]:justify-center hidden h-10 w-10 rounded-xl transition-colors hover:bg-[#FFB31B]/10"
+          className="max-[900px]:flex max-[900px]:items-center max-[900px]:justify-center hidden h-10 w-10 rounded-xl transition-colors hover:bg-[#EAA100]/10"
           onClick={handleToggleBurger}
           aria-label="Menu"
           aria-expanded={isMenuOpen}
           aria-controls="site-mobile-menu"
         >
-          <span className="material-symbols-outlined text-[#FFB31B] text-2xl">
+          <span className="material-symbols-outlined text-[#EAA100] text-2xl">
             {isMenuOpen ? "close" : "menu"}
           </span>
         </button>

@@ -154,30 +154,30 @@ function buildLinesFromQuote(q: QuoteRecord): LineRow[] {
 
 const scopedStyles = `
 .eqd-page{max-width:900px;margin:0 auto;}
-.eqd-crumb{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,179,27,.4);margin-bottom:14px;text-decoration:none;transition:color .2s;}
-.eqd-crumb:hover{color:#FFB31B;}
+.eqd-crumb{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(234, 161, 0,.4);margin-bottom:14px;text-decoration:none;transition:color .2s;}
+.eqd-crumb:hover{color:#EAA100;}
 .eqd-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
 .eqd-head h1{font-size:22px;font-weight:600;margin:0 0 4px;color:#f3e9d6;}
 .eqd-head .ref{font-size:13px;color:#9aa7b4;}
-.eqd-badge{background:rgba(255,179,27,.12);color:#FFB31B;border:1px solid rgba(255,179,27,.35);padding:5px 14px;border-radius:20px;font-size:13px;font-weight:500;height:fit-content;white-space:nowrap;}
-.eqd-tabs{display:flex;gap:4px;border-bottom:1px solid rgba(255,179,27,.12);margin-bottom:20px;overflow-x:auto;}
+.eqd-badge{background:rgba(234, 161, 0,.12);color:#EAA100;border:1px solid rgba(234, 161, 0,.35);padding:5px 14px;border-radius:20px;font-size:13px;font-weight:500;height:fit-content;white-space:nowrap;}
+.eqd-tabs{display:flex;gap:4px;border-bottom:1px solid rgba(234, 161, 0,.12);margin-bottom:20px;overflow-x:auto;}
 .eqd-tab{background:none;border:none;color:#9aa7b4;font-size:14px;font-weight:500;padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s;}
 .eqd-tab:hover{color:#f3e9d6;}
-.eqd-tab.active{color:#FFB31B;border-bottom-color:#FFB31B;}
+.eqd-tab.active{color:#EAA100;border-bottom-color:#EAA100;}
 .eqd-panel{display:none;}
 .eqd-panel.active{display:block;}
-.eqd-card{background:#25303a;border:1px solid rgba(255,179,27,.1);border-radius:12px;padding:20px 22px;margin-bottom:16px;}
+.eqd-card{background:#25303a;border:1px solid rgba(234, 161, 0,.1);border-radius:12px;padding:20px 22px;margin-bottom:16px;}
 .eqd-card h2{font-size:15px;font-weight:600;margin:0 0 4px;color:#f3e9d6;}
 .eqd-card .card-sub{font-size:13px;color:#9aa7b4;margin:0 0 16px;line-height:1.55;}
 .eqd-client-msg-label{font-size:12px;color:#9aa7b4;margin-bottom:8px;}
-.eqd-client-msg{background:#1e2a38;border:1px solid rgba(255,179,27,.1);border-radius:10px;padding:14px 16px;font-size:13.5px;color:#9aa7b4;line-height:1.6;}
+.eqd-client-msg{background:#1e2a38;border:1px solid rgba(234, 161, 0,.1);border-radius:10px;padding:14px 16px;font-size:13.5px;color:#9aa7b4;line-height:1.6;}
 .eqd-table-wrap{overflow-x:auto;}
 table.eqd-lines{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px;}
-table.eqd-lines th{text-align:left;font-weight:500;color:#9aa7b4;font-size:12px;padding:0 8px 8px 0;border-bottom:1px solid rgba(255,179,27,.12);}
-table.eqd-lines td{padding:8px 8px 8px 0;border-bottom:1px solid rgba(255,179,27,.08);vertical-align:middle;color:#f3e9d6;}
+table.eqd-lines th{text-align:left;font-weight:500;color:#9aa7b4;font-size:12px;padding:0 8px 8px 0;border-bottom:1px solid rgba(234, 161, 0,.12);}
+table.eqd-lines td{padding:8px 8px 8px 0;border-bottom:1px solid rgba(234, 161, 0,.08);vertical-align:middle;color:#f3e9d6;}
 table.eqd-lines th:last-child,table.eqd-lines td:last-child{text-align:right;padding-right:0;}
-table.eqd-lines input,table.eqd-lines select{width:100%;background:#1e2a38;border:1px solid rgba(255,179,27,.15);color:#f3e9d6;border-radius:6px;padding:6px 8px;font-size:13.5px;}
-table.eqd-lines input:focus,table.eqd-lines select:focus{outline:none;border-color:#FFB31B;}
+table.eqd-lines input,table.eqd-lines select{width:100%;background:#1e2a38;border:1px solid rgba(234, 161, 0,.15);color:#f3e9d6;border-radius:6px;padding:6px 8px;font-size:13.5px;}
+table.eqd-lines input:focus,table.eqd-lines select:focus{outline:none;border-color:#EAA100;}
 .eqd-col-qty,.eqd-col-tva{width:70px;}
 .eqd-col-price{width:130px;}
 .eqd-col-total{width:120px;text-align:right;font-weight:500;}
@@ -186,22 +186,22 @@ table.eqd-lines input:focus,table.eqd-lines select:focus{outline:none;border-col
 .eqd-totals{display:flex;justify-content:flex-end;margin-top:18px;}
 .eqd-totals-box{width:240px;font-size:13.5px;}
 .eqd-totals-row{display:flex;justify-content:space-between;padding:5px 0;color:#9aa7b4;}
-.eqd-totals-row.grand{border-top:1px solid rgba(255,179,27,.15);margin-top:6px;padding-top:10px;font-size:16px;font-weight:600;color:#f3e9d6;}
+.eqd-totals-row.grand{border-top:1px solid rgba(234, 161, 0,.15);margin-top:6px;padding-top:10px;font-size:16px;font-weight:600;color:#f3e9d6;}
 .eqd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;}
 .eqd-field label{display:block;font-size:12px;color:#9aa7b4;margin-bottom:6px;}
-.eqd-field input,.eqd-field select,.eqd-field textarea{width:100%;background:#1e2a38;border:1px solid rgba(255,179,27,.15);color:#f3e9d6;border-radius:8px;padding:9px 10px;font-size:14px;}
-.eqd-field input:focus,.eqd-field select:focus,.eqd-field textarea:focus{outline:none;border-color:#FFB31B;}
+.eqd-field input,.eqd-field select,.eqd-field textarea{width:100%;background:#1e2a38;border:1px solid rgba(234, 161, 0,.15);color:#f3e9d6;border-radius:8px;padding:9px 10px;font-size:14px;}
+.eqd-field input:focus,.eqd-field select:focus,.eqd-field textarea:focus{outline:none;border-color:#EAA100;}
 .eqd-field textarea{resize:vertical;min-height:90px;}
 .eqd-field.full{grid-column:1/-1;}
-.eqd-readonly{background:#1e2a38;border:1px solid rgba(255,179,27,.1);border-radius:8px;padding:9px 10px;font-size:14px;color:#9aa7b4;}
+.eqd-readonly{background:#1e2a38;border:1px solid rgba(234, 161, 0,.1);border-radius:8px;padding:9px 10px;font-size:14px;color:#9aa7b4;}
 .eqd-checkline{display:flex;align-items:center;gap:8px;font-size:13.5px;color:#9aa7b4;margin-top:6px;}
-.eqd-checkline input{width:auto;accent-color:#FFB31B;}
-.eqd-actionbar{position:sticky;bottom:16px;display:flex;gap:10px;background:#25303a;border:1px solid rgba(255,179,27,.2);border-radius:12px;padding:12px;margin-top:8px;z-index:10;}
-.eqd-btn{flex:1;padding:11px 16px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid rgba(255,179,27,.2);background:#1e2a38;color:#f3e9d6;transition:background .2s;}
-.eqd-btn:hover:not(:disabled){background:rgba(255,179,27,.1);}
+.eqd-checkline input{width:auto;accent-color:#EAA100;}
+.eqd-actionbar{position:sticky;bottom:16px;display:flex;gap:10px;background:#25303a;border:1px solid rgba(234, 161, 0,.2);border-radius:12px;padding:12px;margin-top:8px;z-index:10;}
+.eqd-btn{flex:1;padding:11px 16px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid rgba(234, 161, 0,.2);background:#1e2a38;color:#f3e9d6;transition:background .2s;}
+.eqd-btn:hover:not(:disabled){background:rgba(234, 161, 0,.1);}
 .eqd-btn:disabled{opacity:.5;cursor:not-allowed;}
-.eqd-btn.primary{background:#FFB31B;border-color:#FFB31B;color:#1a1300;font-weight:600;}
-.eqd-btn.primary:hover:not(:disabled){filter:brightness(1.07);background:#FFB31B;}
+.eqd-btn.primary{background:#EAA100;border-color:#EAA100;color:#1a1300;font-weight:600;}
+.eqd-btn.primary:hover:not(:disabled){filter:brightness(1.07);background:#EAA100;}
 .eqd-btn.ghost{flex:0 0 auto;background:none;}
 .eqd-notice{padding:14px 16px;border-radius:12px;border:1px solid;font-size:12px;font-weight:600;margin-bottom:16px;}
 .eqd-notice.success{background:rgba(31,132,87,.1);border-color:rgba(31,132,87,.3);color:#5fd39a;}
@@ -565,11 +565,11 @@ export function EditDevisSection({ id }: { id: string }) {
   if (isLoading) {
     return (
       <div className="px-6 md:px-12 py-10 animate-pulse">
-        <div className="h-8 w-64 bg-[#FFB31B]/10 rounded mb-4"></div>
-        <div className="h-4 w-96 bg-[#FFB31B]/10 rounded mb-12"></div>
+        <div className="h-8 w-64 bg-[#EAA100]/10 rounded mb-4"></div>
+        <div className="h-4 w-96 bg-[#EAA100]/10 rounded mb-12"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="h-64 bg-[#25303a] rounded-[2rem] border border-[#FFB31B]/10"></div>
-          <div className="h-64 bg-[#25303a] rounded-[2rem] border border-[#FFB31B]/10"></div>
+          <div className="h-64 bg-[#25303a] rounded-[2rem] border border-[#EAA100]/10"></div>
+          <div className="h-64 bg-[#25303a] rounded-[2rem] border border-[#EAA100]/10"></div>
         </div>
       </div>
     );
@@ -579,7 +579,7 @@ export function EditDevisSection({ id }: { id: string }) {
     return (
       <div className="px-6 md:px-12 py-10 text-center">
         <span className="material-symbols-outlined text-red-500 text-6xl mb-4">error</span>
-        <h2 className="font-headline text-2xl text-[#FFB31B] mb-2">{loadError}</h2>
+        <h2 className="font-headline text-2xl text-[#EAA100] mb-2">{loadError}</h2>
         <button
           onClick={() => setReloadIndex(i => i + 1)}
           className="mt-6 px-8 py-3 bg-[#163526] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl"
@@ -947,8 +947,8 @@ export function EditDevisSection({ id }: { id: string }) {
               <TextileDocument kind="quote" {...quoteToQuoteDoc(previewQuote, lines)} />
               <div className="print:hidden max-w-[210mm] mx-auto" style={{ marginTop: 24 }}>
                 {savingSignature ? (
-                  <div className="flex items-center justify-center gap-2 rounded-2xl border border-[#FFB31B]/30 bg-[#fffdf8] p-6 text-[#172d42] shadow-sm">
-                    <Loader className="h-4 w-4 animate-spin text-[#FFB31B]" />
+                  <div className="flex items-center justify-center gap-2 rounded-2xl border border-[#EAA100]/30 bg-[#fffdf8] p-6 text-[#172d42] shadow-sm">
+                    <Loader className="h-4 w-4 animate-spin text-[#EAA100]" />
                     <span className="text-xs font-bold uppercase tracking-widest">Enregistrement de la signature…</span>
                   </div>
                 ) : (

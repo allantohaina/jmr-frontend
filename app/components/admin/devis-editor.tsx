@@ -137,7 +137,7 @@ export function DevisEditor() {
           ) : (
             <>
               1 EUR ≈ {fmtPlain(eurToMga)} Ar
-              <span className="text-[#FFB31B]">{new Date().toLocaleDateString("fr-FR")}</span>
+              <span className="text-[#EAA100]">{new Date().toLocaleDateString("fr-FR")}</span>
             </>
           )}
         </span>

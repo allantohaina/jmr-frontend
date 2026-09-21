@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { EditableImage } from "@/app/components/editable-image";
 import { EditableText } from "@/app/components/editable-text";
+import { AnimeStagger, AnimeFloat, AnimeGrow } from "@/app/components/anime-reveal";
 
 type ServiceStep = {
   key: string;
@@ -46,19 +47,19 @@ export function NosServicesSection() {
         <h1 className="ui-section-title" id="services-page-title">
           <EditableText contentKey="nosservices.title" fallback="Ce que nous faisons ?" as="span" multiline />
         </h1>
-        <span className="services-page__underline ui-section-underline" aria-hidden="true" />
+        <AnimeGrow>
+          <span className="services-page__underline ui-section-underline" aria-hidden="true" />
+        </AnimeGrow>
       </header>
 
-      <ol className="services-flow" aria-label="Etapes du service">
+      <AnimeStagger as="ol" className="services-flow" itemSelector=".services-flow__step" staggerMs={110} ariaLabel="Etapes du service">
         {SERVICE_STEPS.map((step, index) => (
           <li
             className="services-flow__step"
             key={step.key}
-            data-reveal
-            style={{ transitionDelay: `${index * 90}ms` }}
           >
             <p className="services-flow__title"><EditableText contentKey={`nosservices.step.${step.key}.title`} fallback={step.title} as="span" multiline /></p>
-            <div className="services-flow__media-wrap">
+            <AnimeFloat className="services-flow__media-wrap" amplitude={7} duration={2600} delay={index * 350}>
               <div className={`services-flow__media services-flow__media--${step.key}`}>
                 <div className="services-flow__photo-shell">
                   <EditableImage
@@ -77,7 +78,7 @@ export function NosServicesSection() {
                   sizes="(max-width: 900px) 68vw, (max-width: 1200px) 34vw, 22vw"
                 />
               </div>
-            </div>
+            </AnimeFloat>
 
             {index < SERVICE_STEPS.length - 1 ? (
               <span className="services-flow__connector" aria-hidden="true">
@@ -86,7 +87,7 @@ export function NosServicesSection() {
             ) : null}
           </li>
         ))}
-      </ol>
+      </AnimeStagger>
 
       <p className="services-page__claim"><EditableText contentKey="nosservices.claim" fallback="Un seul contact, un cadre clair." as="span" /></p>
 

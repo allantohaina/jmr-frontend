@@ -3,14 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLocale } from "@/app/components/locale-provider";
-import { authenticateWithForm } from "@/app/lib";
+import { authenticateWithForm, writeBrowserCookie } from "@/app/lib";
+import { LOCALE_COOKIE_NAME, type Locale } from "@/app/lib/locale";
 import { loginRateLimiter } from "@/app/lib/rate-limit";
+import { AnimeReveal } from "@/app/components/anime-reveal";
 import { useForm, Controller, useWatch, type FieldErrors } from "react-hook-form";
 import { getErrorMessage } from "@/app/lib/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
-import { AuthBar } from "@/app/components/auth-bar";
 
 // Liste des pays avec code ISO et indicatif téléphonique
 const countries = [
@@ -80,18 +81,51 @@ type SignupFeedback = {
   message: string;
 };
 
+const LOGIN_STRINGS = {
+  fr: {
+    back: "Retour au site",
+    emailLabel: "Adresse e-mail",
+    emailPh: "nom@atelier.com",
+    pwdLabel: "Mot de passe",
+    pwdPh: "••••••••",
+    forgot: "Mot de passe oublié ?",
+    remember: "Mémoriser mon appareil",
+    showPwd: "Afficher le mot de passe",
+    hidePwd: "Masquer le mot de passe",
+    proLink: "Créer un compte professionnel",
+    support: "Support technique",
+    privacy: "Confidentialité",
+  },
+  en: {
+    back: "Back to site",
+    emailLabel: "Email address",
+    emailPh: "name@atelier.com",
+    pwdLabel: "Password",
+    pwdPh: "••••••••",
+    forgot: "Forgot password?",
+    remember: "Remember this device",
+    showPwd: "Show password",
+    hidePwd: "Hide password",
+    proLink: "Create a business account",
+    support: "Technical support",
+    privacy: "Privacy",
+  },
+} as const;
+
 function resolveAuthErrorMessage(error?: string | null) {
   if (!error) return "";
   return getErrorMessage(error);
 }
 
 export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab = "login" }: ClientAccessPageProps) {
-  const { messages } = useLocale();
+  const { locale, setLocale, messages } = useLocale();
   const [errorMessage, setErrorMessage] = useState(resolveAuthErrorMessage(error));
   const [signupFeedback, setSignupFeedback] = useState<SignupFeedback | null>(null);
   const [pendingIntent, setPendingIntent] = useState<"login" | "signup" | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "signup">(initialTab);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const t = LOGIN_STRINGS[locale === "en" ? "en" : "fr"];
 
   const signupForm = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -121,6 +155,15 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  function handleLocaleChange(nextLocale: Locale) {
+    setLocale(nextLocale);
+    writeBrowserCookie(LOCALE_COOKIE_NAME, nextLocale, {
+      maxAge: 60 * 60 * 24 * 365,
+      path: "/",
+      sameSite: "Lax",
+    });
+  }
 
   async function handleLoginSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -193,578 +236,715 @@ export function ClientAccessPage({ nextPath = "/mon-profil", error, initialTab =
 
   if (!isMounted) {
     return (
-      <div style={{ minHeight: "100vh", background: "#1e2a38", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: 40, height: 40, border: "3px solid #FFB31B", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+      <div style={{ minHeight: "100vh", background: "#0A0E19", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 40, height: 40, border: "3px solid #F5C518", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   return (
-    <>
-      <AuthBar />
+    <div className="login-page">
       <style>{`
-        .client-login-root {
+        .login-page {
           min-height: 100vh;
-          background: #1e2a38;
+          min-height: 100dvh;
+          background: #0A0E19;
           font-family: 'Inter', sans-serif;
-          display: grid;
-          grid-template-columns: 1fr 1.2fr;
-        }
-
-        .client-panel {
-          position: relative;
-          background: #141e2e;
           display: flex;
           flex-direction: column;
+          align-items: center;
+          padding: 28px 20px 44px;
+          color: #f2f2f0;
+        }
+
+        .login-top {
+          width: 100%;
+          max-width: 480px;
+          display: flex;
+          align-items: center;
           justify-content: space-between;
-          padding: 48px;
-          overflow: hidden;
+          margin-bottom: 28px;
         }
 
-        .client-thread-bg {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          opacity: 0.15;
-        }
-
-        .client-brand-mark {
-          position: relative;
-          z-index: 1;
-          display: flex;
-          align-items: center;
-          gap: 14px;
-        }
-
-        .client-copy-section {
-          position: relative;
-          z-index: 1;
-          margin-top: auto;
-        }
-
-        .client-copy-section .eyebrow {
-          font-size: 11px;
-          font-weight: 600;
-          letter-spacing: 3px;
-          color: #FFB31B;
-          margin-bottom: 16px;
-        }
-
-        .client-copy-section h2 {
-          font-family: 'Fraunces', serif;
-          font-size: 32px;
-          font-weight: 300;
-          line-height: 1.35;
-          color: #f3efe4;
-          margin-bottom: 20px;
-        }
-
-        .client-copy-section p {
-          font-size: 14px;
-          line-height: 1.7;
-          color: #8b93a7;
-          max-width: 440px;
-        }
-
-        .client-points {
-          list-style: none;
-          margin: 24px 0 0;
-          padding: 0;
-          display: grid;
-          gap: 12px;
-        }
-
-        .client-points li {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-size: 13px;
-          color: #f3efe4;
-        }
-
-        .client-points .dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: #FFB31B;
-          flex-shrink: 0;
-        }
-
-        .client-panel-footer {
-          position: relative;
-          z-index: 1;
-          display: flex;
-          gap: 24px;
-          margin-top: 48px;
-        }
-
-        .client-panel-footer span {
-          font-size: 11px;
-          letter-spacing: 1px;
-          color: #8b93a7;
-          text-transform: uppercase;
-        }
-
-        .client-form-side {
-          display: flex;
-          flex-direction: column;
-          padding: 48px 60px;
-          background: #1e2a38;
-          max-width: 640px;
-          width: 100%;
-          margin: 0 auto;
-        }
-
-        .client-form-inner {
-          width: 100%;
-          margin: auto 0;
-        }
-
-        .client-form-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(255, 179, 27, 0.1);
-          border: 1px solid rgba(255, 179, 27, 0.25);
-          border-radius: 24px;
-          padding: 6px 16px;
-          font-size: 12px;
-          font-weight: 500;
-          color: #FFB31B;
-          margin-bottom: 24px;
-          width: fit-content;
-        }
-
-        .client-back-link {
+        .login-back {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          color: #8b93a7;
-          text-decoration: none;
+          color: #F5C518;
           font-size: 13px;
-          margin-bottom: 32px;
-          transition: color 0.2s;
-        }
-
-        .client-back-link:hover {
-          color: #f3efe4;
-        }
-
-        .client-form-side h3 {
-          font-family: 'Fraunces', serif;
-          font-size: 28px;
-          font-weight: 600;
-          color: #f3efe4;
-          margin-bottom: 6px;
-        }
-
-        .client-form-side .subtitle {
-          font-size: 11px;
           font-weight: 500;
-          letter-spacing: 3px;
-          color: #8b93a7;
-          margin-bottom: 32px;
+          text-decoration: none;
         }
 
-        .client-error-box {
-          background: rgba(220, 53, 69, 0.1);
-          border: 1px solid rgba(220, 53, 69, 0.25);
+        .login-back:hover {
+          text-decoration: underline;
+          text-underline-offset: 4px;
+        }
+
+        .login-lang {
+          display: flex;
+          gap: 2px;
+          background: #151B30;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 999px;
+          padding: 3px;
+        }
+
+        .login-lang button {
+          border: none;
+          background: transparent;
+          color: #8b93a7;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.06em;
+          padding: 5px 12px;
+          border-radius: 999px;
+          cursor: pointer;
+          font-family: inherit;
+          transition: background 0.2s, color 0.2s;
+        }
+
+        .login-lang button.is-active {
+          background: #F5C518;
+          color: #1b2436;
+        }
+
+        .login-card {
+          width: 100%;
+          max-width: 480px;
+          background: #151B30;
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          border-radius: 20px;
+          padding: 28px;
+          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-card .auth-tabs {
+          background: #0B1120;
+          border-radius: 12px;
+          margin-bottom: 24px;
+        }
+
+        .login-card .auth-tab {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          font-size: 13px;
+          font-weight: 600;
+          color: #8b93a7;
+        }
+
+        .login-card .auth-tab.is-active {
+          background: #F5C518;
+          color: #1b2436;
+        }
+
+        .login-card .auth-panel.is-active {
+          background: transparent;
+          border: none;
+          border-radius: 0;
+          padding: 0;
+        }
+
+        .login-card .auth-label {
+          color: #f2f2f0;
+          font-size: 13px;
+          margin-bottom: 8px;
+        }
+
+        .login-card .auth-label-row {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 8px;
+        }
+
+        .login-card .auth-label-row .auth-label {
+          margin-bottom: 0;
+        }
+
+        .login-card .auth-forgot {
+          background: none;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          font-family: inherit;
+          font-size: 12px;
+          font-weight: 500;
+          color: #F5C518;
+          white-space: nowrap;
+        }
+
+        .login-card .auth-forgot:hover {
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+
+        .login-card .auth-input {
+          background: #ffffff;
+          border: 1px solid #ffffff;
+          color: #1b2436;
+          border-radius: 10px;
+        }
+
+        .login-card .auth-input::placeholder {
+          color: #9aa3b5;
+        }
+
+        .login-card .auth-input:focus {
+          outline: none;
+          border-color: #F5C518;
+          box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.25);
+        }
+
+        .login-card select.auth-input {
+          padding-left: 14px;
+        }
+
+        .login-card select.auth-input option {
+          color: #1b2436;
+          background: #ffffff;
+        }
+
+        .login-card .field-wrap {
+          position: relative;
+          margin-bottom: 16px;
+        }
+
+        .login-card .field-wrap .auth-input {
+          margin-bottom: 0;
+          padding-left: 40px;
+          padding-right: 14px;
+        }
+
+        .login-card .field-wrap .field-icon {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 18px;
+          height: 18px;
+          color: #9aa3b5;
+          pointer-events: none;
+        }
+
+        .login-card .field-wrap .field-eye {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 30px;
+          height: 30px;
+          background: none;
+          border: none;
+          border-radius: 8px;
+          color: #9aa3b5;
+          cursor: pointer;
+        }
+
+        .login-card .field-wrap .field-eye:hover {
+          color: #1b2436;
+          background: rgba(27, 36, 54, 0.06);
+        }
+
+        .login-card .field-wrap .field-eye svg {
+          width: 18px;
+          height: 18px;
+        }
+
+        .login-card .field-wrap.has-eye .auth-input {
+          padding-right: 44px;
+        }
+
+        .login-card .auth-remember {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #b9c0cf;
+          font-size: 13px;
+          margin: 4px 0 20px;
+          cursor: pointer;
+        }
+
+        .login-card .auth-remember input {
+          width: 15px;
+          height: 15px;
+          accent-color: #F5C518;
+          cursor: pointer;
+        }
+
+        .login-card .auth-submit {
+          background: #F5C518;
+          color: #1b2436;
+          font-weight: 700;
+          font-size: 14px;
+          border-radius: 10px;
+          padding: 13px 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+
+        .login-card .auth-checkbox input {
+          accent-color: #F5C518;
+        }
+
+        .login-card .auth-link {
+          color: #F5C518;
+        }
+
+        .login-card .auth-phone-prefix {
+          background: #EDF0F5;
+          border-color: #ffffff;
+          color: #5b6478;
+          border-radius: 10px 0 0 10px;
+        }
+
+        .login-card .auth-input--phone {
+          border-radius: 0 10px 10px 0;
+        }
+
+        .login-pro-link {
+          display: block;
+          margin: 18px auto 0;
+          background: none;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          font-family: inherit;
+          font-size: 12px;
+          color: #8b93a7;
+          text-decoration: underline;
+          text-underline-offset: 4px;
+        }
+
+        .login-pro-link:hover {
+          color: #f2f2f0;
+        }
+
+        .login-error {
+          background: rgba(229, 72, 77, 0.12);
+          border: 1px solid rgba(229, 72, 77, 0.35);
           border-radius: 10px;
           padding: 12px 16px;
           margin-bottom: 20px;
-          color: #f87171;
+          color: #f3a3a6;
           font-size: 13px;
           line-height: 1.5;
         }
 
-        .client-form-footer-note {
-          text-align: center;
+        .login-foot {
+          margin-top: 32px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
           font-size: 12px;
-          color: #8b93a7;
-          margin-top: 28px;
+          color: #5b6478;
         }
 
-        @media (min-width: 901px) {
-          .client-login-root {
-            height: 100vh;
-            height: 100dvh;
-            overflow: hidden;
-          }
-          .client-form-side {
-            overflow-y: auto;
-          }
+        .login-foot a {
+          color: #5b6478;
+          text-decoration: none;
         }
 
-        @media (max-width: 900px) {
-          .client-login-root {
-            grid-template-columns: 1fr;
+        .login-foot a:hover {
+          color: #b9c0cf;
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+
+        @media (max-width: 480px) {
+          .login-page {
+            padding: 20px 14px 36px;
           }
-          .client-panel {
-            display: none;
+          .login-card {
+            padding: 22px 18px;
           }
-          .client-form-side {
-            padding: 32px 24px;
+          .login-card .auth-panel.is-active {
+            padding: 0;
           }
         }
       `}</style>
 
-      <div className="client-login-root">
-        {/* LEFT PANEL */}
-        <div className="client-panel">
-          <svg className="client-thread-bg" viewBox="0 0 600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M50 100 Q200 200 150 400 Q100 600 250 800" stroke="#FFB31B" strokeWidth="1.5" strokeDasharray="8 6" fill="none" />
-            <path d="M120 50 Q300 180 220 450 Q140 720 300 850" stroke="#FFB31B" strokeWidth="1" strokeDasharray="6 8" fill="none" />
-            <path d="M400 30 Q320 250 380 480 Q440 700 350 880" stroke="#FFB31B" strokeWidth="1" strokeDasharray="10 5" fill="none" />
-            <path d="M500 120 Q420 300 480 520 Q540 740 430 870" stroke="#FFB31B" strokeWidth="1.2" strokeDasharray="5 9" fill="none" />
-            <path d="M80 200 Q250 320 180 560 Q110 800 280 900" stroke="#FFB31B" strokeWidth="0.8" strokeDasharray="4 10" fill="none" />
-          </svg>
-
-          <div className="client-brand-mark">
-            <img src="/navbar/logo-dark.svg" alt="JMR Textile" style={{ height: 40, width: "auto" }} />
-          </div>
-
-          <div className="client-copy-section">
-            <div className="eyebrow">ESPACE CLIENT</div>
-            <h2>Vos projets textiles, suivis en toute transparence.</h2>
-            <p>
-              Devis, commandes et production : retrouvez l&apos;ensemble de vos projets JMR Textile au même endroit, avec un interlocuteur unique à Madagascar.
-            </p>
-            <ul className="client-points">
-              <li><span className="dot" />Devis et validations en ligne</li>
-              <li><span className="dot" />Suivi de production en temps réel</li>
-              <li><span className="dot" />Paiements par tranches sécurisées</li>
-            </ul>
-          </div>
-
-          <div className="client-panel-footer">
-            <span>Sur-mesure</span>
-            <span>Suivi temps réel</span>
-            <span>© 2026</span>
-          </div>
+      <header className="login-top">
+        <Link href="/" className="login-back">
+          <span aria-hidden="true">←</span> {t.back}
+        </Link>
+        <div className="login-lang" role="group" aria-label="Langue / Language">
+          <button
+            type="button"
+            className={locale === "fr" ? "is-active" : ""}
+            onClick={() => handleLocaleChange("fr")}
+            aria-pressed={locale === "fr"}
+          >
+            FR
+          </button>
+          <button
+            type="button"
+            className={locale === "en" ? "is-active" : ""}
+            onClick={() => handleLocaleChange("en")}
+            aria-pressed={locale === "en"}
+          >
+            EN
+          </button>
         </div>
+      </header>
 
-        {/* RIGHT PANEL */}
-        <div className="client-form-side">
-          <div className="client-form-inner">
-          <div className="client-form-badge">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1" y="8" width="2.5" height="5" rx="0.5" fill="#FFB31B" />
-              <rect x="4.5" y="5" width="2.5" height="8" rx="0.5" fill="#FFB31B" />
-              <rect x="8" y="2.5" width="2.5" height="10.5" rx="0.5" fill="#FFB31B" />
-              <rect x="11.5" y="0.5" width="2" height="12.5" rx="0.5" fill="#FFB31B" />
-            </svg>
-            Espace client
+      <AnimeReveal as="main" className="login-card" y={18} duration={650}>
+        {errorMessage && (
+          <div className="login-error" role="alert">
+            {errorMessage}
+          </div>
+        )}
+
+        <div className="auth-card" style={{ margin: 0, maxWidth: "100%" }}>
+          <div className="auth-tabs" role="tablist" aria-label="Se connecter / Créer un compte">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "login"}
+              className={`auth-tab${activeTab === "login" ? " is-active" : ""}`}
+              onClick={() => setActiveTab("login")}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" />
+              </svg>
+              {messages.auth.loginTitle}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "signup"}
+              className={`auth-tab${activeTab === "signup" ? " is-active" : ""}`}
+              onClick={() => setActiveTab("signup")}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              {messages.auth.signupButton}
+            </button>
           </div>
 
-          <Link href="/" className="client-back-link">
-            ← Retour au site
-          </Link>
+          {/* Connexion */}
+          <form
+            className={`auth-panel${activeTab === "login" ? " is-active" : ""}`}
+            onSubmit={handleLoginSubmit}
+          >
+            <input name="next" type="hidden" value={nextPath} />
+            <input name="intent" type="hidden" value="login" />
 
-          <h3>{messages.auth.title}</h3>
-          <div className="subtitle">{messages.auth.subtitle}</div>
-
-          {errorMessage && (
-            <div className="client-error-box" role="alert">
-              {errorMessage}
-            </div>
-          )}
-
-          <div className="auth-card" style={{ margin: 0, maxWidth: "100%" }}>
-            <div className="auth-tabs" role="tablist" aria-label="Se connecter / Créer un compte">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeTab === "login"}
-                className={`auth-tab${activeTab === "login" ? " is-active" : ""}`}
-                onClick={() => setActiveTab("login")}
-              >
-                {messages.auth.loginTitle}
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeTab === "signup"}
-                className={`auth-tab${activeTab === "signup" ? " is-active" : ""}`}
-                onClick={() => setActiveTab("signup")}
-              >
-                {messages.auth.signupButton}
-              </button>
-            </div>
-
-            {/* Connexion */}
-            <form
-              className={`auth-panel${activeTab === "login" ? " is-active" : ""}`}
-              onSubmit={handleLoginSubmit}
-            >
-              <input name="next" type="hidden" value={nextPath} />
-              <input name="intent" type="hidden" value="login" />
-              <p className="auth-title">{messages.auth.loginSubtitle}</p>
-              <p className="auth-subtitle">{messages.auth.subtitle}</p>
-
-              <label className="auth-label" htmlFor="login-email">{messages.auth.email}</label>
+            <label className="auth-label" htmlFor="login-email">{t.emailLabel}</label>
+            <div className="field-wrap">
+              <svg className="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="m3 7 9 6 9-6" />
+              </svg>
               <input
                 className="auth-input"
                 type="email"
                 id="login-email"
                 name="email"
-                placeholder="votre@email.com"
+                placeholder={t.emailPh}
                 required
                 autoComplete="email"
               />
+            </div>
 
-              <label className="auth-label" htmlFor="login-password">{messages.auth.password}</label>
+            <div className="auth-label-row">
+              <label className="auth-label" htmlFor="login-password">{t.pwdLabel}</label>
+              <button type="button" className="auth-forgot">{t.forgot}</button>
+            </div>
+            <div className="field-wrap has-eye">
+              <svg className="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="4" y="10" width="16" height="11" rx="2" />
+                <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+              </svg>
               <input
                 className="auth-input"
-                type="password"
+                type={showLoginPassword ? "text" : "password"}
                 id="login-password"
                 name="password"
+                placeholder={t.pwdPh}
                 required
                 autoComplete="current-password"
               />
-
-              <div className="auth-row">
-                <label className="auth-checkbox">
-                  <input type="checkbox" name="remember" />
-                  {messages.auth.rememberMe}
-                </label>
-                <button type="button" className="auth-link">{messages.auth.forgotPassword}</button>
-              </div>
-
-              <button className="auth-submit" type="submit" disabled={pendingIntent !== null}>
-                {pendingIntent === "login" ? messages.auth.loginLoading : messages.auth.loginButton}
-              </button>
-            </form>
-
-            {/* Inscription — tous les champs requis par la validation */}
-            <form
-              className={`auth-panel${activeTab === "signup" ? " is-active" : ""}`}
-              onSubmit={handleSignupSubmit(onSignupSubmit, onSignupInvalid)}
-            >
-              <p className="auth-title">{messages.auth.signupEyebrow}</p>
-              <p className="auth-subtitle">{messages.auth.subtitle}</p>
-
-              {signupFeedback ? (
-                <div
-                  id="signup-feedback"
-                  className={`auth-feedback auth-feedback--${signupFeedback.type}`}
-                  role={signupFeedback.type === "error" ? "alert" : "status"}
-                  aria-live="polite"
-                >
-                  {signupFeedback.message}
-                </div>
-              ) : null}
-
-              <div className="auth-grid">
-                <div>
-                  <label className="auth-label" htmlFor="signup-firstname">{messages.auth.firstName}</label>
-                  <Controller
-                    name="first_name"
-                    control={signupControl}
-                    render={({ field }) => (
-                      <input
-                        {...field}
-                        className={`auth-input${signupErrors.first_name ? " has-error" : ""}`}
-                        type="text"
-                        id="signup-firstname"
-                        autoComplete="given-name"
-                        required
-                      />
-                    )}
-                  />
-                  {signupErrors.first_name && (
-                    <p className="auth-error">{signupErrors.first_name.message}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="auth-label" htmlFor="signup-lastname">{messages.auth.lastName}</label>
-                  <Controller
-                    name="last_name"
-                    control={signupControl}
-                    render={({ field }) => (
-                      <input
-                        {...field}
-                        className={`auth-input${signupErrors.last_name ? " has-error" : ""}`}
-                        type="text"
-                        id="signup-lastname"
-                        autoComplete="family-name"
-                        required
-                      />
-                    )}
-                  />
-                  {signupErrors.last_name && (
-                    <p className="auth-error">{signupErrors.last_name.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <label className="auth-label" htmlFor="signup-email">{messages.auth.email}</label>
-              <Controller
-                name="email"
-                control={signupControl}
-                render={({ field }) => (
-                  <input
-                    {...field}
-                    className={`auth-input${signupErrors.email ? " has-error" : ""}`}
-                    type="email"
-                    id="signup-email"
-                    autoComplete="email"
-                    required
-                  />
+              <button
+                type="button"
+                className="field-eye"
+                onClick={() => setShowLoginPassword((v) => !v)}
+                aria-label={showLoginPassword ? t.hidePwd : t.showPwd}
+                aria-pressed={showLoginPassword}
+              >
+                {showLoginPassword ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M17.94 17.94A10.6 10.6 0 0 1 12 19c-5 0-9.27-3-11-7 1.1-2.5 3.16-4.6 5.74-5.74M9.9 5.14A10.6 10.6 0 0 1 12 5c5 0 9.27 3 11 7a17.6 17.6 0 0 1-2.16 3.19" />
+                    <path d="m2 2 20 20" />
+                    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M2 12s3.27-7 10-7c2.6 0 4.79 1.05 6.52 2.58M22 12s-3.27 7-10 7c-2.6 0-4.79-1.05-6.52-2.58" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
                 )}
-              />
-              {signupErrors.email && (
-                <p className="auth-error">{signupErrors.email.message}</p>
+              </button>
+            </div>
+
+            <label className="auth-remember">
+              <input type="checkbox" name="remember" />
+              {t.remember}
+            </label>
+
+            <button className="auth-submit" type="submit" disabled={pendingIntent !== null}>
+              {pendingIntent === "login" ? messages.auth.loginLoading : (
+                <>
+                  {messages.auth.loginButton} <span aria-hidden="true">→</span>
+                </>
               )}
+            </button>
 
-              <div className="auth-grid">
-                <div>
-                  <label className="auth-label" htmlFor="signup-company">{messages.auth.company}</label>
-                  <Controller
-                    name="company"
-                    control={signupControl}
-                    render={({ field }) => (
-                      <input
-                        {...field}
-                        className={`auth-input${signupErrors.company ? " has-error" : ""}`}
-                        type="text"
-                        id="signup-company"
-                        placeholder="Ex : JMR Textile"
-                        autoComplete="organization"
-                      />
-                    )}
-                  />
-                  {signupErrors.company && (
-                    <p className="auth-error">{signupErrors.company.message}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="auth-label" htmlFor="signup-country">Pays</label>
-                  <Controller
-                    name="country"
-                    control={signupControl}
-                    render={({ field }) => (
-                      <select
-                        {...field}
-                        id="signup-country"
-                        className={`auth-input${signupErrors.country ? " has-error" : ""}`}
-                        required
-                      >
-                        <option value="">Sélectionner un pays</option>
-                        {countries.map((country) => (
-                          <option key={country.code} value={country.code}>
-                            {country.name} ({country.dialCode})
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                  />
-                  {signupErrors.country && (
-                    <p className="auth-error">{signupErrors.country.message}</p>
-                  )}
-                </div>
+            <button type="button" className="login-pro-link" onClick={() => setActiveTab("signup")}>
+              {t.proLink}
+            </button>
+          </form>
+
+          {/* Inscription — tous les champs requis par la validation */}
+          <form
+            className={`auth-panel${activeTab === "signup" ? " is-active" : ""}`}
+            onSubmit={handleSignupSubmit(onSignupSubmit, onSignupInvalid)}
+          >
+            <p className="auth-title">{messages.auth.signupEyebrow}</p>
+            <p className="auth-subtitle">{messages.auth.subtitle}</p>
+
+            {signupFeedback ? (
+              <div
+                id="signup-feedback"
+                className={`auth-feedback auth-feedback--${signupFeedback.type}`}
+                role={signupFeedback.type === "error" ? "alert" : "status"}
+                aria-live="polite"
+              >
+                {signupFeedback.message}
               </div>
+            ) : null}
 
-              <label className="auth-label" htmlFor="signup-phone">{messages.auth.phone}</label>
-              <div className="auth-phone">
-                <span className="auth-phone-prefix" suppressHydrationWarning>
-                  {getSelectedDialCode()}
-                </span>
+            <div className="auth-grid">
+              <div>
+                <label className="auth-label" htmlFor="signup-firstname">{messages.auth.firstName}</label>
                 <Controller
-                  name="phone"
+                  name="first_name"
                   control={signupControl}
                   render={({ field }) => (
                     <input
                       {...field}
-                      className={`auth-input auth-input--phone${signupErrors.phone ? " has-error" : ""}`}
-                      type="tel"
-                      id="signup-phone"
-                      placeholder="Numéro de téléphone"
-                      autoComplete="tel"
+                      className={`auth-input${signupErrors.first_name ? " has-error" : ""}`}
+                      type="text"
+                      id="signup-firstname"
+                      autoComplete="given-name"
                       required
                     />
                   )}
                 />
+                {signupErrors.first_name && (
+                  <p className="auth-error">{signupErrors.first_name.message}</p>
+                )}
               </div>
-              {signupErrors.phone && (
-                <p className="auth-error">{signupErrors.phone.message}</p>
-              )}
+              <div>
+                <label className="auth-label" htmlFor="signup-lastname">{messages.auth.lastName}</label>
+                <Controller
+                  name="last_name"
+                  control={signupControl}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      className={`auth-input${signupErrors.last_name ? " has-error" : ""}`}
+                      type="text"
+                      id="signup-lastname"
+                      autoComplete="family-name"
+                      required
+                    />
+                  )}
+                />
+                {signupErrors.last_name && (
+                  <p className="auth-error">{signupErrors.last_name.message}</p>
+                )}
+              </div>
+            </div>
 
-              <label className="auth-label" htmlFor="signup-address">{messages.auth.address}</label>
+            <label className="auth-label" htmlFor="signup-email">{messages.auth.email}</label>
+            <Controller
+              name="email"
+              control={signupControl}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  className={`auth-input${signupErrors.email ? " has-error" : ""}`}
+                  type="email"
+                  id="signup-email"
+                  autoComplete="email"
+                  required
+                />
+              )}
+            />
+            {signupErrors.email && (
+              <p className="auth-error">{signupErrors.email.message}</p>
+            )}
+
+            <div className="auth-grid">
+              <div>
+                <label className="auth-label" htmlFor="signup-company">{messages.auth.company}</label>
+                <Controller
+                  name="company"
+                  control={signupControl}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      className={`auth-input${signupErrors.company ? " has-error" : ""}`}
+                      type="text"
+                      id="signup-company"
+                      placeholder="Ex : JMR Textile"
+                      autoComplete="organization"
+                    />
+                  )}
+                />
+                {signupErrors.company && (
+                  <p className="auth-error">{signupErrors.company.message}</p>
+                )}
+              </div>
+              <div>
+                <label className="auth-label" htmlFor="signup-country">Pays</label>
+                <Controller
+                  name="country"
+                  control={signupControl}
+                  render={({ field }) => (
+                    <select
+                      {...field}
+                      id="signup-country"
+                      className={`auth-input${signupErrors.country ? " has-error" : ""}`}
+                      required
+                    >
+                      <option value="">Sélectionner un pays</option>
+                      {countries.map((country) => (
+                        <option key={country.code} value={country.code}>
+                          {country.name} ({country.dialCode})
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                />
+                {signupErrors.country && (
+                  <p className="auth-error">{signupErrors.country.message}</p>
+                )}
+              </div>
+            </div>
+
+            <label className="auth-label" htmlFor="signup-phone">{messages.auth.phone}</label>
+            <div className="auth-phone">
+              <span className="auth-phone-prefix" suppressHydrationWarning>
+                {getSelectedDialCode()}
+              </span>
               <Controller
-                name="address"
+                name="phone"
                 control={signupControl}
                 render={({ field }) => (
                   <input
                     {...field}
-                    className={`auth-input${signupErrors.address ? " has-error" : ""}`}
-                    type="text"
-                    id="signup-address"
-                    placeholder="Adresse complète"
-                    autoComplete="street-address"
+                    className={`auth-input auth-input--phone${signupErrors.phone ? " has-error" : ""}`}
+                    type="tel"
+                    id="signup-phone"
+                    placeholder="Numéro de téléphone"
+                    autoComplete="tel"
                     required
                   />
                 )}
               />
-              {signupErrors.address && (
-                <p className="auth-error">{signupErrors.address.message}</p>
+            </div>
+            {signupErrors.phone && (
+              <p className="auth-error">{signupErrors.phone.message}</p>
+            )}
+
+            <label className="auth-label" htmlFor="signup-address">{messages.auth.address}</label>
+            <Controller
+              name="address"
+              control={signupControl}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  className={`auth-input${signupErrors.address ? " has-error" : ""}`}
+                  type="text"
+                  id="signup-address"
+                  placeholder="Adresse complète"
+                  autoComplete="street-address"
+                  required
+                />
               )}
+            />
+            {signupErrors.address && (
+              <p className="auth-error">{signupErrors.address.message}</p>
+            )}
 
-              <div className="auth-grid">
-                <div>
-                  <label className="auth-label" htmlFor="signup-password">{messages.auth.password}</label>
-                  <Controller
-                    name="password"
-                    control={signupControl}
-                    render={({ field }) => (
-                      <input
-                        {...field}
-                        className={`auth-input${signupErrors.password ? " has-error" : ""}`}
-                        type="password"
-                        id="signup-password"
-                        autoComplete="new-password"
-                        required
-                      />
-                    )}
-                  />
-                  {signupErrors.password && (
-                    <p className="auth-error">{signupErrors.password.message}</p>
+            <div className="auth-grid">
+              <div>
+                <label className="auth-label" htmlFor="signup-password">{messages.auth.password}</label>
+                <Controller
+                  name="password"
+                  control={signupControl}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      className={`auth-input${signupErrors.password ? " has-error" : ""}`}
+                      type="password"
+                      id="signup-password"
+                      autoComplete="new-password"
+                      required
+                    />
                   )}
-                </div>
-                <div>
-                  <label className="auth-label" htmlFor="signup-confirm">{messages.auth.confirmPassword}</label>
-                  <Controller
-                    name="confirm_password"
-                    control={signupControl}
-                    render={({ field }) => (
-                      <input
-                        {...field}
-                        className={`auth-input${signupErrors.confirm_password ? " has-error" : ""}`}
-                        type="password"
-                        id="signup-confirm"
-                        autoComplete="new-password"
-                        required
-                      />
-                    )}
-                  />
-                  {signupErrors.confirm_password && (
-                    <p className="auth-error">{signupErrors.confirm_password.message}</p>
-                  )}
-                </div>
+                />
+                {signupErrors.password && (
+                  <p className="auth-error">{signupErrors.password.message}</p>
+                )}
               </div>
+              <div>
+                <label className="auth-label" htmlFor="signup-confirm">{messages.auth.confirmPassword}</label>
+                <Controller
+                  name="confirm_password"
+                  control={signupControl}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      className={`auth-input${signupErrors.confirm_password ? " has-error" : ""}`}
+                      type="password"
+                      id="signup-confirm"
+                      autoComplete="new-password"
+                      required
+                    />
+                  )}
+                />
+                {signupErrors.confirm_password && (
+                  <p className="auth-error">{signupErrors.confirm_password.message}</p>
+                )}
+              </div>
+            </div>
 
-              <button className="auth-submit" type="submit" disabled={pendingIntent !== null}>
-                {pendingIntent === "signup" ? messages.auth.signupLoading : messages.auth.signupButton}
-              </button>
-            </form>
-          </div>
-
-          <div className="client-form-footer-note">
-            Vos données restent confidentielles et ne sont jamais partagées.
-          </div>
-          </div>
+            <button className="auth-submit" type="submit" disabled={pendingIntent !== null}>
+              {pendingIntent === "signup" ? messages.auth.signupLoading : messages.auth.signupButton}
+            </button>
+          </form>
         </div>
-      </div>
-    </>
+      </AnimeReveal>
+
+      <footer className="login-foot">
+        <a href="mailto:contact@jmrtextile.com">{t.support}</a>
+        <span aria-hidden="true">•</span>
+        <Link href="/confidentialite">{t.privacy}</Link>
+      </footer>
+    </div>
   );
 }

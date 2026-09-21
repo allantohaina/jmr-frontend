@@ -109,47 +109,47 @@ export default function SuiviCommandePage() {
   const timeline = result ? buildTimeline(result) : [];
 
   return (
-    <div className="min-h-screen bg-[#1e2a38] text-[#FFB31B]">
+    <div className="min-h-screen bg-[#1e2a38] text-[#EAA100]">
       <style>{resultStyles}</style>
-      <header className="border-b border-[#FFB31B]/10">
+      <header className="border-b border-[#EAA100]/10">
         <div className="mx-auto max-w-3xl px-6 py-6 flex items-center justify-between">
-          <Link href="/" className="font-headline text-2xl text-[#FFB31B]">JMR Atelier</Link>
-          <Link href="/" className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#FFB31B]/60 hover:text-[#FFB31B]">← Retour au site</Link>
+          <Link href="/" className="font-headline text-2xl text-[#EAA100]">JMR Atelier</Link>
+          <Link href="/" className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#EAA100]/60 hover:text-[#EAA100]">← Retour au site</Link>
         </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-6 py-14">
-        <h1 className="font-headline text-4xl text-[#FFB31B] text-center">Suivi de commande</h1>
-        <p className="text-center text-sm text-[#FFB31B]/60 mt-3">
+        <h1 className="font-headline text-4xl text-[#EAA100] text-center">Suivi de commande</h1>
+        <p className="text-center text-sm text-[#EAA100]/60 mt-3">
           Retrouvez l&apos;état d&apos;avancement de votre commande en indiquant son numéro et votre email.
         </p>
 
         <form onSubmit={lookup} className="mt-10 space-y-4">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#FFB31B]/50">Numéro de commande</label>
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#EAA100]/50">Numéro de commande</label>
             <input
               value={numero}
               onChange={(e) => setNumero(e.target.value)}
               placeholder="ex : CMD-AB12CD34"
               required
-              className="mt-2 w-full rounded-xl border border-[#FFB31B]/20 bg-[#25303a] px-4 py-3 text-sm text-[#FFB31B] placeholder:text-[#FFB31B]/30 focus:border-[#FFB31B] focus:outline-none"
+              className="mt-2 w-full rounded-xl border border-[#EAA100]/20 bg-[#25303a] px-4 py-3 text-sm text-[#EAA100] placeholder:text-[#EAA100]/30 focus:border-[#EAA100] focus:outline-none"
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#FFB31B]/50">Email utilisé lors de la commande</label>
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#EAA100]/50">Email utilisé lors de la commande</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="vous@exemple.com"
               required
-              className="mt-2 w-full rounded-xl border border-[#FFB31B]/20 bg-[#25303a] px-4 py-3 text-sm text-[#FFB31B] placeholder:text-[#FFB31B]/30 focus:border-[#FFB31B] focus:outline-none"
+              className="mt-2 w-full rounded-xl border border-[#EAA100]/20 bg-[#25303a] px-4 py-3 text-sm text-[#EAA100] placeholder:text-[#EAA100]/30 focus:border-[#EAA100] focus:outline-none"
             />
           </div>
           <button
             type="submit"
             disabled={isLoading}
-            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#FFB31B] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#1a1204] hover:brightness-105 disabled:opacity-50"
+            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#EAA100] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#1a1204] hover:brightness-105 disabled:opacity-50"
           >
             {isLoading ? <Loader className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
             Suivre ma commande
@@ -169,7 +169,7 @@ export default function SuiviCommandePage() {
         )}
 
         {checked && !error && !isLoading && !result && (
-          <div className="mt-8 text-center text-sm text-[#FFB31B]/50">
+          <div className="mt-8 text-center text-sm text-[#EAA100]/50">
             Aucune commande ne correspond à ces informations.
           </div>
         )}
@@ -346,7 +346,7 @@ const resultStyles = `
   --navy-900:#1b263c;
   --navy-850:#1e2a38;
   --navy-border:#2b3852;
-  --gold:#FFB31B;
+  --gold:#EAA100;
   --gold-bright:#FFC964;
   --cream:#f3efe4;
   --slate:#8b93a7;
@@ -373,7 +373,7 @@ const resultStyles = `
 .suivi-scope h1{margin:0;font-family:var(--serif);font-size:36px;line-height:1.15;font-weight:600;color:var(--cream);}
 .suivi-scope .order-description{margin:8px 0 0;color:var(--slate);font-size:14px;}
 .suivi-scope .order-ref{margin-top:8px;color:var(--slate-dim);font-family:monospace;font-size:12px;}
-.suivi-scope .status{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;color:var(--gold-bright);background:rgba(255,179,27,.14);font-size:12px;font-weight:600;white-space:nowrap;}
+.suivi-scope .status{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;color:var(--gold-bright);background:rgba(234, 161, 0,.14);font-size:12px;font-weight:600;white-space:nowrap;}
 .suivi-scope .status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
 .suivi-scope .layout{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(280px,.8fr);gap:24px;margin-top:28px;}
 .suivi-scope .card{background:var(--navy-850);border:1px solid var(--navy-border);border-radius:11px;margin-top:24px;}
@@ -394,17 +394,17 @@ const resultStyles = `
 .suivi-scope .step{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;}
 .suivi-scope .step-circle{width:21px;height:21px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--navy-850);border:2px solid var(--navy-border);color:var(--navy-950);}
 .suivi-scope .step.done .step-circle{background:var(--gold);border-color:var(--gold);}
-.suivi-scope .step.current .step-circle{border-color:var(--gold);box-shadow:0 0 0 5px rgba(255,179,27,.15);}
+.suivi-scope .step.current .step-circle{border-color:var(--gold);box-shadow:0 0 0 5px rgba(234, 161, 0,.15);}
 .suivi-scope .step-name{max-width:105px;margin-top:11px;color:var(--slate-dim);font-size:11.5px;line-height:1.35;}
 .suivi-scope .step.done .step-name,.suivi-scope .step.current .step-name{color:var(--cream);}
 .suivi-scope .step-date{margin-top:3px;color:var(--slate-dim);font-size:10px;}
 .suivi-scope .step.current .step-date{color:var(--gold-bright);}
 .suivi-scope .last-update{display:flex;gap:13px;margin-top:30px;padding-top:18px;border-top:1px dashed var(--navy-border);}
-.suivi-scope .update-icon{width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--gold-bright);background:rgba(255,179,27,.1);}
+.suivi-scope .update-icon{width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--gold-bright);background:rgba(234, 161, 0,.1);}
 .suivi-scope .update-label{margin:0 0 2px;color:var(--slate-dim);font-size:11px;}
 .suivi-scope .update-title{margin:0;color:var(--cream);font-size:14px;font-weight:500;}
 .suivi-scope .update-text{margin:4px 0 0;color:var(--slate);font-size:13px;}
-.suivi-scope .action-card{border-color:rgba(255,179,27,.45);background:linear-gradient(135deg,rgba(255,179,27,.08),transparent 55%),var(--navy-850);}
+.suivi-scope .action-card{border-color:rgba(234, 161, 0,.45);background:linear-gradient(135deg,rgba(234, 161, 0,.08),transparent 55%),var(--navy-850);}
 .suivi-scope .action-body{padding:20px 22px 22px;}
 .suivi-scope .action-label{margin:0 0 3px;color:var(--orange);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
 .suivi-scope .action-title{margin:0;font-family:var(--serif);font-size:17px;font-weight:500;color:var(--cream);}
@@ -423,7 +423,7 @@ const resultStyles = `
 .suivi-scope .timeline-item:last-child .timeline-marker::before{display:none;}
 .suivi-scope .timeline-dot{position:relative;z-index:2;width:9px;height:9px;margin-top:4px;border-radius:50%;background:var(--slate-dim);border:2px solid var(--navy-850);box-shadow:0 0 0 1px var(--navy-border);}
 .suivi-scope .timeline-item.success .timeline-dot{background:var(--green);}
-.suivi-scope .timeline-item.current .timeline-dot{background:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 0 5px rgba(255,179,27,.12);}
+.suivi-scope .timeline-item.current .timeline-dot{background:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 0 5px rgba(234, 161, 0,.12);}
 .suivi-scope .timeline-item.warning .timeline-dot{background:var(--orange);}
 .suivi-scope .timeline-step{margin:0 0 3px;color:var(--slate-dim);font-size:11px;text-transform:uppercase;letter-spacing:.035em;}
 .suivi-scope .timeline-title{margin:0;color:var(--cream);font-size:14px;font-weight:500;}

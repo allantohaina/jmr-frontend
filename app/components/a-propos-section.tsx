@@ -1,6 +1,7 @@
 "use client";
 
 import { EditableText } from "@/app/components/editable-text";
+import { AnimeGrow } from "@/app/components/anime-reveal";
 
 export function AProposSection() {
   return (
@@ -12,7 +13,9 @@ export function AProposSection() {
         <h1 className="ui-section-title" id="about-page-title">
           <EditableText contentKey="apropos.title" fallback="A propos" as="span" />
         </h1>
-        <span className="about-page__underline ui-section-underline" aria-hidden="true" />
+        <AnimeGrow>
+          <span className="about-page__underline ui-section-underline" aria-hidden="true" />
+        </AnimeGrow>
       </header>
 
       <div className="about-page__body">

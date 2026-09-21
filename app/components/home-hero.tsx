@@ -113,6 +113,10 @@ export function HomeHero() {
           </motion.div>
         </motion.div>
       </div>
+
+      <a className="home-page__scroll-hint" href="#nos-services" aria-label="Voir nos services">
+        <span className="home-page__scroll-hint-mouse" aria-hidden="true"><span /></span>
+      </a>
     </section>
   );
 }

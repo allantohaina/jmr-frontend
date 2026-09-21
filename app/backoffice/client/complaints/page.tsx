@@ -37,30 +37,30 @@ export default function ComplaintsPage() {
   return (
     <div className="p-6 md:p-10 space-y-6">
       <div className="flex items-center gap-3">
-        <MessageSquare className="h-6 w-6 text-[#FFB31B]" />
-        <h1 className="font-headline text-2xl text-[#FFB31B]">Clients</h1>
+        <MessageSquare className="h-6 w-6 text-[#EAA100]" />
+        <h1 className="font-headline text-2xl text-[#EAA100]">Clients</h1>
       </div>
 
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#FFB31B]/30" />
-        <input value={search} onChange={(e) => { setSearch(e.target.value); handleSearchChange(e.target.value); }} placeholder="Rechercher par nom, email..." className="w-full rounded-xl bg-[#25303a] pl-11 pr-4 py-3 text-sm text-[#FFB31B] placeholder:text-[#FFB31B]/30 outline-none border border-[#FFB31B]/10 focus:border-[#FFB31B]/30" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#EAA100]/30" />
+        <input value={search} onChange={(e) => { setSearch(e.target.value); handleSearchChange(e.target.value); }} placeholder="Rechercher par nom, email..." className="w-full rounded-xl bg-[#25303a] pl-11 pr-4 py-3 text-sm text-[#EAA100] placeholder:text-[#EAA100]/30 outline-none border border-[#EAA100]/10 focus:border-[#EAA100]/30" />
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-8"><Loader className="h-5 w-5 animate-spin text-[#FFB31B]" /></div>
+        <div className="flex justify-center py-8"><Loader className="h-5 w-5 animate-spin text-[#EAA100]" /></div>
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-[#FFB31B]/50">{search ? "Aucun client trouvé." : "Aucun client inscrit."}</p>
+        <p className="text-sm text-[#EAA100]/50">{search ? "Aucun client trouvé." : "Aucun client inscrit."}</p>
       ) : (
         <div className="space-y-3">
           {filtered.map((c) => (
-            <div key={c.id} className="rounded-xl bg-[#25303a] p-4 border border-[#FFB31B]/10">
+            <div key={c.id} className="rounded-xl bg-[#25303a] p-4 border border-[#EAA100]/10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFB31B]/20 text-[#FFB31B] text-xs font-bold">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EAA100]/20 text-[#EAA100] text-xs font-bold">
                     {c.first_name?.[0]}{c.last_name?.[0]}
                   </div>
                   <div>
-                    <p className="font-semibold text-[#FFB31B]">
+                    <p className="font-semibold text-[#EAA100]">
                       {c.first_name} {c.last_name}
                       <PrivilegeBadge
                         isPrivileged={c.is_privileged}
@@ -68,10 +68,10 @@ export default function ComplaintsPage() {
                         className="ml-2"
                       />
                     </p>
-                    <p className="text-xs text-[#FFB31B]/50">ID: {c.id?.toString().slice(0, 8)}…</p>
+                    <p className="text-xs text-[#EAA100]/50">ID: {c.id?.toString().slice(0, 8)}…</p>
                   </div>
                 </div>
-                <span className="text-[10px] text-[#FFB31B]/50">{c.email}</span>
+                <span className="text-[10px] text-[#EAA100]/50">{c.email}</span>
               </div>
             </div>
           ))}

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getToken } from "@/app/lib/auth";
+import { AnimeGrow } from "@/app/components/anime-reveal";
 
 type StepStatus = "complete" | "active" | "pending";
 export type ProjectStepId = 1 | 2 | 3;
@@ -149,7 +150,9 @@ export function ProjectTrackingSection({
           <h1 className="ui-section-title" id="project-tracking-title">
             Comment ca se passe ?
           </h1>
+          <AnimeGrow>
           <span className="project-tracking-page__underline ui-section-underline" aria-hidden="true" />
+        </AnimeGrow>
           <p className="project-tracking-page__lead">
             Decouvrez les grandes etapes du devis a la production avant de lancer votre demande.
           </p>
@@ -403,7 +406,9 @@ export function ProjectTrackingSection({
         <h1 className="ui-section-title" id="project-tracking-title">
           Suivi de projet
         </h1>
-        <span className="project-tracking-page__underline ui-section-underline" aria-hidden="true" />
+        <AnimeGrow>
+          <span className="project-tracking-page__underline ui-section-underline" aria-hidden="true" />
+        </AnimeGrow>
         <p className="project-tracking-page__lead">
           Gardez un oeil sur le devis, l&apos;acompte, la production et la livraison depuis un seul
           point de suivi.

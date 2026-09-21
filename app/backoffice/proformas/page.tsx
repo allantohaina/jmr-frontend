@@ -164,8 +164,8 @@ function ProformasContent() {
     <div className="p-6 md:p-10 space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-headline text-2xl text-[#FFB31B]">Factures proforma</h1>
-          <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[#FFB31B]/40">
+          <h1 className="font-headline text-2xl text-[#EAA100]">Factures proforma</h1>
+          <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40">
             {totals.count} document{totals.count > 1 ? "s" : ""} · {formatMoney(totals.sum, "MGA")} au total
           </p>
         </div>
@@ -197,10 +197,10 @@ function ProformasContent() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-[#FFB31B]" /></div>
+        <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-[#EAA100]" /></div>
       ) : rows.length === 0 ? (
         <div className="pf-empty">
-          <FileText className="mx-auto mb-3 h-8 w-8 text-[#FFB31B]/20" />
+          <FileText className="mx-auto mb-3 h-8 w-8 text-[#EAA100]/20" />
           <p>Aucune proforma. Créez-en une ou générez-la depuis un devis chiffré.</p>
         </div>
       ) : (
@@ -208,11 +208,11 @@ function ProformasContent() {
           {rows.map((r) => (
             <button key={r.id} onClick={() => openRow(r.id)} className="pf-row">
               <div className="min-w-0">
-                <p className="font-bold text-[#FFB31B]">{r.number}</p>
-                <p className="text-xs text-[#FFB31B]/55 truncate">{r.client_name} · {r.client_email || "—"}</p>
+                <p className="font-bold text-[#EAA100]">{r.number}</p>
+                <p className="text-xs text-[#EAA100]/55 truncate">{r.client_name} · {r.client_email || "—"}</p>
               </div>
               <div className="text-right shrink-0 ml-4">
-                <p className="font-bold text-[#FFB31B]">{formatMoney(Number(r.total ?? 0), r.currency)}</p>
+                <p className="font-bold text-[#EAA100]">{formatMoney(Number(r.total ?? 0), r.currency)}</p>
                 <p className="pf-status">{proformaStatusLabel(r.status)}</p>
               </div>
             </button>
@@ -344,33 +344,33 @@ function ProformasContent() {
       ) : null}
 
       <style jsx>{`
-        .pf-btn { display: inline-flex; align-items: center; gap: 8px; background: #FFB31B; color: #1e2a38; border: 0; border-radius: 12px; padding: 10px 18px; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+        .pf-btn { display: inline-flex; align-items: center; gap: 8px; background: #EAA100; color: #1e2a38; border: 0; border-radius: 12px; padding: 10px 18px; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
         .pf-btn:disabled { opacity: .5; cursor: not-allowed; }
-        .pf-btn.ghost { background: transparent; border: 1px solid rgba(255,179,27,.3); color: #FFB31B; }
+        .pf-btn.ghost { background: transparent; border: 1px solid rgba(234, 161, 0,.3); color: #EAA100; }
         .pf-btn.ghost.danger { border-color: rgba(255,80,80,.4); color: #ff8080; }
-        .pf-icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; border: 1px solid rgba(255,179,27,.2); background: transparent; color: #FFB31B; cursor: pointer; }
+        .pf-icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; border: 1px solid rgba(234, 161, 0,.2); background: transparent; color: #EAA100; cursor: pointer; }
         .pf-icon.danger { color: #ff8080; border-color: rgba(255,80,80,.3); }
         .pf-note { border-radius: 12px; padding: 12px 16px; font-size: 13px; cursor: pointer; }
         .pf-note.ok { background: rgba(30,160,90,.12); border: 1px solid rgba(30,160,90,.3); color: #7ddba3; }
         .pf-note.err { background: rgba(255,80,80,.1); border: 1px solid rgba(255,80,80,.3); color: #ff8080; }
-        .pf-chip { padding: 8px 14px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; background: #25303a; color: rgba(255,179,27,.6); border: 1px solid rgba(255,179,27,.12); cursor: pointer; }
-        .pf-chip.active { background: #FFB31B; color: #1e2a38; border-color: #FFB31B; }
-        .pf-search { display: flex; align-items: center; gap: 8px; background: #25303a; border: 1px solid rgba(255,179,27,.15); border-radius: 12px; padding: 8px 12px; color: rgba(255,179,27,.5); margin-left: auto; }
-        .pf-search input { background: transparent; border: 0; outline: none; color: #FFB31B; font-size: 13px; width: 200px; }
-        .pf-row { width: 100%; text-align: left; display: flex; justify-content: space-between; align-items: center; background: #25303a; border: 1px solid rgba(255,179,27,.1); border-radius: 14px; padding: 14px 18px; cursor: pointer; }
-        .pf-row:hover { border-color: rgba(255,179,27,.35); }
-        .pf-status { font-size: 9px; text-transform: uppercase; letter-spacing: .14em; color: rgba(255,179,27,.45); margin: 2px 0 0; }
-        .pf-empty { background: #25303a; border: 1px dashed rgba(255,179,27,.15); border-radius: 16px; padding: 40px 24px; text-align: center; color: rgba(255,179,27,.5); font-size: 14px; }
+        .pf-chip { padding: 8px 14px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; background: #25303a; color: rgba(234, 161, 0,.6); border: 1px solid rgba(234, 161, 0,.12); cursor: pointer; }
+        .pf-chip.active { background: #EAA100; color: #1e2a38; border-color: #EAA100; }
+        .pf-search { display: flex; align-items: center; gap: 8px; background: #25303a; border: 1px solid rgba(234, 161, 0,.15); border-radius: 12px; padding: 8px 12px; color: rgba(234, 161, 0,.5); margin-left: auto; }
+        .pf-search input { background: transparent; border: 0; outline: none; color: #EAA100; font-size: 13px; width: 200px; }
+        .pf-row { width: 100%; text-align: left; display: flex; justify-content: space-between; align-items: center; background: #25303a; border: 1px solid rgba(234, 161, 0,.1); border-radius: 14px; padding: 14px 18px; cursor: pointer; }
+        .pf-row:hover { border-color: rgba(234, 161, 0,.35); }
+        .pf-status { font-size: 9px; text-transform: uppercase; letter-spacing: .14em; color: rgba(234, 161, 0,.45); margin: 2px 0 0; }
+        .pf-empty { background: #25303a; border: 1px dashed rgba(234, 161, 0,.15); border-radius: 16px; padding: 40px 24px; text-align: center; color: rgba(234, 161, 0,.5); font-size: 14px; }
         .pf-modal { position: fixed; inset: 0; z-index: 50; background: rgba(11,19,32,.7); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: flex-start; padding: 24px 12px; overflow-y: auto; }
-        .pf-sheet { background: #141d2b; border: 1px solid rgba(255,179,27,.15); border-radius: 20px; padding: 24px; width: 100%; max-width: 760px; }
+        .pf-sheet { background: #141d2b; border: 1px solid rgba(234, 161, 0,.15); border-radius: 20px; padding: 24px; width: 100%; max-width: 760px; }
         .pf-sheet.wide { max-width: 960px; }
         .pf-sheet.small { max-width: 520px; }
-        .pf-sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 18px; color: #FFB31B; }
+        .pf-sheet-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 18px; color: #EAA100; }
         .pf-sheet-head h2 { margin: 4px 0 0; font-size: 16px; }
-        .pf-sheet-head button { background: transparent; border: 1px solid rgba(255,179,27,.2); color: #FFB31B; border-radius: 10px; width: 36px; height: 36px; display: grid; place-items: center; cursor: pointer; }
-        .pf-kicker { margin: 0; font-size: 9px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: rgba(255,179,27,.5); }
+        .pf-sheet-head button { background: transparent; border: 1px solid rgba(234, 161, 0,.2); color: #EAA100; border-radius: 10px; width: 36px; height: 36px; display: grid; place-items: center; cursor: pointer; }
+        .pf-kicker { margin: 0; font-size: 9px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: rgba(234, 161, 0,.5); }
         .pf-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-        .pf-select { width: 100%; background: #1e2a38; border: 1px solid rgba(255,179,27,.2); border-radius: 10px; color: #FFB31B; padding: 12px; font-size: 14px; }
+        .pf-select { width: 100%; background: #1e2a38; border: 1px solid rgba(234, 161, 0,.2); border-radius: 10px; color: #EAA100; padding: 12px; font-size: 14px; }
         @media print {
           .pf-modal { position: static; background: transparent; padding: 0; display: block; }
           .pf-sheet { border: 0; border-radius: 0; max-width: none; padding: 0; background: transparent; }
@@ -382,7 +382,7 @@ function ProformasContent() {
 
 export default function ProformasPage() {
   return (
-    <Suspense fallback={<div className="p-10 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-[#FFB31B]" /></div>}>
+    <Suspense fallback={<div className="p-10 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-[#EAA100]" /></div>}>
       <ProformasContent />
     </Suspense>
   );

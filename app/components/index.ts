@@ -23,6 +23,7 @@ export * from './page-heading';
 // export * from './project-tracking-section'; // REMOVED: uses next/headers via auth-server.ts
 export * from './production-workflow-board';
 export * from './scroll-reveal';
+export * from './anime-reveal';
 export * from './site-preloader';
 export * from './success-toast';
 export * from './toast-provider';

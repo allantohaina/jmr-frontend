@@ -92,7 +92,7 @@ export function EditableImage({
   return (
     <div className={`group/editable ${wrapperClassName}`}>
       {waitingForContent ? (
-        <div className="w-full h-full animate-pulse bg-[#FFB31B]/10" aria-hidden="true" />
+        <div className="w-full h-full animate-pulse bg-[#EAA100]/10" aria-hidden="true" />
       ) : imageUrl ? (
         <img src={imageUrl} alt={alt} className={className} />
       ) : (
@@ -102,8 +102,8 @@ export function EditableImage({
         <button
           type="button"
           className="absolute top-2 right-2 z-20 opacity-0 group-hover/editable:opacity-100 transition-opacity duration-200
-                     bg-[#1e2a38]/80 hover:bg-[#1e2a38] text-[#FFB31B] rounded-full p-2.5
-                     border border-[#FFB31B]/50"
+                     bg-[#1e2a38]/80 hover:bg-[#1e2a38] text-[#EAA100] rounded-full p-2.5
+                     border border-[#EAA100]/50"
           onClick={() => fileInputRef.current?.click()}
           title="Modifier l'image"
         >

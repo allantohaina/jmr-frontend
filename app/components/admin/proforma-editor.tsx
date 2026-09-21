@@ -132,28 +132,28 @@ export function ProformaEditor({
       <style jsx>{`
         .pe-form { display: flex; flex-direction: column; gap: 16px; }
         .pe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .pe-grid label, .pe-row label, .pe-line label { display: flex; flex-direction: column; gap: 6px; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,179,27,.55); }
+        .pe-grid label, .pe-row label, .pe-line label { display: flex; flex-direction: column; gap: 6px; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: rgba(234, 161, 0,.55); }
         .span2 { grid-column: span 2; }
         .pe-form input, .pe-form textarea, .pe-form select {
-          background: #1e2a38; border: 1px solid rgba(255,179,27,.15); border-radius: 10px;
-          padding: 10px 12px; color: #FFB31B; font-size: 14px; text-transform: none; letter-spacing: normal; font-weight: 400; width: 100%;
+          background: #1e2a38; border: 1px solid rgba(234, 161, 0,.15); border-radius: 10px;
+          padding: 10px 12px; color: #EAA100; font-size: 14px; text-transform: none; letter-spacing: normal; font-weight: 400; width: 100%;
         }
-        .pe-form input:focus, .pe-form textarea:focus, .pe-form select:focus { outline: none; border-color: rgba(255,179,27,.5); }
+        .pe-form input:focus, .pe-form textarea:focus, .pe-form select:focus { outline: none; border-color: rgba(234, 161, 0,.5); }
         .pe-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
         .pe-lines-head { display: flex; justify-content: space-between; align-items: center; }
-        .pe-lines-head h3 { margin: 0; font-size: 13px; color: #FFB31B; text-transform: uppercase; letter-spacing: .14em; }
-        .pe-add { background: rgba(255,179,27,.12); border: 1px solid rgba(255,179,27,.3); color: #FFB31B; border-radius: 10px; padding: 8px 14px; font-size: 11px; font-weight: 700; cursor: pointer; }
-        .pe-line { display: grid; grid-template-columns: 2fr 1.4fr .6fr .6fr 1fr .7fr auto auto; gap: 8px; align-items: end; background: rgba(30,42,56,.6); border: 1px solid rgba(255,179,27,.08); border-radius: 12px; padding: 10px; }
+        .pe-lines-head h3 { margin: 0; font-size: 13px; color: #EAA100; text-transform: uppercase; letter-spacing: .14em; }
+        .pe-add { background: rgba(234, 161, 0,.12); border: 1px solid rgba(234, 161, 0,.3); color: #EAA100; border-radius: 10px; padding: 8px 14px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .pe-line { display: grid; grid-template-columns: 2fr 1.4fr .6fr .6fr 1fr .7fr auto auto; gap: 8px; align-items: end; background: rgba(30,42,56,.6); border: 1px solid rgba(234, 161, 0,.08); border-radius: 12px; padding: 10px; }
         .pe-line .span2 { grid-column: span 1; }
-        .pe-line-total { font-size: 13px; font-weight: 700; color: #FFB31B; padding-bottom: 10px; white-space: nowrap; }
+        .pe-line-total { font-size: 13px; font-weight: 700; color: #EAA100; padding-bottom: 10px; white-space: nowrap; }
         .pe-del { background: rgba(255,80,80,.12); border: 1px solid rgba(255,80,80,.3); color: #ff8080; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 18px; }
-        .pe-totals { display: flex; flex-wrap: wrap; gap: 8px 20px; background: #1e2a38; border: 1px solid rgba(255,179,27,.12); border-radius: 12px; padding: 12px 16px; font-size: 13px; color: rgba(255,179,27,.75); }
-        .pe-totals .grand { color: #FFB31B; font-size: 15px; }
+        .pe-totals { display: flex; flex-wrap: wrap; gap: 8px 20px; background: #1e2a38; border: 1px solid rgba(234, 161, 0,.12); border-radius: 12px; padding: 12px 16px; font-size: 13px; color: rgba(234, 161, 0,.75); }
+        .pe-totals .grand { color: #EAA100; font-size: 15px; }
         .pe-error { color: #ff8080; font-size: 13px; margin: 0; }
         .pe-actions { display: flex; justify-content: flex-end; gap: 10px; }
-        .pe-btn { background: #FFB31B; color: #1e2a38; border: 0; border-radius: 12px; padding: 12px 22px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+        .pe-btn { background: #EAA100; color: #1e2a38; border: 0; border-radius: 12px; padding: 12px 22px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
         .pe-btn:disabled { opacity: .5; cursor: not-allowed; }
-        .pe-btn.ghost { background: transparent; border: 1px solid rgba(255,179,27,.25); color: #FFB31B; }
+        .pe-btn.ghost { background: transparent; border: 1px solid rgba(234, 161, 0,.25); color: #EAA100; }
         @media (max-width: 900px) { .pe-grid { grid-template-columns: 1fr; } .span2 { grid-column: span 1; } .pe-row { grid-template-columns: 1fr 1fr; } .pe-line { grid-template-columns: 1fr 1fr; } }
       `}</style>
     </form>

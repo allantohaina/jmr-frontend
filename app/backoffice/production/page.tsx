@@ -40,18 +40,18 @@ export default function BackofficeProductionPage() {
     <div className="space-y-8">
       <ProductionWorkflowBoard />
 
-      <section className="rounded-2xl border border-[#FFB31B]/10 bg-[#25303a] p-6">
+      <section className="rounded-2xl border border-[#EAA100]/10 bg-[#25303a] p-6">
         <button
           onClick={() => setShowEmployees(!showEmployees)}
           className="flex w-full items-center justify-between"
         >
           <div className="flex items-center gap-3">
-            <Users className="h-5 w-5 text-[#FFB31B]" />
-            <h2 className="text-sm font-bold uppercase tracking-widest text-[#FFB31B]">
+            <Users className="h-5 w-5 text-[#EAA100]" />
+            <h2 className="text-sm font-bold uppercase tracking-widest text-[#EAA100]">
               Suivi Employés
             </h2>
           </div>
-          <span className={`text-[#FFB31B]/60 transition-transform ${showEmployees ? "rotate-180" : ""}`}>
+          <span className={`text-[#EAA100]/60 transition-transform ${showEmployees ? "rotate-180" : ""}`}>
             ▼
           </span>
         </button>
@@ -60,14 +60,14 @@ export default function BackofficeProductionPage() {
           <div className="mt-4 space-y-2">
             {loading && (
               <div className="flex items-center justify-center py-8">
-                <Loader className="h-5 w-5 animate-spin text-[#FFB31B]" />
+                <Loader className="h-5 w-5 animate-spin text-[#EAA100]" />
               </div>
             )}
             {error && (
               <p className="py-4 text-center text-sm text-red-400">{error}</p>
             )}
             {!loading && !error && employees.length === 0 && (
-              <p className="py-4 text-center text-sm text-[#FFB31B]/50">Aucun employé inscrit.</p>
+              <p className="py-4 text-center text-sm text-[#EAA100]/50">Aucun employé inscrit.</p>
             )}
             {!loading &&
               employees.map((emp) => (
@@ -75,10 +75,10 @@ export default function BackofficeProductionPage() {
                   <div className="flex items-center gap-3">
                     <CheckCircle className="h-4 w-4 text-green-400" />
                     <div>
-                      <p className="text-sm font-semibold text-[#FFB31B]">
+                      <p className="text-sm font-semibold text-[#EAA100]">
                         {emp.first_name} {emp.last_name}
                       </p>
-                      <p className="text-[10px] text-[#FFB31B]/50">{emp.email}</p>
+                      <p className="text-[10px] text-[#EAA100]/50">{emp.email}</p>
                     </div>
                   </div>
                 </div>

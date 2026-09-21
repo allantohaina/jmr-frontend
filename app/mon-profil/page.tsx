@@ -59,7 +59,7 @@ export default function MonProfilPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#1e2a38] text-[#FFB31B]">
+      <div className="flex min-h-screen items-center justify-center bg-[#1e2a38] text-[#EAA100]">
         <span className="text-xs font-bold uppercase tracking-[0.3em]">Chargement...</span>
       </div>
     );
@@ -67,7 +67,7 @@ export default function MonProfilPage() {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#1e2a38] text-[#FFB31B]">
+      <div className="flex min-h-screen items-center justify-center bg-[#1e2a38] text-[#EAA100]">
         <span className="text-xs font-bold uppercase tracking-[0.3em]">Chargement...</span>
       </div>
     );

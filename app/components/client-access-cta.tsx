@@ -22,7 +22,7 @@ export function ClientAccessCta() {
       <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Link
           href="/login"
-          className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl bg-[#1e2a38] px-8 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#FFB31B] shadow-xl transition-all hover:bg-[#141e2e] sm:w-auto"
+          className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl bg-[#1e2a38] px-8 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#EAA100] shadow-xl transition-all hover:bg-[#141e2e] sm:w-auto"
         >
           {messages.auth.loginTitle}
         </Link>

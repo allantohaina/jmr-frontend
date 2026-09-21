@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
+    "animejs": "^4.5.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.36.0",
     "libphonenumber-js": "^1.13.6",

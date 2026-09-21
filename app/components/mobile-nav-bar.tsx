@@ -24,7 +24,7 @@ export function MobileNavBar() {
                 scrollToSection(item.sectionId);
               }
             }}
-            className="flex flex-col items-center justify-center gap-0.5 text-white/80 hover:text-[#FFB31B] transition-colors"
+            className="flex flex-col items-center justify-center gap-0.5 text-white/80 hover:text-[#EAA100] transition-colors"
           >
             <span className="material-symbols-outlined text-2xl leading-none block" style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}>
               {item.icon}

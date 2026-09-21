@@ -103,34 +103,34 @@ export default function PaymentsPage() {
   return (
     <div className="p-6 md:p-10 space-y-6">
       <div className="flex items-center gap-3">
-        <CreditCard className="h-6 w-6 text-[#FFB31B]" />
-        <h1 className="font-headline text-2xl text-[#FFB31B]">Paiements</h1>
+        <CreditCard className="h-6 w-6 text-[#EAA100]" />
+        <h1 className="font-headline text-2xl text-[#EAA100]">Paiements</h1>
       </div>
 
       {/* Preuves en attente — l'admin doit vérifier l'image avant que la tranche passe à Payé */}
-      <section className="rounded-xl bg-[#25303a] p-4 border border-[#FFB31B]/20">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-[#FFB31B]/60 mb-1">
+      <section className="rounded-xl bg-[#25303a] p-4 border border-[#EAA100]/20">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/60 mb-1">
           Preuves à vérifier ({pending.length})
         </p>
-        <p className="text-xs text-[#FFB31B]/50 mb-3">
+        <p className="text-xs text-[#EAA100]/50 mb-3">
           Une tranche ne passe à « Payé » qu&apos;après vérification de la preuve image/PDF. La tranche 1 vérifiée démarre la production.
         </p>
         {pending.length === 0 ? (
-          <p className="text-sm text-[#FFB31B]/50">Aucune preuve en attente.</p>
+          <p className="text-sm text-[#EAA100]/50">Aucune preuve en attente.</p>
         ) : (
           <div className="space-y-3">
             {pending.map((p) => (
-              <div key={p.id} className="rounded-lg bg-[#1e2a38] p-3 border border-[#FFB31B]/10">
+              <div key={p.id} className="rounded-lg bg-[#1e2a38] p-3 border border-[#EAA100]/10">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div>
-                    <p className="font-semibold text-[#FFB31B] text-sm">
+                    <p className="font-semibold text-[#EAA100] text-sm">
                       {p.phase === "deposit" ? "Tranche 1 · Acompte" : "Tranche 2 · Solde"} — {Number(p.amount ?? 0).toLocaleString("fr-FR")} Ar
                     </p>
-                    <p className="text-xs text-[#FFB31B]/50">
+                    <p className="text-xs text-[#EAA100]/50">
                       {(p.client_name as string) || (p.client_email as string) || p.quote_id} · Réf {p.transaction_ref || "—"} · {p.payment_type || "—"}
                     </p>
                     {p.proof_path && (
-                      <a href={safeUrl(p.proof_path)} target="_blank" rel="noopener noreferrer" className="text-xs text-[#FFB31B] underline">
+                      <a href={safeUrl(p.proof_path)} target="_blank" rel="noopener noreferrer" className="text-xs text-[#EAA100] underline">
                         Voir la preuve image/PDF
                       </a>
                     )}
@@ -156,7 +156,7 @@ export default function PaymentsPage() {
                   value={reviewingId === p.id ? reviewNote : reviewNote}
                   onChange={(e) => setReviewNote(e.target.value)}
                   placeholder="Motif du rejet (obligatoire si rejet)"
-                  className="mt-2 w-full rounded-lg border border-[#FFB31B]/10 bg-[#25303a] px-3 py-2 text-xs text-[#FFB31B] placeholder:text-[#FFB31B]/30"
+                  className="mt-2 w-full rounded-lg border border-[#EAA100]/10 bg-[#25303a] px-3 py-2 text-xs text-[#EAA100] placeholder:text-[#EAA100]/30"
                 />
               </div>
             ))}
@@ -166,28 +166,28 @@ export default function PaymentsPage() {
 
       <div className="flex gap-2">
         {[null, "payé", "acompte"].map((s) => (
-          <button key={s || "all"} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === s || (!statusFilter && !s) ? "bg-[#FFB31B] text-[#1e2a38]" : "bg-[#25303a] text-[#FFB31B]/60 hover:bg-[#FFB31B]/10"}`}>
+          <button key={s || "all"} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === s || (!statusFilter && !s) ? "bg-[#EAA100] text-[#1e2a38]" : "bg-[#25303a] text-[#EAA100]/60 hover:bg-[#EAA100]/10"}`}>
             {s === "payé" ? "Payés" : s === "acompte" ? "Acomptes" : "Tous"}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-8"><Loader className="h-5 w-5 animate-spin text-[#FFB31B]" /></div>
+        <div className="flex justify-center py-8"><Loader className="h-5 w-5 animate-spin text-[#EAA100]" /></div>
       ) : payments.length === 0 ? (
-        <p className="text-sm text-[#FFB31B]/50">Aucun paiement vérifié. Les tranches n&apos;apparaissent ici qu&apos;après validation admin.</p>
+        <p className="text-sm text-[#EAA100]/50">Aucun paiement vérifié. Les tranches n&apos;apparaissent ici qu&apos;après validation admin.</p>
       ) : filteredPayments.length === 0 ? (
-        <p className="text-sm text-[#FFB31B]/50">Aucun paiement avec ce statut.</p>
+        <p className="text-sm text-[#EAA100]/50">Aucun paiement avec ce statut.</p>
       ) : (
         <div className="space-y-3">{filteredPayments.map((p, i) => (
-          <div key={i} className="rounded-xl bg-[#25303a] p-4 border border-[#FFB31B]/10">
+          <div key={i} className="rounded-xl bg-[#25303a] p-4 border border-[#EAA100]/10">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-semibold text-[#FFB31B]">{p.ref}</p>
-                <p className="text-xs text-[#FFB31B]/50">{p.client}</p>
+                <p className="font-semibold text-[#EAA100]">{p.ref}</p>
+                <p className="text-xs text-[#EAA100]/50">{p.client}</p>
               </div>
               <div className="text-right">
-                <p className="font-bold text-[#FFB31B]">{p.amount} €</p>
+                <p className="font-bold text-[#EAA100]">{p.amount} €</p>
                 <span className={`text-[10px] font-bold uppercase tracking-widest ${p.status === "payé" ? "text-green-400" : "text-yellow-400"}`}>{p.status}</span>
               </div>
             </div>

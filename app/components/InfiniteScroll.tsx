@@ -83,7 +83,7 @@ export function InfiniteScroll<T>({
       )}
       
       {!hasMore && items.length > 0 && (
-        <p className="text-[#FFB31B]/40 text-center py-8 text-xs uppercase tracking-[0.2em]">
+        <p className="text-[#EAA100]/40 text-center py-8 text-xs uppercase tracking-[0.2em]">
           Plus d&apos;éléments
         </p>
       )}

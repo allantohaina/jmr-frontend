@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useLocale } from "@/app/components/locale-provider";
 import { EditableText } from "@/app/components/editable-text";
 import { scrollToSection } from "@/app/lib/scroll";
+import { AnimeStagger } from "@/app/components/anime-reveal";
 
 type SocialItem = {
   key: string;
@@ -45,14 +46,14 @@ export function Footer() {
   }
 
   return (
-    <footer className="site-footer-modern w-full mt-12 md:mt-20 bg-[#1e2a38] text-[#FFB31B] overflow-hidden">
+    <footer className="site-footer-modern w-full mt-12 md:mt-20 bg-[#1e2a38] text-[#EAA100] overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-12 md:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-16 items-start">
 
           {/* Brand Column */}
           <div className="lg:col-span-4">
             <Link
-              className="inline-flex flex-col gap-4 p-8 bg-[#1e2a38] rounded-2xl shadow-2xl mb-8 group transition-transform hover:-translate-y-1 border border-[#FFB31B]/20"
+              className="inline-flex flex-col gap-4 p-8 bg-[#1e2a38] rounded-2xl shadow-2xl mb-8 group transition-transform hover:-translate-y-1 border border-[#EAA100]/20"
               href="/"
               aria-label="Accueil JMR Textile"
             >
@@ -63,26 +64,26 @@ export function Footer() {
                 alt="JMR Textile"
               />
             </Link>
-            <div className="font-body text-sm text-[#FFB31B]/70 leading-relaxed max-w-sm">
+            <div className="font-body text-sm text-[#EAA100]/70 leading-relaxed max-w-sm">
               <p><EditableText contentKey="footer.description" fallback={messages.footer.description} as="span" multiline /></p>
             </div>
           </div>
 
           {/* Navigation Column */}
           <div className="lg:col-span-2">
-            <div className="font-label text-[10px] uppercase tracking-[0.3em] text-[#FFB31B] font-bold mb-8">
+            <div className="font-label text-[10px] uppercase tracking-[0.3em] text-[#EAA100] font-bold mb-8">
               <span><EditableText contentKey="footer.navigation" fallback={messages.footer.navigation} /></span>
             </div>
             <ul className="space-y-4">
               {footerLinks.map((link) => (
-                <li key={link.key} className="font-body text-xs uppercase tracking-widest text-[#FFB31B]/70">
+                <li key={link.key} className="font-body text-xs uppercase tracking-widest text-[#EAA100]/70">
                   <Link
                     href="/"
                     onClick={(e) => {
                       e.preventDefault();
                       scrollToSection(link.sectionId);
                     }}
-                    className="hover:text-[#FFB31B] hover:translate-x-1 transition-all inline-block"
+                    className="hover:text-[#EAA100] hover:translate-x-1 transition-all inline-block"
                   >
                     <EditableText contentKey={`footer.link.${link.sectionId}`} fallback={link.fallback} />
                   </Link>
@@ -93,15 +94,15 @@ export function Footer() {
 
           {/* Legal Column */}
           <div className="lg:col-span-2">
-            <div className="font-label text-[10px] uppercase tracking-[0.3em] text-[#FFB31B] font-bold mb-8">
+            <div className="font-label text-[10px] uppercase tracking-[0.3em] text-[#EAA100] font-bold mb-8">
               <span><EditableText contentKey="footer.legal" fallback={messages.footer.legal} /></span>
             </div>
             <ul className="space-y-4">
               {legalLinks.map((link) => (
-                <li key={link.labelKey} className="font-body text-xs uppercase tracking-widest text-[#FFB31B]/70">
+                <li key={link.labelKey} className="font-body text-xs uppercase tracking-widest text-[#EAA100]/70">
                   <Link
                     href={link.fallbackUrl}
-                    className="hover:text-[#FFB31B] hover:translate-x-1 transition-all inline-block"
+                    className="hover:text-[#EAA100] hover:translate-x-1 transition-all inline-block"
                   >
                     <EditableText contentKey={`footer.legal.${link.labelKey}`} fallback={link.fallbackLabel} />
                   </Link>
@@ -112,10 +113,10 @@ export function Footer() {
 
           {/* Social Column */}
           <div className="lg:col-span-4">
-            <div className="font-label text-[10px] uppercase tracking-[0.3em] text-[#FFB31B] font-bold mb-8">
+            <div className="font-label text-[10px] uppercase tracking-[0.3em] text-[#EAA100] font-bold mb-8">
               <span><EditableText contentKey="footer.social" fallback={messages.footer.social} /></span>
             </div>
-            <div className="flex gap-4 mb-12">
+            <AnimeStagger as="div" className="flex gap-4 mb-12" itemSelector="a" staggerMs={80}>
               {SOCIAL_ITEMS.map((item) => (
                 <a
                   key={item.key}
@@ -123,7 +124,7 @@ export function Footer() {
                   {...(item.key === "whatsapp"
                     ? { target: "_blank", rel: "noopener noreferrer" }
                     : {})}
-                  className="w-14 h-14 rounded-2xl border border-[#FFB31B]/30 flex items-center justify-center hover:border-[#FFB31B] hover:bg-[#FFB31B]/10 transition-all group"
+                  className="w-14 h-14 rounded-2xl border border-[#EAA100]/30 flex items-center justify-center hover:border-[#EAA100] hover:bg-[#EAA100]/10 transition-all group"
                   aria-label={item.label}
                 >
                   <Image
@@ -131,22 +132,22 @@ export function Footer() {
                     alt={item.label}
                     width={28}
                     height={28}
-                    className="social-icon-gold drop-shadow-[0_0_8px_rgba(255, 179, 27,0.3)]"
+                    className="social-icon-gold drop-shadow-[0_0_8px_rgba(234, 161, 0,0.3)]"
                   />
                 </a>
               ))}
-            </div>
+            </AnimeStagger>
           </div>
         </div>
 
         {/* Bottom Line */}
-        <div className="mt-20 pt-10 border-t border-[#FFB31B]/10 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="font-body text-[10px] text-[#FFB31B]/40 uppercase tracking-[0.3em] text-center md:text-left">
+        <div className="mt-20 pt-10 border-t border-[#EAA100]/10 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="font-body text-[10px] text-[#EAA100]/40 uppercase tracking-[0.3em] text-center md:text-left">
             <span><EditableText contentKey="footer.copyright" fallback={messages.footer.copyright} /></span>
           </div>
           <div className="flex items-center gap-8">
-            <span className="w-12 h-[1px] bg-[#FFB31B]/10 hidden md:block"></span>
-            <div className="font-body text-[10px] text-[#FFB31B]/40 uppercase tracking-[0.3em] text-center">
+            <span className="w-12 h-[1px] bg-[#EAA100]/10 hidden md:block"></span>
+            <div className="font-body text-[10px] text-[#EAA100]/40 uppercase tracking-[0.3em] text-center">
               <span><EditableText contentKey="footer.values" fallback={messages.footer.values} /></span>
             </div>
           </div>

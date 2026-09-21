@@ -37,15 +37,15 @@ export function AtelierCheckIn() {
   };
 
   return (
-    <div className="bg-[#25303a] rounded-[2rem] shadow-xl border border-[#FFB31B]/5 overflow-hidden">
-      <div className="p-8 bg-[#1e2a38] text-[#FFB31B] border-b border-[#FFB31B]/10">
+    <div className="bg-[#25303a] rounded-[2rem] shadow-xl border border-[#EAA100]/5 overflow-hidden">
+      <div className="p-8 bg-[#1e2a38] text-[#EAA100] border-b border-[#EAA100]/10">
         <div className="flex items-center gap-4 mb-2">
-          <div className="w-12 h-12 rounded-2xl bg-[#FFB31B]/10 flex items-center justify-center">
-            <ClipboardCheck className="text-[#FFB31B] w-6 h-6" />
+          <div className="w-12 h-12 rounded-2xl bg-[#EAA100]/10 flex items-center justify-center">
+            <ClipboardCheck className="text-[#EAA100] w-6 h-6" />
           </div>
           <div>
-            <h2 className="font-headline text-2xl text-[#FFB31B]">Check-in Quotidien</h2>
-            <p className="text-[10px] uppercase tracking-widest text-[#FFB31B]/40 font-bold">Rapport d&apos;activité & Présence</p>
+            <h2 className="font-headline text-2xl text-[#EAA100]">Check-in Quotidien</h2>
+            <p className="text-[10px] uppercase tracking-widest text-[#EAA100]/40 font-bold">Rapport d&apos;activité & Présence</p>
           </div>
         </div>
       </div>
@@ -55,21 +55,21 @@ export function AtelierCheckIn() {
           {/* Date & Time Section */}
           <div className="space-y-6">
             <div className="relative">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#FFB31B]/40 mb-2 block">Date de l&apos;activité</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Date de l&apos;activité</label>
               <button
                 type="button"
                 onClick={() => setShowCalendar(!showCalendar)}
-                className="w-full flex items-center justify-between p-4 bg-[#1e2a38] border border-[#FFB31B]/10 rounded-2xl hover:bg-[#1e2a38]/80 transition-colors text-[#FFB31B]"
+                className="w-full flex items-center justify-between p-4 bg-[#1e2a38] border border-[#EAA100]/10 rounded-2xl hover:bg-[#1e2a38]/80 transition-colors text-[#EAA100]"
               >
                 <div className="flex items-center gap-3">
-                  <CalendarIcon className="w-4 h-4 text-[#FFB31B]" />
+                  <CalendarIcon className="w-4 h-4 text-[#EAA100]" />
                   <span className="text-sm font-semibold">{format(selectedDate, "PPP", { locale: fr })}</span>
                 </div>
                 <span className="material-symbols-outlined text-sm">expand_more</span>
               </button>
               
               {showCalendar && (
-                <div className="absolute top-full left-0 mt-2 z-50 bg-[#25303a] shadow-2xl rounded-2xl border border-[#FFB31B]/10 p-4 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute top-full left-0 mt-2 z-50 bg-[#25303a] shadow-2xl rounded-2xl border border-[#EAA100]/10 p-4 animate-in fade-in slide-in-from-top-2">
                   <DayPicker
                     mode="single"
                     selected={selectedDate}
@@ -80,10 +80,10 @@ export function AtelierCheckIn() {
                     locale={fr}
                     className="border-0"
                     styles={{
-                      caption: { color: "#FFB31B" },
-                      head_cell: { color: "#FFB31B", fontSize: "0.75rem" },
-                      day_selected: { backgroundColor: "#FFB31B", color: "#1e2a38" },
-                      day_today: { color: "#FFB31B", fontWeight: "bold", border: "1px solid #FFB31B" }
+                      caption: { color: "#EAA100" },
+                      head_cell: { color: "#EAA100", fontSize: "0.75rem" },
+                      day_selected: { backgroundColor: "#EAA100", color: "#1e2a38" },
+                      day_today: { color: "#EAA100", fontWeight: "bold", border: "1px solid #EAA100" }
                     }}
                   />
                 </div>
@@ -91,20 +91,20 @@ export function AtelierCheckIn() {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#FFB31B]/40 mb-2 block">Heure d&apos;arrivée</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Heure d&apos;arrivée</label>
               <div className="relative">
-                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FFB31B]/40" />
+                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#EAA100]/40" />
                 <input
                   type="time"
                   value={checkInData.time}
                   onChange={(e) => setCheckInData({ ...checkInData, time: e.target.value })}
-                  className="w-full p-4 pl-12 bg-[#1e2a38] border border-[#FFB31B]/10 rounded-2xl text-sm font-semibold text-[#FFB31B] focus:outline-none focus:ring-2 focus:ring-[#FFB31B]/20 appearance-none"
+                  className="w-full p-4 pl-12 bg-[#1e2a38] border border-[#EAA100]/10 rounded-2xl text-sm font-semibold text-[#EAA100] focus:outline-none focus:ring-2 focus:ring-[#EAA100]/20 appearance-none"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#FFB31B]/40 mb-2 block">Statut de Disponibilité</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Statut de Disponibilité</label>
               <div className="grid grid-cols-2 gap-3">
                 {["disponible", "occupe"].map((status) => (
                   <button
@@ -113,8 +113,8 @@ export function AtelierCheckIn() {
                     onClick={() => setCheckInData({ ...checkInData, status })}
                     className={`p-3 rounded-xl border text-[10px] font-bold uppercase tracking-widest transition-all ${
                       checkInData.status === status
-                        ? "bg-[#FFB31B] text-[#1e2a38] border-[#FFB31B]"
-                        : "bg-[#1e2a38] text-[#FFB31B]/40 border-[#FFB31B]/10 hover:bg-white/5"
+                        ? "bg-[#EAA100] text-[#1e2a38] border-[#EAA100]"
+                        : "bg-[#1e2a38] text-[#EAA100]/40 border-[#EAA100]/10 hover:bg-white/5"
                     }`}
                   >
                     {status === "disponible" ? (
@@ -135,28 +135,28 @@ export function AtelierCheckIn() {
           {/* Tasks Section */}
           <div className="space-y-6">
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#FFB31B]/40 mb-2 block">Tâches Accomplies (Hier)</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Tâches Accomplies (Hier)</label>
               <textarea
                 value={checkInData.completedTasks}
                 onChange={(e) => setCheckInData({ ...checkInData, completedTasks: e.target.value })}
                 placeholder="Ex: Finition des 50 polos #CMD-104..."
-                className="w-full p-4 bg-[#1e2a38] border border-[#FFB31B]/10 rounded-2xl text-sm text-[#FFB31B] min-h-[100px] focus:outline-none focus:ring-2 focus:ring-[#FFB31B]/20 resize-none placeholder:text-[#FFB31B]/20"
+                className="w-full p-4 bg-[#1e2a38] border border-[#EAA100]/10 rounded-2xl text-sm text-[#EAA100] min-h-[100px] focus:outline-none focus:ring-2 focus:ring-[#EAA100]/20 resize-none placeholder:text-[#EAA100]/20"
               />
             </div>
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-[#FFB31B]/40 mb-2 block">Tâches Prévues (Aujourd&apos;hui)</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[#EAA100]/40 mb-2 block">Tâches Prévues (Aujourd&apos;hui)</label>
               <textarea
                 value={checkInData.plannedTasks}
                 onChange={(e) => setCheckInData({ ...checkInData, plannedTasks: e.target.value })}
                 placeholder="Ex: Début de la coupe des chemises #CMD-105..."
-                className="w-full p-4 bg-[#1e2a38] border border-[#FFB31B]/10 rounded-2xl text-sm text-[#FFB31B] min-h-[100px] focus:outline-none focus:ring-2 focus:ring-[#FFB31B]/20 resize-none placeholder:text-[#FFB31B]/20"
+                className="w-full p-4 bg-[#1e2a38] border border-[#EAA100]/10 rounded-2xl text-sm text-[#EAA100] min-h-[100px] focus:outline-none focus:ring-2 focus:ring-[#EAA100]/20 resize-none placeholder:text-[#EAA100]/20"
               />
             </div>
           </div>
         </div>
 
-        <div className="pt-4 border-t border-[#FFB31B]/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-2 text-[#FFB31B]/40">
+        <div className="pt-4 border-t border-[#EAA100]/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2 text-[#EAA100]/40">
             <MessageSquare className="w-4 h-4" />
             <span className="text-[10px] font-bold uppercase tracking-widest">Une notification sera envoyée à l&apos;admin</span>
           </div>
@@ -166,7 +166,7 @@ export function AtelierCheckIn() {
             className={`w-full md:w-auto px-10 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg ${
               isSubmitted 
                 ? "bg-green-500 text-[#1e2a38] cursor-not-allowed" 
-                : "bg-[#FFB31B] text-[#1e2a38] hover:bg-[#FFB31B] active:scale-95"
+                : "bg-[#EAA100] text-[#1e2a38] hover:bg-[#EAA100] active:scale-95"
             }`}
           >
             {isSubmitted ? (

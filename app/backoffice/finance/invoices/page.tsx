@@ -127,8 +127,8 @@ export default function InvoicesPage() {
   return (
     <div className="p-6 md:p-10 space-y-6">
       <div className="flex items-center gap-3">
-        <Receipt className="h-6 w-6 text-[#FFB31B]" />
-        <h1 className="font-headline text-2xl text-[#FFB31B]">Factures</h1>
+        <Receipt className="h-6 w-6 text-[#EAA100]" />
+        <h1 className="font-headline text-2xl text-[#EAA100]">Factures</h1>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -148,7 +148,7 @@ export default function InvoicesPage() {
             key={f}
             onClick={() => onFilterChange(f)}
             className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors ${
-              filter === f ? "bg-[#FFB31B] text-[#1e2a38]" : "bg-[#25303a] text-[#FFB31B]/60 hover:bg-[#FFB31B]/10"
+              filter === f ? "bg-[#EAA100] text-[#1e2a38]" : "bg-[#25303a] text-[#EAA100]/60 hover:bg-[#EAA100]/10"
             }`}
           >
             {f === "all" ? "Toutes" : f === "paid" ? "Payées" : "Impayées"}
@@ -157,28 +157,28 @@ export default function InvoicesPage() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-8"><Loader className="h-5 w-5 animate-spin text-[#FFB31B]" /></div>
+        <div className="flex justify-center py-8"><Loader className="h-5 w-5 animate-spin text-[#EAA100]" /></div>
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-[#FFB31B]/50">Aucune facture.</p>
+        <p className="text-sm text-[#EAA100]/50">Aucune facture.</p>
       ) : (
         <div className="space-y-3">
           {filtered.map((inv) => (
             <button
               key={String(inv.id)}
               onClick={() => selectInvoice(selectedId === inv.id ? null : inv.id)}
-              className="w-full text-left rounded-xl bg-[#25303a] p-4 border border-[#FFB31B]/10 hover:border-[#FFB31B]/40 transition-colors"
+              className="w-full text-left rounded-xl bg-[#25303a] p-4 border border-[#EAA100]/10 hover:border-[#EAA100]/40 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0">
-                  <FileText className="h-5 w-5 text-[#FFB31B]/60 shrink-0" />
+                  <FileText className="h-5 w-5 text-[#EAA100]/60 shrink-0" />
                   <div className="min-w-0">
-                    <p className="font-semibold text-[#FFB31B] truncate">{inv.ref}</p>
-                    <p className="text-xs text-[#FFB31B]/50 truncate">{inv.client}</p>
+                    <p className="font-semibold text-[#EAA100] truncate">{inv.ref}</p>
+                    <p className="text-xs text-[#EAA100]/50 truncate">{inv.client}</p>
                   </div>
                 </div>
                 <div className="text-right shrink-0 ml-4">
                   <p className={`font-bold ${inv.status === "paid" ? "text-green-400" : "text-yellow-400"}`}>{Math.round(inv.amount).toLocaleString("fr-FR")} Ar</p>
-                  <p className="text-[9px] uppercase tracking-widest text-[#FFB31B]/40 mt-0.5">
+                  <p className="text-[9px] uppercase tracking-widest text-[#EAA100]/40 mt-0.5">
                     {inv.status === "paid" ? "Payée" : inv.status === "partial" ? "Partielle" : "En attente"}
                   </p>
                 </div>
@@ -195,23 +195,23 @@ export default function InvoicesPage() {
           onMouseDown={(e) => { if (e.target === e.currentTarget) selectInvoice(null); }}
         >
           <div className="relative w-full max-w-[920px] max-h-[96vh] overflow-y-auto bg-transparent sm:rounded-2xl print:max-h-none print:overflow-visible">
-            <div className="sticky top-0 z-20 flex items-center justify-between gap-3 bg-[#1e2a38]/95 px-4 py-3 sm:px-6 sm:py-4 backdrop-blur border-b border-[#FFB31B]/15 print:hidden">
+            <div className="sticky top-0 z-20 flex items-center justify-between gap-3 bg-[#1e2a38]/95 px-4 py-3 sm:px-6 sm:py-4 backdrop-blur border-b border-[#EAA100]/15 print:hidden">
               <div>
-                <p className="text-[9px] font-bold uppercase tracking-[.22em] text-[#FFB31B]/45">Facture ouverte</p>
-                <h2 className="font-headline text-lg text-[#FFB31B]">{selected.ref}</h2>
+                <p className="text-[9px] font-bold uppercase tracking-[.22em] text-[#EAA100]/45">Facture ouverte</p>
+                <h2 className="font-headline text-lg text-[#EAA100]">{selected.ref}</h2>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={printSelected}
-                  className="inline-flex items-center gap-2 rounded-lg border border-[#FFB31B]/40 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[#FFB31B] hover:bg-[#FFB31B]/15 transition"
+                  className="inline-flex items-center gap-2 rounded-lg border border-[#EAA100]/40 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[#EAA100] hover:bg-[#EAA100]/15 transition"
                 >
                   <Printer className="h-4 w-4" /> Imprimer
                 </button>
                 <button
                   type="button"
                   onClick={() => selectInvoice(null)}
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#FFB31B]/15 text-[#FFB31B]/60 hover:bg-[#FFB31B]/10 hover:text-[#FFB31B] transition"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#EAA100]/15 text-[#EAA100]/60 hover:bg-[#EAA100]/10 hover:text-[#EAA100] transition"
                   aria-label="Fermer"
                 >
                   <X className="h-5 w-5" />
@@ -224,8 +224,8 @@ export default function InvoicesPage() {
 
               <div className="px-4 sm:px-6 mt-6 print:hidden max-w-[210mm] mx-auto">
                 {savingSignature ? (
-                  <div className="flex items-center justify-center gap-2 rounded-xl border border-[#FFB31B]/30 bg-[#fffdf8] p-5 text-[#172d42]">
-                    <Loader className="h-4 w-4 animate-spin text-[#FFB31B]" />
+                  <div className="flex items-center justify-center gap-2 rounded-xl border border-[#EAA100]/30 bg-[#fffdf8] p-5 text-[#172d42]">
+                    <Loader className="h-4 w-4 animate-spin text-[#EAA100]" />
                     <span className="text-xs font-bold uppercase tracking-widest">Enregistrement de la signature…</span>
                   </div>
                 ) : (

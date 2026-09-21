@@ -10,7 +10,7 @@ function EditDevisPageContent() {
 
   if (!id) {
     return (
-      <div className="px-4 md:px-12 py-6 md:py-10 text-[#FFB31B]">
+      <div className="px-4 md:px-12 py-6 md:py-10 text-[#EAA100]">
         <p className="text-xs font-bold uppercase tracking-[0.3em]">Devis introuvable</p>
       </div>
     );
