@@ -549,7 +549,7 @@ export function Navbar({
                         role="menuitem"
                         onClick={handleSignOut}
                         disabled={isSigningOut}
-                        className="flex w-full items-center gap-3 rounded-xl bg-transparent px-4 py-3 text-sm font-medium text-[#E05252] transition-colors hover:bg-[#E05252]/10 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="flex w-full items-center gap-3 rounded-xl border-0 bg-transparent px-4 py-3 text-sm font-medium text-[#E05252] transition-colors hover:bg-[#E05252]/10 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         <span className="material-symbols-outlined text-xl">logout</span>
                         {isSigningOut ? messages.navbar.signingOut : messages.navbar.signOut}
@@ -709,7 +709,7 @@ export function Navbar({
 
         <button
           type="button"
-          className="max-[900px]:flex max-[900px]:items-center max-[900px]:justify-center hidden h-10 w-10 rounded-xl bg-transparent transition-colors hover:bg-[#EAA100]/10"
+          className="max-[900px]:flex max-[900px]:items-center max-[900px]:justify-center hidden h-10 w-10 rounded-xl border-0 bg-transparent transition-colors hover:bg-[#EAA100]/10"
           onClick={handleToggleBurger}
           aria-label="Menu"
           aria-expanded={isMenuOpen}

@@ -11,13 +11,44 @@ import {
 import { HomeShowcase } from "@/app/components/home-showcase";
 import { getUser, getToken } from "@/app/lib/auth";
 import Link from "next/link";
+import { useLocale } from "@/app/components/locale-provider";
 import { AnimeReveal, AnimeFloat } from "@/app/components/anime-reveal";
 import { signOutClient } from "@/app/lib/auth-client";
 import { authAPI, type UserProfile } from "@/app/lib/api";
 import { TEXTILE_PROBLEM_THREADS } from "@/app/lib";
 
-export function HomePageClient() {
-  const [user, setUser] = useState<UserProfile | null>(null);
+function SignedInPanel({ firstName }: { firstName: string }) {
+  const { messages } = useLocale();
+  return (
+    <div className="mx-auto max-w-3xl text-center">
+      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.3em] text-[#1e2a38]/70">
+        {messages.auth.memberEyebrow}
+      </p>
+      <h2 className="font-headline text-3xl font-bold text-[#1e2a38] md:text-5xl">
+        {messages.auth.memberTitle}{firstName ? `, ${firstName}` : ""}.
+      </h2>
+      <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-[#1e2a38]/75">
+        {messages.auth.memberText}
+      </p>
+      <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <Link
+          href="/demande-devis"
+          className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl bg-[#1e2a38] px-8 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#EAA100] shadow-xl transition-all hover:bg-[#161D30] sm:w-auto"
+        >
+          {messages.auth.ctaRequest}
+        </Link>
+        <Link
+          href="/mon-profil"
+          className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl border-2 border-[#1e2a38]/30 px-8 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#1e2a38] transition-all hover:border-[#1e2a38] hover:bg-[#1e2a38]/5 sm:w-auto"
+        >
+          {messages.auth.memberSpace}
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+export function HomePageClient() {  const [user, setUser] = useState<UserProfile | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
     setIsMounted(true);
@@ -63,31 +94,7 @@ export function HomePageClient() {
             {isSignedIn && hasNotifications ? (
               <NotificationsSection user={user} />
             ) : isSignedIn ? (
-              <div className="mx-auto max-w-3xl text-center">
-                <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.3em] text-[#1e2a38]/70">
-                  Espace client
-                </p>
-                <h2 className="font-headline text-3xl font-bold text-[#1e2a38] md:text-5xl">
-                  Bon retour{firstName ? `, ${firstName}` : ""}.
-                </h2>
-                <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-[#1e2a38]/75">
-                  Retrouvez vos devis, commandes et documents au même endroit.
-                </p>
-                <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                  <Link
-                    href="/mon-profil"
-                    className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl bg-[#1e2a38] px-8 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#EAA100] shadow-xl transition-all hover:bg-[#161D30] sm:w-auto"
-                  >
-                    Accéder à mon espace
-                  </Link>
-                  <Link
-                    href="/demande-devis"
-                    className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl border-2 border-[#1e2a38]/30 px-8 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#1e2a38] transition-all hover:border-[#1e2a38] hover:bg-[#1e2a38]/5 sm:w-auto"
-                  >
-                    Faire une demande
-                  </Link>
-                </div>
-              </div>
+              <SignedInPanel firstName={firstName} />
             ) : (
               <ClientAccessCta />
             )}

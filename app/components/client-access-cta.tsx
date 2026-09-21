@@ -21,10 +21,10 @@ export function ClientAccessCta() {
 
       <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Link
-          href="/login"
+          href="/demande-devis"
           className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl bg-[#1e2a38] px-8 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#EAA100] shadow-xl transition-all hover:bg-[#161D30] sm:w-auto"
         >
-          {messages.auth.loginTitle}
+          {messages.auth.ctaRequest}
         </Link>
         <Link
           href="/login?tab=signup"
@@ -35,9 +35,6 @@ export function ClientAccessCta() {
       </div>
 
       <div className="mt-6 flex flex-col items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.2em] sm:flex-row sm:gap-6">
-        <Link href="/demande-devis" className="text-[#1e2a38]/70 underline-offset-4 transition-colors hover:text-[#1e2a38] hover:underline">
-          {isEn ? "Request a quote" : "Demander un devis"}
-        </Link>
         <Link href="/suivi-projet" className="text-[#1e2a38]/70 underline-offset-4 transition-colors hover:text-[#1e2a38] hover:underline">
           {isEn ? "Track a project" : "Suivre un projet"}
         </Link>

@@ -131,6 +131,9 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+/* Preflight partiel (preflight Tailwind désactivé) : sans ça, les <button>
+   sans classe de bordure affichent la bordure outset claire native */
+button:not([class*="border"]) { border: 0; }
 ul { list-style: none; }
 a { text-decoration: none; color: inherit; }
 
