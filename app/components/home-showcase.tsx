@@ -120,11 +120,11 @@ export function HomeProcessus() {
 }
 
 const REALISATIONS = [
-  { key: "1", image: "/human_images/01_patronage_terrasse.jpg", alt: "Patronage en atelier", span: "md:col-span-7", height: "h-80 md:h-[26rem]" },
-  { key: "2", image: "/human_images/09_decoupe_pieces_denim.jpg", alt: "Decoupe de pieces en denim", span: "md:col-span-5", height: "h-80 md:h-[26rem]" },
-  { key: "3", image: "/human_images/03_placement_patron_table.jpg", alt: "Placement de patron sur table", span: "md:col-span-4", height: "h-72 md:h-96" },
-  { key: "4", image: "/human_images/05_equipe_tracage_patron.jpg", alt: "Equipe autour du tracage", span: "md:col-span-4", height: "h-72 md:h-96" },
-  { key: "5", image: "/human_images/07_coupe_machine_denim.jpg", alt: "Coupe machine sur denim", span: "md:col-span-4", height: "h-72 md:h-96" },
+  { key: "1", image: "/human_images/01_patronage_terrasse.jpg", alt: "Patronage en atelier", span: "md:col-span-7", height: "h-[26rem] md:h-[34rem]" },
+  { key: "2", image: "/human_images/09_decoupe_pieces_denim.jpg", alt: "Decoupe de pieces en denim", span: "md:col-span-5", height: "h-[26rem] md:h-[34rem]" },
+  { key: "3", image: "/human_images/03_placement_patron_table.jpg", alt: "Placement de patron sur table", span: "md:col-span-4", height: "h-96 md:h-[30rem]" },
+  { key: "4", image: "/human_images/05_equipe_tracage_patron.jpg", alt: "Equipe autour du tracage", span: "md:col-span-4", height: "h-96 md:h-[30rem]" },
+  { key: "5", image: "/human_images/07_coupe_machine_denim.jpg", alt: "Coupe machine sur denim", span: "md:col-span-4", height: "h-96 md:h-[30rem]" },
 ] as const;
 
 export function HomeRealisations() {
@@ -132,30 +132,30 @@ export function HomeRealisations() {
   const t = messages.showcase;
   const labels = [t.realisation1, t.realisation2, t.realisation3, t.realisation4, t.realisation5];
   return (
-    <section className="mx-auto max-w-[1440px] px-6 md:px-12 py-16 md:py-24" aria-labelledby="showcase-realisations-title">
+    <section className="mx-auto max-w-[1440px] px-6 md:px-12 py-20 md:py-32" aria-labelledby="showcase-realisations-title">
       <SectionHeader
         id="showcase-realisations-title"
         eyebrowKey="showcase.realisationsEyebrow" eyebrowFallback={t.realisationsEyebrow}
         titleKey="showcase.realisationsTitle" titleFallback={t.realisationsTitle}
       />
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-14">
         {REALISATIONS.map((item, i) => (
-          <figure key={item.key} className={`group relative overflow-hidden rounded-2xl border border-white/10 ${item.span}`} data-reveal style={{ transitionDelay: `${i * 80}ms` }}>
+          <figure key={item.key} className={`group relative overflow-hidden rounded-3xl border border-white/10 ${item.span}`} data-reveal style={{ transitionDelay: `${i * 80}ms` }}>
             <EditableImage
               contentKey={`showcase.realisation${item.key}.image`}
               className={`w-full ${item.height} object-cover transition-transform duration-700 group-hover:scale-105`}
               src={item.image}
               alt={item.alt}
             />
-            <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-6 pt-14">
-              <span className="inline-block rounded-full border border-[#EAA100]/50 bg-black/40 px-3 py-1 font-body text-xs font-bold uppercase tracking-widest text-[#EAA100]">
+            <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-8 pt-20">
+              <span className="inline-block rounded-full border border-[#EAA100]/50 bg-black/40 px-4 py-1.5 font-body text-xs font-bold uppercase tracking-widest text-[#EAA100]">
                 <EditableText contentKey={`showcase.realisation${item.key}.label`} fallback={labels[i]} />
               </span>
             </figcaption>
           </figure>
         ))}
       </div>
-      <div className="mt-10 text-center">
+      <div className="mt-14 text-center">
         <Link href="/nos-services" className="inline-flex min-h-[52px] items-center justify-center rounded-xl bg-[#EAA100] px-10 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#1B2436] shadow-xl transition-all hover:brightness-110">
           <EditableText contentKey="showcase.realisationsCta" fallback={t.realisationsCta} />&nbsp;&rarr;</Link>
       </div>
@@ -251,14 +251,14 @@ export function HomeDevisCta() {
   );
 }
 
-export function HomeShowcase() {
+export function HomeShowcase({ showDevisCta = true }: { showDevisCta?: boolean }) {
   return (
     <>
       <HomeExpertises />
       <HomeProcessus />
       <HomeRealisations />
       <HomeFaq />
-      <HomeDevisCta />
+      {showDevisCta ? <HomeDevisCta /> : null}
     </>
   );
 }
