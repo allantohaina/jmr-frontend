@@ -32,7 +32,7 @@ export function ServicesSection() {
               contentKey="services.image-main"
               className="absolute inset-0 w-full h-full object-cover transition-all duration-1000 group-hover:scale-105"
               wrapperClassName="absolute inset-0"
-              src="/human_images/04_decoupe_machine_electrique.jpg"
+              src="/human_images/04_decoupe_machine_electrique.webp"
               alt="Travail de couture pratique en cours à l'atelier"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#1E2A38]/95 via-[#1E2A38]/35 to-transparent"></div>
@@ -75,7 +75,7 @@ export function ServicesSection() {
               contentKey="services.image-secondary"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
               wrapperClassName="absolute inset-0"
-              src="/human_images/09_decoupe_pieces_denim.jpg"
+              src="/human_images/09_decoupe_pieces_denim.webp"
               alt="Stock de matières textiles professionnelles à l'atelier"
             />
             <div className="absolute inset-0 bg-background/40 group-hover:bg-background/20 transition-all duration-500"></div>
@@ -92,7 +92,7 @@ export function ServicesSection() {
               <EditableImage
                 contentKey="services.image-tertiary"
                 className="w-full h-full object-cover opacity-70 md:opacity-60 group-hover:opacity-80 transition-all duration-1000"
-                src="/human_images/01_patronage_terrasse.jpg"
+                src="/human_images/01_patronage_terrasse.webp"
                 alt="Gros plan d'une construction de vêtement professionnel sur un cintre"
               />
               <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-transparent via-background/50 to-background"></div>

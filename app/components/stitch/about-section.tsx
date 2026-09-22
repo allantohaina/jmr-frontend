@@ -19,7 +19,8 @@ export function AboutSection() {
                 autoPlay 
                 muted 
                 loop 
-                playsInline 
+                playsInline
+                preload="metadata"
                 className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
               >
                 <source src="/video/machine.mp4" type="video/mp4" />
@@ -30,7 +31,7 @@ export function AboutSection() {
               <EditableImage
                 contentKey="about.image-team"
                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-                src="/human_images/05_equipe_tracage_patron.jpg"
+                src="/human_images/05_equipe_tracage_patron.webp"
                 alt="Outils d'atelier réels et fournitures de couture quotidiennes"
               />
             </div>

@@ -67,3 +67,9 @@ Options -Indexes
         Header set Cache-Control "no-cache, no-store, must-revalidate"
     </FilesMatch>
 </IfModule>
+
+# Compression gzip des ressources texte (HTML/JS/CSS/SVG/JSON) :
+# divise leur poids transfere par ~3-4. Images/videos deja compressees : exclues.
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json application/xml image/svg+xml application/manifest+json
+</IfModule>

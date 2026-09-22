@@ -44,15 +44,16 @@ export function HeroSection() {
             <EditableImage
               contentKey="hero.image-main"
               className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
-              src="/human_images/08_salle_machines_coudre.jpg"
+              src="/human_images/08_salle_machines_coudre.webp"
               alt="Environnement d'atelier moderne avec stockage pratique des tissus et équipement professionnel"
+              eager
             />
           </div>
           <div className="absolute -bottom-10 -left-10 w-80 aspect-square rounded-2xl overflow-hidden border-4 border-primary/30 shadow-2xl z-30 hidden md:block">
             <EditableImage
               contentKey="hero.image-overlay"
               className="w-full h-full object-cover"
-              src="/human_images/07_coupe_machine_denim.jpg"
+              src="/human_images/07_coupe_machine_denim.webp"
               alt="Vue détaillée de la couture professionnelle sur un tissu durable"
             />
             </div>

@@ -120,11 +120,11 @@ export function HomeProcessus() {
 }
 
 const REALISATIONS = [
-  { key: "1", image: "/human_images/01_patronage_terrasse.jpg", alt: "Patronage en atelier", span: "md:col-span-7", height: "h-[26rem] md:h-[34rem]" },
-  { key: "2", image: "/human_images/09_decoupe_pieces_denim.jpg", alt: "Decoupe de pieces en denim", span: "md:col-span-5", height: "h-[26rem] md:h-[34rem]" },
-  { key: "3", image: "/human_images/03_placement_patron_table.jpg", alt: "Placement de patron sur table", span: "md:col-span-4", height: "h-96 md:h-[30rem]" },
-  { key: "4", image: "/human_images/05_equipe_tracage_patron.jpg", alt: "Equipe autour du tracage", span: "md:col-span-4", height: "h-96 md:h-[30rem]" },
-  { key: "5", image: "/human_images/07_coupe_machine_denim.jpg", alt: "Coupe machine sur denim", span: "md:col-span-4", height: "h-96 md:h-[30rem]" },
+  { key: "1", image: "/human_images/01_patronage_terrasse.webp", alt: "Patronage en atelier", span: "md:col-span-7", height: "h-[26rem] md:h-[34rem]" },
+  { key: "2", image: "/human_images/09_decoupe_pieces_denim.webp", alt: "Decoupe de pieces en denim", span: "md:col-span-5", height: "h-[26rem] md:h-[34rem]" },
+  { key: "3", image: "/human_images/03_placement_patron_table.webp", alt: "Placement de patron sur table", span: "md:col-span-4", height: "h-96 md:h-[30rem]" },
+  { key: "4", image: "/human_images/05_equipe_tracage_patron.webp", alt: "Equipe autour du tracage", span: "md:col-span-4", height: "h-96 md:h-[30rem]" },
+  { key: "5", image: "/human_images/07_coupe_machine_denim.webp", alt: "Coupe machine sur denim", span: "md:col-span-4", height: "h-96 md:h-[30rem]" },
 ] as const;
 
 export function HomeRealisations() {

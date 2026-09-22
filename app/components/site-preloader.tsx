@@ -3,8 +3,11 @@
 import { useEffect, useState } from "react";
 import { getBackendApiUrls } from "@/app/lib/api";
 
-const PRELOAD_ASSETS = ["/human_images/08_salle_machines_coudre.jpg", "/navbar/logo-dark.svg"];
-const MAX_WAIT_MS = 4500;
+const PRELOAD_ASSETS = ["/human_images/08_salle_machines_coudre.webp", "/navbar/logo-dark.svg"];
+// Perf : splash de marque très court, JAMAIS bloqué par le réseau.
+// Le préchargement CMS continue en fond (best-effort) mais la page
+// s'affiche sans l'attendre.
+const MAX_WAIT_MS = 900;
 
 function preloadImage(src: string): Promise<void> {
   return new Promise((resolve) => {
@@ -59,13 +62,13 @@ export function SitePreloader() {
       if (done) return;
       done = true;
       setFading(true);
-      window.setTimeout(() => setVisible(false), 500);
+      window.setTimeout(() => setVisible(false), 400);
     };
+    // Le splash disparaît vite dans tous les cas ; les assets continuent
+    // de charger en fond sans bloquer l'affichage.
     const timer = window.setTimeout(finish, MAX_WAIT_MS);
-    Promise.all([
-      ...PRELOAD_ASSETS.map(preloadImage),
-      preloadSiteContentImages(),
-    ]).then(() => {
+    preloadSiteContentImages();
+    Promise.all(PRELOAD_ASSETS.map(preloadImage)).then(() => {
       window.clearTimeout(timer);
       finish();
     });

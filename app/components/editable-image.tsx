@@ -14,6 +14,8 @@ type EditableImageProps = {
   placeholder?: React.ReactNode;
   onUploaded?: (url: string) => void;
   contentKey?: string;
+  /** Image au-dessus de la ligne de flottaison : chargement prioritaire. */
+  eager?: boolean;
 };
 
 export function EditableImage({
@@ -24,6 +26,7 @@ export function EditableImage({
   placeholder = null,
   onUploaded,
   contentKey,
+  eager = false,
 }: EditableImageProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { get, save, ready } = useSiteContent();
@@ -85,16 +88,24 @@ export function EditableImage({
     }
   }
 
-  // Tant que le contenu CMS n'est pas chargé, on affiche un squelette plutôt
-  // que l'image par défaut : évite le flash ancienne -> nouvelle image.
-  const waitingForContent = !!contentKey && !ready && !uploadedRef.current;
+  // Perf : on affiche le fallback immédiatement (pas de squelette bloquant
+  // en attendant l'API CMS) puis on bascule vers l'override dès qu'il arrive.
+  // Seul le cas sans fallback (placeholder) attend le contenu CMS.
+  const waitingForContent = !!contentKey && !ready && !uploadedRef.current && !imageUrl;
 
   return (
     <div className={`group/editable ${wrapperClassName}`}>
       {waitingForContent ? (
         <div className="w-full h-full animate-pulse bg-[#EAA100]/10" aria-hidden="true" />
       ) : imageUrl ? (
-        <img src={imageUrl} alt={alt} className={className} />
+        <img
+          src={imageUrl}
+          alt={alt}
+          className={className}
+          loading={eager ? "eager" : "lazy"}
+          decoding="async"
+          fetchPriority={eager ? "high" : "auto"}
+        />
       ) : (
         placeholder
       )}

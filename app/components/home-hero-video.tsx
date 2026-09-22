@@ -21,7 +21,7 @@ export function HomeHeroVideo({ poster, src }: HomeHeroVideoProps) {
       loop
       muted
       playsInline
-      preload="auto"
+      preload="metadata"
       poster={poster}
       aria-hidden="true"
       onError={() => setHasVideoError(true)}
