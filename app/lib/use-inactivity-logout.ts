@@ -36,7 +36,7 @@ export function useInactivityLogout(options: Options = {}) {
       updateLastActivity();
     }
 
-    // Vérif immédiate : si > 7 jours, déconnecte
+    // Vérif immédiate : si > 2 jours, déconnecte
     if (isInactivityExpired()) {
       clearLastActivity();
       void signOutClient().finally(() => {

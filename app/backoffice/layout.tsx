@@ -132,7 +132,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   const [profileInitials, setProfileInitials] = React.useState("U");
   const [profileRole, setProfileRole] = React.useState("");
 
-  // Déconnexion auto après 7 jours d'inactivité
+  // Déconnexion auto après 2 jours d'inactivité
   useInactivityLogout({ redirectTo: "/admin-login" });
 
   React.useEffect(() => {

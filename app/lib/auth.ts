@@ -8,8 +8,8 @@ export const REFRESH_TOKEN_STORAGE_KEY = "jmr_refresh_token";
 export const USER_STORAGE_KEY = "jmr_user";
 export const AUTH_ERROR_STORAGE_KEY = "jmr_auth_error";
 export const LAST_ACTIVITY_STORAGE_KEY = "jmr_last_activity";
-export const INACTIVITY_LIMIT_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours
-export const AUTH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 jours en secondes
+export const INACTIVITY_LIMIT_MS = 2 * 24 * 60 * 60 * 1000; // 2 jours
+export const AUTH_COOKIE_MAX_AGE = 2 * 24 * 60 * 60; // 2 jours en secondes
 
 export type SessionUser = {
   id?: number | string;
@@ -169,7 +169,7 @@ export function getLastActivity(): number | null {
 
 export function updateLastActivity(): void {
   writeStorageValue(LAST_ACTIVITY_STORAGE_KEY, String(Date.now()));
-  // aussi en cookie pour cohérence SSR (7 jours)
+  // aussi en cookie pour cohérence SSR (2 jours)
   writeBrowserCookie(LAST_ACTIVITY_STORAGE_KEY, String(Date.now()), {
     maxAge: AUTH_COOKIE_MAX_AGE,
     path: "/",

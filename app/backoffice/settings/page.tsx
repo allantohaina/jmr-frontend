@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { authAPI } from "@/app/lib";
-import { Trash2, AlertTriangle, CheckCircle, Loader2 } from "lucide-react";
+import { Trash2, AlertTriangle, CheckCircle, Loader2, LogOut } from "lucide-react";
 
 export default function AdminSettingsPage() {
   const [tfaEnabled, setTfaEnabled] = useState(true);
@@ -10,6 +10,23 @@ export default function AdminSettingsPage() {
   const [truncating, setTruncating] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [loggingOutAll, setLoggingOutAll] = useState(false);
+  const [logoutAllResult, setLogoutAllResult] = useState<{ ok: boolean; message: string } | null>(null);
+
+  const handleLogoutAll = async () => {
+    if (!window.confirm("Déconnecter TOUS les utilisateurs sur TOUS les appareils ? Ils devront se reconnecter.")) return;
+    setLoggingOutAll(true);
+    setLogoutAllResult(null);
+    try {
+      const res = await authAPI.post<{ message: string; revoked_refresh_tokens: number }>("/admin/logout-all", {});
+      setLogoutAllResult({ ok: true, message: `${res.data?.message || "Sessions révoquées."} (${res.data?.revoked_refresh_tokens ?? 0} refresh tokens)` });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erreur lors de la déconnexion globale.";
+      setLogoutAllResult({ ok: false, message: msg });
+    } finally {
+      setLoggingOutAll(false);
+    }
+  };
 
   const handleTruncate = async () => {
     if (!adminPassword.trim()) return;
@@ -79,6 +96,28 @@ export default function AdminSettingsPage() {
             >
               Gérer les administrateurs
             </button>
+            <div className="p-4 bg-[#EAA100]/10 rounded-xl space-y-3">
+              <p className="text-sm font-bold text-[#EAA100]">Sessions (auto-log 2 jours)</p>
+              <p className="text-caption text-[#EAA100]/40 uppercase font-bold tracking-widest">
+                Après une mise à jour, déconnectez tout le monde en un clic
+              </p>
+              {logoutAllResult && (
+                <div className={`flex items-center gap-3 p-3 rounded-xl border text-xs font-bold uppercase tracking-widest ${
+                  logoutAllResult.ok ? "bg-green-50 border-green-100 text-green-700" : "bg-red-50 border-red-100 text-red-700"
+                }`}>
+                  {logoutAllResult.ok ? <CheckCircle className="h-4 w-4 shrink-0" /> : <AlertTriangle className="h-4 w-4 shrink-0" />}
+                  {logoutAllResult.message}
+                </div>
+              )}
+              <button
+                onClick={handleLogoutAll}
+                disabled={loggingOutAll}
+                className="flex items-center gap-2 px-4 py-3 bg-orange-500/20 text-orange-500 border border-orange-500/20 rounded-xl text-caption font-bold uppercase tracking-widest hover:bg-orange-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loggingOutAll ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+                {loggingOutAll ? "Déconnexion..." : "Déconnecter tout le monde"}
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -36,7 +36,7 @@ export function ClientAuthGate({
     }
 
     async function verifySession() {
-      // 7 jours d'inactivité => déconnexion auto
+      // 2 jours d'inactivité => déconnexion auto
       if (isInactivityExpired()) {
         clearLastActivity();
         await signOutClient();

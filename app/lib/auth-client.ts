@@ -55,17 +55,17 @@ function persistAuthSession(payload: AuthSuccessPayload, rememberMe = false) {
 
   writeStorageValue(USER_STORAGE_KEY, JSON.stringify(payload.user));
   deleteStorageValue(AUTH_ERROR_STORAGE_KEY);
-  // 7 jours d'inactivité : on mémorise la dernière activité à la connexion
+  // 2 jours d'inactivité : on mémorise la dernière activité à la connexion
   const now = String(Date.now());
   writeStorageValue(LAST_ACTIVITY_STORAGE_KEY, now);
   // aussi en cookie pour middleware
   if (typeof document !== "undefined") {
-    document.cookie = `${encodeURIComponent(LAST_ACTIVITY_STORAGE_KEY)}=${encodeURIComponent(now)}; Path=/; Max-Age=${7*24*60*60}; SameSite=Lax`;
-    document.cookie = `${encodeURIComponent(TOKEN_STORAGE_KEY)}=${encodeURIComponent(payload.token)}; Path=/; Max-Age=${7*24*60*60}; SameSite=Lax`;
+    document.cookie = `${encodeURIComponent(LAST_ACTIVITY_STORAGE_KEY)}=${encodeURIComponent(now)}; Path=/; Max-Age=${2*24*60*60}; SameSite=Lax`;
+    document.cookie = `${encodeURIComponent(TOKEN_STORAGE_KEY)}=${encodeURIComponent(payload.token)}; Path=/; Max-Age=${2*24*60*60}; SameSite=Lax`;
     if (payload.refresh_token) {
-      document.cookie = `${encodeURIComponent(REFRESH_TOKEN_STORAGE_KEY)}=${encodeURIComponent(payload.refresh_token)}; Path=/; Max-Age=${7*24*60*60}; SameSite=Lax`;
+      document.cookie = `${encodeURIComponent(REFRESH_TOKEN_STORAGE_KEY)}=${encodeURIComponent(payload.refresh_token)}; Path=/; Max-Age=${2*24*60*60}; SameSite=Lax`;
     }
-    document.cookie = `${encodeURIComponent(USER_STORAGE_KEY)}=${encodeURIComponent(JSON.stringify(payload.user))}; Path=/; Max-Age=${7*24*60*60}; SameSite=Lax`;
+    document.cookie = `${encodeURIComponent(USER_STORAGE_KEY)}=${encodeURIComponent(JSON.stringify(payload.user))}; Path=/; Max-Age=${2*24*60*60}; SameSite=Lax`;
   }
 }
 

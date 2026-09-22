@@ -4,6 +4,10 @@ Options -Indexes
     RewriteEngine On
 
     # Subdomain redirects -> pages login dediees (doit etre AVANT le rewrite vers out)
+    # Compat ancien bookmark /admin-log -> /admin-login/
+    RewriteCond %{HTTP_HOST} ^admin\.jmrtextile\.com$ [NC]
+    RewriteRule ^admin-log/?(.*)$ /admin-login/ [R=302,L]
+
     RewriteCond %{HTTP_HOST} ^worker\.jmrtextile\.com$ [NC]
     RewriteRule ^$ /worker-login/ [R=302,L]
 

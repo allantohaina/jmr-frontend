@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 
 const AUTH_COOKIE = "jmr_token";
 const LAST_ACTIVITY_COOKIE = "jmr_last_activity";
-const INACTIVITY_LIMIT_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours
+const INACTIVITY_LIMIT_MS = 2 * 24 * 60 * 60 * 1000; // 2 jours
 
 function getLoginUrl(request: NextRequest, target: string): URL {
   const url = new URL(target, request.url);
@@ -30,7 +30,7 @@ export default function proxy(request: NextRequest) {
   const lastActivityRaw = request.cookies.get(LAST_ACTIVITY_COOKIE)?.value;
   const now = Date.now();
 
-  // Vérif inactivité 7 jours côté middleware (cookie)
+  // Vérif inactivité 2 jours côté middleware (cookie)
   let isExpired = false;
   if (lastActivityRaw) {
     const last = Number(lastActivityRaw);
@@ -42,7 +42,7 @@ export default function proxy(request: NextRequest) {
     const res = NextResponse.next();
     res.cookies.set(LAST_ACTIVITY_COOKIE, String(now), {
       path: "/",
-      maxAge: 7 * 24 * 60 * 60,
+      maxAge: 2 * 24 * 60 * 60,
       sameSite: "lax",
     });
     return res;
@@ -86,7 +86,7 @@ export default function proxy(request: NextRequest) {
       const res = NextResponse.next();
       res.cookies.set(LAST_ACTIVITY_COOKIE, String(now), {
         path: "/",
-        maxAge: 7 * 24 * 60 * 60,
+        maxAge: 2 * 24 * 60 * 60,
         sameSite: "lax",
       });
       // aussi prolonger l'activité via header pour client

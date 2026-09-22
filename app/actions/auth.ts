@@ -18,7 +18,7 @@ const AUTH_COOKIE_OPTIONS = {
   secure: process.env.NODE_ENV === "production",
   sameSite: "lax" as const,
   path: "/",
-  maxAge: 60 * 60 * 24 * 7, // 7 jours — déconnexion auto après 1 semaine d'inactivité
+  maxAge: 60 * 60 * 24 * 2, // 2 jours — déconnexion auto après 2 jours d'inactivité
 };
 
 const AUTH_ERROR_COOKIE_OPTIONS = {
@@ -44,7 +44,7 @@ async function setAuthCookies({ data }: AuthResponse) {
     cookieStore.set(REFRESH_TOKEN_COOKIE_NAME, data.refresh_token, AUTH_COOKIE_OPTIONS);
   }
   cookieStore.set(USER_COOKIE_NAME, JSON.stringify(data.user), AUTH_COOKIE_OPTIONS);
-  // Marqueur d'activité pour déconnexion auto après 7 jours sans connexion/inactivité
+  // Marqueur d'activité pour déconnexion auto après 2 jours sans connexion/inactivité
   cookieStore.set(LAST_ACTIVITY_STORAGE_KEY, String(Date.now()), AUTH_COOKIE_OPTIONS);
 }
 
