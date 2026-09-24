@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { Suspense, useState, useCallback, useEffect, useRef } from "react";
 import { authAPI, type QuoteRecord, getToken } from "@/app/lib";
 import { getErrorMessage } from "@/app/lib/errors";
@@ -121,7 +122,12 @@ function QuoteFormContent() {
   const [activeStep, setActiveStep] = useState(0);
   const [confirmDeleteDraft, setConfirmDeleteDraft] = useState(false);
   const [deletingDraft, setDeletingDraft] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
   const { showToast } = useToast();
+
+  useEffect(() => {
+    setIsGuest(!getToken());
+  }, []);
 
   const typePickerRef = useRef<HTMLDivElement>(null);
   const specsRef = useRef<HTMLDivElement>(null);
@@ -381,6 +387,17 @@ function QuoteFormContent() {
               ? "Precisez ici les modifications souhaitees. Choisissez edit pour une retouche ou add pour un ajout. La version precedente reste verrouillee et nous creerons une nouvelle demande signee."
               : "Remplissez le formulaire pour nous faire part de votre projet. Nous revenons vers vous avec une estimation claire et un suivi adapté à votre besoin."}
           </p>
+          {isGuest && !modifyCode && (
+            <p className="mt-4 text-label uppercase tracking-widest text-[#8B94A3]">
+              Déjà client ?{" "}
+              <Link
+                href={`/login?next=${encodeURIComponent("/demande-devis")}`}
+                className="font-bold text-[#EAA100] underline-offset-4 transition-colors hover:text-[#F5C518] hover:underline"
+              >
+                Se connecter
+              </Link>
+            </p>
+          )}
         </header>
 
         {showDuplicateWarning && (

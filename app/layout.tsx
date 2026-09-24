@@ -125,7 +125,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <meta httpEquiv="Content-Security-Policy" content={`default-src 'self'; connect-src 'self' ${apiOrigin}; img-src 'self' data: ${apiOrigin}; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; frame-src 'none'; object-src 'none'; base-uri 'self'`} />
+        <meta httpEquiv="Content-Security-Policy" content={`default-src 'self'; connect-src 'self' ${apiOrigin} https://cloudflareinsights.com; img-src 'self' data: ${apiOrigin}; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; frame-src 'none'; object-src 'none'; base-uri 'self'`} />
         <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
         <meta httpEquiv="X-Frame-Options" content="DENY" />
         <meta httpEquiv="Referrer-Policy" content="strict-origin-when-cross-origin" />

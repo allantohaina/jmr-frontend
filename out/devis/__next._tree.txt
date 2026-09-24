@@ -1,5 +1,5 @@
 :HL["/_next/static/chunks/b266241fb18fbf5b.css","style"]
-:HL["/_next/static/chunks/57f386838c130264.css","style"]
+:HL["/_next/static/chunks/a148e8f4b21d5738.css","style"]
 :HL["/_next/static/media/03fc1b4a8d284b5e-s.p.af4fcd24.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/_next/static/media/051742360c26797e-s.p.102b7f24.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/_next/static/media/1bffadaabf893a1e-s.p.7cd81963.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
@@ -19,4 +19,4 @@
 :HL["/_next/static/media/c4270037a9fd2e09-s.p.89010036.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/_next/static/media/e455bcff747f0d5e-s.p.5f7c7356.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/human_images/08_salle_machines_coudre.webp","image",{"fetchPriority":"high"}]
-0:{"buildId":"tUouXIWJNllJPurCYzOo9","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"devis","paramType":null,"paramKey":"devis","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+0:{"buildId":"2iGky0v8CfCZO_dRiK83c","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"devis","paramType":null,"paramKey":"devis","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
