@@ -102,7 +102,7 @@ export function Navbar({
       sectionId: "acces-client",
       label: messages.navbar.clientSpace,
       icon: "/navbar/navbar-profile.svg",
-      homeAnchor: true,
+      homeAnchor: false,
     },
     {
       route: "/backoffice",
