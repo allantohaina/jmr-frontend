@@ -35,4 +35,14 @@ Options -Indexes
     Header set Cache-Control "no-cache, must-revalidate"
     Header set Pragma "no-cache"
     Header set Expires "0"
+
+    # Sécurité : l'export Next est statique donc les headers() de
+    # next.config.ts ne s'appliquent jamais en prod — on les porte ici.
+    # (Même valeurs que next.config.ts + layout.tsx pour rester cohérent.)
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    Header always set X-XSS-Protection "1; mode=block"
 </IfModule>

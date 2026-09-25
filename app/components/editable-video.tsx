@@ -42,18 +42,18 @@ export function EditableVideo({
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [hasVideoError, setHasVideoError] = useState(false);
-  const uploadedRef = useRef(false);
+  const [hasUploaded, setHasUploaded] = useState(false);
   const storedUrl = contentKey ? get(contentKey, src) : src;
 
   // Suit la valeur persistée (chargée après le premier rendu), sauf après
   // un upload local qui a toujours priorité.
   useEffect(() => {
-    if (contentKey && !uploadedRef.current && storedUrl !== videoUrl) {
+    if (contentKey && !hasUploaded && storedUrl !== videoUrl) {
       setVideoUrl(storedUrl);
       setHasVideoError(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storedUrl]);
+  }, [storedUrl, hasUploaded]);
 
   async function handleUpload(file: File) {
     setError(null);
@@ -75,7 +75,7 @@ export function EditableVideo({
       if (result.success && result.url) {
         const previousUrl = videoUrl;
         const nextUrl = String(result.url);
-        uploadedRef.current = true;
+        setHasUploaded(true);
         setVideoUrl(nextUrl);
         setHasVideoError(false);
         if (contentKey) {
@@ -109,11 +109,7 @@ export function EditableVideo({
     }
   }
 
-  async function deleteOldVideo(url: string) {
-    await deleteOldSiteMedia(url);
-  }
-
-  const waitingForContent = !!contentKey && !ready && !uploadedRef.current && !videoUrl;
+  const waitingForContent = !!contentKey && !ready && !hasUploaded && !videoUrl;
 
   return (
     <div className={`group/editable ${wrapperClassName}`}>

@@ -36,22 +36,65 @@ export function EditableImage({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { get, save, ready } = useSiteContent();
   const { showToast } = useToast();
-  const [imageUrl, setImageUrl] = useState(src);
+  // L'image affichée : le fallback tout de suite, comme si elle était
+  // statique. L'utilisateur ne voit jamais de squelette ni de trou.
+  const [displayUrl, setDisplayUrl] = useState(src);
+  // La nouvelle URL préchargée, qui fond par-dessus en ~200 ms.
+  const [incomingUrl, setIncomingUrl] = useState<string | null>(null);
+  const [incomingVisible, setIncomingVisible] = useState(false);
+  const fadeTimer = useRef<number | null>(null);
   const isAdmin = useIsAdmin();
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const uploadedRef = useRef(false);
+  const [hasUploaded, setHasUploaded] = useState(false);
   const storedUrl = contentKey ? get(contentKey, src) : src;
 
-  // Suit la valeur persistée (chargée après le premier rendu), sauf après
-  // un upload local qui a toujours priorité.
+  // Suit la valeur persistée : précharge l'override en mémoire puis fondu
+  // très court par-dessus le fallback. Pas de squelette, pas de flash :
+  // l'image a l'air statique.
   useEffect(() => {
-    if (contentKey && !uploadedRef.current && storedUrl !== imageUrl) {
-      setImageUrl(storedUrl);
+    if (hasUploaded || storedUrl === displayUrl || storedUrl === incomingUrl) return;
+    if (!storedUrl) return;
+    let cancelled = false;
+    const preloader = new window.Image();
+    preloader.src = storedUrl;
+    const show = () => {
+      if (cancelled) return;
+      setIncomingUrl(storedUrl);
+      // Laisse React monter l'overlay avant de lancer la transition.
+      requestAnimationFrame(() => {
+        if (cancelled) return;
+        requestAnimationFrame(() => {
+          if (!cancelled) setIncomingVisible(true);
+        });
+      });
+      fadeTimer.current = window.setTimeout(() => {
+        if (cancelled) return;
+        setDisplayUrl(storedUrl);
+        setIncomingUrl(null);
+        setIncomingVisible(false);
+      }, 250);
+    };
+    const fail = () => {
+      if (!cancelled) setDisplayUrl(storedUrl);
+    };
+    if (preloader.complete && preloader.naturalWidth !== 0) {
+      show();
+    } else {
+      preloader.onload = show;
+      preloader.onerror = fail;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storedUrl]);
+    return () => {
+      cancelled = true;
+      preloader.onload = null;
+      preloader.onerror = null;
+      if (fadeTimer.current) {
+        window.clearTimeout(fadeTimer.current);
+        fadeTimer.current = null;
+      }
+    };
+  }, [storedUrl, hasUploaded, displayUrl, incomingUrl]);
 
   async function handleUpload(file: File) {
     setError(null);
@@ -66,10 +109,12 @@ export function EditableImage({
     try {
       const result = await uploadImage(file, (pct) => setProgress(pct));
       if (result.success && result.url) {
-        const previousUrl = imageUrl;
+        const previousUrl = displayUrl;
         const nextUrl = String(result.url);
-        uploadedRef.current = true;
-        setImageUrl(nextUrl);
+        setHasUploaded(true);
+        setIncomingUrl(null);
+        setIncomingVisible(false);
+        setDisplayUrl(nextUrl);
         if (contentKey) {
           try {
             await save(contentKey, nextUrl, "image");
@@ -101,26 +146,43 @@ export function EditableImage({
     }
   }
 
-  // Perf : on affiche le fallback immédiatement (pas de squelette bloquant
-  // en attendant l'API CMS) puis on bascule vers l'override dès qu'il arrive.
-  // Seul le cas sans fallback (placeholder) attend le contenu CMS.
-  const waitingForContent = !!contentKey && !ready && !uploadedRef.current && !imageUrl;
+  // Squelette uniquement quand il n'y a RIEN à afficher (pas de fallback) :
+  // avec un fallback, l'utilisateur voit une image normale dès le premier
+  // rendu et ne remarque jamais le caractère dynamique.
+  const hasAnyImage = !!displayUrl || !!incomingUrl;
 
   return (
     <div className={`group/editable ${wrapperClassName}`}>
-      {waitingForContent ? (
-        <div className="w-full h-full animate-pulse bg-[#EAA100]/10" aria-hidden="true" />
-      ) : imageUrl ? (
-        <img
-          src={imageUrl}
-          alt={alt}
-          className={className}
-          loading={eager ? "eager" : "lazy"}
-          decoding="async"
-          fetchPriority={eager ? "high" : "auto"}
-        />
+      {!hasAnyImage ? (
+        contentKey && !ready ? (
+          <div className="w-full h-full animate-pulse bg-[#EAA100]/10" aria-hidden="true" />
+        ) : (
+          placeholder
+        )
       ) : (
-        placeholder
+        <>
+          {displayUrl ? (
+            <img
+              src={displayUrl}
+              alt={alt}
+              className={className}
+              loading={eager ? "eager" : "lazy"}
+              decoding="async"
+              fetchPriority={eager ? "high" : "auto"}
+            />
+          ) : null}
+          {incomingUrl ? (
+            <img
+              src={incomingUrl}
+              alt=""
+              aria-hidden="true"
+              className={`absolute inset-0 ${className} transition-opacity duration-200 ${incomingVisible ? "opacity-100" : "opacity-0"}`}
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+            />
+          ) : null}
+        </>
       )}
       {uploading && (
         <div className="absolute inset-x-0 bottom-2 z-20 mx-auto w-max rounded-full bg-[#1e2a38]/85 px-3 py-1 text-xs text-[#EAA100] border border-[#EAA100]/50">
