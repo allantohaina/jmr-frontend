@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Pencil } from "lucide-react";
-import { getUser } from "@/app/lib/auth";
 import { useSiteContent } from "@/app/lib/site-content";
+import { useToast } from "@/app/components/toast-provider";
+import { useIsAdmin } from "@/app/components/editable-shared";
 
 type EditableTextProps = {
   contentKey: string;
@@ -20,13 +21,18 @@ export function EditableText({
   className = "",
   multiline = false,
 }: EditableTextProps) {
-  const { get, save } = useSiteContent();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { get, save, ready } = useSiteContent();
+  const { showToast } = useToast();
+  const isAdmin = useIsAdmin();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(fallback);
   const [colorDraft, setColorDraft] = useState("");
   const [scaleDraft, setScaleDraft] = useState(1);
   const [saving, setSaving] = useState(false);
+  // Snapshot des valeurs au moment où l'édition démarre : seules les
+  // clés modifiées sont envoyées, pour ne jamais écraser couleur/taille
+  // quand on ne voulait changer que le texte.
+  const [initial, setInitial] = useState({ text: fallback, color: "", scale: 1 });
 
   const value = get(contentKey, fallback);
   const colorKey = `${contentKey}.color`;
@@ -34,19 +40,28 @@ export function EditableText({
   const color = get(colorKey, "");
   const scale = parseFloat(get(sizeKey, "1")) || 1;
 
-  useEffect(() => {
-    setIsAdmin(getUser()?.role === "admin");
-  }, []);
-
   async function persist() {
     const next = draft.trim() === "" ? fallback : draft;
+    const jobs: Promise<void>[] = [];
+    if (next !== initial.text) jobs.push(save(contentKey, next, "text"));
+    if (colorDraft !== initial.color) {
+      // Chaîne vide = retour au style par défaut : on persiste vide plutôt
+      // que de forcer une couleur, pour ne pas teinter le texte malgré soi.
+      jobs.push(save(colorKey, colorDraft, "text"));
+    }
+    if (scaleDraft !== initial.scale) jobs.push(save(sizeKey, String(scaleDraft), "text"));
+    if (jobs.length === 0) {
+      setEditing(false);
+      return;
+    }
     setSaving(true);
     try {
-      await save(contentKey, next, "text");
-      await save(colorKey, colorDraft || "#EAA100", "text");
-      await save(sizeKey, String(scaleDraft), "text");
+      await Promise.all(jobs);
+      showToast("Texte mis à jour", "success");
     } catch (err) {
       console.error(err);
+      showToast("Échec de la sauvegarde du texte", "error");
+      return;
     } finally {
       setSaving(false);
       setEditing(false);
@@ -54,9 +69,16 @@ export function EditableText({
   }
 
   function startEditing() {
+    if (!ready) {
+      showToast("Contenu en cours de chargement, réessayez dans un instant", "info");
+      return;
+    }
     setDraft(value);
-    setColorDraft(color || "#EAA100");
-    setScaleDraft(scale);
+    const c = color || "";
+    const s = scale;
+    setColorDraft(c);
+    setScaleDraft(s);
+    setInitial({ text: value, color: c, scale: s });
     setEditing(true);
   }
 
@@ -74,7 +96,7 @@ export function EditableText({
         {isAdmin && (
           <button
             type="button"
-            className="absolute -top-1 -right-1 z-20 opacity-0 group-hover/editable:opacity-100 transition-opacity duration-200
+            className="absolute -top-1 -right-1 z-20 opacity-0 group-hover/editable:opacity-100 focus-visible:opacity-100 focus:opacity-100 transition-opacity duration-200
                        bg-[#1e2a38]/80 hover:bg-[#1e2a38] text-[#EAA100] rounded-full p-1.5
                        border border-[#EAA100]/50"
             onClick={startEditing}
@@ -95,14 +117,7 @@ export function EditableText({
   }
 
   return (
-    <span
-      className={`relative ${className}`}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node | null) && !saving) {
-          void persist();
-        }
-      }}
-    >
+    <span className={`relative ${className}`}>
       {multiline ? (
         <textarea
           className={`${inputClassName} min-h-[80px]`}
@@ -125,14 +140,24 @@ export function EditableText({
           }}
         />
       )}
+      {/* Sauvegarde volontaire uniquement : pas d'auto-save au blur,
+          pour ne pas écraser le contenu en cliquant à côté. */}
       <span className="mt-2 flex items-center gap-2">
         <input
           type="color"
-          value={colorDraft}
+          value={colorDraft || "#EAA100"}
           title="Couleur du texte"
           onChange={(e) => setColorDraft(e.target.value)}
           className="h-8 w-10 cursor-pointer rounded-lg border border-[#EAA100]/40 bg-[#1e2a38] p-1"
         />
+        <button
+          type="button"
+          title="Revenir à la couleur par défaut"
+          onClick={() => setColorDraft("")}
+          className="rounded-lg border border-[#EAA100]/40 px-2.5 py-1 text-xs font-bold text-[#EAA100] hover:bg-[#EAA100]/10"
+        >
+          Défaut
+        </button>
         <button
           type="button"
           title="Réduire la taille"

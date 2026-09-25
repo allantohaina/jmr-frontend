@@ -2,6 +2,7 @@
 
 import React from "react";
 import { EditableImage } from "@/app/components/editable-image";
+import { EditableVideo } from "@/app/components/editable-video";
 import { EditableText } from "@/app/components/editable-text";
 import { useLocale } from "@/app/components/locale-provider";
 import { AnimeCountUp } from "@/app/components/anime-reveal";
@@ -14,18 +15,14 @@ export function AboutSection() {
       <div className="grid lg:grid-cols-2 gap-10 md:gap-16 lg:gap-20 items-center">
         <div className="relative group order-2 lg:order-1">
           <div className="relative z-10 grid grid-cols-2 gap-4 md:gap-6">
-            <div className="relative w-full aspect-[3/4] mt-0 md:mt-12 shadow-xl overflow-hidden rounded-2xl md:rounded-3xl bg-surface-container-high">
-              <video 
-                autoPlay 
-                muted 
-                loop 
-                playsInline
-                preload="metadata"
+            <div className="relative w-full aspect-[3/4] mt-0 md:mt-12 shadow-xl overflow-hidden rounded-2xl md:rounded-3xl bg-surface-container-high group/editable">
+              <EditableVideo
+                contentKey="about.video"
+                src="/video/machine.mp4"
+                wrapperClassName="absolute inset-0"
                 className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-              >
-                <source src="/video/machine.mp4" type="video/mp4" />
-              </video>
-              <div className="absolute inset-0 bg-primary/10 z-10 mix-blend-multiply opacity-20"></div>
+              />
+              <div className="absolute inset-0 bg-primary/10 z-10 mix-blend-multiply opacity-20 pointer-events-none"></div>
             </div>
             <div className="relative w-full aspect-[3/4] shadow-xl overflow-hidden rounded-2xl md:rounded-3xl">
               <EditableImage

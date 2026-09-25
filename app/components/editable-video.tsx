@@ -5,94 +5,102 @@ import { Pencil } from "lucide-react";
 import { uploadImage } from "@/app/lib/api";
 import { useSiteContent } from "@/app/lib/site-content";
 import { useToast } from "@/app/components/toast-provider";
-import {
-  deleteOldSiteMedia,
-  useIsAdmin,
-  validateImageFile,
-} from "@/app/components/editable-shared";
+import { deleteOldSiteMedia, useIsAdmin } from "@/app/components/editable-shared";
 
-type EditableImageProps = {
+type EditableVideoProps = {
   src: string;
-  alt?: string;
+  poster?: string;
   className?: string;
   wrapperClassName?: string;
-  placeholder?: React.ReactNode;
-  onUploaded?: (url: string) => void;
   contentKey?: string;
-  /** Image au-dessus de la ligne de flottaison : chargement prioritaire. */
-  eager?: boolean;
+  onUploaded?: (url: string) => void;
 };
 
-export function EditableImage({
+const MAX_VIDEO_BYTES = 30 * 1024 * 1024;
+
+function extFromFile(file: File): string {
+  const nameExt = file.name.split(".").pop()?.toLowerCase() ?? "";
+  if (nameExt === "mp4" || nameExt === "webm") return nameExt;
+  if (file.type === "video/webm") return "webm";
+  return "mp4";
+}
+
+export function EditableVideo({
   src,
-  alt = "",
-  className = "w-full h-full object-cover",
-  wrapperClassName = "relative h-full w-full",
-  placeholder = null,
-  onUploaded,
+  poster,
+  className = "home-page__hero-background-video",
+  wrapperClassName = "absolute inset-0",
   contentKey,
-  eager = false,
-}: EditableImageProps) {
+  onUploaded,
+}: EditableVideoProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { get, save, ready } = useSiteContent();
   const { showToast } = useToast();
-  const [imageUrl, setImageUrl] = useState(src);
+  const [videoUrl, setVideoUrl] = useState(src);
   const isAdmin = useIsAdmin();
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [hasVideoError, setHasVideoError] = useState(false);
   const uploadedRef = useRef(false);
   const storedUrl = contentKey ? get(contentKey, src) : src;
 
   // Suit la valeur persistée (chargée après le premier rendu), sauf après
   // un upload local qui a toujours priorité.
   useEffect(() => {
-    if (contentKey && !uploadedRef.current && storedUrl !== imageUrl) {
-      setImageUrl(storedUrl);
+    if (contentKey && !uploadedRef.current && storedUrl !== videoUrl) {
+      setVideoUrl(storedUrl);
+      setHasVideoError(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storedUrl]);
 
   async function handleUpload(file: File) {
     setError(null);
-    const validationError = validateImageFile(file);
-    if (validationError) {
-      setError(validationError);
+    if (!file.type.startsWith("video/")) {
+      const msg = "Fichier non supporté : choisissez une vidéo mp4/webm.";
+      setError(msg);
+      showToast(msg, "error");
       if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    if (file.size > MAX_VIDEO_BYTES) {
+      setError("Vidéo trop lourde (max 30 Mo).");
       return;
     }
     setUploading(true);
     setProgress(0);
     try {
-      const result = await uploadImage(file, (pct) => setProgress(pct));
+      const result = await uploadImage(file, (pct) => setProgress(pct), extFromFile(file));
       if (result.success && result.url) {
-        const previousUrl = imageUrl;
+        const previousUrl = videoUrl;
         const nextUrl = String(result.url);
         uploadedRef.current = true;
-        setImageUrl(nextUrl);
+        setVideoUrl(nextUrl);
+        setHasVideoError(false);
         if (contentKey) {
           try {
-            await save(contentKey, nextUrl, "image");
+            await save(contentKey, nextUrl, "video");
           } catch (err) {
             console.error(err);
-            setError("Image envoyée, mais sauvegarde du contenu échouée.");
-            showToast("Image envoyée, sauvegarde échouée", "error");
+            setError("Vidéo envoyée, mais sauvegarde du contenu échouée.");
+            showToast("Vidéo envoyée, sauvegarde échouée", "error");
             return;
           }
         }
         onUploaded?.(nextUrl);
-        showToast("Image mise à jour", "success");
+        showToast("Vidéo mise à jour", "success");
         if (previousUrl && previousUrl !== nextUrl) {
           void deleteOldSiteMedia(previousUrl);
         }
       } else {
-        const msg = result.error ?? "Échec de l'envoi de l'image.";
+        const msg = result.error ?? "Échec de l'envoi de la vidéo.";
         setError(msg);
         showToast(msg, "error");
       }
     } catch (err) {
       console.error(err);
-      const msg = err instanceof Error ? err.message : "Échec de l'envoi de l'image.";
+      const msg = err instanceof Error ? err.message : "Échec de l'envoi de la vidéo.";
       setError(msg);
       showToast(msg, "error");
     } finally {
@@ -101,30 +109,35 @@ export function EditableImage({
     }
   }
 
-  // Perf : on affiche le fallback immédiatement (pas de squelette bloquant
-  // en attendant l'API CMS) puis on bascule vers l'override dès qu'il arrive.
-  // Seul le cas sans fallback (placeholder) attend le contenu CMS.
-  const waitingForContent = !!contentKey && !ready && !uploadedRef.current && !imageUrl;
+  async function deleteOldVideo(url: string) {
+    await deleteOldSiteMedia(url);
+  }
+
+  const waitingForContent = !!contentKey && !ready && !uploadedRef.current && !videoUrl;
 
   return (
     <div className={`group/editable ${wrapperClassName}`}>
       {waitingForContent ? (
         <div className="w-full h-full animate-pulse bg-[#EAA100]/10" aria-hidden="true" />
-      ) : imageUrl ? (
-        <img
-          src={imageUrl}
-          alt={alt}
+      ) : videoUrl && !hasVideoError ? (
+        <video
+          key={videoUrl}
           className={className}
-          loading={eager ? "eager" : "lazy"}
-          decoding="async"
-          fetchPriority={eager ? "high" : "auto"}
-        />
-      ) : (
-        placeholder
-      )}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          poster={poster}
+          aria-hidden="true"
+          onError={() => setHasVideoError(true)}
+        >
+          <source src={videoUrl} type="video/mp4" />
+        </video>
+      ) : null}
       {uploading && (
         <div className="absolute inset-x-0 bottom-2 z-20 mx-auto w-max rounded-full bg-[#1e2a38]/85 px-3 py-1 text-xs text-[#EAA100] border border-[#EAA100]/50">
-          Envoi image… {progress}%
+          Envoi vidéo… {progress}%
         </div>
       )}
       {error && isAdmin && (
@@ -135,11 +148,11 @@ export function EditableImage({
       {isAdmin && (
         <button
           type="button"
-          className="absolute top-2 right-2 z-20 opacity-0 group-hover/editable:opacity-100 focus-visible:opacity-100 focus:opacity-100 transition-opacity duration-200
+          className="absolute top-2 right-2 z-20 opacity-0 group-hover/editable:opacity-100 transition-opacity duration-200
                      bg-[#1e2a38]/80 hover:bg-[#1e2a38] text-[#EAA100] rounded-full p-2.5
                      border border-[#EAA100]/50 disabled:opacity-50"
           onClick={() => fileInputRef.current?.click()}
-          title="Modifier l'image (max 5 Mo)"
+          title="Changer la vidéo (mp4/webm, max 30 Mo)"
           disabled={uploading}
         >
           <Pencil size={15} />
@@ -148,7 +161,7 @@ export function EditableImage({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="video/mp4,video/webm,.mp4,.webm"
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];

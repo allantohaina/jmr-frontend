@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { EditableImage } from "@/app/components/editable-image";
+import { EditableVideo } from "@/app/components/editable-video";
 import { EditableText } from "@/app/components/editable-text";
 
 const HOME_BENEFITS = [
@@ -14,7 +15,7 @@ const HOME_BENEFITS = [
 
 const EASE_OUT_QUINT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 const HomeHeroVideo = dynamic(
-  () => import("./home-hero-video").then((module) => module.HomeHeroVideo),
+  () => import("./editable-video").then((module) => module.EditableVideo),
   { ssr: false }
 );
 
@@ -64,7 +65,11 @@ export function HomeHero() {
           alt=""
         />
         {!shouldReduceMotion ? (
-          <HomeHeroVideo poster="/human_images/08_salle_machines_coudre.webp" src="/video/machine.mp4" />
+          <HomeHeroVideo
+            contentKey="home.video-bg"
+            poster="/human_images/08_salle_machines_coudre.webp"
+            src="/video/machine.mp4"
+          />
         ) : null}
         <div className="home-page__hero-overlay" aria-hidden="true" />
       </motion.div>

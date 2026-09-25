@@ -8,15 +8,16 @@ type SiteContentMap = Record<string, string>;
 
 type SiteContentContextValue = {
   get: (key: string, fallback: string) => string;
-  save: (key: string, value: string, type?: "text" | "image") => Promise<void>;
+  save: (key: string, value: string, type?: "text" | "image" | "video") => Promise<void>;
   ready: boolean;
 };
 
 const SiteContentContext = createContext<SiteContentContextValue | null>(null);
 
-// Perf : 1 seule requête API / visiteur / heure au lieu d'1 par page vue.
-// Avec 1000 visiteurs simultanés, ça divise la charge API par ~100.
-const CACHE_TTL_MS = 60 * 60 * 1000;
+// Perf : 1 seule requête API / visiteur / 5 min au lieu d'1 par page vue.
+// 1h gardait les modifs admin invisibles trop longtemps ; 5 min = bon
+// compromis charge / fraîcheur.
+const CACHE_TTL_MS = 5 * 60 * 1000;
 
 function cacheKey(locale: string) {
   return `jmr_site_contents_${locale}`;
@@ -84,7 +85,7 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
   }, [locale]);
 
   const save = useCallback(
-    async (key: string, value: string, type: "text" | "image" = "text") => {
+    async (key: string, value: string, type: "text" | "image" | "video" = "text") => {
       await authAPI.put("/site-contents", { key, value, locale, type });
       setOverrides((prev) => {
         const next = { ...prev, [key]: value };

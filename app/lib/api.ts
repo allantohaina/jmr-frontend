@@ -848,7 +848,8 @@ export async function uploadMediaRaw(file: File, token?: string) {
 // Upload admin minimal temporaire (sans auth) — fragmenté en morceaux de
 // ~6 Ko car le proxy/WAF nginx vide les corps au-delà d'environ 8 Ko.
 // Chaque morceau passe en form-urlencoded, PHP réassemble à la fin.
-export async function uploadImage(file: File, onProgress?: (pct: number) => void) {
+// `ext` permet d'uploader une vidéo (mp4/webm) en plus des images (jpg).
+export async function uploadImage(file: File, onProgress?: (pct: number) => void, ext?: string) {
   const CHUNK_SIZE = 6000; // sous le seuil de 8 Ko observé
   const BATCH_SIZE = 5; // morceaux envoyés en parallèle par lot
   const uploadId = crypto.randomUUID();
@@ -901,6 +902,7 @@ export async function uploadImage(file: File, onProgress?: (pct: number) => void
   const finalizeParams = new URLSearchParams();
   finalizeParams.set("upload_id", uploadId);
   finalizeParams.set("total_chunks", String(totalChunks));
+  if (ext) finalizeParams.set("ext", ext);
 
   const finalResponse = await fetch("https://api.jmrtextile.com/admin/media/finalize-upload", {
     method: "POST",
