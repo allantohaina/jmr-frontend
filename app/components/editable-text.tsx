@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Pencil } from "lucide-react";
 import { useSiteContent } from "@/app/lib/site-content";
 import { useToast } from "@/app/components/toast-provider";
@@ -29,10 +29,11 @@ export function EditableText({
   const [colorDraft, setColorDraft] = useState("");
   const [scaleDraft, setScaleDraft] = useState(1);
   const [saving, setSaving] = useState(false);
-  // Snapshot des valeurs au moment où l'édition démarre : seules les
-  // clés modifiées sont envoyées, pour ne jamais écraser couleur/taille
-  // quand on ne voulait changer que le texte.
+  // Snapshot des valeurs au moment où l'édition démarre : tout ce qui
+  // change est enregistré aussitôt, sans bouton Valider — une fois
+  // modifié, c'est fait.
   const [initial, setInitial] = useState({ text: fallback, color: "", scale: 1 });
+  const colorTimer = useRef<number | null>(null);
 
   const value = get(contentKey, fallback);
   const colorKey = `${contentKey}.color`;
@@ -40,16 +41,69 @@ export function EditableText({
   const color = get(colorKey, "");
   const scale = parseFloat(get(sizeKey, "1")) || 1;
 
-  async function persist() {
+  useEffect(() => {
+    return () => {
+      if (colorTimer.current) window.clearTimeout(colorTimer.current);
+    };
+  }, []);
+
+  /** Enregistre la couleur (appel immédiat + mise à jour du snapshot). */
+  async function saveColorNow(next: string) {
+    if (next === initial.color) return;
+    try {
+      await save(colorKey, next, "text");
+      setInitial((prev) => ({ ...prev, color: next }));
+    } catch (err) {
+      console.error(err);
+      showToast("Échec de la sauvegarde de la couleur", "error");
+    }
+  }
+
+  /** Enregistre la taille (appel immédiat + mise à jour du snapshot). */
+  async function saveScaleNow(next: number) {
+    if (next === initial.scale) return;
+    try {
+      await save(sizeKey, String(next), "text");
+      setInitial((prev) => ({ ...prev, scale: next }));
+    } catch (err) {
+      console.error(err);
+      showToast("Échec de la sauvegarde de la taille", "error");
+    }
+  }
+
+  /** Quitter la zone (clic ailleurs) ou Entrée : tout ce qui a changé part, et c'est fini. */
+  async function finishEditing() {
+    if (colorTimer.current) {
+      window.clearTimeout(colorTimer.current);
+      colorTimer.current = null;
+    }
     const next = draft.trim() === "" ? fallback : draft;
     const jobs: Promise<void>[] = [];
-    if (next !== initial.text) jobs.push(save(contentKey, next, "text"));
+    if (next !== initial.text) {
+      jobs.push(
+        save(contentKey, next, "text").then(() =>
+          setInitial((prev) => ({ ...prev, text: next })),
+        ),
+      );
+    }
     if (colorDraft !== initial.color) {
       // Chaîne vide = retour au style par défaut : on persiste vide plutôt
       // que de forcer une couleur, pour ne pas teinter le texte malgré soi.
-      jobs.push(save(colorKey, colorDraft, "text"));
+      const c = colorDraft;
+      jobs.push(
+        save(colorKey, c, "text").then(() =>
+          setInitial((prev) => ({ ...prev, color: c })),
+        ),
+      );
     }
-    if (scaleDraft !== initial.scale) jobs.push(save(sizeKey, String(scaleDraft), "text"));
+    if (scaleDraft !== initial.scale) {
+      const s = scaleDraft;
+      jobs.push(
+        save(sizeKey, String(s), "text").then(() =>
+          setInitial((prev) => ({ ...prev, scale: s })),
+        ),
+      );
+    }
     if (jobs.length === 0) {
       setEditing(false);
       return;
@@ -57,11 +111,10 @@ export function EditableText({
     setSaving(true);
     try {
       await Promise.all(jobs);
-      showToast("Texte mis à jour", "success");
+      showToast("Modifié", "success");
     } catch (err) {
       console.error(err);
-      showToast("Échec de la sauvegarde du texte", "error");
-      return;
+      showToast("Échec de la sauvegarde", "error");
     } finally {
       setSaving(false);
       setEditing(false);
@@ -80,6 +133,14 @@ export function EditableText({
     setScaleDraft(s);
     setInitial({ text: value, color: c, scale: s });
     setEditing(true);
+  }
+
+  function cancelEditing() {
+    if (colorTimer.current) {
+      window.clearTimeout(colorTimer.current);
+      colorTimer.current = null;
+    }
+    setEditing(false);
   }
 
   if (!editing) {
@@ -113,19 +174,39 @@ export function EditableText({
     "w-full rounded-lg border border-[#EAA100]/40 bg-[#1e2a38] px-3 py-2 text-sm text-[#EAA100] outline-none focus:border-[#EAA100]";
 
   function changeScale(delta: number) {
-    setScaleDraft((prev) => Math.min(3, Math.max(0.5, Math.round((prev + delta) * 10) / 10)));
+    const next = Math.min(3, Math.max(0.5, Math.round((scaleDraft + delta) * 10) / 10));
+    setScaleDraft(next);
+    void saveScaleNow(next);
+  }
+
+  function changeColor(next: string) {
+    setColorDraft(next);
+    // La pipette envoie des dizaines d'événements : on enregistre 800 ms
+    // après le dernier, pas à chaque intermédiaire.
+    if (colorTimer.current) window.clearTimeout(colorTimer.current);
+    colorTimer.current = window.setTimeout(() => void saveColorNow(next), 800);
   }
 
   return (
-    <span className={`relative ${className}`}>
+    <span
+      className={`relative ${className}`}
+      onBlur={(e) => {
+        // Le focus circule entre les contrôles de la zone : on n'enregistre
+        // que quand il la quitte vraiment (clic ailleurs).
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null) && !saving) {
+          void finishEditing();
+        }
+      }}
+    >
       {multiline ? (
         <textarea
           className={`${inputClassName} min-h-[80px]`}
           value={draft}
           autoFocus
+          style={colorDraft ? { color: colorDraft } : undefined}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Escape") setEditing(false);
+            if (e.key === "Escape") cancelEditing();
           }}
         />
       ) : (
@@ -133,34 +214,37 @@ export function EditableText({
           className={inputClassName}
           value={draft}
           autoFocus
+          style={colorDraft ? { color: colorDraft } : undefined}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") void persist();
-            if (e.key === "Escape") setEditing(false);
+            if (e.key === "Enter") void finishEditing();
+            if (e.key === "Escape") cancelEditing();
           }}
         />
       )}
-      {/* Sauvegarde volontaire uniquement : pas d'auto-save au blur,
-          pour ne pas écraser le contenu en cliquant à côté. */}
+      {/* Pas de bouton : chaque réglage s'enregistre aussitôt. */}
       <span className="mt-2 flex items-center gap-2">
         <input
           type="color"
           value={colorDraft || "#EAA100"}
-          title="Couleur du texte"
-          onChange={(e) => setColorDraft(e.target.value)}
+          title="Couleur du texte (enregistrée aussitôt)"
+          onChange={(e) => changeColor(e.target.value)}
           className="h-8 w-10 cursor-pointer rounded-lg border border-[#EAA100]/40 bg-[#1e2a38] p-1"
         />
         <button
           type="button"
-          title="Revenir à la couleur par défaut"
-          onClick={() => setColorDraft("")}
+          title="Couleur par défaut (enregistrée aussitôt)"
+          onClick={() => {
+            setColorDraft("");
+            void saveColorNow("");
+          }}
           className="rounded-lg border border-[#EAA100]/40 px-2.5 py-1 text-xs font-bold text-[#EAA100] hover:bg-[#EAA100]/10"
         >
           Défaut
         </button>
         <button
           type="button"
-          title="Réduire la taille"
+          title="Réduire la taille (enregistrée aussitôt)"
           onClick={() => changeScale(-0.1)}
           className="rounded-lg border border-[#EAA100]/40 px-2.5 py-1 text-xs font-bold text-[#EAA100] hover:bg-[#EAA100]/10"
         >
@@ -171,26 +255,11 @@ export function EditableText({
         </span>
         <button
           type="button"
-          title="Agrandir la taille"
+          title="Agrandir la taille (enregistrée aussitôt)"
           onClick={() => changeScale(0.1)}
           className="rounded-lg border border-[#EAA100]/40 px-2.5 py-1 text-xs font-bold text-[#EAA100] hover:bg-[#EAA100]/10"
         >
           A+
-        </button>
-        <button
-          type="button"
-          onClick={() => void persist()}
-          disabled={saving}
-          className="rounded-lg bg-[#EAA100] px-3 py-1 text-xs font-bold uppercase tracking-widest text-[#1e2a38] hover:bg-[#EAA100] disabled:opacity-50"
-        >
-          {saving ? "…" : "Valider"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setEditing(false)}
-          className="rounded-lg border border-[#EAA100]/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-[#EAA100]/60 hover:text-[#EAA100]"
-        >
-          Annuler
         </button>
       </span>
     </span>

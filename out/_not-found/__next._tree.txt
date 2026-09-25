@@ -1,4 +1,4 @@
 :HL["/_next/static/chunks/b266241fb18fbf5b.css","style"]
 :HL["/_next/static/chunks/aacbbda72d59c280.css","style"]
 :HL["/human_images/08_salle_machines_coudre.webp","image",{"fetchPriority":"high"}]
-0:{"buildId":"surijcoYihOiQkoQhy8xK","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"/_not-found","paramType":null,"paramKey":"/_not-found","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+0:{"buildId":"X5Gs9nwgXP-LlWtsHfmM4","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"/_not-found","paramType":null,"paramKey":"/_not-found","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
