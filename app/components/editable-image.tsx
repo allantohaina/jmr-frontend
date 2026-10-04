@@ -39,10 +39,6 @@ export function EditableImage({
   // L'image affichée : le fallback tout de suite, comme si elle était
   // statique. L'utilisateur ne voit jamais de squelette ni de trou.
   const [displayUrl, setDisplayUrl] = useState(src);
-  // La nouvelle URL préchargée, qui fond par-dessus en ~200 ms.
-  const [incomingUrl, setIncomingUrl] = useState<string | null>(null);
-  const [incomingVisible, setIncomingVisible] = useState(false);
-  const fadeTimer = useRef<number | null>(null);
   const isAdmin = useIsAdmin();
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -50,51 +46,31 @@ export function EditableImage({
   const [hasUploaded, setHasUploaded] = useState(false);
   const storedUrl = contentKey ? get(contentKey, src) : src;
 
-  // Suit la valeur persistée : précharge l'override en mémoire puis fondu
-  // très court par-dessus le fallback. Pas de squelette, pas de flash :
-  // l'image a l'air statique.
+  // Suit la valeur persistée (CMS) : on ne bascule vers l'override
+  // qu'une fois préchargé, avec un SEUL <img>. Pas de double calque :
+  // l'ancien fondu à 2 couches pouvait rester bloqué à cheval (rAF /
+  // timer désynchronisés) et affichait deux photos superposées.
   useEffect(() => {
-    if (hasUploaded || storedUrl === displayUrl || storedUrl === incomingUrl) return;
+    if (hasUploaded || storedUrl === displayUrl) return;
     if (!storedUrl) return;
     let cancelled = false;
     const preloader = new window.Image();
     preloader.src = storedUrl;
-    const show = () => {
-      if (cancelled) return;
-      setIncomingUrl(storedUrl);
-      // Laisse React monter l'overlay avant de lancer la transition.
-      requestAnimationFrame(() => {
-        if (cancelled) return;
-        requestAnimationFrame(() => {
-          if (!cancelled) setIncomingVisible(true);
-        });
-      });
-      fadeTimer.current = window.setTimeout(() => {
-        if (cancelled) return;
-        setDisplayUrl(storedUrl);
-        setIncomingUrl(null);
-        setIncomingVisible(false);
-      }, 250);
-    };
-    const fail = () => {
+    const apply = () => {
       if (!cancelled) setDisplayUrl(storedUrl);
     };
     if (preloader.complete && preloader.naturalWidth !== 0) {
-      show();
+      apply();
     } else {
-      preloader.onload = show;
-      preloader.onerror = fail;
+      preloader.onload = apply;
+      preloader.onerror = apply;
     }
     return () => {
       cancelled = true;
       preloader.onload = null;
       preloader.onerror = null;
-      if (fadeTimer.current) {
-        window.clearTimeout(fadeTimer.current);
-        fadeTimer.current = null;
-      }
     };
-  }, [storedUrl, hasUploaded, displayUrl, incomingUrl]);
+  }, [storedUrl, hasUploaded, displayUrl]);
 
   async function handleUpload(file: File) {
     setError(null);
@@ -112,8 +88,6 @@ export function EditableImage({
         const previousUrl = displayUrl;
         const nextUrl = String(result.url);
         setHasUploaded(true);
-        setIncomingUrl(null);
-        setIncomingVisible(false);
         setDisplayUrl(nextUrl);
         if (contentKey) {
           try {
@@ -149,7 +123,7 @@ export function EditableImage({
   // Squelette uniquement quand il n'y a RIEN à afficher (pas de fallback) :
   // avec un fallback, l'utilisateur voit une image normale dès le premier
   // rendu et ne remarque jamais le caractère dynamique.
-  const hasAnyImage = !!displayUrl || !!incomingUrl;
+  const hasAnyImage = !!displayUrl;
 
   return (
     <div className={`group/editable ${wrapperClassName}`}>
@@ -160,29 +134,14 @@ export function EditableImage({
           placeholder
         )
       ) : (
-        <>
-          {displayUrl ? (
-            <img
-              src={displayUrl}
-              alt={alt}
-              className={className}
-              loading={eager ? "eager" : "lazy"}
-              decoding="async"
-              fetchPriority={eager ? "high" : "auto"}
-            />
-          ) : null}
-          {incomingUrl ? (
-            <img
-              src={incomingUrl}
-              alt=""
-              aria-hidden="true"
-              className={`absolute inset-0 ${className} transition-opacity duration-200 ${incomingVisible ? "opacity-100" : "opacity-0"}`}
-              loading="eager"
-              decoding="async"
-              fetchPriority="high"
-            />
-          ) : null}
-        </>
+        <img
+          src={displayUrl}
+          alt={alt}
+          className={className}
+          loading={eager ? "eager" : "lazy"}
+          decoding="async"
+          fetchPriority={eager ? "high" : "auto"}
+        />
       )}
       {uploading && (
         <div className="absolute inset-x-0 bottom-2 z-20 mx-auto w-max rounded-full bg-[#1e2a38]/85 px-3 py-1 text-xs text-[#EAA100] border border-[#EAA100]/50">
