@@ -8,40 +8,40 @@ export function ClientAccessCta() {
   const isEn = locale === "en";
 
   return (
-    <div className="mx-auto max-w-3xl text-center">
-      <p className="mb-3 text-label font-bold uppercase tracking-[0.3em] text-[#1e2a38]/70">
+    <div className="mx-auto max-w-3xl rounded-[2rem] border border-[#EAA100]/25 bg-brand-card p-8 text-center shadow-2xl sm:p-12">
+      <p className="mb-3 text-label font-bold uppercase tracking-[0.3em] text-[#EAA100]">
         {isEn ? "Client area" : "Espace client"}
       </p>
-      <h2 className="font-headline text-3xl font-bold text-[#1e2a38] md:text-5xl">
+      <h2 className="font-headline text-3xl font-bold text-[#FFF8EC] md:text-5xl">
         {messages.auth.title}
       </h2>
-      <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-[#1e2a38]/75">
+      <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-[#B9C3D0]">
         {messages.auth.subtitle}
       </p>
 
       <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Link
           href="/login"
-          className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl bg-[#1e2a38] px-8 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#EAA100] shadow-xl transition-all hover:bg-[#161D30] sm:w-auto"
+          className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl bg-[#EAA100] px-8 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#1B2436] shadow-xl transition-all hover:brightness-110 sm:w-auto"
         >
           {messages.auth.loginButton}
         </Link>
         <Link
           href="/demande-devis"
-          className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl border-2 border-[#1e2a38]/30 px-8 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#1e2a38] transition-all hover:border-[#1e2a38] hover:bg-[#1e2a38]/5 sm:w-auto"
+          className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl border-2 border-white/20 px-8 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#FFF8EC] transition-all hover:border-[#EAA100] hover:text-[#EAA100] sm:w-auto"
         >
           {messages.auth.ctaRequest}
         </Link>
         <Link
           href="/login?tab=signup"
-          className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl border-2 border-[#1e2a38]/30 px-8 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#1e2a38] transition-all hover:border-[#1e2a38] hover:bg-[#1e2a38]/5 sm:w-auto"
+          className="inline-flex min-h-[52px] w-full items-center justify-center rounded-xl border-2 border-white/20 px-8 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#FFF8EC] transition-all hover:border-[#EAA100] hover:text-[#EAA100] sm:w-auto"
         >
           {messages.auth.signupButton}
         </Link>
       </div>
 
       <div className="mt-6 flex flex-col items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.2em] sm:flex-row sm:gap-6">
-        <Link href="/suivi-projet" className="text-[#1e2a38]/70 underline-offset-4 transition-colors hover:text-[#1e2a38] hover:underline">
+        <Link href="/suivi-projet" className="text-[#8B94A3] underline-offset-4 transition-colors hover:text-[#EAA100] hover:underline">
           {isEn ? "Track a project" : "Suivre un projet"}
         </Link>
       </div>
