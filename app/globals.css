@@ -153,6 +153,33 @@ body {
 
 .site-nav, .page-content, .site-footer, .services-page, .project-tracking-page, .admin-page { min-width: 0; }
 
+/* Icônes Material Symbols (ligatures : "expand_more", "logout"...).
+   Police auto-hébergée dans /public/fonts (compatible CSP font-src 'self').
+   Sans ça, le nom de l'icône s'affiche en texte brut. */
+@font-face {
+  font-family: "Material Symbols Outlined";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/material-symbols-outlined.woff2") format("woff2");
+}
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "liga";
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+}
+
 :where(.site-nav__link span, .site-nav__language-name, .site-nav__language-option-button, .page-content h1, .page-content p, .services-page__header h1, .services-flow__title, .services-page__claim, .project-tracking-page__header h1, .project-tracking-step__text, .project-tracking-center__text, .services-page__cta, .project-tracking-page__cta) {
   overflow-wrap: break-word; hyphens: auto; text-wrap: pretty;
 }
