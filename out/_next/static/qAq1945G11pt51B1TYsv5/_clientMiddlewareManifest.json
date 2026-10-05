@@ -10,5 +10,13 @@
   {
     "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/mon-profil(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(\\.json)?[\\/#\\?]?$",
     "originalSource": "/mon-profil/:path*"
+  },
+  {
+    "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/demande-devis(\\.json)?[\\/#\\?]?$",
+    "originalSource": "/demande-devis"
+  },
+  {
+    "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/demande-devis(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(\\.json)?[\\/#\\?]?$",
+    "originalSource": "/demande-devis/:path*"
   }
 ]

@@ -39,7 +39,7 @@ export function HeroSection() {
             </Link>
           </div>
         </AnimeStagger>
-        <AnimeReveal as="div" className="lg:col-span-5 relative" y={30} duration={900} delay={250}>
+        <AnimeReveal as="div" className="lg:col-span-5 relative isolate pb-8 md:pb-10" y={30} duration={900} delay={250}>
           <div className="aspect-[4/5] rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl relative z-0 border-2 md:border-4 border-primary/25">
             <EditableImage
               contentKey="hero.image-main"
@@ -49,7 +49,10 @@ export function HeroSection() {
               eager
             />
           </div>
-          <div className="absolute -bottom-10 -left-10 w-80 aspect-square rounded-2xl overflow-hidden border-4 border-primary/30 shadow-2xl z-30 hidden md:block">
+          {/* Vignette incrustée : reste strictement dans les bornes du bloc
+              (bottom/left positifs + marge de sécurité) pour ne jamais
+              chevaucher la section suivante, y compris en production. */}
+          <div className="absolute bottom-0 left-6 w-64 lg:w-80 aspect-square rounded-2xl overflow-hidden border-4 border-primary/30 shadow-2xl z-10 hidden md:block">
             <EditableImage
               contentKey="hero.image-overlay"
               className="w-full h-full object-cover"

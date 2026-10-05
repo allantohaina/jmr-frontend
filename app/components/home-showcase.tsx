@@ -1,12 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Image as ImageIcon } from "lucide-react";
 import { EditableImage } from "@/app/components/editable-image";
 import { EditableText } from "@/app/components/editable-text";
 import { useLocale } from "@/app/components/locale-provider";
 import { AnimeReveal, AnimeStagger } from "@/app/components/anime-reveal";
+import { getToken } from "@/app/lib/auth";
+
+function useIsSignedIn() {
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  useEffect(() => {
+    const sync = () => setIsSignedIn(!!getToken());
+    sync();
+    window.addEventListener("storage", sync);
+    window.addEventListener("jmr-auth-changed", sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("jmr-auth-changed", sync);
+    };
+  }, []);
+  return isSignedIn;
+}
 
 function ImageSlot({ label }: { label: string }) {
   return (
@@ -37,12 +53,13 @@ function SectionHeader({ eyebrowKey, eyebrowFallback, titleKey, titleFallback, i
 }
 
 const EXPERTISES = [
-  { key: "1", alt: "Confection textile" },
-  { key: "2", alt: "Prototype et échantillonnage" },
-  { key: "3", alt: "Production en série" },
-  { key: "4", alt: "Contrôle qualité" },
-  { key: "5", alt: "Sourcing matières" },
-  { key: "6", alt: "Accompagnement technique" },
+  // Images Pexels (uniques, libres de droits) pour les visuels manquants.
+  { key: "1", alt: "Confection textile", image: "https://images.pexels.com/photos/7147567/pexels-photo-7147567.jpeg?auto=compress&cs=tinysrgb&w=1200" },
+  { key: "2", alt: "Prototype et échantillonnage", image: "https://images.pexels.com/photos/5410078/pexels-photo-5410078.jpeg?auto=compress&cs=tinysrgb&w=1200" },
+  { key: "3", alt: "Production en série", image: "https://images.pexels.com/photos/4622423/pexels-photo-4622423.jpeg?auto=compress&cs=tinysrgb&w=1200" },
+  { key: "4", alt: "Contrôle qualité", image: "https://images.pexels.com/photos/5705090/pexels-photo-5705090.jpeg?auto=compress&cs=tinysrgb&w=1200" },
+  { key: "5", alt: "Sourcing matières", image: "https://images.pexels.com/photos/7310216/pexels-photo-7310216.jpeg?auto=compress&cs=tinysrgb&w=1200" },
+  { key: "6", alt: "Accompagnement technique", image: "https://images.pexels.com/photos/4620877/pexels-photo-4620877.jpeg?auto=compress&cs=tinysrgb&w=1200" },
 ] as const;
 
 export function HomeExpertises() {
@@ -64,7 +81,7 @@ export function HomeExpertises() {
               <EditableImage
                 contentKey={`showcase.expertise${item.key}.image`}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                src=""
+                src={item.image}
                 alt={item.alt}
                 placeholder={<ImageSlot label="Image à mettre" />}
               />
@@ -120,11 +137,13 @@ export function HomeProcessus() {
 }
 
 const REALISATIONS = [
-  { key: "1", image: "/human_images/01_patronage_terrasse.webp", alt: "Patronage en atelier", span: "md:col-span-7", height: "h-[26rem] md:h-[34rem]" },
-  { key: "2", image: "/human_images/09_decoupe_pieces_denim.webp", alt: "Decoupe de pieces en denim", span: "md:col-span-5", height: "h-[26rem] md:h-[34rem]" },
+  // Chaque réalisation a désormais un visuel unique (Pexels, libres de droits)
+  // au lieu de réutiliser les photos des sections services / héros.
+  { key: "1", image: "https://images.pexels.com/photos/9850423/pexels-photo-9850423.jpeg?auto=compress&cs=tinysrgb&w=1200", alt: "Patronage en atelier", span: "md:col-span-7", height: "h-[26rem] md:h-[34rem]" },
+  { key: "2", image: "https://images.pexels.com/photos/3737594/pexels-photo-3737594.jpeg?auto=compress&cs=tinysrgb&w=1200", alt: "Decoupe de pieces en denim", span: "md:col-span-5", height: "h-[26rem] md:h-[34rem]" },
   { key: "3", image: "/human_images/03_placement_patron_table.webp", alt: "Placement de patron sur table", span: "md:col-span-4", height: "h-96 md:h-[30rem]" },
-  { key: "4", image: "/human_images/05_equipe_tracage_patron.webp", alt: "Equipe autour du tracage", span: "md:col-span-4", height: "h-96 md:h-[30rem]" },
-  { key: "5", image: "/human_images/07_coupe_machine_denim.webp", alt: "Coupe machine sur denim", span: "md:col-span-4", height: "h-96 md:h-[30rem]" },
+  { key: "4", image: "https://images.pexels.com/photos/7679720/pexels-photo-7679720.jpeg?auto=compress&cs=tinysrgb&w=1200", alt: "Equipe autour du tracage", span: "md:col-span-4", height: "h-96 md:h-[30rem]" },
+  { key: "5", image: "https://images.pexels.com/photos/4620843/pexels-photo-4620843.jpeg?auto=compress&cs=tinysrgb&w=1200", alt: "Coupe machine sur denim", span: "md:col-span-4", height: "h-96 md:h-[30rem]" },
 ] as const;
 
 export function HomeRealisations() {
@@ -224,6 +243,9 @@ export function HomeFaq() {
 export function HomeDevisCta() {
   const { messages } = useLocale();
   const t = messages.showcase;
+  // Si déjà connecté, le CTA "demande de devis" devient l'espace client.
+  const isSignedIn = useIsSignedIn();
+  const devisHref = isSignedIn ? "/mon-profil" : `/login?next=${encodeURIComponent("/demande-devis")}`;
   return (
     <section className="mx-auto max-w-[1440px] px-6 md:px-12 py-16 md:py-24" aria-labelledby="showcase-devis-title">
       <AnimeReveal className="overflow-hidden rounded-[2rem] md:rounded-[3rem] border border-[#EAA100]/25 bg-brand-card p-8 sm:p-12 md:p-16 text-center shadow-2xl" y={24}>
@@ -237,7 +259,7 @@ export function HomeDevisCta() {
           <EditableText contentKey="showcase.devisCtaText" fallback={t.devisCtaText} as="span" multiline />
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link href="/demande-devis" className="inline-flex min-h-[52px] items-center justify-center rounded-xl bg-[#EAA100] px-10 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#1B2436] shadow-xl transition-all hover:brightness-110">
+          <Link href={devisHref} className="inline-flex min-h-[52px] items-center justify-center rounded-xl bg-[#EAA100] px-10 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#1B2436] shadow-xl transition-all hover:brightness-110">
             <EditableText contentKey="showcase.devisCtaButton" fallback={t.devisCtaButton} />&nbsp;&rarr;</Link>
           <a href="mailto:contact@jmrtextile.com" className="inline-flex min-h-[52px] items-center justify-center rounded-xl border-2 border-white/20 px-8 font-body text-xs font-bold uppercase tracking-[0.2em] text-[#FFF8EC] transition-all hover:border-[#EAA100] hover:text-[#EAA100]">
             contact@jmrtextile.com

@@ -87,17 +87,20 @@ export function ServicesSection() {
             </div>
           </div>
 
-          <div className="md:col-span-2 relative overflow-hidden rounded-2xl md:rounded-[2rem] bg-background min-h-[480px] md:min-h-[400px] flex flex-col md:flex-row md:items-center shadow-xl">
-            <div className="relative w-full md:w-1/2 h-48 sm:h-56 md:h-full md:absolute md:right-0 md:top-0 md:bottom-0 overflow-hidden order-first md:order-none">
+          {/* Bloc atelier : empilé sous lg pour que le texte ne chevauche
+              jamais la photo (en prod le 50/50 à 768px faisait se superposer
+              les deux colonnes). Au-delà de lg, photo ancrée à droite. */}
+          <div className="group md:col-span-2 relative isolate overflow-hidden rounded-2xl md:rounded-[2rem] bg-background min-h-[480px] lg:min-h-[400px] flex flex-col lg:flex-row lg:items-center shadow-xl">
+            <div className="relative w-full h-48 sm:h-56 lg:h-full lg:w-1/2 lg:absolute lg:right-0 lg:top-0 lg:bottom-0 overflow-hidden order-first lg:order-none">
               <EditableImage
                 contentKey="services.image-tertiary"
-                className="w-full h-full object-cover opacity-70 md:opacity-60 group-hover:opacity-80 transition-all duration-1000"
+                className="w-full h-full object-cover opacity-70 lg:opacity-60 group-hover:opacity-80 transition-all duration-1000"
                 src="/human_images/01_patronage_terrasse.webp"
                 alt="Gros plan d'une construction de vêtement professionnel sur un cintre"
               />
-              <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-transparent via-background/50 to-background"></div>
+              <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-l from-transparent via-background/50 to-background"></div>
             </div>
-            <div className="relative z-10 p-6 sm:p-8 md:px-12 md:py-10 max-w-md">
+            <div className="relative z-10 p-6 sm:p-8 lg:px-12 lg:py-10 max-w-md">
               <h3 className="font-headline text-2xl sm:text-3xl md:text-4xl text-on-surface mb-4 md:mb-6">
                 <EditableText contentKey="services.service4Title" fallback={messages.services.service4Title} as="span" multiline />
               </h3>

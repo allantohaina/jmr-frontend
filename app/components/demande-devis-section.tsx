@@ -236,7 +236,7 @@ function QuoteFormContent() {
     event.preventDefault();
     setSubmitError("");
     if (!getToken()) {
-      router.push(`/mon-profil?next=${encodeURIComponent("/demande-devis")}`);
+      router.push(`/login?next=${encodeURIComponent("/demande-devis")}`);
       return;
     }
     setIsSavingDraft(true);
@@ -283,6 +283,12 @@ function QuoteFormContent() {
   }
 
   async function onSubmit(data: QuoteRequestFormData) {
+    // Le formulaire de devis est réservé aux clients connectés :
+    // un invité est renvoyé vers le login (retour vers /demande-devis après connexion).
+    if (!getToken()) {
+      router.push(`/login?next=${encodeURIComponent("/demande-devis")}`);
+      return;
+    }
     try {
       const token = getToken();
       if (token) {

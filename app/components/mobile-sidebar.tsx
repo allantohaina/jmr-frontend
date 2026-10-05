@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Home, WandSparkles, Info, User, Settings, ExternalLink, FileText } from "lucide-react";
+import { Menu, X, Home, WandSparkles, Info, User, Settings, FileText } from "lucide-react";
 import { scrollToSection } from "@/app/lib/scroll";
+import { getToken } from "@/app/lib/auth";
 
 const NAV_LINKS = [
   { href: "/", sectionId: "accueil", label: "Accueil", icon: Home },
@@ -13,9 +14,7 @@ const NAV_LINKS = [
   { href: "/mon-profil", label: "Espace client", icon: User },
 ];
 
-const SECONDARY_LINKS = [
-  { href: "/demande-devis", label: "Demander un devis", icon: FileText },
-];
+const DEVIS_LOGIN_HREF = `/login?next=${encodeURIComponent("/demande-devis")}`;
 
 interface MobileDrawerProps {
   isStaff?: boolean;
@@ -24,8 +23,13 @@ interface MobileDrawerProps {
 
 export function MobileSidebar({ isStaff, userFirstName }: MobileDrawerProps) {
   const [open, setOpen] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+
+  useEffect(() => {
+    setIsSignedIn(!!getToken());
+  }, [open, pathname]);
 
   const openDrawer = useCallback(() => setOpen(true), []);
   const closeDrawer = useCallback(() => setOpen(false), []);
@@ -155,18 +159,17 @@ export function MobileSidebar({ isStaff, userFirstName }: MobileDrawerProps) {
 
         <div className="border-t border-[#EAA100]/10 px-4 py-6">
           <div className="space-y-3">
-            {SECONDARY_LINKS.map(({ href, label, icon: Icon }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={closeDrawer}
-                className="flex items-center justify-center gap-3 rounded-xl px-4 py-3.5 text-sm font-bold uppercase tracking-widest transition-all"
-                style={{ background: "#EAA100", color: "#1e2a38" }}
-              >
-                <Icon className="h-5 w-5" />
-                {label}
-              </Link>
-            ))}
+            {/* Une seule action : devis si connecté, sinon login puis devis.
+                Connecté, elle devient l'espace client (pas de doublon). */}
+            <Link
+              href={isSignedIn ? "/mon-profil" : DEVIS_LOGIN_HREF}
+              onClick={closeDrawer}
+              className="flex items-center justify-center gap-3 rounded-xl px-4 py-3.5 text-sm font-bold uppercase tracking-widest transition-all"
+              style={{ background: "#EAA100", color: "#1e2a38" }}
+            >
+              <FileText className="h-5 w-5" />
+              {isSignedIn ? "Mon espace client" : "Demander un devis"}
+            </Link>
           </div>
           <p className="mt-6 text-center text-caption text-[#EAA100]/30">
             JMR Textile &mdash; Tous droits réservés

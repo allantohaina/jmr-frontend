@@ -18,25 +18,29 @@ const SERVICE_STEPS: ServiceStep[] = [
     key: "fabrication",
     title: "Fabrication de vetements.",
     alt: "Decoupe textile en atelier",
-    imageSrc: "/human_images/04_decoupe_machine_electrique.webp",
+    // Photo locale inutilisée ailleurs (plus de doublon avec la section services).
+    imageSrc: "/human_images/02_production_chemise.webp",
   },
   {
     key: "organisation",
     title: "Organisation de la production.",
     alt: "Preparation des patrons textile sur table de travail",
-    imageSrc: "/human_images/03_placement_patron_table.webp",
+    // Pexels, libre de droits (photo unique à cette section).
+    imageSrc: "https://images.pexels.com/photos/4622223/pexels-photo-4622223.jpeg?auto=compress&cs=tinysrgb&w=1200",
   },
   {
     key: "matieres",
     title: "Gestion des matieres et finitions.",
     alt: "Equipe organisant le travail autour des patrons textile",
-    imageSrc: "/human_images/05_equipe_tracage_patron.webp",
+    // Pexels, libre de droits (photo unique à cette section).
+    imageSrc: "https://images.pexels.com/photos/3737634/pexels-photo-3737634.jpeg?auto=compress&cs=tinysrgb&w=1200",
   },
   {
     key: "delais",
     title: "Suivi des delais.",
     alt: "Suivi des etapes de production en atelier",
-    imageSrc: "/human_images/07_coupe_machine_denim.webp",
+    // Pexels, libre de droits (photo unique à cette section).
+    imageSrc: "https://images.pexels.com/photos/6196690/pexels-photo-6196690.jpeg?auto=compress&cs=tinysrgb&w=1200",
   },
 ];
 

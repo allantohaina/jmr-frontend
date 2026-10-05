@@ -63,6 +63,14 @@ export default function proxy(request: NextRequest) {
   const isAtelier = pathname.startsWith("/atelier");
   // /mon-profil nécessite auth sauf /login etc
   const isMonProfilProtected = pathname.startsWith("/mon-profil");
+  // /demande-devis : réservé aux clients connectés (les invités vont au login
+  // avec retour vers le formulaire après connexion). /devis (lien partagé
+  // par hash) reste public.
+  const isDevisRequest = pathname.startsWith("/demande-devis");
+
+  if (isDevisRequest && !token) {
+    return NextResponse.redirect(getLoginUrl(request, "/login"));
+  }
 
   if (isBackoffice && !token) {
     return NextResponse.redirect(getLoginUrl(request, "/admin-login"));
@@ -81,7 +89,7 @@ export default function proxy(request: NextRequest) {
   // On laisse passer, la page gère déjà le redirect
 
   // Refresh last_activity pour routes authentifiées (sliding window)
-  if (token && (isBackoffice || isAtelier || isMonProfilProtected)) {
+  if (token && (isBackoffice || isAtelier || isMonProfilProtected || isDevisRequest)) {
     if (!isExpired) {
       const res = NextResponse.next();
       res.cookies.set(LAST_ACTIVITY_COOKIE, String(now), {
@@ -104,5 +112,5 @@ function getLoginTargetForPath(pathname: string): string {
 }
 
 export const config = {
-  matcher: ["/backoffice/:path*", "/atelier/:path*", "/mon-profil/:path*"],
+  matcher: ["/backoffice/:path*", "/atelier/:path*", "/mon-profil/:path*", "/demande-devis", "/demande-devis/:path*"],
 };
