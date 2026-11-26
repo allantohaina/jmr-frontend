@@ -562,10 +562,12 @@ function DevisDetailContent() {
                     <div className="cmd-icon">×</div>
                     <div>
                       <strong>Cette demande n&apos;est plus d&apos;actualité ?</strong>
-                      <p>Annulez la demande ou supprimez-la de votre espace client. L&apos;atelier ne la traitera plus.</p>
+                      <p>Annulez cette demande si elle n&apos;est plus d&apos;actualité. L&apos;atelier ne la traitera plus.</p>
                       <div className="cmd-btn-row">
                         <button className="cmd-btn cmd-btn-ghost" onClick={() => setConfirmCancelOpen(true)}>Annuler ce devis</button>
-                        <button className="cmd-btn cmd-btn-ghost" onClick={() => setConfirmDeleteOpen(true)}>Supprimer</button>
+                        {["rejected", "expired"].includes(quote.status ?? "") && (
+                          <button className="cmd-btn cmd-btn-ghost" onClick={() => setConfirmDeleteOpen(true)}>Supprimer</button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -582,6 +584,7 @@ function DevisDetailContent() {
                       <div className="cmd-btn-row">
                         <button className="cmd-btn" onClick={confirmQuote} disabled={confirmingQuote}>{confirmingQuote ? "Validation…" : "Valider le devis"}</button>
                         <button className="cmd-btn cmd-btn-ghost" onClick={refuseQuote} disabled={refusingQuote}>{refusingQuote ? "Refus…" : "Refuser"}</button>
+                        <button className="cmd-btn cmd-btn-ghost" onClick={() => setConfirmDeleteOpen(true)}>Supprimer</button>
                       </div>
                     </div>
                   </div>
