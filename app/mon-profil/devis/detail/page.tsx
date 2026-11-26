@@ -146,6 +146,7 @@ function DevisDetailContent() {
   const [sendingQuote, setSendingQuote] = useState(false);
   const [confirmSendOpen, setConfirmSendOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
   const [confirmingQuote, setConfirmingQuote] = useState(false);
   const [refusingQuote, setRefusingQuote] = useState(false);
   const [paymentType, setPaymentType] = useState("mvola");
@@ -555,6 +556,22 @@ function DevisDetailContent() {
                 </div>
               )}
 
+              {quote && ["pending", "needs_info", "rejected", "expired"].includes(quote.status ?? "") && (
+                <div className="cmd-action cmd-action-gold">
+                  <div className="cmd-action-head">
+                    <div className="cmd-icon">×</div>
+                    <div>
+                      <strong>Cette demande n&apos;est plus d&apos;actualité ?</strong>
+                      <p>Annulez la demande ou supprimez-la de votre espace client. L&apos;atelier ne la traitera plus.</p>
+                      <div className="cmd-btn-row">
+                        <button className="cmd-btn cmd-btn-ghost" onClick={() => setConfirmCancelOpen(true)}>Annuler ce devis</button>
+                        <button className="cmd-btn cmd-btn-ghost" onClick={() => setConfirmDeleteOpen(true)}>Supprimer</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {quote.status === "sent" && (
                 <div className="cmd-action cmd-action-gold">
                   <div className="cmd-action-head">
@@ -781,8 +798,8 @@ function DevisDetailContent() {
       />
       <ConfirmDialog
         open={confirmDeleteOpen}
-        title="Supprimer ce brouillon ?"
-        message="Cette action est définitive. Le brouillon sera supprimé de votre espace."
+        title="Supprimer ce devis ?"
+        message="Cette action est définitive. Le devis sera supprimé de votre espace client."
         confirmLabel="Supprimer"
         tone="danger"
         loading={false}
@@ -791,10 +808,33 @@ function DevisDetailContent() {
           if (!quote) return;
           try {
             await authAPI.delete(`/quotes/${quote.id}`);
+            showToast("Devis supprimé.", "success");
             router.push("/mon-profil/devis");
           } catch (err) {
             showToast(err instanceof Error ? err.message : "Erreur lors de la suppression.", "error");
             setConfirmDeleteOpen(false);
+          }
+        }}
+      />
+      <ConfirmDialog
+        open={confirmCancelOpen}
+        title="Annuler ce devis ?"
+        message="Le devis sera marqué comme annulé et conservé dans votre historique. L'atelier ne le traitera plus."
+        confirmLabel="Annuler le devis"
+        tone="danger"
+        loading={refusingQuote}
+        onCancel={() => setConfirmCancelOpen(false)}
+        onConfirm={async () => {
+          if (!quote) return;
+          try {
+            await authAPI.put(`/quotes/${quote.id}`, { status: "rejected" });
+            showToast("Devis annulé.", "success");
+            setConfirmCancelOpen(false);
+            const token = getToken();
+            if (token) await loadQuote(token);
+          } catch (err) {
+            showToast(err instanceof Error ? err.message : "Erreur lors de l'annulation.", "error");
+            setConfirmCancelOpen(false);
           }
         }}
       />

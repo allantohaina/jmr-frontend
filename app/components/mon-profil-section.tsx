@@ -210,6 +210,9 @@ body{background:var(--bg);color:var(--text-cream);font-family:var(--font-body);-
 .ghost-button:hover,.detail-button:hover{text-decoration:underline;text-underline-offset:3px;}
 .detail-button{border:1px solid var(--card-border);border-radius:7px;padding:9px 10px;}
 .detail-button:hover{background:rgba(234,161,0,.06);text-decoration:none;border-color:var(--gold);}
+.quote-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+.detail-button-danger{color:#e08b52;}
+.detail-button-danger:hover{border-color:#e08b52;background:rgba(224,139,82,.08);}
 
 /* Lignes de devis */
 .quote-row{padding:20px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid rgba(234,161,0,0.06);}
@@ -320,6 +323,8 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
   const [draftCount, setDraftCount] = useState(0);
   const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
   const [confirmingQuote, setConfirmingQuote] = useState(false);
+  const [quoteAction, setQuoteAction] = useState<{ quote: QuoteRecord; action: "cancel" | "delete" } | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
   const { showToast } = useToast();
   const [pointsSolde, setPointsSolde] = useState<number | null>(null);
 
@@ -607,10 +612,22 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
                                   return <div className={`quote-deadline ${cd.expired ? "expired" : cd.urgent ? "urgent" : ""}`}>{cd.expired ? "Délai expiré" : `Confirmer dans ${cd.text}`}</div>;
                                 })()}
                               </div>
-                              <Link href={`/mon-profil/devis/detail?id=${q.id}`} className="detail-button">
-                                Ouvrir
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg>
-                              </Link>
+                              <div className="quote-actions">
+                                <Link href={`/mon-profil/devis/detail?id=${q.id}`} className="detail-button">
+                                  Ouvrir
+                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg>
+                                </Link>
+                                {["draft", "pending", "needs_info", "sent", "rejected", "expired"].includes(q.status ?? "") && (
+                                  <>
+                                    <button className="detail-button detail-button-danger" onClick={() => setQuoteAction({ quote: q, action: "cancel" })}>
+                                      Annuler
+                                    </button>
+                                    <button className="detail-button detail-button-danger" onClick={() => setQuoteAction({ quote: q, action: "delete" })}>
+                                      Supprimer
+                                    </button>
+                                  </>
+                                )}
+                              </div>
                             </div>
                           );
                         })}
@@ -794,6 +811,38 @@ export function MonProfilSection({ variant = "preview", user }: MonProfilSection
             if (!selectedQuote) return;
             try { await authAPI.post(`/quotes/${selectedQuote.id}/confirm`, {}); window.location.reload(); }
             catch { showToast("Erreur lors de la confirmation.", "error"); setConfirmingQuote(false); }
+          }}
+        />
+
+        <ConfirmDialog
+          open={!!quoteAction}
+          title={quoteAction?.action === "delete" ? "Supprimer ce devis ?" : "Annuler ce devis ?"}
+          message={quoteAction?.action === "delete"
+            ? "Le devis sera retiré de votre espace client. Cette action est définitive."
+            : "Le devis sera marqué comme annulé et conservé dans votre historique. L'atelier ne le traitera plus."}
+          confirmLabel={quoteAction?.action === "delete" ? "Supprimer" : "Annuler le devis"}
+          tone="danger"
+          loading={actionLoading}
+          onCancel={() => setQuoteAction(null)}
+          onConfirm={async () => {
+            if (!quoteAction) return;
+            setActionLoading(true);
+            try {
+              if (quoteAction.action === "cancel") {
+                await authAPI.put(`/quotes/${quoteAction.quote.id}`, { status: "rejected" });
+                showToast("Devis annulé.", "success");
+              } else {
+                await authAPI.delete(`/quotes/${quoteAction.quote.id}`);
+                showToast("Devis supprimé.", "success");
+              }
+              setQuoteAction(null);
+              window.location.reload();
+            } catch (err) {
+              showToast(getErrorMessage(err), "error");
+              setQuoteAction(null);
+            } finally {
+              setActionLoading(false);
+            }
           }}
         />
       </section>

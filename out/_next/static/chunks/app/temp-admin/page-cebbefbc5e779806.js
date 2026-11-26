@@ -1,0 +1,1 @@
+(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[3403],{2320:(e,n,l)=>{Promise.resolve().then(l.bind(l,78444))},78444:(e,n,l)=>{"use strict";l.r(n),l.d(n,{default:()=>s});var r=l(12115);function s(){return(0,r.useEffect)(()=>{window.location.replace("/mon-profil")},[]),null}}},e=>{e.O(0,[8441,3794,7358],()=>e(e.s=2320)),_N_E=e.O()}]);

@@ -1,1 +1,0 @@
-(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,23261,t=>{"use strict";var e=t.i(71645);function o(){return(0,e.useEffect)(()=>{console.warn("[SECURITY ALERT] Unauthorized access attempt to legacy /admin URL."),window.location.replace("/")},[]),null}t.s(["default",()=>o])}]);

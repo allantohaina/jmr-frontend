@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { DemandeDevisSection } from "@/app/components";
 import { getToken } from "@/app/lib/auth";
 
-export const DEVIS_LOGIN_NEXT = "/demande-devis";
+const DEVIS_LOGIN_NEXT = "/demande-devis";
 
-export function getDevisHref(isSignedIn: boolean): string {
+function getDevisHref(isSignedIn: boolean): string {
   return isSignedIn
     ? "/demande-devis"
     : `/login?next=${encodeURIComponent(DEVIS_LOGIN_NEXT)}`;
