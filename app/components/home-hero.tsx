@@ -8,8 +8,8 @@ import { EditableVideo } from "@/app/components/editable-video";
 import { EditableText } from "@/app/components/editable-text";
 
 const HOME_BENEFITS = [
-  "Coordination de production de A a Z",
-  "Suivi client centralise et lisible",
+  "Coordination de production de A à Z",
+  "Suivi client centralisé et lisible",
   "Un seul contact pour avancer rapidement",
 ];
 
@@ -82,15 +82,15 @@ export function HomeHero() {
           animate="show"
         >
           <motion.p className="home-page__eyebrow" variants={item}>
-            <EditableText contentKey="home.eyebrow" fallback="Fabrication textile structuree a Madagascar" />
+            <EditableText contentKey="home.eyebrow" fallback="Fabrication textile structurée à Madagascar" />
           </motion.p>
 
           <motion.h1 className="home-page__title" variants={item}>
-            <EditableText contentKey="home.title" fallback="Nous coordonnons vos projets textiles, du devis a la livraison." as="span" multiline />
+            <EditableText contentKey="home.title" fallback="Nous coordonnons vos projets textiles, du devis à la livraison." as="span" multiline />
           </motion.h1>
 
           <motion.p className="home-page__description" variants={item}>
-            <EditableText contentKey="home.description" fallback="JMR Textile vous aide a lancer, suivre et faire avancer la production avec un cadre clair, un interlocuteur unique et une lecture simple de chaque etape." as="span" multiline />
+            <EditableText contentKey="home.description" fallback="JMR Textile vous aide à lancer, suivre et faire avancer la production avec un cadre clair, un interlocuteur unique et une lecture simple de chaque étape." as="span" multiline />
           </motion.p>
 
           <motion.ul className="home-page__benefits" aria-label="Points forts" variants={container}>

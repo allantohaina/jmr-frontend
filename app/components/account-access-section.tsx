@@ -19,20 +19,20 @@ type AccessStep = {
 const ACCESS_CARDS: AccessCard[] = [
   {
     key: "existing",
-    eyebrow: "Deja client",
-    title: "J'ai deja un espace client",
+    eyebrow: "Déjà client",
+    title: "J'ai déjà un espace client",
     description:
       "Je me connecte pour retrouver mes devis, mes documents, mes notifications et les prochaines actions sans tout ressaisir.",
-    ctaLabel: "Acceder a mon espace",
+    ctaLabel: "Accéder à mon espace",
     href: "/mon-profil",
     tone: "secondary",
   },
   {
     key: "new",
-    eyebrow: "Premiere demande",
+    eyebrow: "Première demande",
     title: "Je n'ai pas encore de compte",
     description:
-      "Je lance ma demande de devis. Mon acces client se cree pendant le parcours pour suivre la suite dans le meme espace.",
+      "Je lance ma demande de devis. Mon accès client se crée pendant le parcours pour suivre la suite dans le même espace.",
     ctaLabel: "Faites votre demande.",
     href: "/mon-profil?next=%2Fsuivi-projet%3Fview%3Dtracking%26step%3D2",
     tone: "primary",
@@ -43,17 +43,17 @@ const ACCESS_STEPS: AccessStep[] = [
   {
     step: "1",
     title: "Vous envoyez votre besoin",
-    description: "Produit, quantites, delai et precisions utiles pour preparer le devis.",
+    description: "Produit, quantités, délai et précisions utiles pour préparer le devis.",
   },
   {
     step: "2",
-    title: "On ouvre votre acces si besoin",
-    description: "Si vous n'avez pas encore de compte, il se cree au moment utile, pas avant.",
+    title: "On ouvre votre accès si besoin",
+    description: "Si vous n'avez pas encore de compte, il se crée au moment utile, pas avant.",
   },
   {
     step: "3",
-    title: "Vous suivez tout au meme endroit",
-    description: "Devis, acompte, production et documents restent centralises dans votre espace client.",
+    title: "Vous suivez tout au même endroit",
+    description: "Devis, acompte, production et documents restent centralisés dans votre espace client.",
   },
 ];
 
@@ -66,8 +66,8 @@ export function AccountAccessSection() {
         </h1>
         <span className="access-page__underline ui-section-underline" aria-hidden="true" />
         <p className="access-page__lead">
-          L&apos;acces client sert a entrer si vous avez deja un espace. Si c&apos;est votre premiere
-          demande, il se cree pendant le parcours de devis.
+          L&apos;accès client sert à entrer si vous avez déjà un espace. Si c&apos;est votre première
+          demande, il se crée pendant le parcours de devis.
         </p>
       </header>
 
@@ -100,7 +100,7 @@ export function AccountAccessSection() {
         >
           <p className="access-page__flow-label">Dans les deux cas, le parcours reste simple</p>
 
-          <ol className="access-page__flow" aria-label="Parcours d'acces client">
+          <ol className="access-page__flow" aria-label="Parcours d'accès client">
             {ACCESS_STEPS.map((item) => (
               <li className="access-page__step ui-soft-card" key={item.step}>
                 <span className="access-page__step-number" aria-hidden="true">

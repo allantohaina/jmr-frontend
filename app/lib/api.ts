@@ -57,7 +57,7 @@ export type NotificationRecord = {
 };
 
 /**
- * Le backend MySQL renvoie parfois 0/1 ou "0"/"1" pour les BOOLEAN.
+ * Le backend PostgreSQL renvoie parfois 0/1 ou "0"/"1" pour les BOOLEAN.
  * En JS, la string "0" est truthy => `if (q.balance_paid)` affichait
  * "Payé" même quand rien n'était payé. On normalise ici.
  */
@@ -789,21 +789,25 @@ export const exportsAPI = {
   paiements: (token?: string) => downloadBackendFile("/exports/paiements", token),
 };
 
-function rawUploadHeaders(file: File, token?: string): Record<string, string> {
+function uploadAuthHeaders(token?: string): Record<string, string> {
   const resolvedToken =
     (typeof token === "string" && token.length > 0
       ? token
       : (typeof window !== "undefined" && window.localStorage.getItem(TOKEN_STORAGE_KEY)) ||
         readBrowserCookie(AUTH_COOKIE_NAME)) || "";
-  const headers: Record<string, string> = {
+  if (!resolvedToken) return {};
+  return {
+    Authorization: `Bearer ${resolvedToken}`,
+    "X-Authorization": `Bearer ${resolvedToken}`,
+  };
+}
+
+function rawUploadHeaders(file: File, token?: string): Record<string, string> {
+  return {
     "X-File-Name": encodeURIComponent(file.name),
     "Content-Type": file.type || "application/octet-stream",
+    ...uploadAuthHeaders(token),
   };
-  if (resolvedToken) {
-    headers["Authorization"] = `Bearer ${resolvedToken}`;
-    headers["X-Authorization"] = `Bearer ${resolvedToken}`;
-  }
-  return headers;
 }
 
 // Uploads en FLUX BRUT (corps = fichier, pas de FormData) : contournent le
@@ -845,11 +849,13 @@ export async function uploadMediaRaw(file: File, token?: string) {
   return parseRawUploadResponse(response);
 }
 
-// Upload admin minimal temporaire (sans auth) — fragmenté en morceaux de
+// Upload admin des médias du contenu public — fragmenté en morceaux de
 // ~6 Ko car le proxy/WAF nginx vide les corps au-delà d'environ 8 Ko.
 // Chaque morceau passe en form-urlencoded, PHP réassemble à la fin.
 // `ext` permet d'uploader une vidéo (mp4/webm) en plus des images (jpg).
 export async function uploadImage(file: File, onProgress?: (pct: number) => void, ext?: string) {
+  const apiUrl = getBackendApiUrls()[0];
+  const headers = uploadAuthHeaders();
   const CHUNK_SIZE = 6000; // sous le seuil de 8 Ko observé
   const BATCH_SIZE = 5; // morceaux envoyés en parallèle par lot
   const uploadId = crypto.randomUUID();
@@ -868,8 +874,9 @@ export async function uploadImage(file: File, onProgress?: (pct: number) => void
     // 3 tentatives : le proxy coupe parfois une requête en rafale.
     let lastError = "";
     for (let attempt = 1; attempt <= 3; attempt += 1) {
-      const response = await fetch("https://api.jmrtextile.com/admin/media/upload-chunk", {
+      const response = await fetch(`${apiUrl}/admin/media/upload-chunk`, {
         method: "POST",
+        headers,
         body: params,
       });
       const text = await response.text();
@@ -904,8 +911,9 @@ export async function uploadImage(file: File, onProgress?: (pct: number) => void
   finalizeParams.set("total_chunks", String(totalChunks));
   if (ext) finalizeParams.set("ext", ext);
 
-  const finalResponse = await fetch("https://api.jmrtextile.com/admin/media/finalize-upload", {
+  const finalResponse = await fetch(`${apiUrl}/admin/media/finalize-upload`, {
     method: "POST",
+    headers,
     body: finalizeParams,
   });
 

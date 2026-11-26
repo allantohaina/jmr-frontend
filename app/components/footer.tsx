@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale } from "@/app/components/locale-provider";
 import { EditableText } from "@/app/components/editable-text";
+import { EditableLink } from "@/app/components/editable-link";
 import { scrollToSection } from "@/app/lib/scroll";
 import { AnimeStagger } from "@/app/components/anime-reveal";
 
@@ -13,15 +14,15 @@ type SocialItem = {
   key: string;
   label: string;
   icon: string;
+  urlKey: string;
+  fallbackUrl: string;
 };
 
 const SOCIAL_ITEMS: SocialItem[] = [
-  { key: "facebook", label: "Facebook", icon: "/footer/facebook.svg" },
-  { key: "whatsapp", label: "WhatsApp", icon: "/footer/whatsapp.svg" },
-  { key: "instagram", label: "Instagram", icon: "/footer/instagram.svg" },
+  { key: "facebook", label: "Facebook", icon: "/footer/facebook.svg", urlKey: "footer.social.facebook", fallbackUrl: "" },
+  { key: "whatsapp", label: "WhatsApp", icon: "/footer/whatsapp.svg", urlKey: "footer.social.whatsapp", fallbackUrl: "https://wa.me/message/3TRZD5J74BQVO1" },
+  { key: "instagram", label: "Instagram", icon: "/footer/instagram.svg", urlKey: "footer.social.instagram", fallbackUrl: "" },
 ];
-
-const WHATSAPP_URL = "https://wa.me/message/3TRZD5J74BQVO1";
 
 export function Footer() {
   const pathname = usePathname();
@@ -44,6 +45,11 @@ export function Footer() {
   if (pathname?.startsWith("/backoffice")) {
     return null;
   }
+
+  // Les liens pointent vers des sections de la page d'accueil. Sur cette
+  // dernière on défile sans recharger ; ailleurs on navigue vers /#section,
+  // sinon preventDefault laissait le lien sans effet (aucune section cible).
+  const isHome = pathname === "/" || pathname === "/index";
 
   return (
     <footer className="site-footer-modern w-full mt-8 md:mt-12 bg-[#1e2a38] text-[#B9C3D0] overflow-hidden">
@@ -78,11 +84,15 @@ export function Footer() {
               {footerLinks.map((link) => (
                 <li key={link.key} className="font-body text-xs uppercase tracking-widest text-[#B9C3D0]/70">
                   <Link
-                    href="/"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      scrollToSection(link.sectionId);
-                    }}
+                    href={isHome ? "/" : `/#${link.sectionId}`}
+                    onClick={
+                      isHome
+                        ? (e) => {
+                            e.preventDefault();
+                            scrollToSection(link.sectionId);
+                          }
+                        : undefined
+                    }
                     className="hover:text-[#EAA100] hover:translate-x-1 transition-all inline-block"
                   >
                     <EditableText contentKey={`footer.link.${link.sectionId}`} fallback={link.fallback} />
@@ -118,14 +128,13 @@ export function Footer() {
             </div>
             <AnimeStagger as="div" className="flex gap-4 mb-12" itemSelector="a" staggerMs={80}>
               {SOCIAL_ITEMS.map((item) => (
-                <a
+                <EditableLink
                   key={item.key}
-                  href={item.key === "whatsapp" ? WHATSAPP_URL : "#"}
-                  {...(item.key === "whatsapp"
-                    ? { target: "_blank", rel: "noopener noreferrer" }
-                    : {})}
+                  urlKey={item.urlKey}
+                  fallback={item.fallbackUrl}
+                  ariaLabel={item.label}
+                  external
                   className="w-14 h-14 rounded-2xl border border-[#EAA100]/30 flex items-center justify-center hover:border-[#EAA100] hover:bg-[#EAA100]/10 transition-all group"
-                  aria-label={item.label}
                 >
                   <Image
                     src={item.icon}
@@ -134,7 +143,7 @@ export function Footer() {
                     height={28}
                     className="social-icon-gold drop-shadow-[0_0_8px_rgba(234, 161, 0,0.3)]"
                   />
-                </a>
+                </EditableLink>
               ))}
             </AnimeStagger>
           </div>
