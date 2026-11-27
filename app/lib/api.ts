@@ -372,6 +372,13 @@ export async function fetchWithAuth<T = unknown>(
         throw new Error(`L'API ne répond pas après ${secs} secondes. Vérifiez votre connexion, la taille du fichier (max 5 Mo pour les images) et que vous êtes connecté en admin, puis réessayez.`);
       }
 
+      if (error instanceof TypeError) {
+        const host = (() => { try { return new URL(apiUrl).hostname; } catch { return apiUrl; } })();
+        throw new Error(
+          `Impossible de joindre l'API (${host}). Vérifiez votre connexion et la résolution DNS de ce domaine, puis rechargez la page.`,
+        );
+      }
+
       if (index < apiUrls.length - 1 && isRetryableBackendError(error)) {
         continue;
       }
