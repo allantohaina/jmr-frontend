@@ -36,8 +36,10 @@ import {
 } from "lucide-react";
 
 const clientItems = [
-  { href: "/backoffice/client/devis", label: "Devis", icon: FileText },
-  { href: "/backoffice/client/orders", label: "Commandes", icon: Package },
+  // Ces deux pages font l'objet d'un redirect client : on vise directement
+  // la cible pour éviter une page vide dans l'export statique.
+  { href: "/backoffice/devis", label: "Devis", icon: FileText },
+  { href: "/backoffice/orders", label: "Commandes", icon: Package },
   { href: "/backoffice/client/payments", label: "Paiements", icon: CreditCard },
   { href: "/backoffice/client/complaints", label: "Plaintes", icon: MessageSquare },
 ];
