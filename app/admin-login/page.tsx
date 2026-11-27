@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { authenticateWithForm, getToken, getSafeRedirectPath } from "@/app/lib";
+import { authenticateWithForm, authAPI, getToken, getSafeRedirectPath, signOutClient } from "@/app/lib";
 import { loginRateLimiter } from "@/app/lib/rate-limit";
 import { AuthBar } from "@/app/components/auth-bar";
 
@@ -20,11 +20,38 @@ export default function AdminLoginPage() {
   }
 
   useEffect(() => {
+    let active = true;
     setIsMounted(true);
-    const token = getToken();
-    if (token) {
-      window.location.href = getNextPath() || "/backoffice";
+
+    async function restoreSession() {
+      const params = new URLSearchParams(window.location.search);
+      const token = getToken();
+      if (!token) return;
+
+      // Une session invalide doit rester sur le formulaire : ne jamais
+      // rediriger vers /backoffice sur la seule présence d'un token.
+      if (params.get("reason") === "session") {
+        await signOutClient().catch(() => {});
+        return;
+      }
+
+      try {
+        const response = await authAPI.getProfile(token);
+        const role = String(response.data?.role ?? "");
+        if (!active) return;
+        if (role === "admin") {
+          window.location.replace(getNextPath() || "/backoffice");
+        } else {
+          await signOutClient().catch(() => {});
+        }
+      } catch {
+        if (!active) return;
+        await signOutClient().catch(() => {});
+      }
     }
+
+    restoreSession();
+    return () => { active = false; };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,6 +80,9 @@ export default function AdminLoginPage() {
       if (result && result.user && result.user.role === "admin") {
         window.location.href = nextPath || "/backoffice";
       } else {
+        // Ne pas laisser une session non-admin persistée : elle déclencherait
+        // la boucle login -> backoffice -> login.
+        await signOutClient().catch(() => {});
         setError("Accès refusé. Vous n'avez pas les droits d'administration.");
       }
     } catch (err: unknown) {

@@ -1,4 +1,4 @@
 :HL["/_next/static/css/feed3af9b1ba32af.css","style"]
 :HL["/_next/static/css/61be051ed158db6a.css","style"]
 :HL["/human_images/08_salle_machines_coudre.webp","image",{"fetchPriority":"high"}]
-0:{"buildId":"xWVWdl1_Zp8S2m_XRnMbn","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"suivi-commande","paramType":null,"paramKey":"suivi-commande","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+0:{"buildId":"eEK0JP9XJ5I3Ak36A-_ex","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"suivi-commande","paramType":null,"paramKey":"suivi-commande","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}

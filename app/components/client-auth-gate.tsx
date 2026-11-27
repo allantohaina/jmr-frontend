@@ -27,12 +27,15 @@ export function ClientAuthGate({
       const host = window.location.hostname;
       const currentPath = window.location.pathname + window.location.search;
       const nextParam = encodeURIComponent(currentPath);
-      if (host.startsWith("worker.")) return `/worker-login?next=${nextParam}`;
-      if (host.startsWith("admin.")) return `/admin-login?next=${nextParam}`;
+      // `reason=session` empêche la page de login de rebondir immédiatement
+      // vers une session invalide (boucle login <-> backoffice).
+      const reason = "&reason=session";
+      if (host.startsWith("worker.")) return `/worker-login?next=${nextParam}${reason}`;
+      if (host.startsWith("admin.")) return `/admin-login?next=${nextParam}${reason}`;
       // Redirection intelligente selon rôle attendu
-      if (allowedRoles?.includes("admin")) return `/admin-login?next=${nextParam}`;
-      if (allowedRoles?.includes("worker")) return `/worker-login?next=${nextParam}`;
-      return `${redirectTo}?next=${nextParam}`;
+      if (allowedRoles?.includes("admin")) return `/admin-login?next=${nextParam}${reason}`;
+      if (allowedRoles?.includes("worker")) return `/worker-login?next=${nextParam}${reason}`;
+      return `${redirectTo}?next=${nextParam}${reason}`;
     }
 
     async function verifySession() {
