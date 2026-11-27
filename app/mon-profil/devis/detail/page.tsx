@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getUser, getToken } from "@/app/lib/auth";
 import { safeUrl } from "@/app/lib/utils";
-import { authAPI } from "@/app/lib/api";
+import { authAPI, downloadQuoteDocument } from "@/app/lib/api";
 import { checkpointsAPI, addonsAPI, paymentsAPI } from "@/app/lib/api";
 import type { QuoteRecord, CommandeRecord, QuoteCheckpoint, QuoteAddon, PaymentRecord } from "@/app/lib/api";
 import { STATUTS_PRODUCTION } from "@/app/lib/api";
@@ -585,6 +585,28 @@ function DevisDetailContent() {
                         <button className="cmd-btn" onClick={confirmQuote} disabled={confirmingQuote}>{confirmingQuote ? "Validation…" : "Valider le devis"}</button>
                         <button className="cmd-btn cmd-btn-ghost" onClick={refuseQuote} disabled={refusingQuote}>{refusingQuote ? "Refus…" : "Refuser"}</button>
                         <button className="cmd-btn cmd-btn-ghost" onClick={() => setConfirmDeleteOpen(true)}>Supprimer</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {quote && ["sent", "accepted", "production", "completed"].includes(quote.status ?? "") && (
+                <div className="cmd-action">
+                  <div className="cmd-action-head">
+                    <div className="cmd-icon">↓</div>
+                    <div>
+                      <strong>Vos documents</strong>
+                      <p>Téléchargez votre devis et votre facture au format PDF.</p>
+                      <div className="cmd-btn-row">
+                        <button className="cmd-btn cmd-btn-ghost" onClick={async () => {
+                          try { await downloadQuoteDocument(quote.id, "devis"); }
+                          catch (err) { showToast(err instanceof Error ? err.message : "Téléchargement impossible.", "error"); }
+                        }}>Télécharger le devis</button>
+                        <button className="cmd-btn cmd-btn-ghost" onClick={async () => {
+                          try { await downloadQuoteDocument(quote.id, "facture"); }
+                          catch (err) { showToast(err instanceof Error ? err.message : "Téléchargement impossible.", "error"); }
+                        }}>Télécharger la facture</button>
                       </div>
                     </div>
                   </div>

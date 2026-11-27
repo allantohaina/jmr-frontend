@@ -505,6 +505,27 @@ export const usersAPI = {
   },
 };
 
+/** Télécharge un PDF de devis ou de facture avec le token d'authentification. */
+export async function downloadQuoteDocument(quoteId: string | number, kind: "devis" | "facture"): Promise<void> {
+  const token = typeof window !== "undefined"
+    ? window.localStorage.getItem(TOKEN_STORAGE_KEY) || readBrowserCookie(AUTH_COOKIE_NAME)
+    : null;
+  const url = `${getBackendApiUrls()[0]}/documents/${kind}/${encodeURIComponent(quoteId)}/pdf`;
+  const response = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}`, "X-Authorization": `Bearer ${token}` } : {},
+  });
+  if (!response.ok) throw new Error(`Téléchargement impossible (${response.status}).`);
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = `${kind}-${String(quoteId).slice(0, 8)}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(objectUrl);
+}
+
 export const notificationsAPI = {
   list: async (unreadOnly = false) =>
     fetchWithAuth<NotificationRecord[]>(
