@@ -32,6 +32,7 @@ import {
   Star,
   FileDown,
   LogOut,
+  History,
 } from "lucide-react";
 
 const clientItems = [
@@ -49,12 +50,17 @@ const atelierItems = [
   { href: "/backoffice/matieres", label: "Matières premières", icon: Boxes },
   { href: "/backoffice/produits", label: "Fiches produits", icon: Wrench },
   { href: "/backoffice/clients", label: "Historique client", icon: Users },
+  { href: "/backoffice/clients/history", label: "Historique CRM", icon: History },
+  { href: "/backoffice/tickets", label: "Tickets production", icon: ClipboardList },
+  { href: "/backoffice/retouches", label: "Retouches", icon: Wrench },
   { href: "/backoffice/production", label: "Production", icon: ClipboardList },
   { href: "/backoffice/kanban", label: "Suivi Production", icon: Kanban },
   { href: "/backoffice/avis", label: "Avis clients", icon: Star },
 ];
 
 const productionItems = [
+  { href: "/backoffice/tickets", label: "Tickets production", icon: ClipboardList },
+  { href: "/backoffice/retouches", label: "Retouches", icon: Wrench },
   { href: "/backoffice/orders", label: "Commandes", icon: Package },
   { href: "/backoffice/delivery-notes", label: "Bons de livraison", icon: Truck },
   { href: "/backoffice/kanban", label: "Suivi Production", icon: Kanban },

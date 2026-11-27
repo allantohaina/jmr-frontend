@@ -2,5 +2,5 @@
 2:I[50964,["964","static/chunks/964-d7bb74f4aeab8d8a.js","4507","static/chunks/app/backoffice/devis/editeur/page-ebfa82966c5ac31e.js"],"DevisEditor"]
 3:I[90484,[],"OutletBoundary"]
 4:"$Sreact.suspense"
-0:{"buildId":"tHRyMfDKZuNHnOGbXSVbY","rsc":["$","$1","c",{"children":[["$","$L2",null,{}],null,["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"loading":null,"isPartial":false}
+0:{"buildId":"pEy-W2EvSFhmQON3ms69x","rsc":["$","$1","c",{"children":[["$","$L2",null,{}],null,["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"loading":null,"isPartial":false}
 5:null
