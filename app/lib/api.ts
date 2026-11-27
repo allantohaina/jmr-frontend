@@ -10,7 +10,14 @@ function normalizeApiUrl(value: string) {
 
 export function getBackendApiUrls() {
   const configuredUrl = normalizeApiUrl(process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL);
-  return [configuredUrl];
+  const urls = [configuredUrl];
+  // Repli same-origin : si api.jmrtextile.com n'est pas résolu par le navigateur,
+  // api.php sur le domaine courant relaie les appels vers l'API.
+  // Relais fixe : les sous-domaines admin/worker sont interceptés par Cloudflare,
+  // seul jmrtextile.com sert le script PHP (avec CORS).
+  const relay = "https://jmrtextile.com/api.php";
+  if (!urls.includes(relay)) urls.push(relay);
+  return urls;
 }
 
 function isRetryableBackendError(error: unknown) {

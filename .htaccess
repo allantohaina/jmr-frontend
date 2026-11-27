@@ -3,6 +3,13 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Fallback API : si api.jmrtextile.com n'est pas resolu par le navigateur,
+    # l'API est joignable sur le meme domaine via ce proxy (same-origin).
+    <IfModule mod_proxy.c>
+        RewriteCond %{REQUEST_URI} ^/api/
+        RewriteRule ^api/(.*)$ https://api.jmrtextile.com/api/$1 [P,L,QSA]
+    </IfModule>
+
     # Subdomain redirects -> pages login dediees (doit etre AVANT le rewrite vers out)
     # Compat ancien bookmark /admin-log -> /admin-login/
     RewriteCond %{HTTP_HOST} ^admin\.jmrtextile\.com$ [NC]
@@ -13,6 +20,14 @@ Options -Indexes
 
     RewriteCond %{HTTP_HOST} ^admin\.jmrtextile\.com$ [NC]
     RewriteRule ^$ /admin-login/ [R=302,L]
+
+    # Ne jamais réécrire le relais API ni un fichier réel
+    RewriteCond %{REQUEST_URI} ^/api\.php
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
 
     # Serve the static Next export generated in /out while keeping the
     # cPanel document root on /public_html/frontend.
